@@ -1,0 +1,27 @@
+generated: '2026-07-20'
+method: searched
+source: https://www.mist.com/documentation/mist-api-introduction/
+summary: >-
+  The Juniper Mist Cloud API applies a global per-account request quota that
+  resets on the hourly boundary. Authentication endpoints are throttled more
+  aggressively to defend against brute-force attempts. Exceeding a limit returns
+  HTTP 429.
+limits:
+  - scope: account
+    limit_count: 5000
+    window: hour
+    reset: hourly-boundary
+    note: >-
+      Default ceiling of 5000 API calls per hour per account. Higher limits are
+      available on request to Mist support.
+  - scope: login
+    endpoint: POST /api/v1/login
+    limit_count: 3
+    window: failures
+    note: >-
+      The login endpoint is rate-limited far sooner than the account quota —
+      after 3 consecutive login failures — to mitigate credential brute-forcing.
+exceeded:
+  status: 429
+  meaning: Too Many Requests — the account has exceeded its hourly API quota.
+docs: https://www.juniper.net/documentation/us/en/software/mist/automation-integration/topics/concept/restful-api-overview.html

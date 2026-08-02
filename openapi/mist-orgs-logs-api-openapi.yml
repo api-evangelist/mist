@@ -1,0 +1,710 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Logs API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'Audit Logs are records of activities initiated by users, providing a history of actions such as accessing, creating, updating, or deleting resources or components at the Org level.
+
+
+    These logs allow superusers and network administrators to track and maintain a record of user actions, including who performed specific actions and when.
+
+
+    Audit logs are useful for monitoring user activity, investigating security breaches, ensuring compliance with regulations, and tracing configuration changes in a network.
+
+
+    They can be filtered and analyzed to view specific information and granular-level details of each event.'
+  name: Orgs Logs
+paths:
+  /api/v1/orgs/{org_id}/logs:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      deprecated: true
+      description: Get List of change logs for the current Org
+      operationId: listOrgAuditLogsLegacy
+      parameters:
+      - description: Filter results by site identifier. Accepts multiple comma-separated values.
+        in: query
+        name: site_id
+        schema:
+          examples:
+          - 00000000-0000-0000-0000-000000000001,00000000-0000-0000-0000-000000000002
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          type: string
+      - description: Filter results by one or more administrator names or email addresses. Supports comma-separated values
+        in: query
+        name: admin_name
+        schema:
+          examples:
+          - John Doe
+          type: string
+      - description: Filter results by one or more message text values. Supports comma-separated values
+        in: query
+        name: message
+        schema:
+          examples:
+          - Created a new site
+          type: string
+      - description: 'Field used to sort results; a leading `-` indicates descending order. enum: `-timestamp`, `admin_id`, `site_id`, `timestamp`'
+        in: query
+        name: sort
+        schema:
+          $ref: '#/components/schemas/list_org_logs_sort'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/LogsSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgAuditLogsLegacy
+      tags:
+      - Orgs Logs
+  /api/v1/orgs/{org_id}/logs/count:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Count organization audit log records, optionally grouped by `distinct` and filtered by administrator, site, message text, and time range.
+      operationId: countOrgAuditLogs
+      parameters:
+      - description: 'Field used to group this count response. enum: `admin_id`, `admin_name`, `message`, `site_id`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/org_logs_count_distinct'
+      - description: Filter audit log results by administrator identifier
+        in: query
+        name: admin_id
+        schema:
+          examples:
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          format: uuid
+          type: string
+      - description: Filter audit log results by one or more administrator names. Supports comma-separated values
+        in: query
+        name: admin_name
+        schema:
+          examples:
+          - John Doe
+          type: string
+      - description: Filter results by site identifier
+        in: query
+        name: site_id
+        schema:
+          examples:
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          format: uuid
+          type: string
+      - description: Filter log results by message text
+        in: query
+        name: message
+        schema:
+          examples:
+          - Created a new site
+          type: string
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countOrgAuditLogs
+      tags:
+      - Orgs Logs
+  /api/v1/orgs/{org_id}/logs/search:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Get a list of change logs for the current Org
+      operationId: listOrgAuditLogs
+      parameters:
+      - description: Filter results by site identifier. Accepts multiple comma-separated values.
+        in: query
+        name: site_id
+        schema:
+          examples:
+          - 00000000-0000-0000-0000-000000000001,00000000-0000-0000-0000-000000000002
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          type: string
+      - description: Filter results by one or more administrator names or email addresses. Supports comma-separated values
+        in: query
+        name: admin_name
+        schema:
+          examples:
+          - John Doe
+          type: string
+      - description: Filter results by one or more message text values. Supports comma-separated values
+        in: query
+        name: message
+        schema:
+          examples:
+          - Created a new site
+          type: string
+      - description: 'Field used to sort results; a leading `-` indicates descending order. enum: `-timestamp`, `admin_id`, `site_id`, `timestamp`'
+        in: query
+        name: sort
+        schema:
+          $ref: '#/components/schemas/list_org_logs_sort'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/LogsSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgAuditLogs
+      tags:
+      - Orgs Logs
+components:
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  examples:
+    LogsSearchExample:
+      value:
+        end: 1428954000
+        limit: 100
+        results:
+        - admin_id: 72bfa2bd-e58a-4670-9d20-a1468f7a6f58
+          admin_name: test@mistsys.com
+          id: c6f9347b-b0a4-4a23-b927-fa9249f2ffb2
+          message: TEST AUDIT
+          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+          site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          timestamp: 1431382121
+        start: 1428939600
+        total: 135
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  schemas:
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_log_search:
+      additionalProperties: false
+      description: Paginated response for audit log search results
+      properties:
+        end:
+          description: Epoch timestamp for the end of the audit log search window
+          type: integer
+        limit:
+          description: Maximum number of audit log events returned in this page
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of audit log events
+          type: string
+        results:
+          $ref: '#/components/schemas/log_events'
+          description: Audit log events matching the search filters
+        start:
+          description: Epoch timestamp for the start of the audit log search window
+          type: integer
+        total:
+          description: Number of audit log events matching the search filters across all pages
+          type: integer
+      required:
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    log_events:
+      description: Audit log events returned by a log query
+      items:
+        $ref: '#/components/schemas/log_event'
+      type: array
+      uniqueItems: true
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_logs_count_distinct:
+      default: admin_name
+      description: 'enum: `admin_id`, `admin_name`, `message`, `site_id`'
+      enum:
+      - admin_id
+      - admin_name
+      - message
+      - site_id
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    log_event:
+      additionalProperties: false
+      description: Audit log event recorded for an organization or site
+      properties:
+        admin_id:
+          description: Admin user identifier associated with the log event
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        admin_name:
+          description: Name of the admin that performs the action
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        after:
+          additionalProperties: true
+          description: field values after the change
+          readOnly: true
+          type: object
+        before:
+          additionalProperties: true
+          description: field values prior to the change
+          readOnly: true
+          type: object
+        device_id:
+          description: Device identifier associated with the log event
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        for_site:
+          description: Whether this log event is scoped to a site
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the log event
+        message:
+          description: Human-readable log message describing the event
+          readOnly: true
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the log event
+        site_id:
+          description: Site associated with the log event, if any
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        src_ip:
+          description: sender source IP address
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the log event occurred
+      required:
+      - message
+      - org_id
+      - timestamp
+      type: object
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    list_org_logs_sort:
+      description: 'enum: `-timestamp`, `admin_id`, `site_id`, `timestamp`'
+      enum:
+      - -timestamp
+      - admin_id
+      - site_id
+      - timestamp
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    LogsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LogsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_log_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LogsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_log_search'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

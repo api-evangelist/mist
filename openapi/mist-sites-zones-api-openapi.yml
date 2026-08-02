@@ -1,0 +1,934 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Zones API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'A Zone is a custom area defined by a user on a floor plan.
+
+
+    Zones can be used for capturing entry and exit events of clients, assets, and sdk clients, providing insights such as wait time and the number of devices in a particular zone.
+
+
+    Zone notifications can be accessed using sdk notification callbacks.
+
+
+    Zones are useful for data collection specific to areas on the floor plan.'
+  name: Sites Zones
+paths:
+  /api/v1/sites/{site_id}/zones:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get List of Site Zones
+      operationId: listSiteZones
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/ZonesArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteZones
+      tags:
+      - Sites Zones
+    post:
+      description: Create Site Zone
+      operationId: createSiteZone
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  name: string
+                  vertices:
+                  - x: 0
+                    y: 0
+            schema:
+              $ref: '#/components/schemas/zone'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Zone'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createSiteZone
+      tags:
+      - Sites Zones
+  /api/v1/sites/{site_id}/zones/{zone_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/zone_id'
+    delete:
+      description: Delete Site Zone
+      operationId: deleteSiteZone
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteSiteZone
+      tags:
+      - Sites Zones
+    get:
+      description: Get Site Zone Details
+      operationId: getSiteZone
+      responses:
+        '200':
+          $ref: '#/components/responses/Zone'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteZone
+      tags:
+      - Sites Zones
+    put:
+      description: Update Site Zone
+      operationId: updateSiteZone
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  name: string
+                  vertices:
+                  - x: 0
+                    y: 0
+            schema:
+              $ref: '#/components/schemas/zone'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Zone'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateSiteZone
+      tags:
+      - Sites Zones
+  /api/v1/sites/{site_id}/{zone_type}/count:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/zone_type'
+    get:
+      description: Count by Distinct Attributes of Site Zone Sessions
+      operationId: countSiteZoneSessions
+      parameters:
+      - description: 'Field used to group this count response. enum: `scope`, `scope_id`, `user`, `user_type`'
+        example: scope_id
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/site_zone_count_distinct'
+      - description: 'Filter results by user type. enum: `asset`, `client`, `sdkclient`'
+        in: query
+        name: user_type
+        schema:
+          $ref: '#/components/schemas/rf_client_type'
+      - description: Client MAC / Asset MAC / SDK UUID
+        in: query
+        name: user
+        schema:
+          examples:
+          - b0c4e7001543
+          type: string
+      - description: If `scope`==`map`/`zone`/`rssizone`, the scope id
+        in: query
+        name: scope_id
+        schema:
+          examples:
+          - 8bfc2490-d726-3587-038d-cb2e71bd2330
+          type: string
+      - description: 'Filter results by scope. enum: `map`, `rssizone`, `site`, `zone`'
+        in: query
+        name: scope
+        schema:
+          $ref: '#/components/schemas/zone_scope'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countSiteZoneSessions
+      tags:
+      - Sites Zones
+  /api/v1/sites/{site_id}/{zone_type}/visits/search:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/zone_type'
+    get:
+      description: Search Zone Sessions
+      operationId: searchSiteZoneSessions
+      parameters:
+      - description: 'Filter results by user type. enum: `asset`, `client`, `sdkclient`'
+        in: query
+        name: user_type
+        schema:
+          $ref: '#/components/schemas/rf_client_type'
+      - description: Client MAC / Asset MAC / SDK UUID
+        in: query
+        name: user
+        schema:
+          examples:
+          - b0c4e7001543
+          type: string
+      - description: If `scope`==`map`/`zone`/`rssizone`, the scope id
+        in: query
+        name: scope_id
+        schema:
+          examples:
+          - 8bfc2490-d726-3587-038d-cb2e71bd2330
+          type: string
+      - description: 'Filter results by scope. enum: `map`, `rssizone`, `site`, `zone`'
+        in: query
+        name: scope
+        schema:
+          $ref: '#/components/schemas/visits_scope'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/search_after'
+      responses:
+        '200':
+          $ref: '#/components/responses/ZoneSessionsSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: searchSiteZoneSessions
+      tags:
+      - Sites Zones
+components:
+  schemas:
+    visits_scope:
+      default: site
+      description: 'enum: `map`, `rssizone`, `site`, `zone`'
+      enum:
+      - map
+      - rssizone
+      - site
+      - zone
+      type: string
+    response_zone_search:
+      additionalProperties: false
+      description: Paginated response for site zone visit search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the zone visit search window
+          examples:
+          - 1541705289.769911
+          type: number
+        limit:
+          description: Maximum number of zone visit records returned in this page
+          examples:
+          - 1
+          type: integer
+        next:
+          description: URL for retrieving the next page of zone visit search results
+          examples:
+          - /api/v1/sites/67970e46-4e12-11e6-9188-0242ac110007/zones/visits/search?limit=2&end=1541705247.000&scope_id=85fbba9e-4e12-11e6-9188-0242ac110007&user_type=asset&start=1541618889.77
+          type: string
+        results:
+          $ref: '#/components/schemas/response_zone_search_results'
+          description: Zone visit records matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the zone visit search window
+          examples:
+          - 1541618889.769886
+          type: number
+        total:
+          description: Number of zone visit records matching the search filters across all pages
+          examples:
+          - 5892
+          type: integer
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_zone_search_item:
+      additionalProperties: false
+      description: Zone visit record for a client, asset, or SDK client
+      properties:
+        enter:
+          description: Epoch timestamp, in seconds, when the zone visit started
+          examples:
+          - 1541705254
+          type: integer
+        scope:
+          description: Zone scope represented by this visit record
+          examples:
+          - map
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the zone visit event was recorded
+        user:
+          description: Client, asset, or SDK client identifier for the visit
+          examples:
+          - c4b301c81166
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    zone:
+      description: Zone defined on a site map
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when this zone was created, in epoch seconds
+        for_site:
+          description: Whether this zone is scoped to a site
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for this zone
+        map_id:
+          description: Map where this zone is defined
+          format: uuid
+          readOnly: true
+          type: string
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Time when this zone was last modified, in epoch seconds
+        name:
+          description: Display name of the zone
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization associated with this zone
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Mist site associated with this zone
+        vertices:
+          $ref: '#/components/schemas/zone_vertices'
+          description: Polygon vertices that define the zone boundary
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    rf_client_type:
+      description: 'enum: `asset`, `client`, `sdkclient`'
+      enum:
+      - asset
+      - client
+      - sdkclient
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    zones:
+      description: Zone records returned by a list response
+      items:
+        $ref: '#/components/schemas/zone'
+      type: array
+    site_zone_count_distinct:
+      default: scope_id
+      description: 'enum: `scope`, `scope_id`, `user`, `user_type`'
+      enum:
+      - scope
+      - scope_id
+      - user
+      - user_type
+      type: string
+    zone_vertices:
+      description: Vertices used to define an area. It’s assumed that the last point connects to the first point and forms an closed area
+      examples:
+      - - x: 732
+          y: 1821
+        - x: 732.5
+          y: 1731
+        - x: 837.5
+          y: 1731.5
+        - x: 839
+          y: 1821
+      items:
+        $ref: '#/components/schemas/zone_vertex'
+      type: array
+    zone_vertex:
+      additionalProperties: false
+      description: Zone polygon vertex expressed in map pixels
+      properties:
+        x:
+          description: Horizontal pixel coordinate of the zone vertex
+          format: double
+          type: number
+        y:
+          description: Vertical pixel coordinate of the zone vertex
+          format: double
+          type: number
+      required:
+      - x
+      - y
+      type: object
+      uniqueItems: true
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    zone_scope:
+      default: site
+      description: 'enum: `map`, `rssizone`, `site`, `zone`'
+      enum:
+      - map
+      - rssizone
+      - site
+      - zone
+      type: string
+    zone_type:
+      description: 'Zone collection type, either regular zones or RSSI zones. enum: `rssizones`, `zones`'
+      enum:
+      - rssizones
+      - zones
+      type: string
+    response_zone_search_results:
+      description: Zone visit records returned by search
+      items:
+        $ref: '#/components/schemas/response_zone_search_item'
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    OK:
+      description: OK
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    ZonesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZonesArrayExample'
+          schema:
+            $ref: '#/components/schemas/zones'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZonesArrayExample'
+          schema:
+            $ref: '#/components/schemas/zones'
+      description: OK
+    ZoneSessionsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZoneSessionsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_zone_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZoneSessionsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_zone_search'
+      description: Result of Search Zone Sessions
+    Zone:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZoneExample'
+          schema:
+            $ref: '#/components/schemas/zone'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZoneExample'
+          schema:
+            $ref: '#/components/schemas/zone'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    zone_id:
+      in: path
+      name: zone_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    zone_type:
+      in: path
+      name: zone_type
+      required: true
+      schema:
+        $ref: '#/components/schemas/zone_type'
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+  examples:
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    ZoneExample:
+      value:
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        vertices:
+        - x: 0
+          y: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    ZoneSessionsSearchExample:
+      value:
+        end: 1541705289.769911
+        limit: 1
+        next: /api/v1/sites/67970e46-4e12-11e6-9188-0242ac110007/zones/visits/search?limit=2&end=1541705247.000&scope_id=85fbba9e-4e12-11e6-9188-0242ac110007&user_type=asset&start=1541618889.77
+        results:
+        - enter: 1541705254
+          scope: map
+          timestamp: 1541705254
+          user: c4b301c81166
+        start: 1541618889.769886
+        total: 5892
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    ZonesArrayExample:
+      value:
+      - created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        vertices:
+        - x: 0
+          y: 0
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

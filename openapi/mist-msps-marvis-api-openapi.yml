@@ -1,0 +1,379 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins MSPs Marvis API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'Marvis is an AI-driven, interactive virtual network assistant that streamlines network operations, simplifies troubleshooting, and provides an enhanced user experience.
+
+    It offers real-time network visibility, comprehensive insights, and automation customized for your network.
+
+    Marvis can proactively identify issues, interpret their impact, determine root causes, and recommend fixes.
+
+    It consists of components such as Marvis Actions, Marvis Minis, Conversational Assistant, Marvis Client, and Marvis Query Language.
+
+
+    Marvis API Calls at the MSP level can be used to quickly detect network issues on all the Organizations attached to the MSP account.'
+  name: MSPs Marvis
+paths:
+  /api/v1/msps/{msp_id}/suggestion/count:
+    parameters:
+    - $ref: '#/components/parameters/msp_id'
+    get:
+      description: Return distinct counts of Marvis actions for this MSP grouped by the requested field, such as organization or status.
+      operationId: countMspsMarvisActions
+      parameters:
+      - description: 'Field used to group this count response. enum: `org_id`, `status`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/msp_marvis_suggestions_count_distinct'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/CountMarvisActions'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countMspsMarvisActions
+      tags:
+      - MSPs Marvis
+components:
+  schemas:
+    msp_marvis_suggestions_count_distinct:
+      default: org_id
+      description: 'Distinct field used when counting MSP Marvis suggestions. enum: `org_id`, `status`'
+      enum:
+      - org_id
+      - status
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_count_marvis_actions_results:
+      description: Marvis action count results grouped by a distinct field
+      examples:
+      - - count: 24
+          status: 002e176a-0000-000-1111-002e208b20e1
+        - count: 12
+          status: 2d3f176a-0000-000-2222-002e208f176a
+        - count: 15
+          status: 08b2176a-0000-000-3333-002e208b2d3f
+      items:
+        $ref: '#/components/schemas/response_count_marvis_actions_result'
+      type: array
+    response_count_marvis_actions:
+      additionalProperties: false
+      description: Distinct count response for Marvis action suggestions
+      properties:
+        distinct:
+          description: Field used to group Marvis action count results
+          examples:
+          - status
+          type: string
+        limit:
+          description: Maximum number of Marvis action count results requested
+          examples:
+          - 1000
+          type: integer
+        results:
+          $ref: '#/components/schemas/response_count_marvis_actions_results'
+          description: Marvis action count results grouped by the distinct field
+        total:
+          description: Number of Marvis action count result buckets returned
+          examples:
+          - 3
+          type: integer
+      type: object
+    response_count_marvis_actions_result:
+      additionalProperties:
+        type: string
+      description: Marvis action count result for one distinct value
+      properties:
+        count:
+          description: Number of Marvis actions matching this distinct value
+          examples:
+          - 24
+          type: integer
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    msp_id:
+      in: path
+      name: msp_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    CountMarvisActions:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountMarvisActionsExample'
+          schema:
+            $ref: '#/components/schemas/response_count_marvis_actions'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountMarvisActionsExample'
+          schema:
+            $ref: '#/components/schemas/response_count_marvis_actions'
+      description: Marvis Actions Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    CountMarvisActionsExample:
+      value:
+        distinct: status
+        limit: 1000
+        results:
+        - count: 24
+          status: 002e176a-0000-000-1111-002e208b20e1
+        - count: 12
+          status: 2d3f176a-0000-000-2222-002e208f176a
+        - count: 15
+          status: 08b2176a-0000-000-3333-002e208b2d3f
+        total: 3
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

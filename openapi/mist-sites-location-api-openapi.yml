@@ -1,0 +1,723 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Location API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Location Diagnostics allows users to retrieve and analyze coverage and performance data for mist access points (aps) and devices.
+  name: Sites Location
+paths:
+  /api/v1/sites/{site_id}/location/coverage:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get Beam Coverage Overview
+      operationId: getSiteBeamCoverageOverview
+      parameters:
+      - description: Filter results by map identifier
+        example: 00000000-0000-0000-0000-000000000000
+        in: query
+        name: map_id
+        schema:
+          type: string
+      - description: 'Filter results by type. enum: `asset`, `client`, `sdkclient`'
+        in: query
+        name: type
+        schema:
+          $ref: '#/components/schemas/rf_client_type'
+      - description: Filter results by client type
+        in: query
+        name: client_type
+        schema:
+          type: string
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/resolution'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      responses:
+        '200':
+          $ref: '#/components/responses/LocationCoverage'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteBeamCoverageOverview
+      tags:
+      - Sites Location
+  /api/v1/sites/{site_id}/location/ml/current:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: 'Get Machine Learning Current Stat
+
+        For each VBLE AP, it has ML model parameters (e.g. Path-loss-estimate, Intercept) as well as completion indicators (Level and PercentageComplete). For the completeness, ML takes N sample to finish its first level and use N*0.25 samples to complete each successive level. When a device is moved, the completeness will be reset as it has to re-learn.'
+      operationId: getSiteMachineLearningCurrentStat
+      parameters:
+      - description: Filter results by map identifier
+        example: 00000000-0000-0000-0000-000000000000
+        in: query
+        name: map_id
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Ml'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteMachineLearningCurrentStat
+      tags:
+      - Sites Location
+  /api/v1/sites/{site_id}/location/ml/defaults:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get Default PLF for Models
+      operationId: getSiteDefaultPlfForModels
+      responses:
+        '200':
+          $ref: '#/components/responses/Ml'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteDefaultPlfForModels
+      tags:
+      - Sites Location
+  /api/v1/sites/{site_id}/location/ml/device/{device_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/device_id'
+    delete:
+      description: Clear ML Overwrite for Device
+      operationId: clearSiteMlOverwriteForDevice
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: clearSiteMlOverwriteForDevice
+      tags:
+      - Sites Location
+    put:
+      description: Overwrite ML For Device
+      operationId: overwriteSiteMlForDevice
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  iOS:
+                    int: 6
+                    ple: -3
+                  iPod:
+                    int: -10
+                    ple: -5
+            schema:
+              $ref: '#/components/schemas/ml_overwrite'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Ml'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: overwriteSiteMlForDevice
+      tags:
+      - Sites Location
+  /api/v1/sites/{site_id}/location/ml/map/{map_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/map_id'
+    delete:
+      description: Clear ML Overwrite for Map
+      operationId: clearSiteMlOverwriteForMap
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: clearSiteMlOverwriteForMap
+      tags:
+      - Sites Location
+    put:
+      description: Overwrite ML For Map
+      operationId: overwriteSiteMlForMap
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  iOS:
+                    int: 6
+                    ple: -3
+                  iPod:
+                    int: -10
+                    ple: -5
+            schema:
+              $ref: '#/components/schemas/ml_overwrite'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Ml'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: overwriteSiteMlForMap
+      tags:
+      - Sites Location
+  /api/v1/sites/{site_id}/location/ml/reset/map/{map_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/map_id'
+    post:
+      description: Reset ML Stats by Map
+      operationId: resetSiteMlStatsByMap
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: resetSiteMlStatsByMap
+      tags:
+      - Sites Location
+components:
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    Ml:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MlExample'
+          schema:
+            $ref: '#/components/schemas/response_ml'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MlExample'
+          schema:
+            $ref: '#/components/schemas/response_ml'
+      description: OK
+    LocationCoverage:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LocationCoverageExample'
+          schema:
+            $ref: '#/components/schemas/response_location_coverage'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LocationCoverageExample'
+          schema:
+            $ref: '#/components/schemas/response_location_coverage'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    response_location_coverage:
+      additionalProperties: false
+      description: Beam coverage overview for a site location map
+      properties:
+        beams_means:
+          $ref: '#/components/schemas/response_location_coverage_beams_means'
+          description: Grid beam mean samples as [x, y, mean] values for the coverage view
+        end:
+          description: Epoch timestamp for the end of the coverage analysis window
+          type: integer
+        gridsize:
+          description: Grid cell size in meters for coverage samples
+          type: number
+        result_def:
+          $ref: '#/components/schemas/response_location_coverage_result_def'
+          description: Column names describing each value position in the coverage result rows
+        results:
+          $ref: '#/components/schemas/response_location_coverage_results'
+          description: Coverage result rows whose values follow the `result_def` column order
+        start:
+          description: Epoch timestamp for the start of the coverage analysis window
+          type: integer
+      required:
+      - start
+      - end
+      - beams_means
+      - gridsize
+      - result_def
+      - results
+      type: object
+    response_location_coverage_beams_means:
+      description: List of [x, y, mean]s, x/y are in meters (UI would need to use map.ppm to calculate the pixel location from top-left).
+      items:
+        $ref: '#/components/schemas/response_location_coverage_beams_means_items'
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_ml:
+      description: Machine-learning response records returned as opaque objects
+      items:
+        additionalProperties: true
+        type: object
+      type: array
+      uniqueItems: true
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    rf_client_type:
+      description: 'enum: `asset`, `client`, `sdkclient`'
+      enum:
+      - asset
+      - client
+      - sdkclient
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_location_coverage_results:
+      description: List of results, see result_def.
+      items:
+        $ref: '#/components/schemas/response_location_coverage_result'
+      type: array
+    resolution:
+      default: default
+      description: 'Location resolution mode for map or placement calculations. enum: `default`, `fine`'
+      enum:
+      - default
+      - fine
+      type: string
+    response_location_coverage_beams_means_items:
+      description: One location coverage beam mean row, encoded as x, y, and mean values
+      items:
+        type: number
+      type: array
+    ml_overwrite_additional_properties:
+      additionalProperties: false
+      description: Location machine learning parameter overwrite values for one client model
+      properties:
+        int:
+          description: Location ML intercept value to use for the model
+          type: integer
+        ple:
+          description: Path-loss estimate value to use for the location machine learning model
+          type: integer
+      type: object
+    ml_overwrite:
+      additionalProperties:
+        $ref: '#/components/schemas/ml_overwrite_additional_properties'
+      description: Location machine learning parameter overwrites keyed by client model
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_location_coverage_result:
+      description: One location coverage result row whose columns follow `result_def`
+      items:
+        type: number
+      type: array
+    response_location_coverage_result_def:
+      description: List of names annotating the fields in results
+      items:
+        type: string
+      type: array
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    resolution:
+      description: 'Location calculation resolution used by the query. enum: `default`, `fine`'
+      in: query
+      name: resolution
+      schema:
+        $ref: '#/components/schemas/resolution'
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    MlExample:
+      value:
+      - current:
+          Android:
+            completed: 36
+            int: -6
+            level: 3
+            ple: -3
+            quality: '4'
+            src: device
+            timestamp: 1442854794
+          iOS:
+            completed: 16
+            int: -6
+            level: 6
+            ple: -3
+            quality: '2'
+            src: default
+            timestamp: 1442854704
+          iPod:
+            int: -10
+            overwrite: true
+            ple: -5
+            src: overwrite
+        device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+      - beacon_id: 7913f032-aab4-c3ae-e83e-5a2756ef4d40
+        current:
+          iOS:
+            completed: 16
+            int: -6
+            level: 6
+            ple: -3
+            quality: last
+            src: device
+            timestamp: 1442854704
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    LocationCoverageExample:
+      value:
+        beams_means:
+        - - 1
+          - 3
+          - 3.2
+        - - 6
+          - 10
+          - 6.5
+        end: 1428954000
+        gridsize: 1
+        result_def:
+        - x
+        - y
+        - beams_mean
+        - beacons_mean
+        - max_rssi
+        - avg_rssi
+        results:
+        - - 1
+          - 3
+          - 3.2
+          - 18.5
+          - -68
+          - -70
+        - - 6
+          - 10
+          - 6.5
+          - 30
+          - 1
+          - -72.5
+          - -75
+        start: 1428939600
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

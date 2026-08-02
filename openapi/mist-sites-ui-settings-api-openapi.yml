@@ -1,0 +1,918 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites UI Settings API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Site UI Settings are used to configure the site Network and Analytics reports
+  name: Sites UI Settings
+paths:
+  /api/v1/sites/{site_id}/uisettings:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: List the Site UI settings/databoard
+      operationId: listSiteUiSettings
+      responses:
+        '200':
+          $ref: '#/components/responses/UiSettingsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteUiSettings
+      tags:
+      - Sites UI Settings
+    post:
+      description: Create a Site UI settings/databoard
+      operationId: createSiteUiSettings
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  defaultScopeId: 67970e46-4e12-11e6-9188-0242ad112847
+                  defaultScopeType: site
+                  defaultTimeRange:
+                    end: 1508828400
+                    endDate: 10/23/2017
+                    interval: 1d
+                    name: This Week
+                    shortName: thisWeek
+                    start: 1508655600
+                    usePreset: true
+                  description: Description of the databoard
+                  isCustomDataboard: true
+                  isScopeLinked: true
+                  isTimeRangeLinked: true
+                  name: New Databoard
+                  purpose: databoard
+                  tiles:
+                  - chartBand: 2.4 ghz
+                    chartColor: '#00B4AD'
+                    chartDirection: tx + rx
+                    chartRankBy: string
+                    chartType: timeSeries
+                    colspan: 5
+                    column: 1
+                    hideEmptyRows: true
+                    metric:
+                      apiName: client_dhcp_latency
+                    name: New Analysis
+                    row: 1
+                    rowspan: 2
+                    scopeId: e0c767834b4c
+                    scopeType: client
+                    timeRange:
+                      end: 1508823743
+                      endDate: 10/23/2017
+                      interval: 1d
+                      name: Past 7 Days
+                      shortName: 7d
+                      start: 1508223600
+                      usePreset: true
+                    trendType: line
+                    vizType: averageTimeSeriesChart
+            schema:
+              $ref: '#/components/schemas/ui_settings'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/UiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createSiteUiSettings
+      tags:
+      - Sites UI Settings
+  /api/v1/sites/{site_id}/uisettings/derived:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get both site UI settings(for_site=true) and org UI settings (for_site=false)
+      operationId: listSiteUiSettingDerived
+      responses:
+        '200':
+          $ref: '#/components/responses/UiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteUiSettingDerived
+      tags:
+      - Sites UI Settings
+  /api/v1/sites/{site_id}/uisettings/{uisetting_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/uisetting_id'
+    delete:
+      description: Site UI settings
+      operationId: deleteSiteUiSetting
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteSiteUiSetting
+      tags:
+      - Sites UI Settings
+    get:
+      description: Site UI settings
+      operationId: getSiteUiSetting
+      responses:
+        '200':
+          $ref: '#/components/responses/UiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteUiSetting
+      tags:
+      - Sites UI Settings
+    post:
+      description: Site UI settings
+      operationId: updateSiteUiSetting
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  defaultScopeId: 67970e46-4e12-11e6-9188-0242ad112847
+                  defaultScopeType: site
+                  defaultTimeRange:
+                    end: 1508828400
+                    endDate: 10/23/2017
+                    interval: 1d
+                    name: This Week
+                    shortName: thisWeek
+                    start: 1508655600
+                    usePreset: true
+                  description: Description of the databoard
+                  isCustomDataboard: true
+                  isScopeLinked: true
+                  isTimeRangeLinked: true
+                  name: New Databoard
+                  purpose: databoard
+                  tiles:
+                  - chartBand: 2.4 ghz
+                    chartColor: '#00B4AD'
+                    chartDirection: tx + rx
+                    chartRankBy: string
+                    chartType: timeSeries
+                    colspan: 5
+                    column: 1
+                    hideEmptyRows: true
+                    metric:
+                      apiName: client_dhcp_latency
+                    name: New Analysis
+                    row: 1
+                    rowspan: 2
+                    scopeId: e0c767834b4c
+                    scopeType: client
+                    timeRange:
+                      end: 1508823743
+                      endDate: 10/23/2017
+                      interval: 1d
+                      name: Past 7 Days
+                      shortName: 7d
+                      start: 1508223600
+                      usePreset: true
+                    trendType: line
+                    vizType: averageTimeSeriesChart
+            schema:
+              $ref: '#/components/schemas/ui_settings'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/UiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateSiteUiSetting
+      tags:
+      - Sites UI Settings
+components:
+  parameters:
+    uisetting_id:
+      in: path
+      name: uisetting_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  schemas:
+    ui_settings_list:
+      description: Site UI settings records returned by a list response
+      items:
+        $ref: '#/components/schemas/ui_settings'
+      type: array
+    ui_settings_tile_sorted_columns_ids:
+      description: Ordered tile table column identifiers used for sorting
+      items:
+        $ref: '#/components/schemas/ui_settings_tile_sorted_columns_id'
+      type: array
+    ui_settings_tile_sorted_columns_id:
+      description: Identifier of a table column used for tile sorting
+      type: string
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    ui_settings_tile_time_range:
+      additionalProperties: false
+      description: Time range override for a site UI databoard tile
+      properties:
+        end:
+          description: Upper bound of the tile time range, in epoch seconds
+          examples:
+          - 1508823743
+          type: number
+        endDate:
+          description: Display date for the end of the tile time range
+          examples:
+          - 10/23/2017
+          type: string
+        interval:
+          description: Bucket interval used for the tile time range
+          examples:
+          - 1d
+          type: string
+        name:
+          description: Display name for the tile time range
+          examples:
+          - Past 7 Days
+          type: string
+        shortName:
+          description: Compact display label for the tile time range
+          examples:
+          - 7d
+          type: string
+        start:
+          description: Lower bound of the tile time range, in epoch seconds
+          examples:
+          - 1508223600
+          type: integer
+        usePreset:
+          description: Whether the tile time range uses a named preset
+          examples:
+          - true
+          type: boolean
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    ui_settings:
+      description: Site UI settings databoard
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when the databoard was created, in epoch seconds
+        defaultScopeId:
+          description: Scope identifier used by default for this databoard
+          examples:
+          - 67970e46-4e12-11e6-9188-0242ad112847
+          type: string
+        defaultScopeType:
+          description: Scope type used by default for this databoard
+          examples:
+          - site
+          type: string
+        defaultTimeRange:
+          $ref: '#/components/schemas/ui_settings_default_time_range'
+          description: Time range used by default for this databoard
+        description:
+          description: Text describing the databoard
+          examples:
+          - Description of the databoard
+          type: string
+        for_site:
+          description: Whether this databoard is scoped to a site
+          examples:
+          - true
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the databoard
+        isCustomDataboard:
+          description: Whether this databoard is custom-created
+          type: boolean
+        isScopeLinked:
+          description: Whether tile scopes are linked to the databoard default scope
+          type: boolean
+        isTimeRangeLinked:
+          description: Whether tile time ranges are linked to the databoard default time range
+          type: boolean
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Time when the databoard was last modified, in epoch seconds
+        name:
+          description: Display name of the databoard
+          examples:
+          - New Databoard
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the databoard
+        purpose:
+          description: UI surface or purpose for this databoard
+          examples:
+          - databoard
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with this databoard
+        tiles:
+          $ref: '#/components/schemas/ui_settings_tiles'
+          description: Configured tiles for this databoard
+      required:
+      - description
+      - purpose
+      type: object
+    ui_settings_tile_metric:
+      additionalProperties: false
+      description: Metric selected for a site UI databoard tile
+      properties:
+        apiName:
+          description: Metric API name requested by this tile
+          examples:
+          - client_dhcp_latency
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    ui_settings_default_time_range:
+      additionalProperties: false
+      description: Default time range applied to a site UI databoard
+      properties:
+        end:
+          description: Upper bound of the default databoard time range, in epoch seconds
+          examples:
+          - 1508828400
+          type: integer
+        endDate:
+          description: Display date for the end of the default databoard time range
+          examples:
+          - 10/23/2017
+          type: string
+        interval:
+          description: Bucket interval used for the default databoard time range
+          examples:
+          - 1d
+          type: string
+        name:
+          description: Display name for the default databoard time range
+          examples:
+          - This Week
+          type: string
+        shortName:
+          description: Compact display label for the default databoard time range
+          examples:
+          - thisWeek
+          type: string
+        start:
+          description: Lower bound of the default databoard time range, in epoch seconds
+          examples:
+          - 1508655600
+          type: integer
+        usePreset:
+          description: Whether the default databoard time range uses a named preset
+          examples:
+          - true
+          type: boolean
+      type: object
+    ui_settings_tiles:
+      description: List of tiles in a site UI databoard
+      items:
+        $ref: '#/components/schemas/ui_settings_tile'
+      type: array
+      uniqueItems: true
+    ui_settings_tile:
+      additionalProperties: false
+      description: Tile shown on a site UI databoard
+      properties:
+        chartBand:
+          description: Band or category filter applied to the tile chart
+          examples:
+          - 2.4 ghz
+          type: string
+        chartColor:
+          description: Hex color used to render the tile chart
+          examples:
+          - '#00B4AD'
+          type: string
+        chartDirection:
+          description: Traffic direction displayed by the tile chart
+          examples:
+          - tx + rx
+          type: string
+        chartRankBy:
+          description: Ranking field used by the tile chart
+          type: string
+        chartType:
+          description: Visualization chart type for this tile
+          examples:
+          - timeSeries
+          type: string
+        colspan:
+          description: Number of grid columns spanned by this tile
+          examples:
+          - 5
+          type: integer
+        column:
+          description: Grid column where this tile starts
+          examples:
+          - 1
+          type: integer
+        hideEmptyRows:
+          description: Whether empty rows are hidden in this tile
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for this databoard tile
+        metric:
+          $ref: '#/components/schemas/ui_settings_tile_metric'
+          description: Selected measurement configuration displayed by this tile
+        name:
+          description: Display name of this databoard tile
+          examples:
+          - New Analysis
+          type: string
+        row:
+          description: Grid row where this tile starts
+          examples:
+          - 1
+          type: integer
+        rowspan:
+          description: Number of grid rows spanned by this tile
+          examples:
+          - 2
+          type: integer
+        scopeId:
+          description: Identifier of the scope used by this tile
+          examples:
+          - e0c767834b4c
+          type: string
+        scopeType:
+          description: Type of scope used by this tile
+          examples:
+          - client
+          type: string
+        sortedColumnIds:
+          $ref: '#/components/schemas/ui_settings_tile_sorted_columns_ids'
+          description: Column identifiers that define the tile sort order
+        timeRange:
+          $ref: '#/components/schemas/ui_settings_tile_time_range'
+          description: Time range override for this tile
+        trendType:
+          description: Rendering style for trend data in this tile
+          examples:
+          - line
+          type: string
+        vizType:
+          description: Display visualization type used by this tile
+          examples:
+          - averageTimeSeriesChart
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    UiSettings:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UiSettingsExample'
+          schema:
+            $ref: '#/components/schemas/ui_settings'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UiSettingsExample'
+          schema:
+            $ref: '#/components/schemas/ui_settings'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    UiSettingsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UiSettingsArrayExample'
+          schema:
+            $ref: '#/components/schemas/ui_settings_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UiSettingsArrayExample'
+          schema:
+            $ref: '#/components/schemas/ui_settings_list'
+      description: List of Site UI Setting
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    UiSettingsArrayExample:
+      value:
+      - created_time: 1508823803
+        defaultScopeId: 67970e46-4e12-11e6-9188-0242ad112847
+        defaultScopeType: site
+        defaultTimeRange:
+          end: 1508828400
+          endDate: 10/23/2017
+          interval: 1d
+          name: This Week
+          shortName: thisWeek
+          start: 1508655600
+          usePreset: true
+        description: Description of the databoard
+        for_site: true
+        id: 3bdcc7e8-c04d-4512-b4fc-093da9057eb0
+        isCustomDataboard: true
+        isScopeLinked: true
+        isTimeRangeLinked: true
+        modified_time: 0
+        name: New Databoard
+        org_id: cc079380-5029-4d4a-9125-858de85731ff
+        purpose: databoard
+        site_id: 67970e46-4e12-11e6-9188-0242ad112847
+        tiles:
+        - chartBand: 2.4 ghz
+          chartColor: '#00B4AD'
+          chartDirection: tx + rx
+          chartRankBy: string
+          chartType: timeSeries
+          colspan: 5
+          column: 1
+          hideEmptyRows: true
+          id: 7a9ab38c-cfc3-483d-b51a-0aec571fadc0
+          metric:
+            apiName: client_dhcp_latency
+          name: New Analysis
+          row: 1
+          rowspan: 2
+          scopeId: e0c767834b4c
+          scopeType: client
+          timeRange:
+            end: 1508823743
+            endDate: 10/23/2017
+            interval: 1d
+            name: Past 7 Days
+            shortName: 7d
+            start: 1508223600
+            usePreset: true
+          trendType: line
+          vizType: averageTimeSeriesChart
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    UiSettingsExample:
+      value:
+        created_time: 1508823803
+        defaultScopeId: 67970e46-4e12-11e6-9188-0242ad112847
+        defaultScopeType: site
+        defaultTimeRange:
+          end: 1508828400
+          endDate: 10/23/2017
+          interval: 1d
+          name: This Week
+          shortName: thisWeek
+          start: 1508655600
+          usePreset: true
+        description: Description of the databoard
+        for_site: true
+        id: 3bdcc7e8-c04d-4512-b4fc-093da9057eb0
+        isCustomDataboard: true
+        isScopeLinked: true
+        isTimeRangeLinked: true
+        modified_time: 0
+        name: New Databoard
+        org_id: cc079380-5029-4d4a-9125-858de85731ff
+        purpose: databoard
+        site_id: 67970e46-4e12-11e6-9188-0242ad112847
+        tiles:
+        - chartBand: 2.4 ghz
+          chartColor: '#00B4AD'
+          chartDirection: tx + rx
+          chartRankBy: string
+          chartType: timeSeries
+          colspan: 5
+          column: 1
+          hideEmptyRows: true
+          id: 7a9ab38c-cfc3-483d-b51a-0aec571fadc0
+          metric:
+            apiName: client_dhcp_latency
+          name: New Analysis
+          row: 1
+          rowspan: 2
+          scopeId: e0c767834b4c
+          scopeType: client
+          timeRange:
+            end: 1508823743
+            endDate: 10/23/2017
+            interval: 1d
+            name: Past 7 Days
+            shortName: 7d
+            start: 1508223600
+            usePreset: true
+          trendType: line
+          vizType: averageTimeSeriesChart
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

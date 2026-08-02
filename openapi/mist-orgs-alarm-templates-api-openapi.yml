@@ -1,0 +1,1090 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Alarm Templates API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'An Alarm Template is a set of Alarm Rules that could be applied to
+
+    one or more sites (while each site can only pick one Alarm Template), or to the
+
+    whole org.
+
+
+
+    Once created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following
+
+    * the whole org with the [Update Org](/#operations/updateOrg) API Call
+
+    * one or multiple sites with the [Update Site Info](/#operations/updateSiteInfo) API Call'
+  name: Orgs Alarm Templates
+paths:
+  /api/v1/orgs/{org_id}/alarmtemplates:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List alarm templates defined for the organization, including default delivery settings and per-alarm rule configuration.
+      operationId: listOrgAlarmTemplates
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/AlarmtemplatesArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgAlarmTemplates
+      tags:
+      - Orgs Alarm Templates
+    post:
+      description: 'Create an organization alarm template that defines default delivery settings and per-alarm rule overrides.
+
+        Available rules can be found in [List Alarm Definitions](/#operations/listAlarmDefinitions)
+
+
+        The `delivery` object is only required when it differs from the template delivery settings.
+
+        To assign an Alarm template to a site, use the [Update Site](/#operations/updateSiteInfo) endpoint and specify the Alarm template ID in the `alarmtemplate_id` field of the request body.'
+      operationId: createOrgAlarmTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/alarm_template'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Alarmtemplate'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgAlarmTemplate
+      tags:
+      - Orgs Alarm Templates
+  /api/v1/orgs/{org_id}/alarmtemplates/suppress:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    delete:
+      description: Remove alarm suppression entries currently configured for this organization.
+      operationId: unsuppressOrgSuppressedAlarms
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: unsuppressOrgSuppressedAlarms
+      tags:
+      - Orgs Alarm Templates
+    get:
+      description: List alarm suppression entries currently configured for this organization, optionally filtered by organization-wide or site-specific scope.
+      operationId: listOrgSuppressedAlarms
+      parameters:
+      - description: 'Filter results by scope. enum: `org`, `site`'
+        in: query
+        name: scope
+        schema:
+          $ref: '#/components/schemas/suppressed_alarm_scope'
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgSuppressedAlarms'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgSuppressedAlarms
+      tags:
+      - Orgs Alarm Templates
+    post:
+      description: Create or schedule an alarm suppression window for the organization or selected sites, for example during planned maintenance.
+      operationId: suppressOrgAlarm
+      requestBody:
+        content:
+          application/json:
+            examples:
+              org_suppression:
+                value:
+                  duration: 3600
+                  scheduled_time: 1678232980
+                  scope: org
+              site_suppression:
+                value:
+                  applies:
+                    org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+                    site_ids:
+                    - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    sitegroup_ids:
+                    - 581328b6-e382-f54e-c9dc-999983183a34
+                    - f57096b9-0c2f-4df6-c77b-ae6ae87a3d43
+                  duration: 3600
+                  scheduled_time: 1678232980
+                  scope: site
+            schema:
+              $ref: '#/components/schemas/suppressed_alarm'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: suppressOrgAlarm
+      tags:
+      - Orgs Alarm Templates
+  /api/v1/orgs/{org_id}/alarmtemplates/{alarmtemplate_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/alarmtemplate_id'
+    delete:
+      description: Delete an organization alarm template by template ID from this organization.
+      operationId: deleteOrgAlarmTemplate
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgAlarmTemplate
+      tags:
+      - Orgs Alarm Templates
+    get:
+      description: Return one organization alarm template, including default delivery settings and per-alarm rule overrides.
+      operationId: getOrgAlarmTemplate
+      responses:
+        '200':
+          $ref: '#/components/responses/Alarmtemplate'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgAlarmTemplate
+      tags:
+      - Orgs Alarm Templates
+    put:
+      description: Update an organization alarm template's default delivery settings or per-alarm rule overrides.
+      operationId: updateOrgAlarmTemplate
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  delivery:
+                    additional_emails:
+                    - string
+                    enabled: true
+                    to_org_admins: true
+                    to_site_admins: true
+                  name: string
+                  rules:
+                    adhoc_network:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    air_magnet_scan:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    ap_offline:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    bad_cable:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    beacon_flood:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    bssid_spoofing:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    device_down:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    device_restarted:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    dhcp_failure:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    disassociation_flood:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    dot1x_failure:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    eap_dictionary_attack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    eap_failure_injection:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    eap_handshake_flood:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    eap_spoofed_success:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    eapol_logoff_attack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    essid_jack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    excessive_client:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    excessive_eapol_start:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    gateway_down:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    gw_bad_cable:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    gw_negotiation_mismatch:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    honeypot_ssid:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    krack_attack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    missing_vlan:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    monkey_jack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    negotiation_mismatch:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    non_compliant:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    out_of_sequence:
+                      enabled: true
+                    psk_failure:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    repeated_auth_failures:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    rogue_ap:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    rogue_client:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    secpolicy_violation:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    ssid_injection:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    switch_down:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    tkip_icv_attack:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    vendor_ie_missing:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    watched_station:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+                    zero_ssid_association:
+                      delivery:
+                        additional_emails:
+                        - string
+                        enabled: true
+                        to_org_admins: true
+                        to_site_admins: true
+                      enabled: true
+            schema:
+              $ref: '#/components/schemas/alarm_template'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Alarmtemplate'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgAlarmTemplate
+      tags:
+      - Orgs Alarm Templates
+components:
+  responses:
+    Alarmtemplate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/alarm_template'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/alarm_template'
+      description: OK
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    AlarmtemplatesArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/alarm_templates'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/alarm_templates'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OrgSuppressedAlarms:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgSuppressedAlarmsExample'
+          schema:
+            $ref: '#/components/schemas/response_org_suppress_alarm'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgSuppressedAlarmsExample'
+          schema:
+            $ref: '#/components/schemas/response_org_suppress_alarm'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    alarmtemplate_id:
+      in: path
+      name: alarmtemplate_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+  schemas:
+    delivery:
+      additionalProperties: false
+      description: Delivery object to configure the alarm delivery
+      properties:
+        additional_emails:
+          $ref: '#/components/schemas/delivery_additional_emails'
+          description: Additional email recipients for alarm delivery
+        enabled:
+          description: Whether to enable the alarm delivery via emails or not
+          examples:
+          - true
+          type: boolean
+        to_org_admins:
+          description: Whether to deliver the alarms via emails to Org admins or not
+          examples:
+          - true
+          type: boolean
+        to_site_admins:
+          description: Whether to deliver the alarms via emails to Site admins or not
+          examples:
+          - false
+          type: boolean
+      required:
+      - enabled
+      type: object
+    response_org_suppress_alarm:
+      additionalProperties: false
+      description: Response containing currently suppressed organization alarm entries
+      properties:
+        results:
+          $ref: '#/components/schemas/response_org_suppress_alarm_results'
+          description: Suppressed alarm entries currently configured for the organization
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    suppressed_alarm_applies_site_ids:
+      description: List of UUID of the sites within the org (if provided, the alarms will be suppressed for all the mentioned sites under the org)
+      items:
+        format: uuid
+        type: string
+      type: array
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    suppressed_alarm:
+      description: Request body for suppressing organization alarms
+      properties:
+        applies:
+          $ref: '#/components/schemas/suppressed_alarm_applies'
+          description: If `scope`==`site`. Site and site-group targets where alarms are suppressed
+        duration:
+          default: 3600
+          description: Suppression length, in seconds. Maximum duration is 86400 * 180 (180 days). 0 is to un-suppress alarms
+          maximum: 15552000
+          minimum: 0
+          type: number
+        scheduled_time:
+          description: Time when alarm suppression starts, in epoch seconds. Defaults to now; accepted range is from now to now + 7 days
+          type: integer
+        scope:
+          $ref: '#/components/schemas/suppressed_alarm_scope'
+          description: Alarm suppression target level
+      type: object
+    response_org_suppress_alarm_results:
+      description: Suppressed alarm entries returned for the organization
+      items:
+        $ref: '#/components/schemas/response_org_suppress_alarm_item'
+      type: array
+    suppressed_alarm_applies_sitegroup_ids:
+      description: List of UUID of the site groups within the org (if provided, the alarms will be suppressed for all the sites under those site groups)
+      items:
+        format: uuid
+        type: string
+      type: array
+    suppressed_alarm_applies:
+      additionalProperties: false
+      description: If `scope`==`site`. Object defines the scope (within the org e.g. whole org, and/or some site_groups, and/or some sites) for which the alarm service has to be suppressed for some `duration`
+      properties:
+        org_id:
+          description: UUID of the current org (if provided, the alarms will be suppressed at org level)
+          format: uuid
+          type: string
+        site_ids:
+          $ref: '#/components/schemas/suppressed_alarm_applies_site_ids'
+          description: Site identifiers included in the suppression scope. If provided, alarms are suppressed for the listed sites.
+        sitegroup_ids:
+          $ref: '#/components/schemas/suppressed_alarm_applies_sitegroup_ids'
+          description: Site group identifiers included in the suppression scope. If provided, alarms are suppressed for all sites in the listed site groups.
+      type: object
+    alarm_template_rule:
+      additionalProperties: false
+      description: Per-alarm enablement and delivery override in an alarm template
+      properties:
+        delivery:
+          $ref: '#/components/schemas/delivery'
+          description: Overrides for the alarm template delivery defaults for this alarm rule
+        enabled:
+          description: Whether this alarm rule is enabled in the template
+          type: boolean
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_org_suppress_alarm_item:
+      additionalProperties: false
+      description: Suppressed alarm entry for an organization or site alarm scope
+      properties:
+        duration:
+          description: Number of seconds that alarms remain suppressed. Maximum duration is 86400 * 14 (14 days). Use 0 to remove suppression.
+          type: integer
+        expire_time:
+          description: Epoch timestamp, in seconds, when the alarm suppression expires
+          type: integer
+        scheduled_time:
+          description: Epoch timestamp, in seconds, when the alarm suppression starts
+          type: integer
+        scope:
+          $ref: '#/components/schemas/suppressed_alarm_scope'
+          description: Alarm suppression scope, either organization-wide or site-specific
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site identifier for a site-scoped alarm suppression entry
+      type: object
+    alarm_templates:
+      description: List of alarm templates
+      items:
+        $ref: '#/components/schemas/alarm_template'
+      type: array
+    suppressed_alarm_scope:
+      default: site
+      description: 'level of scope. enum: `org`, `site`'
+      enum:
+      - org
+      - site
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    delivery_additional_emails:
+      description: List of additional email string to deliver the alarms via emails
+      items:
+        examples:
+        - john@mycorp.com
+        type: string
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    alarm_template:
+      description: Alarm template defining default delivery and per-alarm rules
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the alarm template was created
+        delivery:
+          $ref: '#/components/schemas/delivery'
+          description: Default alarm delivery settings for rules in this template
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the alarm template
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the alarm template was last modified
+        name:
+          description: Some string to name the alarm template
+          examples:
+          - default
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this alarm template
+        rules:
+          additionalProperties:
+            $ref: '#/components/schemas/alarm_template_rule'
+          description: Alarm Rules object to configure the individual alarm keys/types. Property key is the alarm name.
+          examples:
+          - ap_offline:
+              delivery:
+                additional_emails:
+                - string
+                enabled: true
+                to_org_admins: true
+                to_site_admins: true
+              enabled: true
+            bad_cable:
+              delivery:
+                additional_emails:
+                - string
+                enabled: true
+                to_org_admins: true
+                to_site_admins: true
+              enabled: true
+          type: object
+      required:
+      - delivery
+      - rules
+      type: object
+  examples:
+    OrgSuppressedAlarmsExample:
+      value:
+        results:
+        - duration: 48
+          expire_time: 1678233080
+          scheduled_time: 1678232900
+          scope: site
+          site_id: 581328b6-e382-f54e-c9dc-9c998d183a34
+        - duration: 48
+          expire_time: 1678233080
+          scheduled_time: 1678232900
+          scope: org
+          site_id: 581328b6-e382-f54e-c9dc-9c998d183a35
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

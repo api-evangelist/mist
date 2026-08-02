@@ -1,0 +1,630 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites vBeacons API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'A vBeacon is a virtual beacon that is created and configured on a floorplan and are configured with a name and message
+
+
+    It is a Mist patented technology that provides proximity-related notifications to users on a mobile app using the Mist SDK.
+
+
+    vBeacons allow users to receive notifications when their device is within the proximity of the beacon, based on the power transmitted. When a user goes near the location of a vbeacon, a notification is sent to the application with the configured message.'
+  name: Sites vBeacons
+paths:
+  /api/v1/sites/{site_id}/vbeacons:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get List of Site Virtual Beacons
+      operationId: listSiteVBeacons
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/VBeaconsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteVBeacons
+      tags:
+      - Sites vBeacons
+    post:
+      description: Create Virtual Beacon
+      operationId: createSiteVBeacon
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  major: 0
+                  message: string
+                  minor: 0
+                  name: string
+                  power: 4
+                  power_mode: default
+                  url: string
+                  uuid: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+                  wayfinding_nodename: string
+                  x: 0
+                  y: 0
+            schema:
+              $ref: '#/components/schemas/vbeacon'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/VBeacon'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createSiteVBeacon
+      tags:
+      - Sites vBeacons
+  /api/v1/sites/{site_id}/vbeacons/{vbeacon_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/vbeacon_id'
+    delete:
+      description: Delete Site Virtual Beacon
+      operationId: deleteSiteVBeacon
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteSiteVBeacon
+      tags:
+      - Sites vBeacons
+    get:
+      description: Get Site Virtual Beacon Details
+      operationId: getSiteVBeacon
+      responses:
+        '200':
+          $ref: '#/components/responses/VBeacon'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteVBeacon
+      tags:
+      - Sites vBeacons
+    put:
+      description: Update Site Virtual Beacon
+      operationId: updateSiteVBeacon
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  major: 0
+                  message: string
+                  minor: 0
+                  name: string
+                  power: 4
+                  power_mode: default
+                  url: string
+                  uuid: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+                  wayfinding_nodename: string
+                  x: 0
+                  y: 0
+            schema:
+              $ref: '#/components/schemas/vbeacon'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/VBeacon'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateSiteVBeacon
+      tags:
+      - Sites vBeacons
+components:
+  examples:
+    VBeaconsArrayExample:
+      value:
+      - created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        major: 0
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        message: string
+        minor: 0
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        power: 4
+        power_mode: default
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        url: string
+        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        wayfinding_nodename: string
+        x: 0
+        y: 0
+    VBeaconExample:
+      value:
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        major: 0
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        message: string
+        minor: 0
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        power: 4
+        power_mode: default
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        url: string
+        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        wayfinding_nodename: string
+        x: 0
+        y: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  schemas:
+    vbeacons:
+      description: Virtual beacon records returned by a list response
+      items:
+        $ref: '#/components/schemas/vbeacon'
+      type: array
+    ble_config_power_mode:
+      default: default
+      description: 'Transmit power mode for BLE beacons; use `custom` to set explicit power. enum: `custom`, `default`'
+      enum:
+      - custom
+      - default
+      examples:
+      - custom
+      type: string
+    vbeacon:
+      description: Virtual beacon configuration for SDK proximity notifications
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the virtual beacon was created
+        for_site:
+          description: Whether this virtual beacon is defined at site scope
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the virtual beacon
+        major:
+          description: Bluetooth beacon major value used for proximity matching
+          examples:
+          - 1356
+          type: integer
+        map_id:
+          description: Floorplan map identifier containing the virtual beacon
+          examples:
+          - 63eda950-c6da-11e4-a628-60f81dd250cc
+          format: uuid
+          type: string
+        message:
+          description: Notification message displayed by the SDK application when a client is near the virtual beacon
+          examples:
+          - Welcome to Mist
+          type: string
+        minor:
+          description: Bluetooth beacon minor value used for proximity matching
+          examples:
+          - 21
+          type: integer
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the virtual beacon was last modified
+        name:
+          description: Display name or label for the virtual beacon
+          examples:
+          - conference room
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization identifier that owns the virtual beacon
+        power:
+          default: 4
+          description: Required if `power_mode`==`custom`, -30 - 100, in dBm. For default power_mode, power = 4 dBm.
+          maximum: 100
+          minimum: -30
+          type: integer
+        power_mode:
+          $ref: '#/components/schemas/ble_config_power_mode'
+          description: Transmit power mode for the virtual beacon
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site identifier that owns the virtual beacon
+        url:
+          description: Destination URL shown by the SDK application when a client is near the virtual beacon
+          examples:
+          - https://www.mist.com/any
+          type: string
+        uuid:
+          description: Bluetooth beacon UUID used for proximity matching
+          examples:
+          - 31375aeb-b8d3-1ea6-83bf-a31eb04e1c38
+          format: uuid
+          type: string
+        wayfinding_nodename:
+          description: Name to be used in wayfinding_path or wayfinding_grid blob
+          examples:
+          - node1
+          type: string
+        x:
+          description: Horizontal pixel coordinate of the virtual beacon on the map
+          examples:
+          - 53.5
+          format: double
+          type: number
+        y:
+          description: Vertical pixel coordinate of the virtual beacon on the map
+          examples:
+          - 173.1
+          format: double
+          type: number
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    VBeacon:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconExample'
+          schema:
+            $ref: '#/components/schemas/vbeacon'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconExample'
+          schema:
+            $ref: '#/components/schemas/vbeacon'
+      description: OK
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    VBeaconsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconsArrayExample'
+          schema:
+            $ref: '#/components/schemas/vbeacons'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconsArrayExample'
+          schema:
+            $ref: '#/components/schemas/vbeacons'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    vbeacon_id:
+      in: path
+      name: vbeacon_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

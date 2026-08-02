@@ -1,0 +1,1242 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Psk Portals API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'PSK Self-Service Portals are for
+
+    1. **Wi-Fi users** who want to connect to a WLAN with personal PSK, they''re told to connect to a URL where they can login (likely through company\u2019s SSO) and get the Wi-Fi Name / Passphrase - required input fields name, email so we can generate PSK
+
+    2. **PSK Admins** (they don''t have access to normal Network Admin Portal)
+
+
+    When a PSK portal is created, an unique URL will be generated (e.g. https://psk.mist.com/xxxxxx)'
+  name: Orgs Psk Portals
+paths:
+  /api/v1/orgs/{org_id}/pskportals:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List self-service PSK Portal configurations in the organization, including portal mode, SSID, authentication, expiry, and passphrase rules.
+      operationId: listOrgPskPortals
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortalsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgPskPortals
+      tags:
+      - Orgs Psk Portals
+    post:
+      description: Create a self-service PSK Portal configuration for issuing personal PSKs, including SSID, BYOD or admin mode, SSO or sponsor authentication, passphrase rules, and expiry settings.
+      operationId: createOrgPskPortal
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  auth: sso
+                  expire_time: 262800
+                  expiry_notification_time: 2
+                  hide_psks_created_by_other_admins: false
+                  max_usage: 1
+                  name: USR-test
+                  notify_expiry: false
+                  passphrase_rules:
+                    alphabets_enabled: true
+                    length: 8
+                    numerics_enabled: true
+                    symbols: ()[]{}_%@#&$
+                    symbols_enabled: true
+                  ssid: USR-test
+                  sso:
+                    idp_cert: '-----BEGIN CERTIFICATE-----
+
+                      MIIDqDCCApCgA...-----END CERTIFICATE-----'
+                    idp_sign_algo: sha256
+                    idp_sso_url: https://dev-00000000.okta.com/app/dev-00000000/a6b88bec5ab7/sso/saml
+                    issuer: http://www.okta.com/a6b88bec5ab7
+                    nameid_format: email
+                  type: byod
+                  vlan_id: 42
+            schema:
+              $ref: '#/components/schemas/psk_portal'
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortal'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgPskPortal
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/logs:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List PSK Portal log entries in the organization for the selected time range.
+      operationId: listOrgPskPortalLogs
+      parameters:
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortalLogsSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgPskPortalLogs
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/logs/count:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Count PSK Portal log entries across the organization, optionally grouped by `distinct` and filtered by time range.
+      operationId: countOrgPskPortalLogs
+      parameters:
+      - description: 'Field used to group this count response. enum: `admin_id`, `admin_name`, `psk_id`, `psk_name`, `pskportal_id`, `user_id`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/org_psk_portal_logs_count_distinct'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countOrgPskPortalLogs
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/logs/search:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Search PSK Portal log entries across the organization with filters for PSK, portal, admin, SSO NameID, and time range.
+      operationId: searchOrgPskPortalLogs
+      parameters:
+      - description: Filter PSK portal log results by PSK name
+        in: query
+        name: psk_name
+        schema:
+          type: string
+      - description: Filter PSK portal log results by PSK identifier
+        in: query
+        name: psk_id
+        schema:
+          type: string
+      - description: Filter PSK portal log results by PSK portal identifier
+        in: query
+        name: pskportal_id
+        schema:
+          type: string
+      - description: Filter results by identifier
+        in: query
+        name: id
+        schema:
+          format: uuid
+          type: string
+      - description: Filter audit log results by administrator name
+        in: query
+        name: admin_name
+        schema:
+          type: string
+      - description: Filter audit log results by administrator identifier
+        in: query
+        name: admin_id
+        schema:
+          type: string
+      - description: Filter results by name id
+        in: query
+        name: name_id
+        schema:
+          format: uuid
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/search_after'
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortalLogsSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: searchOrgPskPortalLogs
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/{pskportal_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/pskportal_id'
+    delete:
+      description: Delete a PSK Portal configuration by portal ID, removing the self-service entry point for issuing PSKs through that portal.
+      operationId: deleteOrgPskPortal
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgPskPortal
+      tags:
+      - Orgs Psk Portals
+    get:
+      description: Retrieve PSK Portal configuration details, including SSID, mode, authentication, SSO, passphrase, expiry, notification, and template URLs.
+      operationId: getOrgPskPortal
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortal'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgPskPortal
+      tags:
+      - Orgs Psk Portals
+    put:
+      description: Update a PSK Portal configuration, including SSID, mode, authentication, SSO, passphrase, expiry, notification, and template settings.
+      operationId: updateOrgPskPortal
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  auth: sso
+                  expire_time: 262800
+                  expiry_notification_time: 2
+                  hide_psks_created_by_other_admins: false
+                  max_usage: 1
+                  name: USR-test
+                  notify_expiry: false
+                  passphrase_rules:
+                    alphabets_enabled: true
+                    length: 8
+                    numerics_enabled: true
+                    symbols: ()[]{}_%@#&$
+                    symbols_enabled: true
+                  sponsors:
+                    idp_cert: '-----BEGIN CERTIFICATE-----
+
+                      MIIDqDCCApCgA...-----END CERTIFICATE-----'
+                    idp_sign_algo: sha256
+                    idp_sso_url: https://dev-00000000.okta.com/app/dev-00000000/a6b88bec5ab7/sso/saml
+                    issuer: http://www.okta.com/a6b88bec5ab7
+                    nameid_format: email
+                  ssid: USR-test
+                  type: byod
+                  vlan_id: nu42ll
+            schema:
+              $ref: '#/components/schemas/psk_portal'
+      responses:
+        '200':
+          $ref: '#/components/responses/PskPortal'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgPskPortal
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/{pskportal_id}/portal_image:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/pskportal_id'
+    delete:
+      description: Delete the custom background image for a PSK Portal. If no image is configured, the PSK Portal uses the default background image.
+      operationId: deleteOrgPskPortalImage
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgPskPortalImage
+      tags:
+      - Orgs Psk Portals
+    post:
+      description: Upload a custom background image for a PSK Portal.
+      operationId: uploadOrgPskPortalImage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/psk_portal_image'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: uploadOrgPskPortalImage
+      tags:
+      - Orgs Psk Portals
+  /api/v1/orgs/{org_id}/pskportals/{pskportal_id}/portal_template:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/pskportal_id'
+    put:
+      description: Update PSK Portal UI template settings, including alignment, color, logo, Powered by visibility, and Terms of Service text.
+      operationId: updateOrgPskPortalTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/psk_portal_template'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgPskPortalTemplate
+      tags:
+      - Orgs Psk Portals
+components:
+  schemas:
+    portal_template_alignment:
+      default: center
+      description: 'defines alignment on portal. enum: `center`, `left`, `right`'
+      enum:
+      - center
+      - left
+      - right
+      type: string
+    vlan_id_with_variable:
+      description: VLAN ID, either numeric or expressed as a template variable string
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    psk_portal_list:
+      description: List of PSK portal configurations
+      items:
+        $ref: '#/components/schemas/psk_portal'
+      type: array
+    response_psk_portal_logs_search_item_list:
+      description: PSK Portal log entries returned by search
+      items:
+        $ref: '#/components/schemas/response_psk_portal_logs_search_item'
+      type: array
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    psk_portal_sso_idp_sign_algo:
+      default: sha256
+      description: 'Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`. enum: `sha1`, `sha256`, `sha384`, `sha512`'
+      enum:
+      - sha1
+      - sha256
+      - sha384
+      - sha512
+      type: string
+    psk_portal:
+      description: Self-service portal configuration for issuing personal PSKs
+      properties:
+        auth:
+          $ref: '#/components/schemas/psk_portal_auth'
+          description: 'Portal access method, enum: `sponsor`, `sso`'
+        bg_image_url:
+          description: URL of the background image used by the PSK portal
+          type: string
+        cleanup_psk:
+          default: false
+          description: Whether to clean up existing PSKs when the portal is deleted or its SSID changes
+          type: boolean
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the PSK portal was created
+        expire_time:
+          description: PSK lifetime, in minutes, for keys created through this portal
+          type: integer
+        expiry_notification_time:
+          description: Number of days before PSK expiration to start sending reminder notifications
+          type: integer
+        hide_psks_created_by_other_admins:
+          default: false
+          description: Only if `type`==`admin`, hide PSKs created by other PSK admins
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the PSK portal
+        max_usage:
+          default: 0
+          description: Maximum concurrent clients for each PSK created through this portal; `0` means unlimited
+          minimum: 0
+          type: integer
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the PSK portal was last modified
+        name:
+          description: Display name of the PSK portal
+          type: string
+        notification_renew_url:
+          description: Optional renewal URL included in notification emails. Use a custom URL, a Mist-generated URL, or a shortened URL pointing to either
+          examples:
+          - https://custom-sso/url
+          format: url
+          type: string
+        notify_expiry:
+          description: Whether to send reminder notifications before PSKs created through this portal expire
+          type: boolean
+        notify_on_create_or_edit:
+          default: false
+          description: Whether to send notifications when a PSK is created or edited through this portal
+          type: boolean
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the PSK portal
+        passphrase_rules:
+          $ref: '#/components/schemas/psk_portal_passphrase_rules'
+          description: Generation rules for PSK passphrases created through this portal
+        required_fields:
+          $ref: '#/components/schemas/psk_portal_required_fields'
+          description: User information fields requested by the portal when generating a PSK
+        role:
+          description: Client role assigned to PSKs created through this portal
+          type: string
+        ssid:
+          description: WLAN SSID for PSKs created through this portal
+          type: string
+        sso:
+          $ref: '#/components/schemas/psk_portal_sso'
+          description: Single sign-on configuration used when `auth`==`sso`
+        template_url:
+          description: URL of the UI customization template for this portal
+          type: string
+        thumbnail_url:
+          description: URL of the thumbnail image used by the PSK portal
+          type: string
+        type:
+          $ref: '#/components/schemas/psk_portal_type'
+          description: Portal mode for personal PSK onboarding, either admin or BYOD
+        ui_url:
+          description: Public URL where users access the PSK portal
+          type: string
+        vlan_id:
+          $ref: '#/components/schemas/vlan_id_with_variable'
+          description: VLAN ID returned for clients using PSKs from this portal
+      required:
+      - name
+      - ssid
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    psk_portal_image:
+      additionalProperties: false
+      description: PSK portal image upload payload
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          description: Image binary payload to upload for the PSK portal
+          type: string
+        json:
+          description: Metadata JSON string describing the PSK portal image upload
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    org_psk_portal_logs_count_distinct:
+      default: pskportal_id
+      description: 'enum: `admin_id`, `admin_name`, `psk_id`, `psk_name`, `pskportal_id`, `user_id`'
+      enum:
+      - admin_id
+      - admin_name
+      - psk_id
+      - psk_name
+      - pskportal_id
+      - user_id
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    psk_portal_sso:
+      additionalProperties: false
+      description: Single sign-on settings used when `auth`==`sso`
+      properties:
+        allowed_roles:
+          $ref: '#/components/schemas/psk_portal_sso_allowed_roles'
+          description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
+        idp_cert:
+          description: Identity provider signing certificate in PEM format
+          type: string
+        idp_sign_algo:
+          $ref: '#/components/schemas/psk_portal_sso_idp_sign_algo'
+          description: SAML assertion signing algorithm expected from the identity provider
+        idp_sso_url:
+          description: Identity provider SSO URL for SAML login
+          type: string
+        issuer:
+          description: SAML issuer value for the identity provider
+          type: string
+        nameid_format:
+          description: SAML NameID format used for the portal login
+          type: string
+        role_mapping:
+          additionalProperties:
+            type: string
+          description: Maps PSK portal role names to SSO attribute values
+          type: object
+        use_sso_role_for_psk_role:
+          description: Whether to use SSO role mapping for the PSK role and ignore the portal-level `role` field
+          type: boolean
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    psk_portal_passphrase_rules:
+      additionalProperties: false
+      description: Passphrase generation rules for PSKs created through a portal
+      properties:
+        alphabets_enabled:
+          default: true
+          description: Whether generated passphrases may include alphabetic characters
+          type: boolean
+        length:
+          description: Fixed generated passphrase length used when min and max length are not both valid
+          maximum: 63
+          minimum: 8
+          type: integer
+        max_length:
+          description: Maximum generated passphrase length when paired with a valid `min_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
+          maximum: 63
+          minimum: 8
+          type: integer
+        min_length:
+          description: Minimum generated passphrase length when paired with a valid `max_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
+          maximum: 63
+          minimum: 8
+          type: integer
+        numerics_enabled:
+          default: true
+          description: Whether generated passphrases may include numeric characters
+          type: boolean
+        symbols:
+          description: Allowed symbol characters for generated passphrases
+          examples:
+          - ()[]{}_%@#&$
+          type: string
+        symbols_enabled:
+          default: true
+          description: Whether generated passphrases may include symbols
+          type: boolean
+      type: object
+    response_psk_portal_logs_search:
+      additionalProperties: false
+      description: Paginated response for organization PSK Portal log search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the PSK Portal log search window
+          examples:
+          - 1428954000
+          type: integer
+        limit:
+          description: Maximum number of PSK Portal log entries returned in this page
+          examples:
+          - 100
+          type: integer
+        next:
+          description: URL for retrieving the next page of PSK Portal log search results
+          type: string
+        results:
+          $ref: '#/components/schemas/response_psk_portal_logs_search_item_list'
+          description: PSK Portal log entries matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the PSK Portal log search window
+          examples:
+          - 1428939600
+          type: integer
+        total:
+          description: Number of PSK Portal log entries matching the search filters across all pages
+          examples:
+          - 135
+          type: integer
+      type: object
+    psk_portal_required_fields:
+      description: User information fields requested by the portal; email is required by default
+      items:
+        type: string
+      type: array
+    psk_portal_type:
+      description: 'for personal psk portal. enum: `admin`, `byod`'
+      enum:
+      - admin
+      - byod
+      type: string
+    psk_portal_template_setting:
+      additionalProperties: false
+      description: Custom UI settings for the PSK portal template
+      properties:
+        alignment:
+          $ref: '#/components/schemas/portal_template_alignment'
+          description: Logo and text alignment for the PSK portal template
+        color:
+          default: '#1074bc'
+          description: Primary hex color used by the portal template
+          type: string
+        logo:
+          description: Custom logo with "data:image/png;base64," format. default null, uses Juniper Mist Logo
+          type:
+          - string
+          - 'null'
+        poweredBy:
+          default: false
+          description: Whether to hide "Powered by Juniper Mist" and email footers
+          type: boolean
+        tos:
+          description: Whether to show Terms of Service
+          type: boolean
+        tosAcceptLabel:
+          default: I accept the Terms of Service
+          description: Terms of Service accept button label
+          type: string
+        tosError:
+          default: Please review and accept the Terms of Service
+          description: Error message shown when the user has not accepted the Terms of Service
+          type: string
+        tosLink:
+          default: Terms of Service
+          description: Terms of Service link label displayed in the portal footer
+          type: string
+        tosText:
+          default: << provide your Terms of Service here >>
+          description: Terms of Service text displayed in the footer when Terms are enabled
+          type: string
+        tosUrl:
+          description: Custom URL for the Terms of Service policy
+          examples:
+          - https://company.com/wifi-policy
+          type: string
+      type: object
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_psk_portal_logs_search_item:
+      additionalProperties: false
+      description: PSK Portal log entry returned by organization log search
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Audit log identifier for this PSK Portal log entry
+        message:
+          description: Human-readable message describing the PSK Portal action
+          examples:
+          - Rotate PSK test@mist.com
+          type: string
+        name_id:
+          description: SSO NameID value associated with the PSK Portal action
+          examples:
+          - test@mist.com
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the PSK Portal log entry
+        psk_id:
+          description: Identifier of the PSK associated with the log entry
+          examples:
+          - 608fe603-f9f0-4ce9-9473-04ef6c6ea749
+          format: uuid
+          type: string
+        psk_name:
+          description: Display name of the PSK associated with the log entry
+          examples:
+          - test@mist.com
+          type: string
+        pskportal_id:
+          description: Identifier of the PSK Portal associated with the log entry
+          examples:
+          - c1742c09-af35-4161-96ef-7dc65c6d5674
+          format: uuid
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Epoch timestamp, in seconds, when the PSK Portal log entry was recorded
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    psk_portal_auth:
+      default: sso
+      description: 'Portal access method for guest authentication, either `sponsor` or `sso`. enum: `sponsor`, `sso`'
+      enum:
+      - sponsor
+      - sso
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    psk_portal_sso_allowed_roles:
+      description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
+      items:
+        type: string
+      type: array
+    psk_portal_template:
+      description: Portal UI customization payload
+      properties:
+        portal_template:
+          $ref: '#/components/schemas/psk_portal_template_setting'
+          description: Template settings for customizing the PSK portal UI
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    pskportal_id:
+      in: path
+      name: pskportal_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+  responses:
+    OK:
+      description: OK
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    PskPortalLogsSearch:
+      content:
+        application/json:
+          examples:
+            PSK Portal Logs:
+              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
+          schema:
+            $ref: '#/components/schemas/response_psk_portal_logs_search'
+        application/vnd.api+json:
+          examples:
+            PSK Portal Logs:
+              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
+          schema:
+            $ref: '#/components/schemas/response_psk_portal_logs_search'
+      description: Example response
+    PskPortalsArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/psk_portal_list'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/psk_portal_list'
+      description: Example response
+    PskPortal:
+      content:
+        application/json:
+          examples:
+            PSK Portal:
+              $ref: '#/components/examples/PskPortal'
+          schema:
+            $ref: '#/components/schemas/psk_portal'
+        application/vnd.api+json:
+          examples:
+            PSK Portal:
+              $ref: '#/components/examples/PskPortal'
+          schema:
+            $ref: '#/components/schemas/psk_portal'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    PskPortal:
+      value:
+        auth: sso
+        created_time: 1727272316
+        expire_time: 262800
+        expiry_notification_time: 2
+        hide_psks_created_by_other_admins: false
+        id: 86ef73e5-e360-4e33-abd8-c2da7b11cbd6
+        max_usage: 1
+        modified_time: 1727272316
+        name: USR-test
+        notify_expiry: false
+        org_id: 8f6c24d5-b618-4c30-b6ff-b2febc1078ab
+        passphrase_rules:
+          alphabets_enabled: true
+          length: 8
+          numerics_enabled: true
+          symbols: ()[]{}_%@#&$
+          symbols_enabled: true
+        role: ''
+        ssid: USR-test
+        sso:
+          idp_cert: '-----BEGIN CERTIFICATE-----
+
+            MIIDqDCCApCgA...-----END CERTIFICATE-----'
+          idp_sign_algo: sha256
+          idp_sso_url: https://dev-00000000.okta.com/app/dev-00000000/a6b88bec5ab7/sso/saml
+          issuer: http://www.okta.com/a6b88bec5ab7
+          nameid_format: email
+        type: byod
+        ui_url: https://pskportal.gc1.mist.com/#!byod/a6b88bec-5ab7-41ae-a34c-44ff52a8b81d
+        vlan_id: 123
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    PskPortalLogsSearchPSKPortalLogs:
+      value:
+        end: 1428954000
+        limit: 100
+        results:
+        - id: 8a3dcaa7-80e3-4bb0-a75b-7bc6322cfd09
+          message: Rotate PSK test@mist.com
+          name_id: test@mist.com
+          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+          psk_id: 608fe603-f9f0-4ce9-9473-04ef6c6ea749
+          psk_name: test@mist.com
+          pskportal_id: c1742c09-af35-4161-96ef-7dc65c6d5674
+          timestamp: 1686346104.096
+        start: 1428939600
+        total: 135
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

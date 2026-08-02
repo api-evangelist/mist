@@ -1,0 +1,794 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Psks API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'A multi PSK (Pre-Shared Key) is a feature that allows the use of multiple PSKs for securing network connections.
+
+
+    It provides a simple and comprehensive way to onboard client devices without relying on client MAC addresses.
+
+
+    Each psk has its own key name, which can be used for user-level accountability, key rotation, and visibility in the management platform. It supports the creation, rotation, and auto-expiration of PSKs, and allows vlan assignment and role assignment for dynamic per-user policies.
+
+
+    Multi PSKs create virtual broadcast domains and can be used for end-user onboarding via authenticated sso login.
+
+
+    Mist supports three methods of Org PSKs lookup: * local * RADIUS * cloud'
+  name: Orgs Psks
+paths:
+  /api/v1/orgs/{org_id}/psks:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List organization personal PSKs for WLAN access, optionally filtering by name, SSID, or role.
+      operationId: listOrgPsks
+      parameters:
+      - description: Filter results by name. Accepts multiple comma-separated values.
+        example: psk-a,psk-b
+        in: query
+        name: name
+        schema:
+          type: string
+      - description: Filter results by SSID. Accepts multiple comma-separated values.
+        in: query
+        name: ssid
+        schema:
+          examples:
+          - Corp,Guest
+          type: string
+      - description: Filter PSK results by role. Accepts multiple comma-separated values.
+        in: query
+        name: role
+        schema:
+          examples:
+          - employee,contractor
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/PsksArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgPsks
+      tags:
+      - Orgs Psks
+    post:
+      description: 'Create an organization personal PSK for WLAN access, including SSID, passphrase, usage mode, optional client MAC binding, role, VLAN, and expiration settings.
+
+
+
+        When `usage`==`macs`, corresponding "macs" field will hold a list consisting of client MAC addresses (["xx:xx:xx:xx:xx",...]) or mac patterns(["xx:xx:*","xx*",...]) or both (["xx:xx:xx:xx:xx:xx", "xx:*", ...]). This list is capped at 5000'
+      operationId: createOrgPsk
+      parameters:
+      - description: If a key exists with the same `name`, replace it with the new one
+        in: query
+        name: upsert
+        schema:
+          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/psk'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Psk'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgPsk
+      tags:
+      - Orgs Psks
+    put:
+      description: Update multiple organization personal PSKs in one request, including passphrase, usage mode, role, VLAN, expiration, and notification settings.
+      operationId: updateOrgMultiplePsks
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                - expire_time: 1614990263
+                  mac: string
+                  max_usage: 0
+                  name: string
+                  passphrase: secretpsk
+                  ssid: string
+                  usage: multi
+                  vlan_id: 10
+            schema:
+              $ref: '#/components/schemas/psks'
+      responses:
+        '200':
+          $ref: '#/components/responses/PsksArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgMultiplePsks
+      tags:
+      - Orgs Psks
+  /api/v1/orgs/{org_id}/psks/delete:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: 'Delete one or more organization PSKs by ID.
+
+
+        The request accepts a single PSK ID string or a list of PSK ID strings.
+
+        **Warning**: If no PSK IDs are provided in the request, all organization PSKs will be deleted and clients will no longer be able to authenticate to any SSID with a PSK.'
+      operationId: deleteOrgPskList
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/psk_id_list'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgPskList
+      tags:
+      - Orgs Psks
+  /api/v1/orgs/{org_id}/psks/import:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: 'Import organization PSKs from a CSV file or JSON payload.
+
+
+        ## CSV File Format
+
+        ```
+
+        PSK Import CSV File Format:
+
+        name,ssid,passphrase,usage,vlan_id,mac,max_usage,role,expire_time,notify_expiry,expiry_notification_time,notify_on_create_or_edit,email
+
+        Common,warehouse,foryoureyesonly,single,35,a31425f31278,0,student,1618594236
+
+        Justin,reception,visible,multi,1002,200,teacher,1618594236
+
+        Common2,ssid,1245678-xx,single,35,a31425f31278,0,student,1618594236,true,7,true,admin@test.com
+
+        ```'
+      operationId: importOrgPsks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/psks'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/psks_import_file'
+      responses:
+        '200':
+          $ref: '#/components/responses/PsksArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: importOrgPsks
+      tags:
+      - Orgs Psks
+  /api/v1/orgs/{org_id}/psks/{psk_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/psk_id'
+    delete:
+      description: Delete an organization personal PSK by PSK ID so clients can no longer authenticate with that key.
+      operationId: deleteOrgPsk
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgPsk
+      tags:
+      - Orgs Psks
+    get:
+      description: Retrieve details for an organization personal PSK, including SSID, usage mode, MAC binding, role, VLAN, expiration, and notification settings.
+      operationId: getOrgPsk
+      responses:
+        '200':
+          $ref: '#/components/responses/Psk'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgPsk
+      tags:
+      - Orgs Psks
+    put:
+      description: Update an organization personal PSK, including passphrase, usage mode, MAC binding, role, VLAN, expiration, and notification settings.
+      operationId: updateOrgPsk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/psk'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Psk'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgPsk
+      tags:
+      - Orgs Psks
+  /api/v1/orgs/{org_id}/psks/{psk_id}/delete_old_passphrase:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/psk_id'
+    post:
+      description: "Remove the stored `old_passphrase` from a PSK after rotation. \nIf successful, the response returns the PSK with `old_passphrase` removed."
+      operationId: deleteOrgPskOldPassphrase
+      responses:
+        '200':
+          $ref: '#/components/responses/Psk'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgPskOldPassphrase
+      tags:
+      - Orgs Psks
+components:
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    psk_id:
+      description: PSK ID
+      in: path
+      name: psk_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    PsksArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PsksArrayExample'
+          schema:
+            $ref: '#/components/schemas/psk_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PsksArrayExample'
+          schema:
+            $ref: '#/components/schemas/psk_list'
+      description: OK
+    Psk:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/psk'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/psk'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    psk:
+      description: Personal pre-shared key configuration for WLAN access
+      properties:
+        admin_sso_id:
+          description: sso id for psk created from psk portal
+          readOnly: true
+          type: string
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the PSK was created
+        email:
+          description: Notification recipient email address for PSK creation notification and expiration reminders
+          type: string
+        expire_time:
+          default: null
+          description: Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
+          examples:
+          - 1614990263
+          type:
+          - integer
+          - 'null'
+        expiry_notification_time:
+          description: Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
+          type: integer
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the PSK
+        mac:
+          description: If `usage`==`single`, client MAC address this PSK is bound to; empty when auto-binding is used
+          type: string
+        macs:
+          $ref: '#/components/schemas/psk_macs'
+          description: Client MAC addresses or MAC patterns allowed when `usage`==`macs`
+        max_usage:
+          default: 0
+          description: For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)
+          type: integer
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the PSK was last modified
+        name:
+          description: Display name of the PSK
+          type: string
+        note:
+          description: Admin note or description stored with the PSK
+          type: string
+        notify_expiry:
+          default: false
+          description: If set to true, reminder notification will be sent when psk is about to expire
+          type: boolean
+        notify_on_create_or_edit:
+          description: If set to true, notification will be sent when psk is created or edited
+          type: boolean
+        old_passphrase:
+          description: previous passphrase of the PSK if it has been rotated
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the org-level PSK
+        passphrase:
+          description: PSK passphrase, 8-63 characters or 64 hexadecimal characters
+          format: password
+          maxLength: 64
+          minLength: 8
+          type: string
+        role:
+          description: Client role applied to users authenticated with this PSK
+          maxLength: 32
+          minLength: 0
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the site-level PSK
+        ssid:
+          description: WLAN SSID where this PSK can be used
+          type: string
+        usage:
+          $ref: '#/components/schemas/psk_usage'
+          description: 'Binding mode for this PSK, enum: `macs`, `multi`, `single`'
+        vlan_id:
+          $ref: '#/components/schemas/psk_vlan_id'
+          description: VLAN ID returned for clients using this PSK
+        vlan_name:
+          description: VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided
+          type: string
+      required:
+      - name
+      - passphrase
+      - ssid
+      type: object
+    psk_id_list:
+      description: PSK delete request payload
+      properties:
+        psk_ids:
+          $ref: '#/components/schemas/psk_id_list_psk_id'
+          description: PSK IDs to delete
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    psk_usage:
+      default: multi
+      description: 'enum: `macs`, `multi`, `single`'
+      enum:
+      - macs
+      - multi
+      - single
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    psk_list:
+      description: List of personal PSK configurations
+      items:
+        $ref: '#/components/schemas/psk'
+      type: array
+    psk_macs:
+      description: If `usage`==`macs`, this list contains client MAC addresses, MAC patterns such as `1122*`, or both. This list is capped at 5000 entries
+      examples:
+      - - 112233abcedf
+        - aabbcc*
+      items:
+        type: string
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    psk_id_list_psk_id:
+      description: PSK identifiers included in a delete request
+      examples:
+      - - 0039c16c-ca87-4d3f-bb94-b97c58199f18
+        - 6562cc8e-5893-418a-acaa-4d7c1af8084f
+      items:
+        format: uuid
+        type: string
+      type: array
+    psks:
+      description: List of personal PSK configurations
+      items:
+        $ref: '#/components/schemas/psk'
+      type: array
+      uniqueItems: true
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    psk_vlan_id:
+      description: VLAN for this PSK key
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    psks_import_file:
+      additionalProperties: false
+      description: Multipart upload payload for importing PSKs
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          description: Uploaded CSV or binary file containing PSKs to import
+          type: string
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    PsksArrayExample:
+      value:
+      - created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        mac: string
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        passphrase: secretpsk
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        ssid: string
+        usage: multi
+        vlan_id: 1
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

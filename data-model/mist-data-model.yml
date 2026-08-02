@@ -1,0 +1,87 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/mist-openapi-original.json
+summary: >-
+  The Mist data model is a hierarchy rooted at the Organization (Org). Orgs
+  contain Sites; Sites contain Devices (APs, switches, gateways/edges) and
+  Clients. Templates, WLANs, and policies are defined at the Org and applied to
+  Sites. MSPs sit above Orgs for multi-tenant management.
+entities:
+  - name: MSP
+    id_field: msp_id
+    description: Managed Service Provider tenant that owns multiple Orgs.
+    relationships:
+      - type: has_many
+        target: Org
+        via: msp_id
+  - name: Org
+    id_field: org_id
+    description: Organization — the primary administrative and billing boundary.
+    relationships:
+      - type: belongs_to
+        target: MSP
+        via: msp_id
+      - type: has_many
+        target: Site
+        via: org_id
+      - type: has_many
+        target: Inventory
+        via: org_id
+      - type: has_many
+        target: Webhook
+        via: org_id
+      - type: has_many
+        target: WLAN
+        via: org_id
+      - type: has_many
+        target: ApiToken
+        via: org_id
+  - name: Site
+    id_field: site_id
+    description: A physical location (building/campus) within an Org.
+    relationships:
+      - type: belongs_to
+        target: Org
+        via: org_id
+      - type: has_many
+        target: Device
+        via: site_id
+      - type: has_many
+        target: Client
+        via: site_id
+      - type: has_many
+        target: Webhook
+        via: site_id
+      - type: has_one
+        target: SiteSetting
+        via: site_id
+  - name: Device
+    id_field: device_id
+    description: A managed AP, switch, or gateway/edge assigned to a Site.
+    relationships:
+      - type: belongs_to
+        target: Site
+        via: site_id
+      - type: belongs_to
+        target: Inventory
+        via: mac
+  - name: Client
+    id_field: mac
+    description: A wireless/wired/WAN client connected to a Site's devices.
+    relationships:
+      - type: belongs_to
+        target: Site
+        via: site_id
+  - name: Webhook
+    id_field: webhook_id
+    description: Event subscription at Org or Site scope (see asyncapi/mist-webhooks.yml).
+    relationships:
+      - type: belongs_to
+        target: Org
+        via: org_id
+      - type: belongs_to
+        target: Site
+        via: site_id
+notes: >-
+  Identifiers are UUIDs (org_id, site_id, device_id, webhook_id); clients and
+  inventory devices are also keyed by hardware MAC address.

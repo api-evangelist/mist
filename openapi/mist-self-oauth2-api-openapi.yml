@@ -1,0 +1,421 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Self OAuth2 API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: "A Mist account can be linked to OAuth2 providers:\n  1. First, login with your Mist account\n  2. Obtain the Authorization URL for Linking\n  3. Obtain the authorization code by clicking / going through Authorization URL\n  4. Link Mist Account against OAuth2 Provider by using the authorization code"
+  name: Self OAuth2
+paths:
+  /api/v1/self/oauth/{provider}:
+    parameters:
+    - in: path
+      name: provider
+      required: true
+      schema:
+        type: string
+    get:
+      description: Obtain Authorization URL for Linking
+      operationId: getOauth2UrlForLinking
+      parameters:
+      - description: Callback URL to forward to after the OAuth login flow
+        in: query
+        name: forward
+        schema:
+          examples:
+          - https://manage.mist.com/oauth/callback.html
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SelfOauthUrl'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOauth2UrlForLinking
+      tags:
+      - Self OAuth2
+    post:
+      description: Link Mist account with an OAuth2 Provider
+      operationId: linkOauth2MistAccount
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  code: 4/S9tegDeLkrYg0L9pWNXV4cgMVbbr3SR9t693A2kSHzw
+            schema:
+              $ref: '#/components/schemas/code_string'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/SelfOauthLinkSuccess'
+        '400':
+          $ref: '#/components/responses/SelfOauthLinkFailure'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: linkOauth2MistAccount
+      tags:
+      - Self OAuth2
+components:
+  examples:
+    SelfOauthUrlExample:
+      value:
+        authorization_url: https://accounts.google.com/o/oauth2/v2/auth?.....
+        linked: false
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    SelfOauthLinkSuccessExample:
+      value:
+        action: oauth account linked
+        id: google_user_id
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    SelfOauthLinkFailureExample:
+      value:
+        error: access_denied
+        error_description: The resource owner or authorization server denied the request.
+  responses:
+    SelfOauthUrl:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthUrlExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_url'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthUrlExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_url'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    SelfOauthLinkSuccess:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_success'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_success'
+      description: OK
+    SelfOauthLinkFailure:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_failure'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_failure'
+      description: Authorization Error
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_self_oauth_link_failure:
+      additionalProperties: false
+      description: OAuth2 account-linking failure response
+      properties:
+        error:
+          description: OAuth2 error code returned during account linking
+          type: string
+        error_description:
+          description: Human-readable description of the OAuth2 account-linking failure
+          type: string
+      required:
+      - error
+      - error_description
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_self_oauth_link_success:
+      additionalProperties: false
+      description: OAuth2 account-linking success response
+      properties:
+        action:
+          description: Completed OAuth2 account-linking action
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Linked OAuth2 account identifier returned by the provider
+      required:
+      - action
+      - id
+      type: object
+    code_string:
+      description: Request body containing a single authorization or claim code
+      properties:
+        code:
+          description: Request-supplied authorization or claim code value
+          type: string
+      required:
+      - code
+      type: object
+    response_self_oauth_url:
+      additionalProperties: false
+      description: OAuth2 authorization URL response for linking the current Mist account
+      properties:
+        authorization_url:
+          description: OAuth2 provider authorization URL used to link the Mist account
+          type: string
+        linked:
+          description: Whether the Mist account is already linked with this OAuth2 provider
+          type: boolean
+      required:
+      - linked
+      - authorization_url
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

@@ -1,0 +1,407 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Integration Juniper API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Juniper Integration can be used to synchronize Juniper Support Insights (JSI) information.
+  name: Orgs Integration Juniper
+paths:
+  /api/v1/orgs/{org_id}/setting/juniper/link_accounts:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: Link a Juniper account to the organization using Juniper account credentials. Linked accounts are returned in organization settings and can be used by Juniper integrations.
+      operationId: linkOrgToJuniperJuniperAccount
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  password: password
+                  username: john@nmo.com
+            schema:
+              $ref: '#/components/schemas/account_juniper_config'
+      responses:
+        '200':
+          $ref: '#/components/responses/JuniperLinkAccountSuccess'
+        '400':
+          $ref: '#/components/responses/JuniperLinkAccountFailed'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: linkOrgToJuniperJuniperAccount
+      tags:
+      - Orgs Integration Juniper
+  /api/v1/orgs/{org_id}/setting/juniper/unlink_account:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    delete:
+      description: Unlink a Juniper customer account from the organization. The `linked_by` field is required only when multiple linked accounts share the same account name.
+      operationId: unlinkOrgFromJuniperCustomerId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account_juniper_info'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: unlinkOrgFromJuniperCustomerId
+      tags:
+      - Orgs Integration Juniper
+components:
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    JuniperLinkAccountSuccess:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
+          schema:
+            $ref: '#/components/schemas/account_juniper_info'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
+          schema:
+            $ref: '#/components/schemas/account_juniper_info'
+      description: Account linked
+    JuniperLinkAccountFailed:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Account already linked
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    juniper_accounts:
+      description: Linked Juniper accounts available to the organization
+      items:
+        $ref: '#/components/schemas/juniper_account'
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_detail_string:
+      additionalProperties: false
+      description: Response containing a human-readable detail message
+      properties:
+        detail:
+          description: Human-readable detail message returned by the API
+          type: string
+      type: object
+    account_juniper_config:
+      description: Juniper account credentials used to link the integration
+      properties:
+        password:
+          description: Authentication password for the Juniper account
+          examples:
+          - password
+          format: password
+          type: string
+        username:
+          description: Customer account user name
+          examples:
+          - john@nmo.com
+          type: string
+      required:
+      - username
+      - password
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    account_juniper_info:
+      description: Linked Juniper account information returned by the integration
+      properties:
+        accounts:
+          $ref: '#/components/schemas/juniper_accounts'
+          description: List of linked Juniper account records
+      type: object
+    juniper_account:
+      additionalProperties: false
+      description: Linked Juniper account available to the organization
+      properties:
+        linked_by:
+          description: User who linked this Juniper account
+          examples:
+          - John Smith (john@abccorp.com)
+          readOnly: true
+          type: string
+        name:
+          description: Display name of the linked Juniper account
+          examples:
+          - ABC Corp
+          readOnly: true
+          type: string
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  examples:
+    JuniperLinkAccountFailedExample:
+      value:
+        detail: Account[ABC Corp] already linked
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    JuniperLinkAccountSuccessExample:
+      value:
+        account:
+          linked_by: John Smith (john@abccorp.com)
+          name: ABC Corp
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

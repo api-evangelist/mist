@@ -1,0 +1,45 @@
+generated: '2026-07-20'
+method: derived
+source: openapi/mist-openapi-original.json
+spec_type: Webhooks
+summary: >-
+  Mist delivers real-time telemetry and event streams via HTTP webhooks
+  configured at the organization or site level. Subscriptions select one or more
+  topics; Mist POSTs JSON event batches to the subscriber URL. Subscriptions can
+  be test-pinged and their delivery history searched.
+transport: https-webhook
+delivery: POST JSON event batches to subscriber-configured URL
+management_operations:
+  - listOrgWebhooks        # GET  /api/v1/orgs/{org_id}/webhooks
+  - createOrgWebhook       # POST /api/v1/orgs/{org_id}/webhooks
+  - listSiteWebhooks       # GET  /api/v1/sites/{site_id}/webhooks
+  - createSiteWebhook      # POST /api/v1/sites/{site_id}/webhooks
+  - pingOrgWebhook         # POST /api/v1/orgs/{org_id}/webhooks/{webhook_id}/ping
+  - searchOrgWebhooksDeliveries   # GET /api/v1/orgs/{org_id}/webhooks/{webhook_id}/events/search
+  - countOrgWebhooksDeliveries    # GET /api/v1/orgs/{org_id}/webhooks/{webhook_id}/events/count
+topics_source: GET /api/v1/const/webhook_topics
+topics:
+  # verified present in the OpenAPI spec enums/schemas
+  - audits
+  - alarms
+  - device-events
+  - device-updowns
+  - occupancy
+  - occupancy-alerts
+  - location
+  - client-sessions
+  - client-join
+  - client-info
+  - mxedge-events
+  - nac-events
+  - rssizone
+  - zone
+  - sdkclient-scan-data
+  - wifi-conn-raw
+  - ping
+streaming:
+  websocket: true
+  note: >-
+    In addition to webhooks, Mist exposes a WebSocket streaming channel for
+    real-time client/location/device events and diagnostic command output
+    (used by the mistapi Python client's WebSocket module).

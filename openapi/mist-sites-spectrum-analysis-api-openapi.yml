@@ -1,0 +1,640 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Spectrum Analysis API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Spectrum Analysis feature provides insights into the radio frequency environment, helping to identify interference and optimize wireless network performance. It allows users to monitor and analyze the spectrum usage in their vicinity.
+  name: Sites Spectrum Analysis
+paths:
+  /api/v1/sites/{site_id}/analyze_spectrum:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get the running spectrum analysis for a site
+      operationId: getSiteRunningSpectrumAnalysis
+      responses:
+        '200':
+          $ref: '#/components/responses/RunningSpectrumAnalysis'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteRunningSpectrumAnalysis
+      tags:
+      - Sites Spectrum Analysis
+    post:
+      description: "Initiate a spectrum analysis for a site\n\n\nThe output will be available through websocket. As there can be multiple command\nissued against the same device at the same time and the output all goes through\nthe same websocket stream, session is introduced for demux.\n\n\n\n#### Subscribe to Device Command outputs\n\n`WS /api-ws/v1/stream`\n\n\n```json { \"subscribe\": \"/sites/{site_id}/analyze_spectrum\" } ```\n\n#### Example output from ws stream\n\n```json\n{\n  \"event\": \"data\",\n  \"channel\": \"/sites/4ac1dcf4-9d8b-7211-65c4-057819f0862b/analyze_spectrum\",\n  \"data\": {\n      \"session\": \"session_id\",\n\n      \"fft_samples\": [\n          {\n              \"frequency\": 2437.0,\n              \"rssi / signal ?\": -93\n          },\n          ...\n      ],\n\n      \"channel_usage\": [\n          {\n              \"channel\": 36,\n              \"noise\": -78,\n\n              \"wifi\": 0.13,\n              \"non_wifi\": 0.08\n          },\n          ...\n      ]\n  }\n}     \n```\n"
+      operationId: initiateSiteAnalyzeSpectrum
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  band: '5'
+                  channels:
+                  - 36
+                  - 40
+                  - 44
+                  - 48
+                  device_id: 00000000-0000-0000-1000-5c5b35bd76bb
+                  duration: 600
+                  format: stream
+            schema:
+              $ref: '#/components/schemas/spectrum_analysis'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/WebsocketSession'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: initiateSiteAnalyzeSpectrum
+      tags:
+      - Sites Spectrum Analysis
+  /api/v1/sites/{site_id}/stats/analyze_spectrum:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: List the past spectrum analysis for a site
+      operationId: listSiteSpectrumAnalysis
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      responses:
+        '200':
+          $ref: '#/components/responses/PastSpectrumAnalysis'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteSpectrumAnalysis
+      tags:
+      - Sites Spectrum Analysis
+components:
+  examples:
+    PastSpectrumAnalysis:
+      value:
+        end: 1694708579
+        limit: 10
+        results:
+        - band: '5'
+          channel_usage:
+          - channel: 36
+            noise: -78
+            non_wifi: 0.08
+            wifi: 0.13
+          fft_samples:
+          - frequency: 2437
+            rssi: -92
+            signal7: -93
+          mac: 5c5b35bd76bb
+          org_id: f2695c32-0e83-4936-b1b2-96fc88051213
+          timestamp: 1694098696
+        start: 1694622179
+        total: 4
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    RunningSpectrumAnalysis:
+      value:
+        band: '5'
+        channels:
+        - 36
+        - 40
+        - 44
+        - 48
+        device_id: 00000000-0000-0000-1000-5c5b35bd76bb
+        duration: 600
+        format: stream
+        started_time: 1435080709
+        width: 20
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  schemas:
+    websocket_session:
+      additionalProperties: false
+      description: Response containing the WebSocket session handle for asynchronous command output
+      properties:
+        session:
+          description: Identifier used to correlate output on the WebSocket stream
+          examples:
+          - 19e73828-937f-05e6-f709-e29efdb0a82b
+          type: string
+      required:
+      - session
+      type: object
+    response_past_spectrum_analysis_fft_sample:
+      additionalProperties: false
+      description: FFT sample data for a specific frequency
+      properties:
+        frequency:
+          description: Sample frequency, in MHz, for this FFT point
+          examples:
+          - 2437.0
+          type: number
+        rssi:
+          description: Received signal strength, in dBm, for this FFT sample
+          examples:
+          - -70.0
+          type: number
+        signal7:
+          description: Additional signal level, in dBm, reported for this FFT sample
+          examples:
+          - -70.0
+          type: number
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_past_spectrum_analysis_result:
+      additionalProperties: false
+      description: Result of a past spectrum analysis
+      properties:
+        band:
+          description: Radio band on which the spectrum analysis was run (for example, 24, 5, or 6)
+          type: string
+        channel_usage:
+          $ref: '#/components/schemas/response_past_spectrum_analysis_channel_usages'
+          description: Per-channel utilization measurements captured during the analysis
+        fft_samples:
+          $ref: '#/components/schemas/response_past_spectrum_analysis_fft_samples'
+          description: FFT signal samples captured during the analysis
+        mac:
+          description: AP MAC address for the access point that ran the spectrum analysis
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the site where the spectrum analysis was run
+        timestamp:
+          description: Epoch timestamp, in seconds, when the spectrum analysis was run
+          type: integer
+      type: object
+    response_past_spectrum_analysis_channel_usage:
+      additionalProperties: false
+      description: Channel usage data for a specific channel
+      properties:
+        channel:
+          description: Radio channel measured by this channel usage sample
+          examples:
+          - 36
+          type: integer
+        noise:
+          description: Measured noise floor, in dBm, for the channel
+          examples:
+          - -90.0
+          type: number
+        non_wifi:
+          description: Percentage of channel usage by non-WiFi signals in the range [0, 1]
+          examples:
+          - 0.87
+          type: number
+        wifi:
+          description: Percentage of channel usage by WiFi in the range [0, 1]
+          examples:
+          - 0.13
+          type: number
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    spectrum_analysis:
+      description: Request parameters for starting AP spectrum analysis at a site
+      properties:
+        band:
+          $ref: '#/components/schemas/spectrum_analysis_band'
+          description: Radio band to scan during spectrum analysis
+        channels:
+          description: Optional list of channels to scan. If not specified, all supported channels will be scanned
+          examples:
+          - - 36
+            - 40
+            - 44
+            - 48
+          items:
+            type: integer
+          type: array
+        device_id:
+          description: Device ID of the AP that is performing spectrum analysis
+          format: uuid
+          type: string
+        duration:
+          default: 300
+          description: Length of the spectrum analysis run, in seconds
+          maximum: 600
+          minimum: 60
+          type: integer
+        format:
+          $ref: '#/components/schemas/spectrum_analysis_format'
+          description: Output format for the spectrum analysis results
+      required:
+      - band
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    spectrum_analysis_band:
+      description: 'Band for spectrum analysis. enum: `24`, `5`, `6`'
+      enum:
+      - '24'
+      - '5'
+      - '6'
+      type: string
+    response_running_spectrum_analysis:
+      additionalProperties: false
+      description: Running spectrum analysis session for a site
+      properties:
+        band:
+          description: Radio band currently being scanned by spectrum analysis, such as 24, 5, or 6
+          type: string
+        channels:
+          description: List of channels being scanned in the spectrum analysis
+          items:
+            type: integer
+          type: array
+        device_id:
+          description: Device ID of the AP that is running spectrum analysis
+          format: uuid
+          type: string
+        duration:
+          description: Length of the running spectrum analysis session, in seconds
+          type: integer
+        format:
+          description: Output format for the running spectrum analysis data, such as json or stream
+          type: string
+        started_time:
+          description: Timestamp when the spectrum analysis was started
+          type: integer
+        width:
+          description: Channel width used during the spectrum analysis scan, in MHz
+          type: integer
+      type: object
+    response_past_spectrum_analysis_results:
+      description: Past spectrum analysis records returned for the site
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_result'
+      type: array
+    response_past_spectrum_analysis_channel_usages:
+      description: Per-channel utilization measurements captured during spectrum analysis
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_channel_usage'
+      type: array
+    response_past_spectrum_analysis_fft_samples:
+      description: List of FFT samples for the spectrum analysis
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_fft_sample'
+      type: array
+    spectrum_analysis_format:
+      default: json
+      description: 'Format of the spectrum analysis data. enum: `json`, `stream`'
+      enum:
+      - json
+      - stream
+      type: string
+    response_past_spectrum_analysis:
+      additionalProperties: false
+      description: Paginated response for past site spectrum analysis records
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the spectrum analysis query window
+          type: integer
+        limit:
+          description: Maximum number of spectrum analysis records returned in this page
+          type: integer
+        page:
+          description: Current page number returned for the spectrum analysis results
+          type: integer
+        results:
+          $ref: '#/components/schemas/response_past_spectrum_analysis_results'
+          description: Spectrum analysis records for the requested site and time window
+        start:
+          description: Epoch timestamp, in seconds, for the start of the spectrum analysis query window
+          type: integer
+        total:
+          description: Number of spectrum analysis records available for the given time range
+          type: integer
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    RunningSpectrumAnalysis:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RunningSpectrumAnalysis'
+          schema:
+            $ref: '#/components/schemas/response_running_spectrum_analysis'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RunningSpectrumAnalysis'
+          schema:
+            $ref: '#/components/schemas/response_running_spectrum_analysis'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    PastSpectrumAnalysis:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PastSpectrumAnalysis'
+          schema:
+            $ref: '#/components/schemas/response_past_spectrum_analysis'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PastSpectrumAnalysis'
+          schema:
+            $ref: '#/components/schemas/response_past_spectrum_analysis'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    WebsocketSession:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

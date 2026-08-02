@@ -1,0 +1,454 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Devices - SSR API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: API Calls specific to SSR devices
+  name: Orgs Devices - SSR
+paths:
+  /api/v1/orgs/{org_id}/128routers/register_cmd:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      deprecated: true
+      description: 128T devices can be managed/adopted by Mist.
+      operationId: getOrg128TRegistrationCommands
+      parameters:
+      - description: Token validity duration in seconds. Defaults to 1 year (31536000 seconds)
+        in: query
+        name: ttl
+        schema:
+          examples:
+          - 31536000
+          type: integer
+      - description: When specified restricts registration to listed assets only. Prefer HTTP body over headers for this parameter, especially with long lists to avoid header size limits.
+        in: query
+        name: asset_ids
+        schema:
+          $ref: '#/components/schemas/strings'
+      responses:
+        '200':
+          $ref: '#/components/responses/RouterSsrRegisterCmd'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrg128TRegistrationCommands
+      tags:
+      - Orgs Devices - SSR
+  /api/v1/orgs/{org_id}/ssr/export_idtokens:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: Export SSR ID tokens for the requested device MAC addresses so they can be imported into Conductor during SSR onboarding.
+      operationId: exportOrgSsrIdTokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mac_addresses'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/SsrExportIdTokens'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: exportOrgSsrIdTokens
+      tags:
+      - Orgs Devices - SSR
+  /api/v1/orgs/{org_id}/ssr/register_cmd:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Return the registration token and conductor or router commands used to register SSR routers with Mist. The optional TTL controls token validity, and asset IDs can restrict registration to specific assets.
+      operationId: getOrgSsrRegistrationCommands
+      parameters:
+      - description: Token validity duration in seconds. Defaults to 1 year (31536000 seconds)
+        in: query
+        name: ttl
+        schema:
+          examples:
+          - 31536000
+          type: integer
+      - description: When specified restricts registration to listed assets only. Prefer HTTP body over headers for this parameter, especially with long lists to avoid header size limits.
+        in: query
+        name: asset_ids
+        schema:
+          $ref: '#/components/schemas/strings'
+      responses:
+        '200':
+          $ref: '#/components/responses/RouterSsrRegisterCmd'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgSsrRegistrationCommands
+      tags:
+      - Orgs Devices - SSR
+components:
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    SsrExportIdTokens:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrExportIdTokensExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_export_id_tokens'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrExportIdTokensExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_export_id_tokens'
+      description: Example response
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    RouterSsrRegisterCmd:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RouterSsrRegisterCmdExample'
+          schema:
+            $ref: '#/components/schemas/response_router_ssr_register_cmd'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RouterSsrRegisterCmdExample'
+          schema:
+            $ref: '#/components/schemas/response_router_ssr_register_cmd'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_ssr_export_id_tokens:
+      additionalProperties: false
+      description: Response containing SSR ID tokens exported for device onboarding
+      properties:
+        results:
+          $ref: '#/components/schemas/response_ssr_export_id_tokens_results'
+          description: Exported SSR ID token records for the requested devices
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    mac_addresses:
+      description: Request containing one or more MAC addresses
+      properties:
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
+      required:
+      - macs
+      type: object
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
+    response_router_ssr_register_cmd:
+      additionalProperties: false
+      description: SSR registration token and commands used to register the router with Mist
+      properties:
+        conductor_cmd:
+          description: Command to run in the SSR conductor CLI for Mist registration
+          type: string
+        registration_code:
+          description: Registration token used by the SSR registration commands
+          type: string
+        router_shell_cmd:
+          description: Shell command to run on the SSR router for Mist registration
+          type: string
+      type: object
+    response_ssr_export_id_tokens_results:
+      description: Exported SSR ID token records
+      items:
+        $ref: '#/components/schemas/response_ssr_export_id_tokens_results_item'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_ssr_export_id_tokens_results_item:
+      additionalProperties: false
+      description: SSR ID token record for a device
+      properties:
+        mac:
+          description: SSR device MAC address for the exported ID token
+          type: string
+        token:
+          description: ID token to import into Conductor for SSR device onboarding
+          type: string
+      type: object
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    SsrExportIdTokensExample:
+      value:
+        results:
+        - mac: 025b35000020
+          token: string
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    RouterSsrRegisterCmdExample:
+      value:
+        conductor_cmd: register mist eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIyODE4ZTM4Ni04ZGVjLTI1NjItOWVkZS01YjhhMGZiYmRjNzEiLCJzdmMiOiIxMjhyb3V0ZXIiLCJwcm92aWRlciI6ImF3cyIsImVudiI6ImxvY2FsIiwiZXB0ZXJtX3VybCI6IndzczovL2xvY2FsL3dzIiwiaWF0IjoxNjEzODQ3NDg0LCJleHAiOjE2NDUzODM0ODR9.YnhgThKYAj1uaooi6j-zY8dMipp5YqJxnn79B9TB5XQ
+        registration_code: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIyODE4ZTM4Ni04ZGVjLTI1NjItOWVkZS01YjhhMGZiYmRjNzEiLCJzdmMiOiIxMjhyb3V0ZXIiLCJwcm92aWRlciI6ImF3cyIsImVudiI6ImxvY2FsIiwiZXB0ZXJtX3VybCI6IndzczovL2xvY2FsL3dzIiwiaWF0IjoxNjEzODQ3NDg0LCJleHAiOjE2NDUzODM0ODR9.YnhgThKYAj1uaooi6j-zY8dMipp5YqJxnn79B9TB5XQ
+        router_shell_cmd: 128agent register --registration-code eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIyODE4ZTM4Ni04ZGVjLTI1NjItOWVkZS01YjhhMGZiYmRjNzEiLCJzdmMiOiIxMjhyb3V0ZXIiLCJwcm92aWRlciI6ImF3cyIsImVudiI6ImxvY2FsIiwiZXB0ZXJtX3VybCI6IndzczovL2xvY2FsL3dzIiwiaWF0IjoxNjEzODQ3NDg0LCJleHAiOjE2NDUzODM0ODR9.YnhgThKYAj1uaooi6j-zY8dMipp5YqJxnn79B9TB5XQ
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

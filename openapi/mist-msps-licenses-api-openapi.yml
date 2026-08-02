@@ -1,0 +1,937 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins MSPs Licenses API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'Licenses are a type of service or access that customers can purchase for various features or services offered by a company.
+
+
+    Subscriptions can have different statuses, such as active, expired, exceeded, or trial, depending on their validity and usage. The status of a subscription determines whether it is currently active and valid, has expired, has exceeded the allowed usage limit, or is in a trial period.
+
+
+    Licenses can be activated using an activation code, and the activation process confirms the inputted code and activates the subscription.
+
+
+    Licenses can be managed at the MSP level for organization attached to an MSP account, or directly at the [Organization level]($h/Orgs%20Licenses/_overview)'
+  name: MSPs Licenses
+paths:
+  /api/v1/msps/{msp_id}/claim:
+    parameters:
+    - $ref: '#/components/parameters/msp_id'
+    post:
+      description: Claim a license order for this MSP by submitting the activation code from the order.
+      operationId: claimMspLicense
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  code: ZHT3K-H36DT-MG85D-M61AC
+            schema:
+              $ref: '#/components/schemas/code_string'
+      responses:
+        '200':
+          $ref: '#/components/responses/ClaimLicense'
+        '400':
+          description: Response when the key is invalid (or already used)
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: claimMspLicense
+      tags:
+      - MSPs Licenses
+  /api/v1/msps/{msp_id}/licenses:
+    parameters:
+    - $ref: '#/components/parameters/msp_id'
+    get:
+      description: Return MSP license entitlement, subscription, amendment, and usage summary information.
+      operationId: listMspLicenses
+      responses:
+        '200':
+          $ref: '#/components/responses/License'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listMspLicenses
+      tags:
+      - MSPs Licenses
+    put:
+      description: Perform an MSP license action, such as amending license quantity to an organization, deleting a subscription, undoing an amendment, or annotating a subscription.
+      operationId: moveOrDeleteMspLicenseToAnotherOrg
+      requestBody:
+        content:
+          application/json:
+            examples:
+              delete-license:
+                value:
+                  op: delete
+                  subscription_id: SUB-0000144
+              move-license:
+                value:
+                  dst_org_id: 3eff35f7-c218-894e-bca2-24e5325601cc
+                  op: amend
+                  quantity: 10
+                  subscription_id: SUB-0000144
+              undo-the_license_move:
+                value:
+                  amendment_id: 2b9116ab-cd1e-e897-6e08-31fccd88e792
+                  op: unamend
+            schema:
+              $ref: '#/components/schemas/msp_license_action'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: moveOrDeleteMspLicenseToAnotherOrg
+      tags:
+      - MSPs Licenses
+  /api/v1/msps/{msp_id}/stats/licenses:
+    parameters:
+    - $ref: '#/components/parameters/msp_id'
+    get:
+      description: Return license entitlement, subscription, amendment, and usage statistics for organizations managed by this MSP.
+      operationId: listMspOrgLicenses
+      responses:
+        '200':
+          $ref: '#/components/responses/License'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listMspOrgLicenses
+      tags:
+      - MSPs Licenses
+components:
+  schemas:
+    license:
+      additionalProperties: false
+      description: Organization license entitlement, subscription, and usage summary
+      properties:
+        amendments:
+          $ref: '#/components/schemas/license_amendments'
+          description: Read-only license amendments associated with the organization
+        entitled:
+          additionalProperties:
+            type: integer
+          description: Property key is license type (e.g. SUB-MAN) and Property value is the number of licenses entitled.
+          readOnly: true
+          type: object
+        fully_loaded:
+          $ref: '#/components/schemas/license_fully_loaded'
+          description: Maximum license demand by service if all organization devices use each service
+        licenses:
+          $ref: '#/components/schemas/licenses'
+          description: Read-only license subscriptions for the organization
+        summary:
+          $ref: '#/components/schemas/license_summary'
+          description: Current license consumption by license type
+        usages:
+          $ref: '#/components/schemas/license_usages'
+          description: Available license counts by service
+      type: object
+    license_sub:
+      additionalProperties: false
+      description: Read-only license subscription record
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the license subscription was created
+        end_time:
+          description: End date of the license term
+          readOnly: true
+          type: integer
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the license subscription
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the license subscription was last modified
+        order_id:
+          description: Order identifier for this license subscription
+          readOnly: true
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this license subscription
+        quantity:
+          description: Number of devices entitled for this license
+          readOnly: true
+          type: integer
+        remaining_quantity:
+          description: Number of licenses left in this subscription
+          type: integer
+        start_time:
+          description: Start date of the license term
+          readOnly: true
+          type: integer
+        subscription_id:
+          description: Subscription identifier for this license subscription
+          readOnly: true
+          type: string
+        type:
+          $ref: '#/components/schemas/license_type'
+          description: License type for this subscription
+      readOnly: true
+      type: object
+    license_type:
+      description: Type of license. The list of supported license type can be retrieve with the [List License Type](/#operations/listLicenseTypes) API request.
+      readOnly: true
+      type: string
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_claim_license_license_error:
+      description: License claim errors returned by order number
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_error_item'
+      type: array
+      uniqueItems: true
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_claim_license_inventory_added:
+      description: Inventory devices added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_item'
+      type: array
+      uniqueItems: true
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_claim_license_inventory_duplicated:
+      description: Inventory devices already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_item'
+      type: array
+      uniqueItems: true
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    license_amendment:
+      additionalProperties: false
+      description: Read-only change applied to a license subscription
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the license amendment was created
+        end_time:
+          description: End time of the license amendment
+          readOnly: true
+          type: integer
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the license amendment
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the license amendment was last modified
+        quantity:
+          description: License quantity associated with this amendment
+          readOnly: true
+          type: integer
+        start_time:
+          description: Start time of the license amendment
+          readOnly: true
+          type: integer
+        subscription_id:
+          description: Subscription identifier associated with this amendment
+          readOnly: true
+          type: string
+        type:
+          $ref: '#/components/schemas/license_type'
+          description: License type affected by this amendment
+      readOnly: true
+      type: object
+    response_claim_license:
+      additionalProperties: false
+      description: Result of claiming licenses or activation codes
+      properties:
+        inventory_added:
+          $ref: '#/components/schemas/response_claim_license_inventory_added'
+          description: Inventory devices added by the claim operation
+        inventory_duplicated:
+          $ref: '#/components/schemas/response_claim_license_inventory_duplicated'
+          description: Inventory devices already present during the claim operation
+        inventory_pending:
+          $ref: '#/components/schemas/response_claim_license_inventory_pending'
+          description: Inventory devices pending asynchronous claim processing
+        license_added:
+          $ref: '#/components/schemas/response_claim_license_license_added'
+          description: License entitlements added by the claim operation
+        license_duplicated:
+          $ref: '#/components/schemas/response_claim_license_license_duplicated'
+          description: License entitlements already present during the claim operation
+        license_error:
+          $ref: '#/components/schemas/response_claim_license_license_error'
+          description: License claim errors returned by order number
+      required:
+      - license_added
+      - license_duplicated
+      - license_error
+      - inventory_added
+      - inventory_duplicated
+      type: object
+    msp_license_action:
+      description: License operation request for an MSP account
+      properties:
+        amendment_id:
+          description: Required if `op`==`unamend`; identifies the license amendment to undo
+          type: string
+        dst_org_id:
+          description: Required if `op`==`amend`; destination org ID that receives the amended license quantity
+          format: uuid
+          type: string
+        notes:
+          description: Required if `op`==`annotate`; note text to attach to the license action
+          type: string
+        op:
+          $ref: '#/components/schemas/msp_license_action_operation'
+          description: License operation to perform for this MSP request
+        quantity:
+          description: Required if `op`==`amend`; license quantity to move to the destination org
+          type: number
+        subscription_id:
+          description: Required if `op`==`annotate`; subscription ID for the license action
+          minLength: 1
+          type: string
+      required:
+      - op
+      type: object
+    msp_license_action_operation:
+      description: 'enum: `amend`, `annotate`, `delete`, `unamend`'
+      enum:
+      - amend
+      - annotate
+      - delete
+      - unamend
+      minLength: 1
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_claim_license_license_duplicated:
+      description: License entitlements already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_item'
+      type: array
+      uniqueItems: true
+    license_usages:
+      additionalProperties:
+        readOnly: true
+        type: integer
+      description: Number of available licenses. Property key is the service name (e.g. "SUB-MAN").
+      readOnly: true
+      type: object
+    response_claim_license_inventory_pending_item:
+      additionalProperties: false
+      description: Inventory device pending asynchronous claim processing
+      properties:
+        mac:
+          description: Device MAC address pending asynchronous inventory claim
+          type: string
+      type: object
+    license_fully_loaded:
+      additionalProperties:
+        readOnly: true
+        type: integer
+      description: Maximum number of licenses that may be required if the service is enabled on all the Organization Devices. Property key is the service name (e.g. "SUB-MAN").
+      readOnly: true
+      type: object
+    response_claim_license_license_item:
+      description: License entitlement returned by a claim operation
+      properties:
+        end:
+          description: Epoch timestamp when the license entitlement ends
+          type: integer
+        quantity:
+          description: Number of license units included in the entitlement
+          type: integer
+        start:
+          description: Epoch timestamp when the license entitlement starts
+          type: integer
+        type:
+          description: License SKU or subscription type
+          type: string
+      required:
+      - type
+      - start
+      - end
+      - quantity
+    code_string:
+      description: Request body containing a single authorization or claim code
+      properties:
+        code:
+          description: Request-supplied authorization or claim code value
+          type: string
+      required:
+      - code
+      type: object
+    license_amendments:
+      description: Read-only list of license amendments
+      items:
+        $ref: '#/components/schemas/license_amendment'
+      readOnly: true
+      type: array
+      uniqueItems: true
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_claim_license_inventory_pending:
+      description: Inventory devices pending asynchronous claim processing
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_pending_item'
+      type: array
+      uniqueItems: true
+    response_claim_license_inventory_item:
+      description: Inventory device returned by a license claim
+      properties:
+        mac:
+          description: Device MAC address for the claimed inventory item
+          type: string
+        magic:
+          description: Activation code or claim code associated with the inventory item
+          type: string
+        model:
+          description: Device model for the claimed inventory item
+          type: string
+        serial:
+          description: Device serial number for the claimed inventory item
+          type: string
+        type:
+          description: Device type for the claimed inventory item
+          type: string
+      required:
+      - serial
+      - model
+      - type
+      - magic
+      - mac
+    response_claim_license_license_error_item:
+      description: License order that could not be claimed
+      properties:
+        order:
+          description: License order number or claim identifier that failed
+          type: string
+        reason:
+          description: Explanation of why the license order could not be claimed
+          type: string
+      required:
+      - order
+      - reason
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    license_summary:
+      additionalProperties:
+        type: integer
+      description: Number of licenses currently consumed. Property key is license type (e.g. SUB-MAN).
+      readOnly: true
+      type: object
+    licenses:
+      description: License subscriptions for the organization
+      items:
+        $ref: '#/components/schemas/license_sub'
+      type: array
+    response_claim_license_license_added:
+      description: License entitlements added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_item'
+      type: array
+      uniqueItems: true
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    License:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LicenseExample'
+          schema:
+            $ref: '#/components/schemas/license'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LicenseExample'
+          schema:
+            $ref: '#/components/schemas/license'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    ClaimLicense:
+      content:
+        application/json:
+          examples:
+            Licenses Successfully Claimed And Applied:
+              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
+          schema:
+            $ref: '#/components/schemas/response_claim_license'
+        application/vnd.api+json:
+          examples:
+            Licenses Successfully Claimed And Applied:
+              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
+          schema:
+            $ref: '#/components/schemas/response_claim_license'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    msp_id:
+      in: path
+      name: msp_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  examples:
+    LicenseExample:
+      value:
+        amendments:
+        - created_time: 1644684842
+          end_time: 1744156799
+          id: ff0a14f6-1234-5678-90ab-c8e64d4bc6c6
+          modified_time: 1644684842
+          quantity: -1
+          start_time: 1632873600
+          subscription_id: VNA-000000af
+          type: SUB-VNA
+        - created_time: 1644684842
+          end_time: 1744156799
+          id: c1c28812-1234-5678-90ab-dc95680da61e
+          modified_time: 1644684842
+          quantity: -1
+          start_time: 1632873600
+          subscription_id: MAN-000008be
+          type: SUB-MAN
+        - created_time: 1644684842
+          end_time: 1744243199
+          id: 96c0a41f-1234-5678-90ab-afe74817e9fd
+          modified_time: 1644684842
+          quantity: -1
+          start_time: 1586476800
+          subscription_id: EX24-000000bc
+          type: SUB-EX24
+        entitled:
+          SUB-ENG: 26
+          SUB-EX24: 9
+          SUB-MAN: 26
+          SUB-VNA: 26
+        licenses:
+        - created_time: 1555353534
+          end_time: 1586822399
+          id: 693a41a6-1234-5678-90ab-f53dbd3a31c0
+          modified_time: 1555353534
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 2
+          remaining_quantity: 0
+          start_time: 1555286400
+          subscription_id: VNA-000000aa
+          type: SUB-VNA
+        - created_time: 1576132516
+          end_time: 1586822399
+          id: 656607cf-1234-5678-90ab-fc9035614ea5
+          modified_time: 1576132516
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 8
+          remaining_quantity: 0
+          start_time: 1576022400
+          subscription_id: VNA-000000ab
+          type: SUB-VNA
+        - created_time: 1579204568
+          end_time: 1730764800
+          id: db50d0bc-1234-5678-90ab-e439958cb06b
+          modified_time: 1579204568
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 2
+          remaining_quantity: 2
+          start_time: 1572998400
+          subscription_id: MAN-000000ac
+          type: SUB-MAN
+        - created_time: 1579204568
+          end_time: 1730764800
+          id: 2ff9e84a-1234-5678-90ab-fb9ec0726e01
+          modified_time: 1579204568
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 2
+          remaining_quantity: 2
+          start_time: 1572998400
+          subscription_id: ENG-000000ad
+          type: SUB-ENG
+        - created_time: 1579204568
+          end_time: 1730764800
+          id: 16df7ea6-1234-5678-90ab-78018cd4024d
+          modified_time: 1579204568
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 2
+          remaining_quantity: 2
+          start_time: 1572998400
+          subscription_id: VNA-000000ae
+          type: SUB-VNA
+        - created_time: 1586237081
+          end_time: 1744243199
+          id: 1b6f68d5-1234-5678-90ab-70d3e6d18c73
+          modified_time: 1586237081
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 14
+          remaining_quantity: 14
+          start_time: 1586563200
+          subscription_id: VNA-000000af
+          type: SUB-VNA
+        - created_time: 1586237097
+          end_time: 1744243199
+          id: 1375c9bf-1234-5678-90ab-9c636708c89e
+          modified_time: 1586237097
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 14
+          remaining_quantity: 14
+          start_time: 1586563200
+          subscription_id: MAN-000000ba
+          type: SUB-MAN
+        - created_time: 1586237137
+          end_time: 1744243199
+          id: 5974e979-1234-5678-90ab-438f833ec1c9
+          modified_time: 1586237137
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 14
+          remaining_quantity: 14
+          start_time: 1586563200
+          subscription_id: ENG-000000bb
+          type: SUB-ENG
+        - created_time: 1629947267
+          end_time: 1744243199
+          id: 340a9cb3-1234-5678-90ab-b009344dbf3c
+          modified_time: 1629947267
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 10
+          remaining_quantity: 9
+          start_time: 1586476800
+          subscription_id: EX24-000000bc
+          type: SUB-EX24
+        - created_time: 1632941870
+          end_time: 1744156799
+          id: 9b599b0f-1234-5678-90ab-406081b58e7f
+          modified_time: 1632941870
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 10
+          remaining_quantity: 10
+          start_time: 1632873600
+          subscription_id: ENG-000000bd
+          type: SUB-ENG
+        - created_time: 1632941882
+          end_time: 1744156799
+          id: d6d8ead3-1234-5678-90ab-98badeac7287
+          modified_time: 1632941882
+          order_id: '00000000'
+          org_id: 9777c1a0-1234-5678-90ab-02e208b2d34f
+          quantity: 11
+          remaining_quantity: 9
+          start_time: 1632873600
+          subscription_id: MAN-000008be
+          type: SUB-MAN
+        summary:
+          SUB-ENG: 18
+          SUB-EX24: 3
+          SUB-MAN: 22
+          SUB-VNA: 20
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    ClaimLicenseLicensesSuccessfullyClaimedAndApplied:
+      value:
+        inventory_added:
+        - mac: 5c5b35000018
+          magic: 6JG8EPTFV2A9Z2N
+          model: AP41
+          serial: FXLH2015150025
+          type: ap
+        inventory_duplicated:
+        - mac: 5c5b35000012
+          magic: DVH4VSNMSZPDXBR
+          model: AP41
+          serial: FXLH2015150027
+          type: ap
+        inventory_pending:
+        - mac: 5c5b35000012
+        license_added:
+        - end: 1520380800
+          quantity: 180
+          start: 1504828800
+          type: SUB-MAN
+        - end: 1520380800
+          quantity: 120
+          start: 1504828800
+          type: SUB-LOC
+        license_duplicated:
+        - end: 1520380800
+          quantity: 180
+          start: 1504828800
+          type: SUB-MAN
+        license_error:
+        - order: '00000464'
+          reason: ''
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

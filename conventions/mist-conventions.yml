@@ -1,0 +1,61 @@
+generated: '2026-07-20'
+method: searched
+source: https://www.mist.com/documentation/mist-api-introduction/
+summary: >-
+  Cross-cutting request/response semantics for the Juniper Mist Cloud API, derived
+  from the OpenAPI 3.1 spec and the Mist API documentation. Mist is a RESTful
+  JSON API organized around an Org -> Site -> Device hierarchy.
+authentication:
+  style: token
+  header: 'Authorization: Token {apitoken}'
+  alternate: 'X-CSRFToken (session/login-cookie based)'
+  see: authentication/mist-authentication.yml
+base_path: /api/v1
+media_type: application/json
+verbs: [GET, POST, PUT, DELETE]
+regions:
+  note: >-
+    The API is served from region-specific hosts; substitute "api" for "manage"
+    in your portal hostname (e.g. manage.eu.mist.com -> api.eu.mist.com).
+  hosts:
+    - api.mist.com
+    - api.gc1.mist.com
+    - api.ac2.mist.com
+    - api.gc2.mist.com
+    - api.gc4.mist.com
+    - api.eu.mist.com
+    - api.gc3.mist.com
+    - api.ac6.mist.com
+    - api.gc6.mist.com
+    - api.ac5.mist.com
+    - api.gc5.mist.com
+    - api.gc7.mist.com
+pagination:
+  style: page-number
+  params:
+    - page
+    - limit
+  note: >-
+    List and search endpoints accept `page` and `limit` query params. Paged
+    responses expose total counts and paging metadata via X-Page-* response
+    headers.
+time_range:
+  params: [start, end, duration]
+  note: Analytics/search endpoints accept Unix-epoch start/end or a duration window.
+idempotency:
+  supported: false
+  note: >-
+    Mist does not document a client idempotency-key mechanism. Writes are
+    modeled as REST create/update (POST/PUT) against hierarchical resources.
+rate_limiting:
+  see: rate-limits/mist-rate-limits.yml
+  exceeded_status: 429
+error_envelope:
+  shape: '{ "detail": "<message>" }'
+  format: json
+  see: errors/mist-problem-types.yml
+versioning:
+  see: lifecycle/mist-lifecycle.yml
+webhooks:
+  supported: true
+  see: asyncapi/mist-webhooks.yml

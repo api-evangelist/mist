@@ -1,0 +1,1761 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Stats - Calls API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: API Calls to retrieve the stats of the calls (Zoom/Teams) detected by Mist
+  name: Sites Stats - Calls
+paths:
+  /api/v1/sites/{site_id}/stats/calls/client/{client_mac}/troubleshoot:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/client_mac'
+    get:
+      description: Troubleshoot a call
+      operationId: troubleshootSiteCall
+      parameters:
+      - description: Filter results by meeting identifier
+        in: query
+        name: meeting_id
+        required: true
+        schema:
+          examples:
+          - 1234567890abcdef
+          type: string
+      - description: Filter results by MAC address
+        in: query
+        name: mac
+        schema:
+          examples:
+          - '001122334455'
+          type: string
+      - description: Third party app name
+        in: query
+        name: app
+        schema:
+          examples:
+          - zoom
+          type: string
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/CallTroubleshoot'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: troubleshootSiteCall
+      tags:
+      - Sites Stats - Calls
+  /api/v1/sites/{site_id}/stats/calls/count:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Count by Distinct Attributes of Calls
+      operationId: countSiteCalls
+      parameters:
+      - description: 'Field used to group this count response. enum: `mac`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/count_site_calls_distinct'
+      - description: Feedback rating (e.g. "rating=1" or "rating=1,2")
+        in: query
+        name: rating
+        schema:
+          examples:
+          - 5
+          maximum: 5
+          minimum: 1
+          type: integer
+      - description: Filter application statistics by application name
+        in: query
+        name: app
+        schema:
+          examples:
+          - zoom
+          type: string
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countSiteCalls
+      tags:
+      - Sites Stats - Calls
+  /api/v1/sites/{site_id}/stats/calls/search:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Search Calls
+      operationId: searchSiteCalls
+      parameters:
+      - description: Filter results by MAC address
+        in: query
+        name: mac
+        schema:
+          examples:
+          - '001122334455'
+          type: string
+      - description: Third party app name
+        in: query
+        name: app
+        schema:
+          examples:
+          - zoom
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/search_after'
+      responses:
+        '200':
+          $ref: '#/components/responses/CallStatsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: searchSiteCalls
+      tags:
+      - Sites Stats - Calls
+  /api/v1/sites/{site_id}/stats/calls/summary:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Summarized, aggregated stats for the site calls
+      operationId: getSiteCallsSummary
+      parameters:
+      - description: Filter results by AP MAC address
+        in: query
+        name: ap_mac
+        schema:
+          examples:
+          - '001122334455'
+          type: string
+      - description: Filter results by application name
+        in: query
+        name: app
+        schema:
+          examples:
+          - zoom
+          type: string
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      responses:
+        '200':
+          $ref: '#/components/responses/CallStatsSummary'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteCallsSummary
+      tags:
+      - Sites Stats - Calls
+  /api/v1/sites/{site_id}/stats/calls/troubleshoot:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Summary of calls troubleshoot by site
+      operationId: listSiteTroubleshootCalls
+      parameters:
+      - description: Filter results by AP MAC address
+        in: query
+        name: ap
+        schema:
+          examples:
+          - '001122334455'
+          type: string
+      - description: Filter results by meeting identifier
+        in: query
+        name: meeting_id
+        schema:
+          examples:
+          - 1234567890abcdef
+          type: string
+      - description: Filter results by MAC address
+        in: query
+        name: mac
+        schema:
+          examples:
+          - '001122334455'
+          type: string
+      - description: Third party app name
+        in: query
+        name: app
+        schema:
+          examples:
+          - zoom
+          type: string
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/CallTroubleshootSummary'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteTroubleshootCalls
+      tags:
+      - Sites Stats - Calls
+components:
+  schemas:
+    call_troubleshoot:
+      additionalProperties: false
+      description: Detailed call troubleshooting response
+      properties:
+        mac:
+          description: Client MAC address for the troubleshot call
+          examples:
+          - 983a78ea4a44
+          type: string
+        meeting_id:
+          description: Meeting identifier for the troubleshot call
+          examples:
+          - b784d744-9a7c-4fad-9af0-f78858a319b1
+          format: uuid
+          type: string
+        results:
+          $ref: '#/components/schemas/call_troubleshoots'
+          description: Per-sample troubleshooting results for the call
+      type: object
+    response_stats_calls:
+      additionalProperties: false
+      description: Paginated response for site call statistics search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the call statistics search window
+          type: number
+        limit:
+          description: Maximum number of call statistics records returned in this page
+          type: integer
+        next:
+          description: URL for retrieving the next page of call statistics results
+          type: string
+        results:
+          $ref: '#/components/schemas/stats_calls'
+          description: Call statistics records matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the call statistics search window
+          type: number
+        total:
+          description: Number of call statistics records matching the search filters across all pages
+          type: integer
+      type: object
+    call_troubleshoot_data:
+      additionalProperties: false
+      description: Per-media call troubleshooting metric values
+      properties:
+        ap_num_clients:
+          description: Troubleshooting metric value for AP client count
+          examples:
+          - -0.6565111
+          type: number
+        ap_rtt:
+          description: Troubleshooting metric value for AP round-trip time
+          examples:
+          - 0.16559607
+          type: number
+        client_cpu:
+          description: Troubleshooting metric value for client CPU load
+          examples:
+          - 3.7028809
+          type: number
+        client_n_streams:
+          description: Troubleshooting metric value for the number of client spatial streams
+          examples:
+          - 0.15803306
+          type: number
+        client_radio_band:
+          description: Troubleshooting metric value for the client radio band
+          examples:
+          - 0.5576923
+          type: number
+        client_rssi:
+          description: Troubleshooting metric value for client RSSI
+          examples:
+          - -1.0839354
+          type: number
+        client_rx_bytes:
+          description: Troubleshooting metric value for bytes received by the client
+          examples:
+          - 2.2622051
+          type: number
+        client_rx_rates:
+          description: Troubleshooting metric value for client receive data rates
+          examples:
+          - 0.62357205
+          type: number
+        client_rx_retries:
+          description: Troubleshooting metric value for client receive retries
+          examples:
+          - 0.26726437
+          type: number
+        client_tx_bytes:
+          description: Troubleshooting metric value for bytes transmitted by the client
+          examples:
+          - 0.15803306
+          type: number
+        client_tx_rates:
+          description: Troubleshooting metric value for client transmit data rates
+          examples:
+          - 0.62357205
+          type: number
+        client_tx_retries:
+          description: Troubleshooting metric value for client transmit retries
+          examples:
+          - 0.77553505
+          type: number
+        client_vpn_distance:
+          description: Troubleshooting metric value for client VPN distance
+          examples:
+          - 1.6474955
+          type: number
+        client_wifi_version:
+          description: Troubleshooting metric value for the client Wi-Fi version
+          examples:
+          - 0.18267937
+          type: number
+        expected:
+          description: Model baseline value expected for this media direction
+          examples:
+          - 30.941595
+          type: number
+        radio_bandwidth:
+          description: Troubleshooting metric value for radio channel bandwidth
+          examples:
+          - -0.06538621
+          type: number
+        radio_channel:
+          description: Troubleshooting metric value for the radio channel
+          examples:
+          - -0.73391086
+          type: number
+        radio_tx_power:
+          description: Troubleshooting metric value for radio transmit power
+          examples:
+          - 0.10027129
+          type: number
+        radio_util:
+          description: Troubleshooting metric value for radio utilization
+          examples:
+          - 12.770318
+          type: number
+        radio_util_interference:
+          description: Troubleshooting metric value for radio interference utilization
+          examples:
+          - -3.079999
+          type: number
+        site_num_clients:
+          description: Troubleshooting metric value for the number of clients at the site
+          examples:
+          - 0.017364305
+          type: number
+        wan_avg_download_mbps:
+          description: Troubleshooting metric value for average WAN download throughput
+          examples:
+          - 1.4803165
+          type: number
+        wan_avg_upload_mbps:
+          description: Troubleshooting metric value for average WAN upload throughput
+          examples:
+          - -0.038184267
+          type: number
+        wan_jitter:
+          description: Troubleshooting metric value for WAN jitter
+          examples:
+          - 5.9680853
+          type: number
+        wan_max_download_mbps:
+          description: Troubleshooting metric value for maximum WAN download throughput
+          examples:
+          - 1.4803165
+          type: number
+        wan_max_upload_mbps:
+          description: Troubleshooting metric value for maximum WAN upload throughput
+          examples:
+          - -0.038184267
+          type: number
+        wan_rtt:
+          description: Troubleshooting metric value for WAN round-trip time
+          examples:
+          - 46.77899
+          type: number
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    call_troubleshoot_summary:
+      additionalProperties: false
+      description: Summary row for call troubleshooting metrics
+      properties:
+        ap_num_clients:
+          description: Summary troubleshooting metric value for AP client count
+          examples:
+          - -0.08802365511655807
+          type: number
+        ap_rtt:
+          description: Summary troubleshooting metric value for AP round-trip time
+          examples:
+          - 0.09924473613500595
+          type: number
+        audio_in:
+          $ref: '#/components/schemas/call_troubleshoot_summary_data'
+          description: Troubleshooting metrics for the inbound audio stream
+        audio_out:
+          $ref: '#/components/schemas/call_troubleshoot_summary_data'
+          description: Troubleshooting metrics for the outbound audio stream
+        client_cpu:
+          description: Summary troubleshooting metric value for client CPU load
+          examples:
+          - 0.00834270566701889
+          type: number
+        client_n_streams:
+          description: Summary troubleshooting metric value for the number of client spatial streams
+          examples:
+          - 0.00734270566701889
+          type: number
+        client_radio_band:
+          description: Summary troubleshooting metric value for the client radio band
+          examples:
+          - 0.5841414928436279
+          type: number
+        client_rssi:
+          description: Summary troubleshooting metric value for client RSSI
+          examples:
+          - 0.7594696879386902
+          type: number
+        client_rx_bytes:
+          description: Summary troubleshooting metric value for bytes received by the client
+          examples:
+          - 2.365511655807e-05
+          type: number
+        client_rx_rates:
+          description: Summary troubleshooting metric value for client receive data rates
+          examples:
+          - 0.02441493794322014
+          type: number
+        client_rx_retries:
+          description: Summary troubleshooting metric value for client receive retries
+          examples:
+          - -0.14325742423534393
+          type: number
+        client_tx_bytes:
+          description: Summary troubleshooting metric value for bytes transmitted by the client
+          examples:
+          - 0.00102365511655807
+          type: number
+        client_tx_rates:
+          description: Summary troubleshooting metric value for client transmit data rates
+          examples:
+          - 0.22236637771129608
+          type: number
+        client_tx_retries:
+          description: Summary troubleshooting metric value for client transmit retries
+          examples:
+          - 0.3308201730251312
+          type: number
+        client_vpn_distance:
+          description: Summary troubleshooting metric value for client VPN distance
+          examples:
+          - -0.0001660545531194657
+          type: number
+        client_wifi_version:
+          description: Summary troubleshooting metric value for the client Wi-Fi version
+          examples:
+          - 7.0566701889e-07
+          type: number
+        expected:
+          description: Model baseline value expected for this call sample
+          examples:
+          - -2.8630001056670187
+          type: number
+        radio_ap_change:
+          description: Summary troubleshooting metric value for AP changes on the radio path
+          examples:
+          - 0.01850946433842182
+          type: number
+        radio_bandwidth:
+          description: Summary troubleshooting metric value for radio channel bandwidth
+          examples:
+          - -0.021175479516386986
+          type: number
+        radio_channel:
+          description: Summary troubleshooting metric value for the radio channel
+          examples:
+          - 0.11686426401138306
+          type: number
+        radio_rx_failed:
+          description: Summary troubleshooting metric value for failed radio receive attempts
+          examples:
+          - 1.1782013177871704
+          type: number
+        radio_tx_power:
+          description: Summary troubleshooting metric value for radio transmit power
+          examples:
+          - 0.121039018034935
+          type: number
+        radio_util:
+          description: Summary troubleshooting metric value for radio utilization
+          examples:
+          - 0.2452986091375351
+          type: number
+        radio_util_interference:
+          description: Summary troubleshooting metric value for radio interference utilization
+          examples:
+          - 3.4367904663085938
+          type: number
+        site_num_clients:
+          description: Summary troubleshooting metric value for the number of clients at the site
+          examples:
+          - 0.055026158690452576
+          type: number
+        site_wan_avg_download_mbps:
+          description: Summary troubleshooting metric value for site WAN average download throughput
+          examples:
+          - 3.0566701889e-07
+          type: number
+        site_wan_avg_upload_mbps:
+          description: Summary troubleshooting metric value for site WAN average upload throughput
+          examples:
+          - 5.566701889e-08
+          type: number
+        site_wan_download_mbps:
+          description: Summary troubleshooting metric value for site WAN download throughput
+          examples:
+          - 8.0566701889e-07
+          type: number
+        site_wan_jitter:
+          description: Summary troubleshooting metric value for site WAN jitter
+          examples:
+          - 0.7875519659784105
+          type: number
+        site_wan_rtt:
+          description: Summary troubleshooting metric value for site WAN round-trip time
+          examples:
+          - 15.094849904378256
+          type: number
+        site_wan_upload_mbps:
+          description: Summary troubleshooting metric value for site WAN upload throughput
+          examples:
+          - 2.0566701889e-07
+          type: number
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when this call troubleshooting sample was recorded
+        video_in:
+          $ref: '#/components/schemas/call_troubleshoot_summary_data'
+          description: Troubleshooting metrics for the inbound video stream
+        video_out:
+          $ref: '#/components/schemas/call_troubleshoot_summary_data'
+          description: Troubleshooting metrics for the outbound video stream
+      type: object
+    troubleshoot_call_item:
+      additionalProperties: false
+      description: Per-sample call troubleshooting metrics
+      properties:
+        ap_num_clients:
+          description: Troubleshooting metric value for AP client count
+          examples:
+          - -0.08802365511655807
+          type: number
+        ap_rtt:
+          description: Troubleshooting metric value for AP round-trip time
+          examples:
+          - 0.09924473613500595
+          type: number
+        audio_in:
+          $ref: '#/components/schemas/call_troubleshoot_data'
+          description: Troubleshooting metrics for the inbound audio stream
+        audio_out:
+          $ref: '#/components/schemas/call_troubleshoot_data'
+          description: Troubleshooting metrics for the outbound audio stream
+        client_cpu:
+          description: Troubleshooting metric value for client CPU load
+          examples:
+          - 0.00834270566701889
+          type: number
+        client_n_streams:
+          description: Troubleshooting metric value for the number of client spatial streams
+          examples:
+          - 0.00734270566701889
+          type: number
+        client_radio_band:
+          description: Troubleshooting metric value for the client radio band
+          examples:
+          - 0.5841414928436279
+          type: number
+        client_rssi:
+          description: Troubleshooting metric value for client RSSI
+          examples:
+          - 0.7594696879386902
+          type: number
+        client_rx_bytes:
+          description: Troubleshooting metric value for bytes received by the client
+          examples:
+          - 2.365511655807e-05
+          type: number
+        client_rx_rates:
+          description: Troubleshooting metric value for client receive data rates
+          examples:
+          - 0.02441493794322014
+          type: number
+        client_rx_retries:
+          description: Troubleshooting metric value for client receive retries
+          examples:
+          - -0.14325742423534393
+          type: number
+        client_tx_bytes:
+          description: Troubleshooting metric value for bytes transmitted by the client
+          examples:
+          - 0.00102365511655807
+          type: number
+        client_tx_rates:
+          description: Troubleshooting metric value for client transmit data rates
+          examples:
+          - 0.22236637771129608
+          type: number
+        client_tx_retries:
+          description: Troubleshooting metric value for client transmit retries
+          examples:
+          - 0.3308201730251312
+          type: number
+        client_vpn_distance:
+          description: Troubleshooting metric value for client VPN distance
+          examples:
+          - -0.0001660545531194657
+          type: number
+        client_wifi_version:
+          description: Troubleshooting metric value for the client Wi-Fi version
+          examples:
+          - 7.0566701889e-07
+          type: number
+        expected:
+          description: Model baseline value expected for this call sample
+          examples:
+          - -2.8630001056670187
+          type: number
+        radio_ap_change:
+          description: Troubleshooting metric value for AP changes on the radio path
+          examples:
+          - 0.01850946433842182
+          type: number
+        radio_bandwidth:
+          description: Troubleshooting metric value for radio channel bandwidth
+          examples:
+          - -0.021175479516386986
+          type: number
+        radio_channel:
+          description: Troubleshooting metric value for the radio channel
+          examples:
+          - 0.11686426401138306
+          type: number
+        radio_rx_failed:
+          description: Troubleshooting metric value for failed radio receive attempts
+          examples:
+          - 1.1782013177871704
+          type: number
+        radio_tx_power:
+          description: Troubleshooting metric value for radio transmit power
+          examples:
+          - 0.121039018034935
+          type: number
+        radio_util:
+          description: Troubleshooting metric value for radio utilization
+          examples:
+          - 0.2452986091375351
+          type: number
+        radio_util_interference:
+          description: Troubleshooting metric value for radio interference utilization
+          examples:
+          - 3.4367904663085938
+          type: number
+        site_num_clients:
+          description: Troubleshooting metric value for the number of clients at the site
+          examples:
+          - 0.055026158690452576
+          type: number
+        site_wan_avg_download_mbps:
+          description: Troubleshooting metric value for site WAN average download throughput
+          examples:
+          - 3.0566701889e-07
+          type: number
+        site_wan_avg_upload_mbps:
+          description: Troubleshooting metric value for site WAN average upload throughput
+          examples:
+          - 5.566701889e-08
+          type: number
+        site_wan_download_mbps:
+          description: Troubleshooting metric value for site WAN download throughput
+          examples:
+          - 8.0566701889e-07
+          type: number
+        site_wan_jitter:
+          description: Troubleshooting metric value for site WAN jitter
+          examples:
+          - 1.00566701889e-06
+          type: number
+        site_wan_rtt:
+          description: Troubleshooting metric value for site WAN round-trip time
+          examples:
+          - 4.0566701889e-07
+          type: number
+        site_wan_upload_mbps:
+          description: Troubleshooting metric value for site WAN upload throughput
+          examples:
+          - 2.0566701889e-07
+          type: number
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when this call troubleshooting sample was recorded
+        video_in:
+          $ref: '#/components/schemas/call_troubleshoot_data'
+          description: Troubleshooting metrics for the inbound video stream
+        video_out:
+          $ref: '#/components/schemas/call_troubleshoot_data'
+          description: Troubleshooting metrics for the outbound video stream
+      type: object
+    response_call_troubleshoot_summary:
+      additionalProperties: false
+      description: Site call troubleshooting summary response
+      properties:
+        mac:
+          description: Client MAC address for the summarized call troubleshooting result
+          examples:
+          - 983a78ea4a44
+          type: string
+        meeting_id:
+          description: Meeting identifier for the summarized call troubleshooting result
+          examples:
+          - b784d744-9a7c-4fad-9af0-f78858a319b1
+          format: uuid
+          type: string
+        results:
+          $ref: '#/components/schemas/call_troubleshoot_summaries'
+          description: Summary troubleshooting results returned for matching calls
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    stats_call:
+      additionalProperties: false
+      description: Statistics record for a detected collaboration call, such as Zoom or Teams
+      properties:
+        app:
+          description: Third-party collaboration application that reported the call statistics
+          type: string
+        audio_quality:
+          description: Quality score reported for the call audio stream
+          type: integer
+        end_time:
+          description: Time when the call ended, in epoch seconds
+          type: integer
+        mac:
+          description: Client MAC address associated with the call statistics record
+          type: string
+        meeting_id:
+          description: Collaboration meeting identifier reported for the call
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization identifier for the call statistics record
+        rating:
+          description: Overall call rating reported by the collaboration application, when available
+          type: integer
+        screen_share_quality:
+          description: Quality score reported for screen sharing during the call
+          type: integer
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Associated site identifier for the call statistics record
+        start_time:
+          description: Time when the call started, in epoch seconds
+          type: integer
+        video_quality:
+          description: Quality score reported for the call video stream
+          type: integer
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    call_troubleshoot_summaries:
+      description: List of call troubleshooting summary records
+      items:
+        $ref: '#/components/schemas/call_troubleshoot_summary'
+      type: array
+    response_stats_calls_summary:
+      additionalProperties: false
+      description: Aggregated site call statistics summary
+      properties:
+        bad_minutes:
+          description: Total call minutes classified as bad across all quality categories
+          examples:
+          - 5566.0
+          type: number
+        bad_minutes_client:
+          description: Call minutes classified as bad due to client-side issues
+          examples:
+          - 526.0
+          type: number
+        bad_minutes_site_wan:
+          description: Call minutes classified as bad due to site WAN issues
+          examples:
+          - 3612.0
+          type: number
+        bad_minutes_wireless:
+          description: Call minutes classified as bad due to wireless issues
+          examples:
+          - 1428.0
+          type: number
+        num_aps:
+          description: Number of APs represented in the call statistics summary
+          examples:
+          - 1
+          type: integer
+        num_users:
+          description: Number of users represented in the call statistics summary
+          examples:
+          - 3
+          type: integer
+        total_minutes:
+          description: Total call minutes represented in the summary
+          examples:
+          - 5566.0
+          type: number
+      type: object
+    stats_calls:
+      description: Collaboration call statistics returned by search
+      items:
+        $ref: '#/components/schemas/stats_call'
+      type: array
+    call_troubleshoots:
+      description: List of call troubleshooting detail records
+      items:
+        $ref: '#/components/schemas/troubleshoot_call_item'
+      type: array
+    count_site_calls_distinct:
+      default: mac
+      description: 'Distinct field used when counting site call statistics. enum: `mac`'
+      enum:
+      - mac
+      type: string
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    call_troubleshoot_summary_data:
+      additionalProperties: false
+      description: Media-direction call troubleshooting metrics in a summary response
+      properties:
+        ap_num_clients:
+          description: Media-direction metric value for AP client count
+          examples:
+          - -0.6565111
+          type: number
+        ap_rtt:
+          description: Media-direction metric value for AP round-trip time
+          examples:
+          - 0.16559607
+          type: number
+        client_cpu:
+          description: Media-direction metric value for client CPU load
+          examples:
+          - 3.7028809
+          type: number
+        client_n_streams:
+          description: Media-direction metric value for the number of client spatial streams
+          examples:
+          - 0.15803306
+          type: number
+        client_radio_band:
+          description: Media-direction metric value for the client radio band
+          examples:
+          - 0.5576923
+          type: number
+        client_rssi:
+          description: Media-direction metric value for client RSSI
+          examples:
+          - -1.0839354
+          type: number
+        client_rx_bytes:
+          description: Media-direction metric value for bytes received by the client
+          examples:
+          - 2.2622051
+          type: number
+        client_rx_rates:
+          description: Media-direction metric value for client receive data rates
+          examples:
+          - 0.26726437
+          type: number
+        client_tx_bytes:
+          description: Media-direction metric value for bytes transmitted by the client
+          examples:
+          - 6.6164713
+          type: number
+        client_tx_rates:
+          description: Media-direction metric value for client transmit data rates
+          examples:
+          - 0.62357205
+          type: number
+        client_tx_retries:
+          description: Media-direction metric value for client transmit retries
+          examples:
+          - 1.702031
+          type: number
+        client_vpn_distance:
+          description: Media-direction metric value for client VPN distance
+          examples:
+          - 1.6474955
+          type: number
+        client_wifi_version:
+          description: Media-direction metric value for the client Wi-Fi version
+          examples:
+          - 0.18267937
+          type: number
+        expected:
+          description: Model baseline value expected for this media direction
+          examples:
+          - 30.941595
+          type: number
+        radio_bandwidth:
+          description: Media-direction metric value for radio channel bandwidth
+          examples:
+          - -0.06538621
+          type: number
+        radio_channel:
+          description: Media-direction metric value for the radio channel
+          examples:
+          - -0.73391086
+          type: number
+        radio_tx_power:
+          description: Media-direction metric value for radio transmit power
+          examples:
+          - 0.10027129
+          type: number
+        radio_util:
+          description: Media-direction metric value for radio utilization
+          examples:
+          - 12.770318
+          type: number
+        radio_util_interference:
+          description: Media-direction metric value for radio interference utilization
+          examples:
+          - -3.079999
+          type: number
+        site_num_clients:
+          description: Media-direction metric value for the number of clients at the site
+          examples:
+          - 0.017364305
+          type: number
+        site_wan_avg_download_mbps:
+          description: Media-direction metric value for site WAN average download throughput
+          examples:
+          - 3.0566701889e-07
+          type: number
+        site_wan_avg_upload_mbps:
+          description: Media-direction metric value for site WAN average upload throughput
+          examples:
+          - 5.566701889e-08
+          type: number
+        site_wan_download_mbps:
+          description: Media-direction metric value for site WAN download throughput
+          examples:
+          - 8.0566701889e-07
+          type: number
+        site_wan_jitter:
+          description: Media-direction metric value for site WAN jitter
+          examples:
+          - 0.7875519659784105
+          type: number
+        site_wan_rtt:
+          description: Media-direction metric value for site WAN round-trip time
+          examples:
+          - 15.094849904378256
+          type: number
+        site_wan_upload_mbps:
+          description: Media-direction metric value for site WAN upload throughput
+          examples:
+          - 2.0566701889e-07
+          type: number
+        wan_avg_download_mbps:
+          description: Media-direction metric value for average WAN download throughput
+          examples:
+          - 1.4803165
+          type: number
+        wan_avg_upload_mbps:
+          description: Media-direction metric value for average WAN upload throughput
+          examples:
+          - -0.038184267
+          type: number
+        wan_jitter:
+          description: Media-direction metric value for WAN jitter
+          examples:
+          - 5.9680853
+          type: number
+        wan_max_download_mbps:
+          description: Media-direction metric value for maximum WAN download throughput
+          examples:
+          - 1.4803165
+          type: number
+        wan_max_upload_mbps:
+          description: Media-direction metric value for maximum WAN upload throughput
+          examples:
+          - -0.038184267
+          type: number
+        wan_rtt:
+          description: Media-direction metric value for WAN round-trip time
+          examples:
+          - 46.77899
+          type: number
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    CallTroubleshoot:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallTroubleshootExample'
+          schema:
+            $ref: '#/components/schemas/call_troubleshoot'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallTroubleshootExample'
+          schema:
+            $ref: '#/components/schemas/call_troubleshoot'
+      description: Example response
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    CallStatsSummary:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallStatsSummaryExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_calls_summary'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallStatsSummaryExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_calls_summary'
+      description: Example response
+    CallTroubleshootSummary:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallTroubleshootSummaryExample'
+          schema:
+            $ref: '#/components/schemas/response_call_troubleshoot_summary'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CallTroubleshootSummaryExample'
+          schema:
+            $ref: '#/components/schemas/response_call_troubleshoot_summary'
+      description: Example response
+    CallStatsArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_stats_calls'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_stats_calls'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    client_mac:
+      in: path
+      name: client_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+  examples:
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    CallTroubleshootExample:
+      value:
+        mac: 983a78ea4a44
+        meeting_id: b784d744-9a7c-4fad-9af0-f78858a319b1
+        results:
+        - ap_num_clients: -0.08802365511655807
+          ap_rtt: 0.09924473613500595
+          audio_in:
+            ap_num_clients: -0.6565111
+            ap_rtt: 0.16559607
+            client_cpu: 3.7028809
+            client_n_streams: 0.15803306
+            client_radio_band: 0.5576923
+            client_rssi: -1.0839354
+            client_rx_bytes: 2.2622051
+            client_rx_rates: 0.62357205
+            client_rx_retries: 0.26726437
+            client_tx_bytes: 0.15803306
+            client_tx_rates: 0.62357205
+            client_tx_retries: 0.77553505
+            client_vpn_distance: 1.6474955
+            client_wifi_version: 0.18267937
+            expected: 30.941595
+            radio_bandwidth: -0.06538621
+            radio_channel: -0.73391086
+            radio_tx_power: 0.10027129
+            radio_util: 12.770318
+            radio_util_interference: -3.079999
+            site_num_clients: 0.017364305
+            wan_avg_download_mbps: 1.4803165
+            wan_avg_upload_mbps: -0.038184267
+            wan_jitter: 5.9680853
+            wan_max_download_mbps: 1.4803165
+            wan_max_upload_mbps: -0.038184267
+            wan_rtt: 46.77899
+          audio_out:
+            ap_num_clients: -0.6565111
+            ap_rtt: 0.16559607
+            client_cpu: 3.7028809
+            client_n_streams: 0.15803306
+            client_radio_band: 0.5576923
+            client_rssi: -1.0839354
+            client_rx_bytes: 2.2622051
+            client_rx_rates: 0.62357205
+            client_rx_retries: 0.26726437
+            client_tx_bytes: 0.15803306
+            client_tx_rates: 0.62357205
+            client_tx_retries: 0.77553505
+            client_vpn_distance: 1.6474955
+            client_wifi_version: 0.18267937
+            expected: 30.941595
+            radio_bandwidth: -0.06538621
+            radio_channel: -0.73391086
+            radio_tx_power: 0.10027129
+            radio_util: 12.770318
+            radio_util_interference: -3.079999
+            site_num_clients: 0.017364305
+            wan_avg_download_mbps: 1.4803165
+            wan_avg_upload_mbps: -0.038184267
+            wan_jitter: 5.9680853
+            wan_max_download_mbps: 1.4803165
+            wan_max_upload_mbps: -0.038184267
+            wan_rtt: 46.77899
+          client_cpu: 0.00834270566701889
+          client_n_streams: 0.00734270566701889
+          client_radio_band: 0.5841414928436279
+          client_rssi: 0.7594696879386902
+          client_rx_bytes: 2.365511655807e-05
+          client_rx_rates: 0.02441493794322014
+          client_rx_retries: -0.14325742423534393
+          client_tx_bytes: 0.00102365511655807
+          client_tx_rates: 0.22236637771129608
+          client_tx_retries: 0.3308201730251312
+          client_vpn_distance: -0.0001660545531194657
+          client_wifi_version: 7.0566701889e-07
+          expected: -2.8630001056670187
+          radio_ap_change: 0.01850946433842182
+          radio_bandwidth: -0.021175479516386986
+          radio_channel: 0.11686426401138306
+          radio_rx_failed: 1.1782013177871704
+          radio_tx_power: 0.121039018034935
+          radio_util: 0.2452986091375351
+          radio_util_interference: 3.4367904663085938
+          site_num_clients: 0.055026158690452576
+          site_wan_avg_download_mbps: 3.0566701889e-07
+          site_wan_avg_upload_mbps: 5.566701889e-08
+          site_wan_download_mbps: 8.0566701889e-07
+          site_wan_jitter: 1.00566701889e-06
+          site_wan_rtt: 4.0566701889e-07
+          site_wan_upload_mbps: 2.0566701889e-07
+          timestamp: 1695425115
+          video_in:
+            ap_num_clients: -0.6565111
+            ap_rtt: 0.16559607
+            client_cpu: 3.7028809
+            client_n_streams: 0.15803306
+            client_radio_band: 0.5576923
+            client_rssi: -1.0839354
+            client_rx_bytes: 2.2622051
+            client_rx_rates: 0.62357205
+            client_rx_retries: 0.26726437
+            client_tx_bytes: 0.15803306
+            client_tx_rates: 0.62357205
+            client_tx_retries: 0.77553505
+            client_vpn_distance: 1.6474955
+            client_wifi_version: 0.18267937
+            expected: 30.941595
+            radio_bandwidth: -0.06538621
+            radio_channel: -0.73391086
+            radio_tx_power: 0.10027129
+            radio_util: 12.770318
+            radio_util_interference: -3.079999
+            site_num_clients: 0.017364305
+            wan_avg_download_mbps: 1.4803165
+            wan_avg_upload_mbps: -0.038184267
+            wan_jitter: 5.9680853
+            wan_max_download_mbps: 1.4803165
+            wan_max_upload_mbps: -0.038184267
+            wan_rtt: 46.77899
+          video_out:
+            ap_num_clients: -0.6565111
+            ap_rtt: 0.16559607
+            client_cpu: 3.7028809
+            client_n_streams: 0.15803306
+            client_radio_band: 0.5576923
+            client_rssi: -1.0839354
+            client_rx_bytes: 2.2622051
+            client_rx_rates: 0.62357205
+            client_rx_retries: 0.26726437
+            client_tx_bytes: 0.15803306
+            client_tx_rates: 0.62357205
+            client_tx_retries: 0.77553505
+            client_vpn_distance: 1.6474955
+            client_wifi_version: 0.18267937
+            expected: 30.941595
+            radio_bandwidth: -0.06538621
+            radio_channel: -0.73391086
+            radio_tx_power: 0.10027129
+            radio_util: 12.770318
+            radio_util_interference: -3.079999
+            site_num_clients: 0.017364305
+            wan_avg_download_mbps: 1.4803165
+            wan_avg_upload_mbps: -0.038184267
+            wan_jitter: 5.9680853
+            wan_max_download_mbps: 1.4803165
+            wan_max_upload_mbps: -0.038184267
+            wan_rtt: 46.77899
+    CallTroubleshootSummaryExample:
+      value:
+        mac: 983a78ea4a44
+        meeting_id: b784d744-9a7c-4fad-9af0-f78858a319b1
+        results:
+        - ap_num_clients: -0.08802365511655807
+          ap_rtt: 0.09924473613500595
+          audio_in:
+            ap_num_clients: 45.48306793636746
+            ap_rtt: 6.352042701509264
+            client_cpu: 9.323452578650581
+            client_radio_band: 0.5841414928436279
+            client_rssi: 17.251008563571506
+            client_tx_bytes: 1.8379177401463191
+            client_tx_rates: 10.668423069847954
+            client_tx_retries: 43.323209603627525
+            client_vpn_distance: 112.4420166015625
+            expected: 29.74261474609375
+            radio_bandwidth: -0.1533682727151447
+            radio_channel: 0.662909648484654
+            radio_util: 27.891777674357098
+            radio_util_interference: 4.38913492154744
+            site_num_clients: -0.2855822932389047
+            site_wan_avg_upload_mbps: -0.988989942603641
+            site_wan_jitter: 0.7875519659784105
+            site_wan_rtt: 15.094849904378256
+            site_wan_upload_mbps: -0.8131117953194512
+          audio_out:
+            ap_num_clients: 45.48306793636746
+            ap_rtt: 6.352042701509264
+            client_cpu: 9.323452578650581
+            client_radio_band: 0.5841414928436279
+            client_rssi: 17.251008563571506
+            client_tx_bytes: 1.8379177401463191
+            client_tx_rates: 10.668423069847954
+            client_tx_retries: 43.323209603627525
+            client_vpn_distance: 112.4420166015625
+            expected: 29.74261474609375
+            radio_bandwidth: -0.1533682727151447
+            radio_channel: 0.662909648484654
+            radio_util: 27.891777674357098
+            radio_util_interference: 4.38913492154744
+            site_num_clients: -0.2855822932389047
+            site_wan_avg_upload_mbps: -0.988989942603641
+            site_wan_jitter: 0.7875519659784105
+            site_wan_rtt: 15.094849904378256
+            site_wan_upload_mbps: -0.8131117953194512
+          client_cpu: 0.00834270566701889
+          client_n_streams: 0.00734270566701889
+          client_radio_band: 0.5841414928436279
+          client_rssi: 0.7594696879386902
+          client_rx_bytes: 2.365511655807e-05
+          client_rx_rates: 0.02441493794322014
+          client_rx_retries: -0.14325742423534393
+          client_tx_bytes: 0.00102365511655807
+          client_tx_rates: 0.22236637771129608
+          client_tx_retries: 0.3308201730251312
+          client_vpn_distance: -0.0001660545531194657
+          client_wifi_version: 7.0566701889e-07
+          expected: -2.8630001056670187
+          radio_ap_change: 0.01850946433842182
+          radio_bandwidth: -0.021175479516386986
+          radio_channel: 0.11686426401138306
+          radio_rx_failed: 1.1782013177871704
+          radio_tx_power: 0.121039018034935
+          radio_util: 0.2452986091375351
+          radio_util_interference: 3.4367904663085938
+          site_num_clients: 0.055026158690452576
+          site_wan_avg_download_mbps: 3.0566701889e-07
+          site_wan_avg_upload_mbps: 5.566701889e-08
+          site_wan_download_mbps: 8.0566701889e-07
+          site_wan_jitter: 0.7875519659784105
+          site_wan_rtt: 15.094849904378256
+          site_wan_upload_mbps: 2.0566701889e-07
+          timestamp: 1695425115
+          video_in:
+            ap_num_clients: 45.48306793636746
+            ap_rtt: 6.352042701509264
+            client_cpu: 9.323452578650581
+            client_radio_band: 0.5841414928436279
+            client_rssi: 17.251008563571506
+            client_tx_bytes: 1.8379177401463191
+            client_tx_rates: 10.668423069847954
+            client_tx_retries: 43.323209603627525
+            client_vpn_distance: 112.4420166015625
+            expected: 29.74261474609375
+            radio_bandwidth: -0.1533682727151447
+            radio_channel: 0.662909648484654
+            radio_util: 27.891777674357098
+            radio_util_interference: 4.38913492154744
+            site_num_clients: -0.2855822932389047
+            site_wan_avg_upload_mbps: -0.988989942603641
+            site_wan_jitter: 0.7875519659784105
+            site_wan_rtt: 15.094849904378256
+            site_wan_upload_mbps: -0.8131117953194512
+          video_out:
+            ap_num_clients: 45.48306793636746
+            ap_rtt: 6.352042701509264
+            client_cpu: 9.323452578650581
+            client_radio_band: 0.5841414928436279
+            client_rssi: 17.251008563571506
+            client_tx_bytes: 1.8379177401463191
+            client_tx_rates: 10.668423069847954
+            client_tx_retries: 43.323209603627525
+            client_vpn_distance: 112.4420166015625
+            expected: 29.74261474609375
+            radio_bandwidth: -0.1533682727151447
+            radio_channel: 0.662909648484654
+            radio_util: 27.891777674357098
+            radio_util_interference: 4.38913492154744
+            site_num_clients: -0.2855822932389047
+            site_wan_avg_upload_mbps: -0.988989942603641
+            site_wan_jitter: 0.7875519659784105
+            site_wan_rtt: 15.094849904378256
+            site_wan_upload_mbps: -0.8131117953194512
+    CallStatsSummaryExample:
+      value:
+        bad_minutes: 5566.0
+        bad_minutes_client: 526.0
+        bad_minutes_site_wan: 3612.0
+        bad_minutes_wireless: 1428.0
+        num_aps: 1
+        num_users: 3
+        total_minutes: 575217
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

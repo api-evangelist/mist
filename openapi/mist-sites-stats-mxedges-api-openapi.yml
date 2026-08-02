@@ -1,0 +1,1567 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Stats - MxEdges API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: API Calls to retrieve statistics about the Mist Edges at the Site level
+  name: Sites Stats - MxEdges
+paths:
+  /api/v1/sites/{site_id}/stats/mxedges:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: List Mist Edge statistics for a site over the requested time range. Use [List Org Mist Edge Stats](/#operations/listOrgMxEdgesStats) to retrieve Mist Edge statistics across the organization.
+      operationId: listSiteMxEdgesStats
+      parameters:
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/MxedgeStatsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteMxEdgesStats
+      tags:
+      - Sites Stats - MxEdges
+  /api/v1/sites/{site_id}/stats/mxedges/{mxedge_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/mxedge_id'
+    get:
+      description: Get One Site MxEdge Stats
+      operationId: getSiteMxEdgeStats
+      parameters:
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      responses:
+        '200':
+          $ref: '#/components/responses/MxedgeStats'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteMxEdgeStats
+      tags:
+      - Sites Stats - MxEdges
+components:
+  schemas:
+    stats_mxedge:
+      additionalProperties: false
+      description: Statistics for a Mist Edge appliance returned by stats endpoints
+      properties:
+        cpu_stat:
+          $ref: '#/components/schemas/stats_mxedge_cpu_stat'
+          description: CPU utilization statistics reported by the Mist Edge
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when the Mist Edge record was created, in epoch seconds
+        fips_enabled:
+          description: Whether FIPS mode is enabled on the Mist Edge
+          type: boolean
+        for_site:
+          description: Whether the Mist Edge is assigned directly to a site
+          examples:
+          - false
+          type: boolean
+        fwupdate:
+          $ref: '#/components/schemas/fwupdate_stat'
+          description: Firmware or package update status for the Mist Edge
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the Mist Edge
+        idrac_version:
+          description: IDRAC version of the mist edge device
+          examples:
+          - 7.00.00.00
+          type: string
+        inactive_vlan_strs:
+          $ref: '#/components/schemas/stats_mxedge_inactive_vlan_strs'
+          description: Inactive VLAN identifiers reported by the Mist Edge
+        ip_stat:
+          $ref: '#/components/schemas/stats_mxedge_ip_stat'
+          description: IP address statistics reported by the Mist Edge
+        lag_stat:
+          $ref: '#/components/schemas/stats_mxedge_lag_stats'
+          description: Link aggregation statistics reported by the Mist Edge
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Time when Mist last observed the Mist Edge, in epoch seconds
+        mac:
+          description: Mist Edge MAC address reported by Mist
+          examples:
+          - 020000a80cb4
+          type: string
+        magic:
+          description: Claim magic token associated with the Mist Edge
+          type: string
+        memory_stat:
+          $ref: '#/components/schemas/stats_mxedge_memory_stat'
+          description: Memory utilization statistics reported by the Mist Edge
+        model:
+          description: Mist Edge hardware or VM model
+          examples:
+          - ME-VM
+          type: string
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Time when the Mist Edge record was last modified, in epoch seconds
+        mxagent_registered:
+          description: Whether the Mist Edge management agent is registered with Mist
+          examples:
+          - true
+          type: boolean
+        mxcluster_id:
+          description: Mist Edge cluster identifier associated with this Mist Edge
+          examples:
+          - 678bc339-7635-4556-bbc0-e77ad493ef8b
+          format: uuid
+          type: string
+        name:
+          description: Display name of the Mist Edge
+          examples:
+          - me-vm-1
+          type: string
+        num_tunnels:
+          description: Number of tunnels currently terminated by the Mist Edge
+          examples:
+          - 0
+          type: integer
+        oob_ip_config:
+          $ref: '#/components/schemas/mxedge_oob_ip_config'
+          description: Configured out-of-band management IP settings for the Mist Edge
+        oob_ip_stat:
+          $ref: '#/components/schemas/stats_mxedge_oob_ip_stat'
+          description: Observed out-of-band management IP status for the Mist Edge
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization identifier associated with the Mist Edge
+        port_stat:
+          $ref: '#/components/schemas/stats_mxedge_port_stats'
+          description: Port statistics reported by the Mist Edge
+        serial:
+          description: Device serial number reported for the Mist Edge, when available
+          type:
+          - string
+          - 'null'
+        service_stat:
+          $ref: '#/components/schemas/stats_mxedge_service_stats'
+          description: Per-service runtime statistics reported by the Mist Edge
+        services:
+          $ref: '#/components/schemas/stats_mxedge_services'
+          description: Mist Edge services enabled or running on the device
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site identifier associated with the Mist Edge, when assigned to a site
+        status:
+          description: Connection status reported for the Mist Edge, such as connected
+          examples:
+          - connected
+          type: string
+        tunterm_ip_config:
+          $ref: '#/components/schemas/stats_mxedge_tunterm_ip_config'
+          description: Configured tunnel termination IP settings for the Mist Edge
+        tunterm_port_config:
+          $ref: '#/components/schemas/stats_mxedge_tunterm_port_config'
+          description: Tunnel termination port configuration reported for the Mist Edge
+        tunterm_registered:
+          description: Whether the tunnel termination service is registered with Mist
+          examples:
+          - true
+          type: boolean
+        tunterm_stat:
+          $ref: '#/components/schemas/stats_mxedge_tunterm_stat'
+          description: Tunnel termination monitoring status reported by the Mist Edge
+        uptime:
+          description: Number of seconds the Mist Edge has been running since last boot
+          examples:
+          - 76281
+          type: integer
+        virtualization_type:
+          description: Virtualization platform or environment running the Mist Edge VM
+          examples:
+          - KVM
+          type: string
+      type: object
+    fwupdate_stat_status:
+      description: 'enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`'
+      enum:
+      - inprogress
+      - failed
+      - upgraded
+      - success
+      - scheduled
+      - error
+      readOnly: true
+      type:
+      - string
+      - 'null'
+    stats_mxedge_port_stats:
+      additionalProperties:
+        $ref: '#/components/schemas/stats_mxedge_port_stat'
+      description: Mist Edge port statistics keyed by port name
+      examples:
+      - port0:
+          full_duplex: true
+          mac: 9e294e49091d
+          rx_bytes: 646898375700
+          rx_errors: 0
+          rx_pkts: 8784449574
+          speed: 10000
+          state: forwarding
+          tx_bytes: 647200748038
+          tx_errors: 0
+          tx_pkts: 8788647466
+          up: true
+        port1:
+          full_duplex: true
+          mac: a270fe53437e
+          rx_bytes: 647200437652
+          rx_errors: 0
+          rx_pkts: 8788644886
+          speed: 10000
+          state: forwarding
+          tx_bytes: 646898681650
+          tx_errors: 0
+          tx_pkts: 8784452092
+          up: true
+      type: object
+    stats_mxedge_tunterm_stat:
+      additionalProperties: false
+      description: Tunnel termination monitoring status reported by a Mist Edge
+      properties:
+        monitoring_failed:
+          description: Whether tunnel termination monitoring is currently failing
+          examples:
+          - false
+          type: boolean
+      type: object
+    stats_mxedge__active_ports:
+      description: List of ports active on the LAG defined by the LACP
+      items:
+        type: string
+      type: array
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    stats_mxedge_tunterm_ip_config:
+      additionalProperties: false
+      description: Tunnel termination IP configuration reported by a Mist Edge
+      properties:
+        gateway:
+          description: IPv4 default gateway for tunnel termination traffic
+          examples:
+          - 192.168.11.1
+          type: string
+        ip:
+          description: Tunnel termination IPv4 address used by the Mist Edge
+          examples:
+          - 192.168.11.91
+          type: string
+        netmask:
+          description: IPv4 netmask for the tunnel termination address
+          examples:
+          - 255.255.255.0
+          type: string
+      type: object
+    stats_mxedge_cpu_stat:
+      additionalProperties: false
+      description: Aggregate and per-core CPU utilization statistics for a Mist Edge
+      properties:
+        cpus:
+          $ref: '#/components/schemas/stats_mxedge_cpu_stat_cpus'
+          description: Per-core CPU utilization statistics keyed by CPU name
+        idle:
+          description: Percentage of Idle, Idle/(Idle + Busy) since last sampling
+          examples:
+          - 62
+          type: integer
+        interrupt:
+          description: Percentage of Interrupt, (Irq + SoftIrq)/(Idle + Busy) since last sampling
+          examples:
+          - 0
+          type: integer
+        system:
+          description: Percentage of System, System/(Idle + Busy) since last sampling
+          examples:
+          - 17
+          type: integer
+        usage:
+          description: Percentage of load, Busy/(Idle + Busy) since last sampling
+          examples:
+          - 37
+          type: integer
+        user:
+          description: Percentage of User, User/(Idle + Busy) since last sampling
+          examples:
+          - 19
+          type: integer
+      type: object
+    ip_type:
+      default: dhcp
+      description: 'IP address assignment mode, either DHCP or static. enum: `dhcp`, `static`'
+      enum:
+      - dhcp
+      - static
+      examples:
+      - static
+      type: string
+    stats_mxedge_inactive_vlan_strs:
+      additionalProperties: false
+      description: Inactive wired/L2TP VLANs. Entries can be individual VLANs or ranges.
+      properties:
+        l2tp:
+          description: Inactive L2TP VLANs. Entries can be individual VLANs or ranges.
+          items:
+            type: string
+          type: array
+        wired:
+          description: Inactive wired VLANs. Entries can be individual VLANs or ranges.
+          examples:
+          - - '100'
+            - 102-106
+          items:
+            type: string
+          type: array
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    stats_mxedge_ip_stat:
+      additionalProperties: false
+      description: IP address statistics reported by a Mist Edge
+      properties:
+        ip:
+          description: Primary IPv4 address reported for the Mist Edge
+          examples:
+          - 192.168.1.244
+          type: string
+        ip6:
+          description: Primary IPv6 address reported for the Mist Edge
+          examples:
+          - fd4e:c615:b27d:5555::45
+          type: string
+        ips:
+          additionalProperties:
+            type: string
+          description: Interface IP addresses keyed by interface name
+          examples:
+          - ens18: 92.168.1.244/24,fd4e:c615:b27d:5555::45/128,fd4e:c615:b27d:5555:20c:29ff:fe44:af25/64,fe80::104c:ffff:fee0:caf8/64
+          type: object
+        macs:
+          additionalProperties:
+            description: MAC addresses for each net interface
+            type: string
+          description: Interface MAC addresses keyed by interface name
+          examples:
+          - ens18: e4434b217044
+          type: object
+        netmask:
+          description: IPv4 netmask reported for the primary Mist Edge address
+          examples:
+          - 255.255.255.0
+          type: string
+        netmask6:
+          description: IPv6 prefix length reported for the primary Mist Edge address
+          examples:
+          - /128
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    stats_mxedge_port_stat_sfp:
+      additionalProperties: false
+      description: SFP transceiver details reported for a Mist Edge port
+      properties:
+        codes:
+          description: Transceiver capability codes reported by the SFP module
+          type: string
+        mbps:
+          description: Nominal transceiver speed, in Mbps
+          type: integer
+        part_no:
+          description: Manufacturer part number reported by the SFP module
+          type: string
+        serial_no:
+          description: Manufacturer serial number reported by the SFP module
+          type: string
+        type:
+          description: Transceiver type code reported by the SFP module
+          type: integer
+        vendor:
+          description: Manufacturer name reported by the SFP module
+          type: string
+      type: object
+    stats_mxedge_oob_ip_stat:
+      additionalProperties: false
+      description: Observed out-of-band management IP settings for a Mist Edge
+      properties:
+        dns:
+          $ref: '#/components/schemas/strings'
+          description: Out-of-band management DNS servers
+        gateway:
+          description: IPv4 default gateway for out-of-band management
+          type: string
+        gateway6:
+          description: IPv6 default gateway for out-of-band management
+          type: string
+        ip:
+          description: Out-of-band management IPv4 address
+          type: string
+        ip6:
+          description: Out-of-band management IPv6 address
+          type: string
+        netmask:
+          description: IPv4 netmask for the out-of-band management interface
+          type: string
+        netmask6:
+          description: IPv6 prefix length for the out-of-band management interface
+          type: string
+        type:
+          $ref: '#/components/schemas/mxedge_mgmt_oob_ip_type'
+          description: IPv4 address assignment mode for out-of-band management
+        type8:
+          $ref: '#/components/schemas/mxedge_mgmt_oob_ip_type6'
+          description: IPv6 address assignment mode for out-of-band management
+      type: object
+    stats_mxedge_service_stats:
+      additionalProperties:
+        $ref: '#/components/schemas/stats_mxedge_service_stat'
+      description: Stat for each services
+      examples:
+      - mxagent:
+          ext_ip: 99.0.86.164
+          last_seen: 1633721215
+          package_state: Installed
+          package_version: 3.1.1037-1
+          running_state: Running
+          uptime: 21240
+        tunterm:
+          ext_ip: 99.0.86.164
+          last_seen: 1633721203
+          package_state: Installed
+          package_version: 0.1.2449+deb10
+          running_state: Running
+          uptime: 76261
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    stats_mxedge_port_stat_lldp_stats:
+      additionalProperties: false
+      description: LLDP neighbor information reported for a Mist Edge port
+      properties:
+        chassis_id:
+          description: LLDP chassis identifier advertised by the neighbor
+          type: string
+        mgmt_addr:
+          description: Management address advertised by the LLDP neighbor
+          type: string
+        port_desc:
+          description: Port description advertised by the LLDP neighbor
+          type: string
+        port_id:
+          description: Port identifier advertised by the LLDP neighbor
+          type: string
+        system_desc:
+          description: System description advertised by the LLDP neighbor
+          type: string
+        system_name:
+          description: System name advertised by the LLDP neighbor
+          type: string
+      type: object
+    stats_mxedges:
+      description: Mist Edge statistics records returned by a stats response
+      items:
+        $ref: '#/components/schemas/stats_mxedge'
+      type: array
+    stats_mxedge_lag_stat:
+      additionalProperties: false
+      description: Link aggregation group status for a Mist Edge
+      properties:
+        active_ports:
+          $ref: '#/components/schemas/stats_mxedge__active_ports'
+          description: Ports currently active in the link aggregation group
+      type: object
+    stats_mxedge_tunterm_port_config:
+      additionalProperties: false
+      description: Tunnel termination port role configuration reported by a Mist Edge
+      properties:
+        downstream_ports:
+          $ref: '#/components/schemas/stats_mxedge_tunterm_port_config_downstream_ports'
+          description: Ports configured for downstream tunnel termination traffic
+        separate_upstream_downstream:
+          description: Whether separate port sets are used for upstream and downstream tunnel termination traffic
+          examples:
+          - false
+          type: boolean
+        upstream_ports:
+          $ref: '#/components/schemas/stats_mxedge_tunterm_port_config_upstream_ports'
+          description: Ports configured for upstream tunnel termination traffic
+      type: object
+    cpu_stat:
+      additionalProperties: false
+      description: CPU utilization breakdown for a device
+      properties:
+        idle:
+          description: Percentage of CPU time that is idle
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        interrupt:
+          description: Percentage of CPU time being used by interrupts
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        load_avg:
+          $ref: '#/components/schemas/cpu_stat_load_avg'
+          description: Load averages for the last 1, 5, and 15 minutes
+        system:
+          description: Percentage of CPU time being used by system processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        usage:
+          description: Overall CPU usage percentage
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        user:
+          description: Percentage of CPU time being used by user processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    cpu_stat_load_avg:
+      description: Load averages for the last 1, 5, and 15 minutes
+      items:
+        type: number
+      type: array
+    stats_mxedge_tunterm_port_config_upstream_ports:
+      description: Upstream tunnel termination port identifiers
+      examples:
+      - - '0'
+        - '1'
+      items:
+        type: string
+      type: array
+    mxedge_oob_ip_config:
+      additionalProperties: false
+      description: IP configuration for the Mist Edge out-of-band management interface
+      properties:
+        autoconf6:
+          default: true
+          description: Whether IPv6 autoconfiguration is enabled on the out-of-band management interface
+          type: boolean
+        dhcp6:
+          default: true
+          description: Whether DHCPv6 is enabled on the out-of-band management interface
+          type: boolean
+        dns:
+          $ref: '#/components/schemas/mxedge_oob_ip_config_dns'
+          description: Name server addresses for out-of-band management
+        gateway:
+          description: If `type`=`static`, IPv4 default gateway for the out-of-band management interface
+          examples:
+          - 10.2.1.254
+          type: string
+        gateway6:
+          description: If `type6`=`static`, IPv6 default gateway for the out-of-band management interface
+          examples:
+          - 2601:1700:43c0:dc0::1
+          type: string
+        ip:
+          description: If `type`=`static`, IPv4 address for the out-of-band management interface
+          examples:
+          - 10.2.1.2
+          type: string
+        ip6:
+          description: If `type6`=`static`, IPv6 address for the out-of-band management interface
+          examples:
+          - 2601:1700:43c0:dc0:20c:29ff:fea7:93bc
+          type: string
+        netmask:
+          description: If `type`=`static`, IPv4 netmask for the out-of-band management interface
+          examples:
+          - 255.255.255.0
+          type: string
+        netmask6:
+          description: If `type6`=`static`, IPv6 prefix length for the out-of-band management interface
+          examples:
+          - /64
+          type: string
+        type:
+          $ref: '#/components/schemas/ip_type'
+          description: IPv4 address assignment mode for out-of-band management
+        type6:
+          $ref: '#/components/schemas/ip_type'
+          description: IPv6 address assignment mode for out-of-band management
+      type: object
+    mxedge_mgmt_oob_ip_type6:
+      default: autoconf
+      description: 'enum: `autoconf`, `dhcp`, `disabled`, `static`'
+      enum:
+      - autoconf
+      - dhcp
+      - disabled
+      - static
+      type: string
+    tx_pkts:
+      description: Amount of packets sent since connection
+      examples:
+      - 812204062
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    mxedge_mgmt_oob_ip_type:
+      default: dhcp
+      description: 'enum: `dhcp`, `disabled`, `static`'
+      enum:
+      - dhcp
+      - disabled
+      - static
+      type: string
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    stats_mxedge_port_stat_lacp:
+      additionalProperties: false
+      description: LACP state and counters for a Mist Edge port
+      properties:
+        mux_state:
+          description: LACP multiplexer state reported for the port
+          type: string
+        rx_lacpdu:
+          description: Number of LACPDUs received on the port
+          type: integer
+        rx_state:
+          description: LACP receive state reported for the port
+          type: string
+        tx_lacpdu:
+          description: Number of LACPDUs transmitted from the port
+          type: integer
+      type: object
+    fwupdate_stat:
+      additionalProperties: false
+      description: Firmware update status for a device
+      properties:
+        progress:
+          description: Firmware update progress percentage, or null when unavailable
+          examples:
+          - 10
+          maximum: 100
+          minimum: 0
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        status:
+          $ref: '#/components/schemas/fwupdate_stat_status'
+          description: Current firmware update status
+        status_id:
+          description: Numeric firmware update status identifier
+          examples:
+          - 5
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the firmware update status was last updated
+        will_retry:
+          description: Whether the firmware update process will retry after the current status
+          examples:
+          - false
+          readOnly: true
+          type:
+          - boolean
+          - 'null'
+      type: object
+    stats_mxedge_memory_stat:
+      additionalProperties: false
+      description: Memory usage counters reported by a Mist Edge
+      properties:
+        active:
+          description: The amount of memory, in kilobytes, that has been used more recently and is usually not reclaimed unless absolutely necessary.
+          examples:
+          - 394936320
+          type: integer
+        available:
+          description: An estimate of how much memory is available for starting new applications, without swapping.
+          examples:
+          - 4699291648
+          type: integer
+        buffers:
+          description: The amount, in kilobytes, of temporary storage for raw disk blocks.
+          examples:
+          - 107646976
+          type: integer
+        cached:
+          description: The amount of physical RAM, in kilobytes, used as cache memory.
+          examples:
+          - 478060544
+          type: integer
+        free:
+          description: The amount of physical RAM, in kilobytes, left unused by the system
+          examples:
+          - 4330659840
+          type: integer
+        inactive:
+          description: The amount of memory, in kilobytes, that has been used less recently and is more eligible to be reclaimed for other purposes.
+          examples:
+          - 211980288
+          type: integer
+        swap_cached:
+          description: The amount of memory, in kilobytes, that has once been moved into swap, then back into the main memory, but still also remains in the swapfile.
+          examples:
+          - 0
+          type: integer
+        swap_free:
+          description: The total amount of swap free, in kilobytes.
+          examples:
+          - 1022357504
+          type: integer
+        swap_total:
+          description: The total amount of swap available, in kilobytes.
+          examples:
+          - 1022357504
+          type: integer
+        total:
+          description: Usable RAM total, in kilobytes, which is physical RAM minus a number of reserved bits and the kernel binary code
+          examples:
+          - 8365957120
+          type: integer
+        usage:
+          description: Memory utilization percentage reported by the Mist Edge
+          examples:
+          - 48
+          type: integer
+      type: object
+    mxedge_oob_ip_config_dns:
+      default:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 2001:4860:4860::8888
+      - 2001:4860:4860::8844
+      description: IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`
+      examples:
+      - - 8.8.8.8
+        - 4.4.4.4
+        - 2001:4860:4860::8888
+        - 2001:4860:4860::8844
+      items:
+        type: string
+      type: array
+    stats_mxedge_tunterm_port_config_downstream_ports:
+      description: Downstream tunnel termination port identifiers
+      examples:
+      - - '0'
+        - '1'
+      items:
+        type: string
+      type: array
+    stats_mxedge_service_stat:
+      additionalProperties: false
+      description: Runtime and package state for one Mist Edge service
+      properties:
+        ext_ip:
+          description: External IP from ep-terminator’s point of view. valid only for service having its own cloud connection
+          type: string
+        last_seen:
+          description: Cloud Unix time, in seconds, when stats were last seen for this service, or the latest service last_seen time for whole-system records
+          type: number
+        package_state:
+          description: Installation state of the Mist Edge service package
+          type: string
+        package_version:
+          description: Installed version of the Mist Edge service package
+          type: string
+        running_state:
+          description: Runtime state reported by the Mist Edge service
+          type: string
+        uptime:
+          description: Elapsed running time reported by the Mist Edge service, in seconds
+          type: integer
+      type: object
+    rx_pkts:
+      description: Amount of packets received since connection
+      examples:
+      - 57770567
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    rx_bytes:
+      description: Amount of traffic received since connection
+      examples:
+      - 8515104416
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    stats_mxedge_services:
+      description: Mist Edge service names enabled or running on the appliance
+      examples:
+      - - tunterm
+      items:
+        type: string
+      type: array
+    stats_mxedge_lag_stats:
+      additionalProperties:
+        $ref: '#/components/schemas/stats_mxedge_lag_stat'
+      description: Link aggregation group statistics keyed by LAG name
+      examples:
+      - lacp0:
+          active_ports:
+          - port0
+          - port1
+      type: object
+    tx_bytes:
+      description: Amount of traffic sent since connection
+      examples:
+      - 211217389682
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    stats_mxedge_port_stat:
+      additionalProperties: false
+      description: Mist Edge port traffic and link status statistics
+      properties:
+        full_duplex:
+          description: Whether the port is operating in full-duplex mode
+          type: boolean
+        lacp:
+          $ref: '#/components/schemas/stats_mxedge_port_stat_lacp'
+          description: Link aggregation control protocol state and packet counters for the port
+        lldp_stats:
+          $ref: '#/components/schemas/stats_mxedge_port_stat_lldp_stats'
+          description: LLDP neighbor information learned on the port
+        mac:
+          description: Mist Edge port MAC address reported by Mist
+          type: string
+        rx_bytes:
+          $ref: '#/components/schemas/rx_bytes'
+          description: Total bytes received on the port
+        rx_errors:
+          description: Number of receive errors observed on the port
+          type: integer
+        rx_pkts:
+          $ref: '#/components/schemas/rx_pkts'
+          description: Total packets received on the port
+        sfp:
+          $ref: '#/components/schemas/stats_mxedge_port_stat_sfp'
+          description: Transceiver details reported for the SFP module on the port
+        speed:
+          description: Current link speed of the port, in Mbps
+          type: integer
+        state:
+          description: Forwarding or operational state reported for the port
+          type: string
+        tx_bytes:
+          $ref: '#/components/schemas/tx_bytes'
+          description: Total bytes transmitted from the port
+        tx_errors:
+          description: Number of transmit errors observed on the port
+          type: integer
+        tx_pkts:
+          $ref: '#/components/schemas/tx_pkts'
+          description: Total packets transmitted from the port
+        up:
+          description: Whether the Mist Edge port link is up
+          type: boolean
+      type: object
+    stats_mxedge_cpu_stat_cpus:
+      additionalProperties:
+        $ref: '#/components/schemas/cpu_stat'
+      description: Per-core CPU utilization statistics keyed by CPU name
+      examples:
+      - cpu0:
+          idle: 89
+          interrupt: 0
+          system: 8
+          usage: 10
+          user: 1
+        cpu1:
+          idle: 81
+          interrupt: 0
+          system: 4
+          usage: 18
+          user: 13
+        cpu2:
+          idle: 81
+          interrupt: 0
+          system: 4
+          usage: 18
+          user: 13
+        cpu3:
+          idle: 2
+          interrupt: 0
+          system: 50
+          usage: 97
+          user: 46
+      type: object
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    mxedge_id:
+      in: path
+      name: mxedge_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    MxedgeStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxedgeStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_mxedge'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxedgeStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_mxedge'
+      description: MxEdge Stats
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    MxedgeStatsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxedgeStatsArrayExample'
+          schema:
+            $ref: '#/components/schemas/stats_mxedges'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxedgeStatsArrayExample'
+          schema:
+            $ref: '#/components/schemas/stats_mxedges'
+      description: List of MxEdge Stats
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    MxedgeStatsExample:
+      value:
+        cpu_stat:
+          cpus:
+            cpu0:
+              idle: 89
+              interrupt: 0
+              system: 8
+              usage: 10
+              user: 1
+            cpu1:
+              idle: 81
+              interrupt: 0
+              system: 4
+              usage: 18
+              user: 13
+            cpu2:
+              idle: 81
+              interrupt: 0
+              system: 4
+              usage: 18
+              user: 13
+            cpu3:
+              idle: 2
+              interrupt: 0
+              system: 50
+              usage: 97
+              user: 46
+          idle: 62
+          interrupt: 0
+          system: 17
+          usage: 37
+          user: 19
+        created_time: 1632684398
+        for_site: false
+        id: 00000000-0000-0000-1000-020000a80cb4
+        inactive_vlan_strs:
+          wired:
+          - '100'
+          - 102-106
+        ip_stat:
+          ip: 192.168.1.244
+          ips:
+            ens18: 192.168.1.244/24,fe80::104c:ffff:fee0:caf8/64
+          macs:
+            ens18: e4434b217044
+        lag_stat:
+          lacp0:
+            active_ports:
+            - port0
+            - port1
+        last_seen: 1633721215
+        mac: 020000a80cb4
+        memory_stat:
+          active: 394936320
+          available: 4699291648
+          buffers: 107646976
+          cached: 478060544
+          free: 4330659840
+          inactive: 211980288
+          swap_cached: 0
+          swap_free: 1022357504
+          swap_total: 1022357504
+          total: 8365957120
+          usage: 48
+        model: ME-VM
+        modified_time: 1633643629
+        mxagent_registered: true
+        mxcluster_id: 678bc339-7635-4556-bbc0-e77ad493ef8b
+        name: me-vm-1
+        num_tunnels: 0
+        oob_ip_config:
+          dns:
+          - 8.8.8.8
+          - 1.1.1.1
+          gateway: 10.0.0.1
+          ip: 10.0.0.10
+          netmask: 255.255.255.0
+          type: static
+        org_id: 11b08247-b1ee-4152-9b25-312b323ce480
+        port_stat:
+          port0:
+            full_duplex: true
+            mac: 9e294e49091d
+            rx_bytes: 646898375700
+            rx_errors: 0
+            rx_pkts: 8784449574
+            speed: 10000
+            state: forwarding
+            tx_bytes: 647200748038
+            tx_errors: 0
+            tx_pkts: 8788647466
+            up: true
+          port1:
+            full_duplex: true
+            mac: a270fe53437e
+            rx_bytes: 647200437652
+            rx_errors: 0
+            rx_pkts: 8788644886
+            speed: 10000
+            state: forwarding
+            tx_bytes: 646898681650
+            tx_errors: 0
+            tx_pkts: 8784452092
+            up: true
+        serial: string
+        service_stat:
+          mxagent:
+            ext_ip: 99.0.86.164
+            last_seen: 1633721215
+            package_state: Installed
+            package_version: 3.1.1037-1
+            running_state: Running
+            uptime: 21240
+          tunterm:
+            ext_ip: 99.0.86.164
+            last_seen: 1633721203
+            package_state: Installed
+            package_version: 0.1.2449+deb10
+            running_state: Running
+            uptime: 76261
+        services:
+        - tunterm
+        site_id: 00000000-0000-0000-0000-000000000000
+        status: connected
+        tunterm_ip_config:
+          gateway: 192.168.11.1
+          ip: 192.168.11.91
+          netmask: 255.255.255.0
+        tunterm_port_config:
+          downstream_ports:
+          - '0'
+          - '1'
+          separate_upstream_downstream: false
+          upstream_ports:
+          - '0'
+          - '1'
+        tunterm_registered: true
+        tunterm_stat:
+          monitoring_failed: false
+        uptime: 76281
+        virtualization_type: KVM
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    MxedgeStatsArrayExample:
+      value:
+      - cpu_stat:
+          cpus:
+            cpu0:
+              idle: 89
+              interrupt: 0
+              system: 8
+              usage: 10
+              user: 1
+            cpu1:
+              idle: 81
+              interrupt: 0
+              system: 4
+              usage: 18
+              user: 13
+            cpu2:
+              idle: 81
+              interrupt: 0
+              system: 4
+              usage: 18
+              user: 13
+            cpu3:
+              idle: 2
+              interrupt: 0
+              system: 50
+              usage: 97
+              user: 46
+          idle: 62
+          interrupt: 0
+          system: 17
+          usage: 37
+          user: 19
+        created_time: 1632684398
+        for_site: false
+        id: 00000000-0000-0000-1000-020000a80cb4
+        ip_stat:
+          ip: 192.168.1.244
+          ips:
+            ens18: 192.168.1.244/24,fe80::104c:ffff:fee0:caf8/64
+          macs:
+            ens18: e4434b217044
+        lag_stat:
+          lacp0:
+            active_ports:
+            - port0
+            - port1
+        last_seen: 1633721215
+        mac: 020000a80cb4
+        memory_stat:
+          active: 394936320
+          available: 4699291648
+          buffers: 107646976
+          cached: 478060544
+          free: 4330659840
+          inactive: 211980288
+          swap_cached: 0
+          swap_free: 1022357504
+          swap_total: 1022357504
+          total: 8365957120
+          usage: 48
+        model: ME-VM
+        modified_time: 1633643629
+        mxagent_registered: true
+        mxcluster_id: 678bc339-7635-4556-bbc0-e77ad493ef8b
+        name: me-vm-1
+        num_tunnels: 0
+        oob_ip_config:
+          dns:
+          - 8.8.8.8
+          - 1.1.1.1
+          gateway: 10.0.0.1
+          ip: 10.0.0.10
+          netmask: 255.255.255.0
+          type: static
+        org_id: 11b08247-b1ee-4152-9b25-312b323ce480
+        port_stat:
+          port0:
+            full_duplex: true
+            mac: 9e294e49091d
+            rx_bytes: 646898375700
+            rx_errors: 0
+            rx_pkts: 8784449574
+            speed: 10000
+            state: forwarding
+            tx_bytes: 647200748038
+            tx_errors: 0
+            tx_pkts: 8788647466
+            up: true
+          port1:
+            full_duplex: true
+            mac: a270fe53437e
+            rx_bytes: 647200437652
+            rx_errors: 0
+            rx_pkts: 8788644886
+            speed: 10000
+            state: forwarding
+            tx_bytes: 646898681650
+            tx_errors: 0
+            tx_pkts: 8784452092
+            up: true
+        serial: string
+        service_stat:
+          mxagent:
+            ext_ip: 99.0.86.164
+            last_seen: 1633721215
+            package_state: Installed
+            package_version: 3.1.1037-1
+            running_state: Running
+            uptime: 21240
+          tunterm:
+            ext_ip: 99.0.86.164
+            last_seen: 1633721203
+            package_state: Installed
+            package_version: 0.1.2449+deb10
+            running_state: Running
+            uptime: 76261
+        services:
+        - tunterm
+        site_id: 00000000-0000-0000-0000-000000000000
+        status: connected
+        tunterm_ip_config:
+          gateway: 192.168.11.1
+          ip: 192.168.11.91
+          netmask: 255.255.255.0
+        tunterm_port_config:
+          downstream_ports:
+          - '0'
+          - '1'
+          separate_upstream_downstream: false
+          upstream_ports:
+          - '0'
+          - '1'
+        tunterm_registered: true
+        tunterm_stat:
+          monitoring_failed: false
+        uptime: 76281
+        virtualization_type: KVM
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

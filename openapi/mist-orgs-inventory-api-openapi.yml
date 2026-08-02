@@ -1,0 +1,1583 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Inventory API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Org Inventory allows administrators to view and manage all devices registered (claimed) to the Organization.
+  name: Orgs Inventory
+paths:
+  /api/v1/orgs/{org_id}/inventory:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: "Get Org Inventory\n\n### VC (Virtual-Chassis) Management \n\nStarting with the April release, Virtual Chassis devices in Mist will now use\na cloud-assigned virtual MAC address as the device ID, instead of the physical\nMAC address of the FPC0 member.\n\n\n**Retrieving the device ID or Site ID of a Virtual Chassis:**\n\n1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.\n\n2. In the response, check the `vc_mac` and `mac` fields:\n\n    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.\n    The `device_id` and `site_id` will be available in the device information.\n\n    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis\n    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)\n    API call to retrieve the `device_id` and `site_id`.\n\n    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available\n    in the device information.  \n    This is the case if the device is the Virtual Chassis \"virtual device\" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID.\n"
+      operationId: getOrgInventory
+      parameters:
+      - description: Filter results by device serial number. Accepts multiple comma-separated values.
+        in: query
+        name: serial
+        schema:
+          examples:
+          - PE3717390301,EY2523AN0523
+          - FXLH2015150025
+          type: string
+      - description: Filter results by device model. Accepts multiple comma-separated values.
+        in: query
+        name: model
+        schema:
+          examples:
+          - EX4300-48T,EX4100-48MP
+          - AP43
+          type: string
+      - description: 'Filter results by type. enum: `ap`, `gateway`, `switch`. Accepts multiple comma-separated values.'
+        example: switch,ap
+        in: query
+        name: type
+        schema:
+          type: string
+      - description: Filter results by MAC address. Accepts multiple comma-separated values.
+        in: query
+        name: mac
+        schema:
+          examples:
+          - 5c5b53010101,5c5b53020202
+          - 5c5b350e0001
+          type: string
+      - description: Filter results by one site identifier. Use a single value; comma-separated values are not supported
+        in: query
+        name: site_id
+        schema:
+          examples:
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          format: uuid
+          type: string
+      - description: Virtual Chassis MAC address. Accepts multiple comma-separated values.
+        in: query
+        name: vc_mac
+        schema:
+          examples:
+          - 5c5b53010101,5c5b53020202
+          - 5c5b350e0001
+          type: string
+      - description: To display Virtual Chassis members
+        in: query
+        name: vc
+        schema:
+          default: false
+          examples:
+          - false
+          type: boolean
+      - description: To display Unassigned devices
+        in: query
+        name: unassigned
+        schema:
+          default: true
+          examples:
+          - true
+          type: boolean
+      - description: Filter on inventory last modified time, in epoch
+        in: query
+        name: modified_after
+        schema:
+          examples:
+          - 1703003296
+          type: integer
+      - description: Filter results to devices that were last disconnected before this time, in epoch seconds
+        in: query
+        name: disconnected_before
+        schema:
+          examples:
+          - 1733522845
+          type: integer
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgInventory'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgInventory
+      tags:
+      - Orgs Inventory
+    post:
+      description: Claim devices into the organization inventory using order activation codes or device claim codes.
+      operationId: addOrgInventory
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                - 6JG8E-PTFV2-A9Z2N
+                - DVH4V-SNMSZ-PDXBR
+            schema:
+              $ref: '#/components/schemas/claim_codes'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgInventoryAdd'
+        '400':
+          $ref: '#/components/responses/OrgInventoryAdd'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: addOrgInventory
+      tags:
+      - Orgs Inventory
+    put:
+      description: Update inventory assignment for one or more devices, such as assigning them to a site, unassigning them, or deleting inventory records by MAC address or serial number.
+      operationId: updateOrgInventoryAssignment
+      requestBody:
+        content:
+          application/json:
+            examples:
+              assign:
+                value:
+                  disable_auto_config: false
+                  macs:
+                  - 5c5b350e0001
+                  no_reassign: false
+                  op: assign
+                  site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+              delete:
+                value:
+                  macs:
+                  - 5c5b350e0001
+                  op: delete
+                  serials:
+                  - FXLH2015150025
+                  - FXLH2015150026
+            schema:
+              $ref: '#/components/schemas/inventory_update'
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgInventoryChanges'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgInventoryAssignment
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/count:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Count organization inventory records, optionally grouped by `distinct` and filtered by device type, site, model, version, and status.
+      operationId: countOrgInventory
+      parameters:
+      - description: 'Field used to group this count response. enum: `model`, `status`, `site_id`, `sku`, `version`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/inventory_count_distinct'
+      - description: 'Filter results by type. enum: `ap`, `gateway`, `switch`'
+        in: query
+        name: type
+        schema:
+          $ref: '#/components/schemas/device_type_default_ap'
+      - description: Filter results by site identifier
+        in: query
+        name: site_id
+        schema:
+          type: string
+      - description: Filter results by device model. Accepts multiple comma-separated values.
+        in: query
+        name: model
+        schema:
+          examples:
+          - AP45,BT11
+          type: string
+      - description: Filter results by software version
+        in: query
+        name: version
+        schema:
+          type: string
+      - description: 'Filter results by status. enum: `connected`, `disconnected`'
+        in: query
+        name: status
+        schema:
+          $ref: '#/components/schemas/device_status_filter'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countOrgInventory
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/create_ha_cluster:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: Create a gateway HA cluster from unassigned gateway inventory nodes and assign the cluster to the specified site.
+      operationId: createOrgGatewayHaCluster
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  disable_auto_config: true
+                  mist_configured: true
+                  nodes:
+                  - mac: aff827549235
+                  - mac: 8396cd006c8c
+                  site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+            schema:
+              $ref: '#/components/schemas/ha_cluster_config'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgGatewayHaCluster
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/delete_ha_cluster:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: 'Delete HA Cluster
+
+
+        After HA cluster deleted, both of the nodes will be unassigned.'
+      operationId: deleteOrgGatewayHaCluster
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ha_cluster_delete'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgGatewayHaCluster
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/reevaluate_auto_assignment:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: Re-run organization inventory auto-assignment rules against devices that are eligible for automatic site assignment.
+      operationId: reevaluateOrgAutoAssignment
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: reevaluateOrgAutoAssignment
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/replace:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: 'It’s a common request we get from the customers. When a AP HW has problem and need a replacement, they would want to copy the existing attributes (Device Config) of this old AP to the new one. It can be done by providing the MAC of a device that’s currently in the inventory but not assigned. The Device replaced will become unassigned.
+
+
+        This API also supports replacement of Mist Edges. This API copies device agnostic attributes from old Mist edge to new one.
+
+        Mist manufactured Mist Edges will be reset to factory settings but will still be in Inventory.Brownfield or VM’s will be
+
+        deleted from Inventory
+
+
+        **Note:** For Gateway devices only like-for-like replacements (can only replace a SRX320 with a SRX320 and not some other model) are allowed.'
+      operationId: replaceOrgDevices
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  discard: []
+                  inventory_mac: 5c5b35000301
+                  mac: 5c5b35000101
+                  site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+            schema:
+              $ref: '#/components/schemas/replace_device'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgInventoryChanges'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: replaceOrgDevices
+      tags:
+      - Orgs Inventory
+  /api/v1/orgs/{org_id}/inventory/search:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Search organization inventory records with filters for type, MAC address, model, name, site, serial number, Virtual Chassis master state, SKU, version, status, and text.
+      operationId: searchOrgInventory
+      parameters:
+      - description: 'Filter results by type. enum: `ap`, `gateway`, `switch`'
+        in: query
+        name: type
+        schema:
+          $ref: '#/components/schemas/device_type_default_ap'
+      - description: Filter by MAC address. Partial matches may use `*` wildcards (e.g. `*5b35*` matches `5c5b350e0001` and `5c5b35000301`). Accepts multiple comma-separated values.
+        in: query
+        name: mac
+        schema:
+          examples:
+          - 5c5b350e0001,*5b35*
+          - 5c5b350e0001
+          - '*5b35*'
+          type: string
+      - description: Partial / full Device model. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `AP4*` and `*P4*` match `AP43`). Suffix-only wildcards (e.g. `*43`) are not supported. Accepts multiple comma-separated values.
+        in: query
+        name: model
+        schema:
+          examples:
+          - AP43,AP4*
+          - AP43
+          - AP4*
+          - '*P4*'
+          type: string
+      - description: Device name. Always a partial match (e.g. `london` will match `london-1`, `london-2`, `my-london-device`...). Accepts multiple comma-separated values.
+        in: query
+        name: name
+        schema:
+          examples:
+          - name-a,name-b
+          - london
+          type: string
+      - description: Filter inventory results by site identifier. Accepts multiple comma-separated values.
+        in: query
+        name: site_id
+        schema:
+          examples:
+          - 00000000-0000-0000-0000-000000000001,00000000-0000-0000-0000-000000000002
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          format: uuid
+          type: string
+      - description: Device serial number. Partial match allowed with wildcard * (e.g. `*123*` will match `AB123CD`, `12345`, `XY123`). Accepts multiple comma-separated values.
+        in: query
+        name: serial
+        schema:
+          examples:
+          - AB123CD,*123*
+          - AB123CD
+          - '*123*'
+          type: string
+      - description: Filter inventory results by whether the device is the Virtual Chassis master
+        in: query
+        name: master
+        schema:
+          examples:
+          - 'true'
+          type: string
+      - description: Device SKU. Partial match allowed with wildcard * (e.g. `*2300*` will match `EX2300-F-12P`). Accepts multiple comma-separated values.
+        in: query
+        name: sku
+        schema:
+          examples:
+          - EX2300-F-12P,*2300*
+          - EX2300-F-12P
+          - '*2300*'
+          type: string
+      - description: Device version. Partial match allowed with wildcard * (e.g. `2R3` will match `21.2R3-S3.5`). Accepts multiple comma-separated values.
+        in: query
+        name: version
+        schema:
+          examples:
+          - 21.2R3-S3.5,*2R3*
+          - 21.2R3-S3.5
+          - '*2R3*'
+          type: string
+      - description: 'Device status. enum: `connected`, `disconnected`. Accepts multiple comma-separated values.'
+        example: connected,disconnected
+        in: query
+        name: status
+        schema:
+          type: string
+      - description: Wildcards for name, mac, serial
+        in: query
+        name: text
+        schema:
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/search_after'
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgInventorySearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: searchOrgInventory
+      tags:
+      - Orgs Inventory
+components:
+  schemas:
+    device_type_default_ap:
+      default: ap
+      description: 'enum: `ap`, `gateway`, `switch`'
+      enum:
+      - ap
+      - gateway
+      - switch
+      type: string
+    replace_device:
+      description: Request payload for replacing an inventory device with a claimed, unassigned device
+      properties:
+        discard:
+          $ref: '#/components/schemas/replace_device_discard'
+          description: Existing device attributes that should not be copied to the replacement device
+        inventory_mac:
+          description: MAC address of the claimed, unassigned inventory device that will replace the old device
+          examples:
+          - 5c5b35000301
+          type: string
+        mac:
+          description: Device MAC address being replaced
+          examples:
+          - 5c5b35000101
+          type: string
+        site_id:
+          description: Site containing the device being replaced
+          examples:
+          - 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          type: string
+        tunterm_port_config:
+          $ref: '#/components/schemas/tunterm_port_config'
+          description: Tunnel termination Ethernet port configuration for a Mist Edge replacement
+    response_inventory_inventory_duplicated:
+      description: Detailed inventory records already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_inventory_inventory_duplicated_items'
+      type: array
+      uniqueItems: true
+    response_inventory_added:
+      description: Claim codes accepted into organization inventory
+      items:
+        examples:
+        - 6JG8E-PTFV2-A9Z2N
+        type: string
+      type: array
+    response_inventory:
+      additionalProperties: false
+      description: Result of adding device claim codes to organization inventory
+      properties:
+        added:
+          $ref: '#/components/schemas/response_inventory_added'
+          description: Claim codes accepted into organization inventory
+        duplicated:
+          $ref: '#/components/schemas/response_inventory_duplicated'
+          description: Claim codes already present in organization inventory
+        error:
+          $ref: '#/components/schemas/response_inventory_error'
+          description: Claim codes rejected by the inventory add operation
+        inventory_added:
+          $ref: '#/components/schemas/response_inventory_inventory_added'
+          description: Detailed inventory records added by the claim operation
+        inventory_duplicated:
+          $ref: '#/components/schemas/response_inventory_inventory_duplicated'
+          description: Detailed inventory records already present during the claim operation
+        reason:
+          $ref: '#/components/schemas/strings'
+          description: Error reasons for claim codes that could not be added
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    inventory_search_result_member:
+      additionalProperties: false
+      description: Virtual Chassis member in an inventory search result
+      properties:
+        mac:
+          description: Member device MAC address in this inventory search result
+          examples:
+          - f01c2df166e0
+          type: string
+        model:
+          description: Member device model in this inventory search result
+          examples:
+          - EX4300-48P
+          type: string
+        serial:
+          description: Member device serial number in this inventory search result
+          examples:
+          - PD3714460200
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    claim_codes:
+      description: List of Claim Codes
+      examples:
+      - - 6JG8E-PTFV2-A9Z2N
+        - DVH4V-SNMSZ-PDXBR
+      items:
+        description: Claim code
+        type: string
+      type: array
+      uniqueItems: true
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    inventory_update:
+      description: Request to assign, unassign, delete, or change management mode for inventory devices
+      properties:
+        disable_auto_config:
+          default: false
+          deprecated: true
+          description: If `op`==`assign`, this disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
+          type: boolean
+        macs:
+          $ref: '#/components/schemas/inventory_update_macs'
+          description: Device MAC addresses affected by this inventory operation
+        managed:
+          default: false
+          deprecated: true
+          description: If `op`==`assign`. An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.
+          type: boolean
+        mist_configured:
+          description: Whether the device can be configured by Mist. Replaces `managed` for adopted devices and `disable_auto_config` for claimed devices
+          type: boolean
+        no_reassign:
+          default: false
+          description: If `op`==`assign`, if true, treat site assignment against an already assigned AP as error
+          type: boolean
+        op:
+          $ref: '#/components/schemas/inventory_update_operation'
+          description: Inventory operation to apply to the listed devices
+        serials:
+          $ref: '#/components/schemas/inventory_update_serials'
+          description: Device serial numbers affected by this inventory operation
+        site_id:
+          description: If `op`==`assign`, target site ID for the inventory operation
+          format: uuid
+          type: string
+      required:
+      - op
+      type: object
+    tunterm_port_config_downstream_ports:
+      description: List of ports to be used for downstream (to AP) purpose
+      examples:
+      - - '2'
+        - '3'
+      items:
+        type: string
+      type: array
+    ha_cluster_delete:
+      description: Request body identifying the HA cluster node to remove
+      properties:
+        mac:
+          description: Node0 MAC address identifying the HA cluster to delete
+          examples:
+          - aff827549235
+          type: string
+      type: object
+    device_status_filter:
+      description: 'Filter devices based on their status. enum: `connected`, `disconnected`'
+      enum:
+      - connected
+      - disconnected
+      type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    ha_cluster_config_node:
+      additionalProperties: false
+      description: HA cluster inventory node identified by MAC address
+      maxProperties: 2
+      properties:
+        mac:
+          description: Gateway node MAC address for an inventory node that is currently unassigned
+          examples:
+          - aff827549235
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    inventory_update_serials:
+      description: If `op`==`delete`, device serial numbers to delete from inventory
+      items:
+        type: string
+      type: array
+    response_inventory_inventory_added:
+      description: Detailed inventory records added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_inventory_inventory_added_items'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    response_org_inventory_change_op:
+      description: 'enum: `assign`, `delete`, `downgrade_to_jsi`, `unassign`, `upgrade_to_mist`'
+      enum:
+      - assign
+      - delete
+      - downgrade_to_jsi
+      - unassign
+      - upgrade_to_mist
+      type: string
+    response_org_inventory_change:
+      additionalProperties: false
+      description: Result of an organization inventory assignment or deletion operation
+      properties:
+        error:
+          $ref: '#/components/schemas/strings'
+          description: Device identifiers that failed during the inventory operation
+        op:
+          $ref: '#/components/schemas/response_org_inventory_change_op'
+          description: Inventory operation applied to the requested device identifiers
+        reason:
+          $ref: '#/components/schemas/strings'
+          description: Failure reasons corresponding to entries in the error list
+        success:
+          $ref: '#/components/schemas/strings'
+          description: Device identifiers successfully processed by the inventory operation
+      required:
+      - error
+      - op
+      - success
+      - reason
+      type: object
+    tunterm_port_config:
+      additionalProperties: false
+      description: Ethernet port configuration for tunnel termination interfaces
+      properties:
+        downstream_ports:
+          $ref: '#/components/schemas/tunterm_port_config_downstream_ports'
+          description: Ports connected downstream toward APs for tunnel termination
+        separate_upstream_downstream:
+          default: false
+          description: Whether to separate upstream / downstream ports. default is false where all ports will be used.
+          type: boolean
+        upstream_port_vlan_id:
+          $ref: '#/components/schemas/tunterm_port_config_upstream_port_vlan_id'
+          description: Native VLAN ID applied to upstream tunnel termination ports
+        upstream_ports:
+          $ref: '#/components/schemas/tunterm_port_config_upstream_ports'
+          description: Ports connected upstream toward the LAN for tunnel termination
+      type: object
+    tunterm_port_config_upstream_ports:
+      description: List of ports to be used for upstream purpose (to LAN)
+      examples:
+      - - '0'
+        - '1'
+      items:
+        type: string
+      type: array
+    response_inventory_inventory_duplicated_items:
+      additionalProperties: false
+      description: Inventory device already present during the claim operation
+      properties:
+        mac:
+          description: Device MAC address for the duplicate inventory item
+          examples:
+          - 5c5b35000012
+          type: string
+        magic:
+          description: Activation code or claim code associated with the duplicate inventory item
+          examples:
+          - DVH4VSNMSZPDXBR
+          type: string
+        model:
+          description: Device model for the duplicate inventory item
+          examples:
+          - AP41
+          type: string
+        serial:
+          description: Device serial number for the duplicate inventory item
+          examples:
+          - FXLH2015150027
+          type: string
+        type:
+          description: Device type for the duplicate inventory item
+          examples:
+          - ap
+          type: string
+      required:
+      - mac
+      - magic
+      - model
+      - serial
+      - type
+      type: object
+    inventory_search_result:
+      additionalProperties: false
+      description: Inventory record returned by inventory search
+      properties:
+        mac:
+          description: Device MAC address for this inventory search result
+          examples:
+          - f01c2df166e0
+          type: string
+        master:
+          description: Whether this search result represents the master member of a Virtual Chassis
+          examples:
+          - true
+          type: boolean
+        members:
+          $ref: '#/components/schemas/inventory_search_result_members'
+          description: Virtual Chassis members included in this inventory search result
+        model:
+          description: Device model for this inventory search result
+          examples:
+          - EX4300-48P
+          type: string
+        name:
+          description: Configured device name in this inventory search result
+          examples:
+          - mist-wa-ex4300-VC
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this inventory search result
+        serial:
+          description: Device serial number for this inventory search result
+          examples:
+          - PD3714460200
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with this inventory search result, when assigned
+        sku:
+          description: Device SKU for this inventory search result
+          examples:
+          - EX4300-48P
+          type: string
+        status:
+          description: Current inventory status for the device
+          examples:
+          - disconnected
+          type: string
+        type:
+          $ref: '#/components/schemas/device_type_default_ap'
+          description: Device type for this inventory search result
+        vc_mac:
+          description: Virtual Chassis MAC address for this inventory search result
+          examples:
+          - f01c2df166e0
+          type: string
+        version:
+          description: Software version reported for this inventory search result
+          examples:
+          - 21.4R3.5
+          type: string
+      type: object
+    response_inventory_error:
+      description: Claim codes rejected by the inventory add operation
+      items:
+        examples:
+        - PO1025335ohoh
+        type: string
+      type: array
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    inventory_search_results:
+      description: Inventory records returned by an inventory search
+      items:
+        $ref: '#/components/schemas/inventory_search_result'
+      type: array
+    response_inventory_duplicated:
+      description: Claim codes already present in organization inventory
+      items:
+        examples:
+        - DVH4V-SNMSZ-PDXBR
+        type: string
+      type: array
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    inventory_search:
+      additionalProperties: false
+      description: Paginated inventory search response
+      properties:
+        end:
+          description: Page ending index for this inventory search response
+          type: integer
+        limit:
+          description: Maximum number of inventory search results requested
+          examples:
+          - 1000
+          type: integer
+        next:
+          description: URL for the next page of inventory search results
+          type: string
+        results:
+          $ref: '#/components/schemas/inventory_search_results'
+          description: Inventory records returned by the search
+        start:
+          description: Page starting index for this inventory search response
+          type: integer
+        total:
+          description: Number of inventory records matching the search
+          examples:
+          - 1
+          type: integer
+      type: object
+    inventory_update_operation:
+      description: "enum:\n  * `upgrade_to_mist`: Upgrade to mist-managed\n  * `downgrade_to_jsi`: Downgrade to basic monitoring. When downgrading a VC member to jsi, we will move the cloud connection of the VC to jsi-terminator and keep all VC device/inventories intact for pain-free upgrading back to mist.\n  * `assign`: Assign inventory to a site\n  * `unassign`: Unassign inventory from a site\n  * `delete`: Delete multiple inventory from org. If the device is already assigned to a site, it will be unassigned"
+      enum:
+      - assign
+      - delete
+      - downgrade_to_jsi
+      - unassign
+      - upgrade_to_mist
+      type: string
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    inventory:
+      additionalProperties: false
+      description: Organization inventory record for a claimed device
+      properties:
+        adopted:
+          description: Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted
+          type: boolean
+        chassis_mac:
+          description: For Virtual Chassis only, MAC address of the FPC0 member
+          type: string
+        chassis_serial:
+          description: For Virtual Chassis only, the Serial Number of the FPC0
+          type: string
+        connected:
+          description: Whether the device is connected
+          type: boolean
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the inventory record was created
+        deviceprofile_id:
+          description: Deviceprofile id if assigned, null if not assigned
+          type:
+          - string
+          - 'null'
+        hostname:
+          description: Inventory hostname value reported by the device
+          type: string
+        hw_rev:
+          description: Device hardware revision number
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the inventory record
+        jsi:
+          description: Whether the inventory device is in JSI mode
+          type: boolean
+        last_disconnected:
+          description: Timestamp when the device last disconnected, in epoch seconds
+          type: integer
+        mac:
+          description: Device MAC address for this inventory record
+          type: string
+        magic:
+          description: Claim code used to add this device to inventory
+          type: string
+        model:
+          description: Device model reported in inventory
+          type: string
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the inventory record was last modified
+        name:
+          description: Device name if configured
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this inventory record
+        serial:
+          description: Device serial number reported in inventory
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with this inventory record, when assigned
+        sku:
+          description: Device stock keeping unit
+          type: string
+        type:
+          $ref: '#/components/schemas/device_type_default_ap'
+          description: Device type for this inventory record
+        vc_mac:
+          description: If `type`==`switch` and the device is part of a Virtual Chassis, MAC address of the Virtual Chassis. If `type`==`gateway` and the device is part of a cluster, MAC address of the cluster
+          type: string
+      type: object
+    replace_device_discard:
+      description: Attributes that should not be copied to the replacement device
+      items:
+        type: string
+      type: array
+    ha_cluster_config_nodes:
+      description: Gateway inventory nodes used to create an HA cluster
+      items:
+        $ref: '#/components/schemas/ha_cluster_config_node'
+      type: array
+    tunterm_port_config_upstream_port_vlan_id:
+      description: Native VLAN ID for upstream ports
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    inventory_update_macs:
+      description: If `op`==`assign`, `op`==`unassign`, `op`==`upgrade_to_mist`, or `op`==`downgrade_to_jsi`, device MAC addresses to update
+      items:
+        type: string
+      type: array
+    inventory_list:
+      description: Inventory records for claimed devices
+      items:
+        $ref: '#/components/schemas/inventory'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    inventory_count_distinct:
+      default: model
+      description: 'enum: `model`, `status`, `site_id`, `sku`, `version`'
+      enum:
+      - model
+      - status
+      - site_id
+      - sku
+      - version
+      type: string
+    response_inventory_inventory_added_items:
+      additionalProperties: false
+      description: Inventory device added by the claim operation
+      properties:
+        mac:
+          description: Device MAC address for the claimed inventory item
+          examples:
+          - 5c5b35000018
+          type: string
+        magic:
+          description: Activation code or claim code associated with the inventory item
+          examples:
+          - 6JG8EPTFV2A9Z2N
+          type: string
+        model:
+          description: Device model for the claimed inventory item
+          examples:
+          - AP41
+          type: string
+        serial:
+          description: Device serial number for the claimed inventory item
+          examples:
+          - FXLH2015150025
+          type: string
+        type:
+          description: Device type for the claimed inventory item
+          examples:
+          - ap
+          type: string
+      required:
+      - mac
+      - magic
+      - model
+      - serial
+      - type
+      type: object
+    inventory_search_result_members:
+      description: Virtual Chassis members included in an inventory search result
+      items:
+        $ref: '#/components/schemas/inventory_search_result_member'
+      type: array
+    ha_cluster_config:
+      description: Request to create an HA cluster from unassigned gateway inventory nodes
+      properties:
+        disable_auto_config:
+          deprecated: true
+          description: This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
+          type: boolean
+        managed:
+          deprecated: true
+          description: An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.
+          type: boolean
+        mist_configured:
+          description: whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)
+          type: boolean
+        nodes:
+          $ref: '#/components/schemas/ha_cluster_config_nodes'
+          description: Gateway nodes to include in the HA cluster; each node must be currently unassigned in inventory
+        site_id:
+          description: Site where the HA cluster should be created
+          examples:
+          - 43e9c864-a7e4-4310-8031-d9817d2c5a43
+          format: uuid
+          type: string
+      type: object
+  examples:
+    OrgInventoryChangesAssign:
+      value:
+        error: []
+        op: assign
+        reason: []
+        success:
+        - 5c5b350e0001
+    OrgInventoryAddExample:
+      value:
+        added:
+        - 6JG8E-PTFV2-A9Z2N
+        duplicated:
+        - DVH4V-SNMSZ-PDXBR
+        error:
+        - PO1025335ohoh
+        inventory_added:
+        - mac: 5c5b35000018
+          magic: 6JG8EPTFV2A9Z2N
+          model: AP41
+          serial: FXLH2015150025
+          type: ap
+        inventory_duplicated:
+        - mac: 5c5b35000012
+          magic: DVH4VSNMSZPDXBR
+          model: AP41
+          serial: FXLH2015150027
+          type: ap
+        reason:
+        - belongs to another org ('e2f543f7-d6e1-409f-a565-e77a1f098d3b' (other) != '0de5d6fc-219a-414d-a840-67d6b919ad8f' (you))
+    OrgInventoryExample:
+      value:
+      - connected: true
+        created_time: 1542328276
+        deviceprofile_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+        id: 00000000-0000-0000-0000-5c5b35000018
+        last_disconnected: 1542828000
+        mac: 5c5b35000018
+        model: AP41
+        modified_time: 1542829778
+        name: hallway
+        serial: FXLH2015150025
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        type: ap
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    OrgInventorySearchExample:
+      value:
+        limit: 1000
+        results:
+        - mac: f01c2df166e0
+          master: true
+          members:
+          - mac: f01c2df166e0
+            model: EX4300-48P
+            serial: PD3714460200
+          model: EX4300-48P
+          name: mist-wa-ex4300-VC
+          org_id: 9b853544-51e4-45fb-81ac-a442e4a111d0
+          serial: PD3714460200
+          site_id: 01dc141d-b6af-4baa-b00f-0e31ef954c4f
+          sku: EX4300-48P
+          status: disconnected
+          type: switch
+          vc_mac: f01c2df166e0
+          version: 21.4R3.5
+        total: 1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    OrgInventoryChangesDelete:
+      value:
+        error:
+        - FXLH2015150026
+        op: delete
+        reason: []
+        success:
+        - FXLH2015150025
+        - 5c5b350e0001
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    OrgInventoryChangesError:
+      value:
+        error:
+        - 5c5b350e0001
+        op: upgrade_to_mist
+        reason:
+        - already managed
+        success:
+        - c15353123096
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+  responses:
+    OK:
+      description: OK
+    OrgInventorySearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventorySearchExample'
+          schema:
+            $ref: '#/components/schemas/inventory_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventorySearchExample'
+          schema:
+            $ref: '#/components/schemas/inventory_search'
+      description: OK
+    OrgInventory:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryExample'
+          schema:
+            $ref: '#/components/schemas/inventory_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryExample'
+          schema:
+            $ref: '#/components/schemas/inventory_list'
+      description: OK
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    OrgInventoryChanges:
+      content:
+        application/json:
+          examples:
+            Assign:
+              $ref: '#/components/examples/OrgInventoryChangesAssign'
+            Delete:
+              $ref: '#/components/examples/OrgInventoryChangesDelete'
+            Error:
+              $ref: '#/components/examples/OrgInventoryChangesError'
+          schema:
+            $ref: '#/components/schemas/response_org_inventory_change'
+        application/vnd.api+json:
+          examples:
+            Assign:
+              $ref: '#/components/examples/OrgInventoryChangesAssign'
+            Delete:
+              $ref: '#/components/examples/OrgInventoryChangesDelete'
+            Error:
+              $ref: '#/components/examples/OrgInventoryChangesError'
+          schema:
+            $ref: '#/components/schemas/response_org_inventory_change'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    OrgInventoryAdd:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryAddExample'
+          schema:
+            $ref: '#/components/schemas/response_inventory'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryAddExample'
+          schema:
+            $ref: '#/components/schemas/response_inventory'
+      description: OK - if any of entries are valid or there’s no errors
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

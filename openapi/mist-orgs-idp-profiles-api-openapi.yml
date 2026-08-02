@@ -1,0 +1,628 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs IDP Profiles API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'An IDP profile is a set of predefined rules and actions that determine how the Intrusion Detection and Prevention (IDP) system handles network traffic.
+
+
+    It allows you to selectively enforce attack detection and prevention techniques on your network. The profile includes a set of IDP signatures and rules recommended by Juniper Networks, and each attack type and severity has a specific action associated with it, such as closing the TCP connection, dropping the packet, or sending an alert.
+
+
+    The IDP profile can be applied to an application policy to monitor and analyze network events for signs of incidents, violations, or threats to security policies.'
+  name: Orgs IDP Profiles
+paths:
+  /api/v1/orgs/{org_id}/idpprofiles:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List organization Intrusion Detection and Prevention (IDP) profiles, including their base profile and signature overwrite rules.
+      operationId: listOrgIdpProfiles
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/IdpProfileArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgIdpProfiles
+      tags:
+      - Orgs IDP Profiles
+    post:
+      description: Create an organization Intrusion Detection and Prevention (IDP) profile with a built-in base profile and optional signature overwrite rules.
+      operationId: createOrgIdpProfile
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  base_profile: strict
+                  name: relaxed
+                  overwrites:
+                  - action: alert
+                    matching:
+                      attack_name:
+                      - HTTP:INVALID:HDR-FIELD
+                      dst_subnet:
+                      - 63.1.2.0/24
+                      severity:
+                      - major
+            schema:
+              $ref: '#/components/schemas/idp_profile'
+      responses:
+        '200':
+          $ref: '#/components/responses/IdpProfile'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgIdpProfile
+      tags:
+      - Orgs IDP Profiles
+  /api/v1/orgs/{org_id}/idpprofiles/{idpprofile_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/idpprofile_id'
+    delete:
+      description: Delete an organization Intrusion Detection and Prevention (IDP) profile by profile ID.
+      operationId: deleteOrgIdpProfile
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgIdpProfile
+      tags:
+      - Orgs IDP Profiles
+    get:
+      description: Retrieve the base profile and signature overwrite rules for a specific organization IDP profile.
+      operationId: getOrgIdpProfile
+      responses:
+        '200':
+          $ref: '#/components/responses/IdpProfile'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgIdpProfile
+      tags:
+      - Orgs IDP Profiles
+    put:
+      description: Update an organization IDP profile, including its base profile and signature overwrite rules.
+      operationId: updateOrgIdpProfile
+      requestBody:
+        content:
+          application/json:
+            examples:
+              idpprofile:
+                value:
+                  base_profile: strict
+                  name: relaxed
+                  overwrites:
+                  - action: alert
+                    matching:
+                      attack_name:
+                      - HTTP:INVALID:HDR-FIELD
+                      dst_subnet:
+                      - 63.1.2.0/24
+                      severity:
+                      - major
+            schema:
+              $ref: '#/components/schemas/idp_profile'
+      responses:
+        '200':
+          $ref: '#/components/responses/IdpProfile'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgIdpProfile
+      tags:
+      - Orgs IDP Profiles
+components:
+  schemas:
+    idp_profile_matching_severity_value:
+      description: 'enum: `critical`, `info`, `major`, `minor`'
+      enum:
+      - critical
+      - info
+      - major
+      - minor
+      examples:
+      - major
+      type: string
+    idp_profile_matching:
+      additionalProperties: false
+      description: Criteria that select IDP signatures for an overwrite rule
+      properties:
+        attack_name:
+          $ref: '#/components/schemas/idp_profile_matching_attack_name'
+          description: Signature names matched by the IDP profile overwrite
+        dst_subnet:
+          $ref: '#/components/schemas/idp_profile_matching_dst_subnet'
+          description: Destination subnets matched by the IDP profile overwrite
+        severity:
+          $ref: '#/components/schemas/idp_profile_matching_severity'
+          description: Threat levels matched by the IDP profile overwrite
+      type: object
+    idp_profiles:
+      description: IDP profile records returned for an organization
+      items:
+        $ref: '#/components/schemas/idp_profile'
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    idp_profile_overwrites:
+      description: IDP profile overwrite rules applied to the base profile
+      items:
+        $ref: '#/components/schemas/idp_profile_overwrite'
+      type: array
+    idp_profile_matching_severity:
+      description: Severity levels matched by an IDP profile overwrite
+      items:
+        $ref: '#/components/schemas/idp_profile_matching_severity_value'
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    idp_profile_overwrite:
+      additionalProperties: false
+      description: Override rule that changes the IDP action for matching signatures
+      properties:
+        action:
+          $ref: '#/components/schemas/idp_profile_action'
+          description: Enforcement action applied when this overwrite rule matches
+        matching:
+          $ref: '#/components/schemas/idp_profile_matching'
+          description: Criteria that select signatures for this overwrite rule
+        name:
+          description: Display name for this IDP profile overwrite rule
+          type: string
+      type: object
+    idp_profile_base_profile:
+      description: 'enum: `critical`, `standard`, `strict`'
+      enum:
+      - critical
+      - standard
+      - strict
+      examples:
+      - strict
+      type: string
+    idp_profile_action:
+      default: alert
+      description: 'IDP profile action. enum: `alert`, `close`, `drop`. `alert` is the default, `drop` silently drops packets, and `close` asks the client/server to close the connection'
+      enum:
+      - alert
+      - close
+      - drop
+      examples:
+      - alert
+      type: string
+    idp_profile:
+      description: Organization IDP profile with a base profile and targeted overwrite rules
+      properties:
+        base_profile:
+          $ref: '#/components/schemas/idp_profile_base_profile'
+          description: Built-in IDP baseline profile inherited before applying overwrites
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the IDP profile was created
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the IDP profile
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the IDP profile was last modified
+        name:
+          description: Display name of the IDP profile
+          examples:
+          - relaxed
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization for the IDP profile
+        overwrites:
+          $ref: '#/components/schemas/idp_profile_overwrites'
+          description: IDP signature override rules applied on top of the base profile
+      type: object
+    idp_profile_matching_attack_name:
+      description: IDP attack signature names matched by an overwrite rule
+      items:
+        examples:
+        - HTTP:INVALID:HDR-FIELD
+        type: string
+      type: array
+    idp_profile_matching_dst_subnet:
+      description: Destination CIDR subnets matched by an IDP profile overwrite
+      items:
+        examples:
+        - 63.1.2.0/24
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    idpprofile_id:
+      in: path
+      name: idpprofile_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    IdpProfileArray:
+      content:
+        application/json:
+          examples:
+            Idpprofiles:
+              $ref: '#/components/examples/IdpProfileArrayIdpprofiles'
+          schema:
+            $ref: '#/components/schemas/idp_profiles'
+        application/vnd.api+json:
+          examples:
+            Idpprofiles:
+              $ref: '#/components/examples/IdpProfileArrayIdpprofiles'
+          schema:
+            $ref: '#/components/schemas/idp_profiles'
+      description: Example response
+    IdpProfile:
+      content:
+        application/json:
+          examples:
+            Idpprofile:
+              $ref: '#/components/examples/IdpProfileIdpprofile'
+          schema:
+            $ref: '#/components/schemas/idp_profile'
+        application/vnd.api+json:
+          examples:
+            Idpprofile:
+              $ref: '#/components/examples/IdpProfileIdpprofile'
+          schema:
+            $ref: '#/components/schemas/idp_profile'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    IdpProfileIdpprofile:
+      value:
+        base_profile: strict
+        created_time: 0
+        id: 874ca978-d736-4d4b-bc90-a49a29eec133
+        modified_time: 0
+        name: relaxed
+        overwrites:
+        - action: alert
+          matching:
+            attack_name:
+            - HTTP:INVALID:HDR-FIELD
+            dst_subnet:
+            - 63.1.2.0/24
+            severity:
+            - major
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    IdpProfileArrayIdpprofiles:
+      value:
+      - base_profile: strict
+        created_time: 0
+        id: 874ca978-d736-4d4b-bc90-a49a29eec133
+        modified_time: 0
+        name: relaxed
+        overwrites:
+        - action: alert
+          matching:
+            attack_name:
+            - HTTP:INVALID:HDR-FIELD
+            dst_subnet:
+            - 63.1.2.0/24
+            severity:
+            - major
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

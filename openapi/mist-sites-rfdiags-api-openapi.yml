@@ -1,0 +1,684 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Rfdiags API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'Rf Diags is a feature in Juniper Mist location services that allows users to replay recorded sessions of the RF (radio frequency) environment.
+
+
+    It enables users to gain an understanding of current issues, troubleshoot problems, and review recordings for further analysis or to share with customer support.'
+  name: Sites Rfdiags
+paths:
+  /api/v1/sites/{site_id}/rfdiags:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: List RF Glass Recording
+      operationId: getSiteSiteRfdiagRecording
+      parameters:
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/RfdiagsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+    post:
+      description: Start RF Glass Recording
+      operationId: startSiteRecording
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rf_diag'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Rfdiag'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: startSiteRecording
+      tags:
+      - Sites Rfdiags
+  /api/v1/sites/{site_id}/rfdiags/{rfdiag_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/rfdiag_id'
+    delete:
+      description: Delete Recording
+      operationId: deleteSiteRfdiagRecording
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+    get:
+      description: Get RF Diag Recording Details
+      operationId: getSiteRfdiagRecording
+      responses:
+        '200':
+          $ref: '#/components/responses/Rfdiag'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+    put:
+      description: Update Recording
+      operationId: updateSiteRfdiagRecording
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rf_diag'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Rfdiag'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+  /api/v1/sites/{site_id}/rfdiags/{rfdiag_id}/download:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/rfdiag_id'
+    get:
+      description: 'Download Recording
+
+        Download raw_events blob'
+      operationId: downloadSiteRfdiagRecording
+      responses:
+        '200':
+          $ref: '#/components/responses/File'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: downloadSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+  /api/v1/sites/{site_id}/rfdiags/{rfdiag_id}/stop:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/rfdiag_id'
+    post:
+      description: If the recording session is active for the given rfdiag_id, it will finish the recording. duration and end_time will be updated to reflect the correct values.
+      operationId: stopSiteRfdiagRecording
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: stopSiteRfdiagRecording
+      tags:
+      - Sites Rfdiags
+components:
+  responses:
+    OK:
+      description: OK
+    File:
+      content:
+        application/json:
+          schema:
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
+        application/vnd.api+json:
+          schema:
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    Rfdiag:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    RfdiagsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagsArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagsArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info_list'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    rfdiag_id:
+      in: path
+      name: rfdiag_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  schemas:
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    rf_diag:
+      description: RF diagnostic recording request
+      properties:
+        duration:
+          default: 180
+          description: Recording length, in seconds; maximum and default are 180
+          maximum: 180
+          type: integer
+        mac:
+          description: If `type`==`client` or `asset`, MAC address of the device being recorded
+          type: string
+        name:
+          description: Recording name; the SDK client name is a good default for SDK-client recordings
+          type: string
+        sdkclient_id:
+          description: If `type`==`sdkclient`, SDK client identifier for this recording
+          format: uuid
+          type: string
+        type:
+          $ref: '#/components/schemas/rf_client_type'
+          description: Target device category for the RF diagnostic recording
+      required:
+      - name
+      - type
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    rf_client_type:
+      description: 'enum: `asset`, `client`, `sdkclient`'
+      enum:
+      - asset
+      - client
+      - sdkclient
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    rf_diag_info_item:
+      additionalProperties: false
+      description: RF diagnostic recording metadata and output links
+      properties:
+        asset_id:
+          description: If `type`==`asset`, id of the asset
+          format: uuid
+          type: string
+        asset_name:
+          description: If `type`==`asset`, name of the asset
+          type: string
+        client_name:
+          description: If `type`==`client`, hostname of the client
+          type: string
+        duration:
+          description: recording length in seconds, max is 120
+          type: integer
+        end_time:
+          description: Timestamp of end of recording
+          type: integer
+        frame_count:
+          description: Number of frames in the output
+          type: integer
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the RF diagnostic recording
+        mac:
+          description: If `type`==`client` or `asset`, MAC address of the recorded device
+          type: string
+        map_id:
+          description: Map identifier associated with the recording
+          format: uuid
+          type: string
+        name:
+          description: Recording name returned for the RF diagnostic recording
+          type: string
+        next:
+          description: Optional. id of the next recoding if present. Only valid for site survey.
+          type: string
+        raw_events:
+          description: URL to a JSON file that contains array of raw location diag events
+          type: string
+        ready:
+          description: Whether it’s ready for playback
+          type: boolean
+        sdkclient_id:
+          description: If `type`==`sdkclient`, sdkclient_id of this recording
+          format: uuid
+          type: string
+        sdkclient_name:
+          description: If `type`==`sdkclient`, name of the sdkclient
+          type: string
+        sdkclient_uuid:
+          description: If `type`==`sdkclient`, device_id of sdkclient
+          format: uuid
+          type: string
+        start_time:
+          description: Timestamp of the recording (the start)
+          type: integer
+        type:
+          $ref: '#/components/schemas/rf_client_type'
+          description: Target device category for the recording
+        url:
+          description: JSON file URL for frame data captured by the recording
+          type: string
+      required:
+      - name
+      - type
+      - map_id
+      - url
+      - raw_events
+      - start_time
+      - end_time
+      - duration
+      - frame_count
+      - ready
+      type: object
+    rf_diag_info_list:
+      description: List response containing RF diagnostic recording entry arrays
+      items:
+        $ref: '#/components/schemas/rf_diag_info'
+      type: array
+    rf_diag_info:
+      description: RF diagnostic recording response entries
+      items:
+        $ref: '#/components/schemas/rf_diag_info_item'
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    RfdiagsArrayExample:
+      value:
+      - - asset_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          asset_name: string
+          client_name: string
+          duration: 0
+          end_time: 0
+          frame_count: 0
+          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          mac: string
+          map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          name: string
+          next: string
+          raw_events: string
+          ready: true
+          sdkclient_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          sdkclient_name: string
+          sdkclient_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          start_time: 0
+          type: sdkclient
+          url: string
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    RfdiagExample:
+      value:
+      - asset_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        asset_name: string
+        client_name: string
+        duration: 0
+        end_time: 0
+        frame_count: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        mac: string
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        name: string
+        next: string
+        raw_events: string
+        ready: true
+        sdkclient_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        sdkclient_name: string
+        sdkclient_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        start_time: 0
+        type: sdkclient
+        url: string
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

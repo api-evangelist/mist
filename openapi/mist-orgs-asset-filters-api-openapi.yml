@@ -1,0 +1,584 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Asset Filters API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'An Asset Filter is a feature that allows users to define specific criteria or conditions to filter and display only certain assets based on their attributes or properties.
+
+
+    This requires the Asset Visibility subscription.'
+  name: Orgs Asset Filters
+paths:
+  /api/v1/orgs/{org_id}/assetfilters:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List organization-level BLE asset filters. Each filter operates independently, and an asset must match all specified filter properties for that filter to apply.
+      operationId: listOrgAssetFilters
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/AssetfiltersArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgAssetFilters
+      tags:
+      - Orgs Asset Filters
+    post:
+      description: Create an organization-level BLE asset filter. Any subset of filter properties can be included, and a matching asset must meet all specified conditions.
+      operationId: createOrgAssetFilter
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  disabled: true
+                  eddystone_uid_namespace: string
+                  eddystone_url: string
+                  ibeacon_major: 1
+                  ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
+                  mfg_company_id: 0
+                  name: string
+            schema:
+              $ref: '#/components/schemas/asset_filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/Assetfilter'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgAssetFilter
+      tags:
+      - Orgs Asset Filters
+  /api/v1/orgs/{org_id}/assetfilters/{assetfilter_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/assetfilter_id'
+    delete:
+      description: Delete an organization-level BLE asset filter by filter ID.
+      operationId: deleteOrgAssetFilter
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgAssetFilter
+      tags:
+      - Orgs Asset Filters
+    get:
+      description: Return one organization-level BLE asset filter, including its name, disabled state, and matching criteria.
+      operationId: getOrgAssetFilter
+      responses:
+        '200':
+          $ref: '#/components/responses/Assetfilter'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgAssetFilter
+      tags:
+      - Orgs Asset Filters
+    put:
+      description: Update an organization-level BLE asset filter's name, disabled state, or matching criteria.
+      operationId: updateOrgAssetFilter
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  disabled: true
+                  eddystone_uid_namespace: string
+                  eddystone_url: string
+                  ibeacon_major: 1
+                  ibeacon_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab2
+                  mfg_company_id: 0
+                  name: string
+            schema:
+              $ref: '#/components/schemas/asset_filter'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Assetfilter'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgAssetFilter
+      tags:
+      - Orgs Asset Filters
+components:
+  responses:
+    AssetfiltersArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/asset_filters'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/asset_filters'
+      description: OK
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    Assetfilter:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetfilterExample'
+          schema:
+            $ref: '#/components/schemas/asset_filter'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetfilterExample'
+          schema:
+            $ref: '#/components/schemas/asset_filter'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    assetfilter_id:
+      in: path
+      name: assetfilter_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  schemas:
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    asset_filters:
+      description: List of BLE asset filters
+      items:
+        $ref: '#/components/schemas/asset_filter'
+      type: array
+    ibeacon_uuid:
+      description: iBeacon UUID value, or null when no iBeacon UUID is configured
+      examples:
+      - f3f17139-704a-f03a-2786-0400279e37c3
+      format: uuid
+      type:
+      - string
+      - 'null'
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    ibeacon_major:
+      description: Major number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    asset_filter:
+      description: BLE asset filter definition; all specified criteria must match
+      properties:
+        ap_mac:
+          description: Access point MAC address that must observe the BLE asset
+          type: string
+        beam:
+          description: BLE beam number used to filter asset observations
+          type: integer
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when this asset filter was created
+        disabled:
+          default: false
+          description: Whether the asset filter is disabled
+          type: boolean
+        eddystone_uid_namespace:
+          description: Eddystone uid namespace used to filter assets
+          examples:
+          - 2818e3868dec25629ede
+          type: string
+        eddystone_url:
+          description: Eddystone url used to filter assets
+          examples:
+          - https://www.abc.com
+          type: string
+        for_site:
+          description: Whether this asset filter is scoped directly to a site
+          readOnly: true
+          type: boolean
+        ibeacon_major:
+          $ref: '#/components/schemas/ibeacon_major'
+          description: Major value from the iBeacon advertisement that assets must match
+        ibeacon_uuid:
+          $ref: '#/components/schemas/ibeacon_uuid'
+          description: UUID from the iBeacon advertisement that assets must match
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the asset filter
+        mfg_company_id:
+          description: BLE manufacturing-specific company-id used to filter assets
+          examples:
+          - 935
+          type: integer
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when this asset filter was last modified
+        mqtt_topic:
+          description: If set, matching BLE advertisements are forwarded to this MQTT topic when MQTT publishing is enabled
+          type: string
+        name:
+          description: Display name for this BLE asset filter
+          examples:
+          - Visitor Tags
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization identifier for this asset filter
+        rssi:
+          description: Signal strength threshold used to filter BLE asset observations
+          type: integer
+        service_uuid:
+          description: BLE service data uuid used to filter assets
+          examples:
+          - 0000fe6a-0000-1000-8000-0030459b3cfb
+          format: uuid
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Containing site identifier for this asset filter, when site-scoped
+      required:
+      - name
+      type: object
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    AssetfilterExample:
+      value:
+        created_time: 0
+        disabled: true
+        eddystone_uid_namespace: string
+        eddystone_url: string
+        for_site: true
+        ibeacon_major: 1
+        ibeacon_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        mfg_company_id: 0
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

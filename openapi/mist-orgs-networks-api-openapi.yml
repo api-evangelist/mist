@@ -1,0 +1,1186 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Networks API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: A Network refers to a group or segment of users that are defined for use across the entire organization.
+  name: Orgs Networks
+paths:
+  /api/v1/orgs/{org_id}/networks:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List organization-level Layer 3 network definitions used for service routes and gateway or network template configuration.
+      operationId: listOrgNetworks
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/NetworksArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgNetworks
+      tags:
+      - Orgs Networks
+    post:
+      description: 'Create an organization network definition with subnet, gateway,
+
+        VLAN, access, NAT, multicast, tenant, and VPN access settings used for service
+
+        routes and gateway or network template configuration.
+
+
+
+        Networks can be used
+
+        - in the gateway configuration to define Layer 3 network settings and policies for traffic entering or leaving the gateway through a specific interface, such as a corporate LAN, guest Wi-Fi, or DMZ network.
+
+        - in the service policies to allow or deny traffic matching the network or to apply specific inspection settings or steering rules.'
+      operationId: createOrgNetwork
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  disallow_mist_services: false
+                  gateway: 192.168.70.1
+                  hosts:
+                    property1:
+                      external_ips: 172.16.10.32-172.16.10.35
+                      ips: 192.168.70.32-192.168.70.35
+                    property2:
+                      external_ips: 172.16.10.32-172.16.10.35
+                      ips: 192.168.70.32-192.168.70.35
+                  internal_access:
+                    enabled: true
+                  internet_access:
+                    create_simple_service_policy: false
+                    destination_nat:
+                      property1:
+                        internal_ip: 192.168.70.30
+                        name: web server
+                        port: '443'
+                      property2:
+                        internal_ip: 192.168.70.30
+                        name: web server
+                        port: '443'
+                    enabled: true
+                    restricted: false
+                    static_nat:
+                      property1:
+                        internal_ip: 192.168.70.3
+                        name: printer-1
+                      property2:
+                        internal_ip: 192.168.70.3
+                        name: printer-1
+                  isolation: true
+                  name: string
+                  subnet: 192.168.70.0/24
+                  tenants:
+                    property1:
+                      addresses:
+                      - 10.10.10.10.
+                    property2:
+                      addresses:
+                      - 10.10.10.52
+                  vlan_id: 10
+                  vpn_access:
+                    property1:
+                      allow_ping: true
+                      destination_nat:
+                        property1:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                        property2:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                      nat_pool: 172.16.0.0/26
+                      routed: true
+                      source_nat:
+                        external_ip: 172.16.0.8/30
+                      static_nat:
+                        property1:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                        property2:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                      summarized_subnet: 172.16.0.0/16
+                    property2:
+                      allow_ping: true
+                      destination_nat:
+                        property1:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                        property2:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                      nat_pool: 172.16.0.0/26
+                      routed: true
+                      source_nat:
+                        external_ip: 172.16.0.8/30
+                      static_nat:
+                        property1:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                        property2:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                      summarized_subnet: 172.16.0.0/16
+            schema:
+              $ref: '#/components/schemas/network'
+      responses:
+        '200':
+          $ref: '#/components/responses/Network'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgNetwork
+      tags:
+      - Orgs Networks
+  /api/v1/orgs/{org_id}/networks/{network_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/network_id'
+    delete:
+      description: Delete an organization network definition by network ID so it can no longer be referenced by gateway or network template configuration.
+      operationId: deleteOrgNetwork
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgNetwork
+      tags:
+      - Orgs Networks
+    get:
+      description: Retrieve details for a specific organization network, including subnet, gateway, VLAN, access, NAT, multicast, tenant, and VPN access settings.
+      operationId: getOrgNetwork
+      responses:
+        '200':
+          $ref: '#/components/responses/Network'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgNetwork
+      tags:
+      - Orgs Networks
+    put:
+      description: Update an organization network definition, including subnet, gateway, VLAN, access, NAT, multicast, tenant, and VPN access settings.
+      operationId: updateOrgNetwork
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  disallow_mist_services: false
+                  gateway: 192.168.70.1
+                  hosts:
+                    property1:
+                      external_ips: 172.16.10.32-172.16.10.35
+                      ips: 192.168.70.32-192.168.70.35
+                    property2:
+                      external_ips: 172.16.10.32-172.16.10.35
+                      ips: 192.168.70.32-192.168.70.35
+                  internal_access:
+                    enabled: true
+                  internet_access:
+                    create_simple_service_policy: false
+                    destination_nat:
+                      property1:
+                        internal_ip: 192.168.70.30
+                        name: web server
+                        port: '443'
+                      property2:
+                        internal_ip: 192.168.70.30
+                        name: web server
+                        port: '443'
+                    enabled: true
+                    restricted: false
+                    static_nat:
+                      property1:
+                        internal_ip: 192.168.70.3
+                        name: printer-1
+                      property2:
+                        internal_ip: 192.168.70.3
+                        name: printer-1
+                  isolation: true
+                  name: string
+                  subnet: 192.168.70.0/24
+                  tenants:
+                    property1:
+                      addresses:
+                      - 10.10.10.10
+                    property2:
+                      addresses:
+                      - 10.10.10.52
+                  vlan_id: 10
+                  vpn_access:
+                    property1:
+                      allow_ping: true
+                      destination_nat:
+                        property1:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                        property2:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                      nat_pool: 172.16.0.0/26
+                      routed: true
+                      source_nat:
+                        external_ip: 172.16.0.8/30
+                      static_nat:
+                        property1:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                        property2:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                      summarized_subnet: 172.16.0.0/16
+                    property2:
+                      allow_ping: true
+                      destination_nat:
+                        property1:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                        property2:
+                          internal_ip: 192.168.70.5/30
+                          name: web server
+                          port: '443'
+                      nat_pool: 172.16.0.0/26
+                      routed: true
+                      source_nat:
+                        external_ip: 172.16.0.8/30
+                      static_nat:
+                        property1:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                        property2:
+                          internal_ip: 192.168.70.3
+                          name: pos_station-1
+                      summarized_subnet: 172.16.0.0/16
+            schema:
+              $ref: '#/components/schemas/network'
+      responses:
+        '200':
+          $ref: '#/components/responses/Network'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgNetwork
+      tags:
+      - Orgs Networks
+components:
+  schemas:
+    network_source_nat:
+      additionalProperties: false
+      description: If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub
+      properties:
+        external_ip:
+          description: External source NAT IP or subnet used when spoke hosts must be reachable from the hub
+          examples:
+          - 172.16.0.8/30
+          type: string
+      type: object
+    network_vpn_access_config:
+      additionalProperties: false
+      description: VPN access settings for a network and VPN pair
+      properties:
+        advertised_subnet:
+          description: If `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side
+          examples:
+          - 172.16.0.0/24
+          type: string
+        allow_ping:
+          description: Whether to allow ping from vpn into this routed network
+          type: boolean
+        destination_nat:
+          $ref: '#/components/schemas/network_vpn_access_destination_nat'
+          description: Destination NAT rules applied for VPN access to this network
+        nat_pool:
+          description: If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
+          examples:
+          - 172.16.0.0/26
+          type: string
+        no_readvertise_to_lan_bgp:
+          default: false
+          description: toward LAN-side BGP peers
+          type: boolean
+        no_readvertise_to_lan_ospf:
+          default: false
+          description: toward LAN-side OSPF peers
+          type: boolean
+        no_readvertise_to_overlay:
+          description: toward overlay, how HUB should deal with routes it received from Spokes
+          type: boolean
+        other_vrfs:
+          $ref: '#/components/schemas/network_vpn_access_config_other_vrfs'
+          description: Other VRFs that can receive leaked routes from this spoke network
+        routed:
+          description: Whether this network is routable
+          type: boolean
+        source_nat:
+          $ref: '#/components/schemas/network_source_nat'
+          description: Source NAT settings used when non-routed spoke hosts must be reachable from the hub
+        static_nat:
+          $ref: '#/components/schemas/network_vpn_access_static_nat'
+          description: Static NAT rules applied for VPN access to this network
+        summarized_subnet:
+          description: toward overlay, how HUB should deal with routes it received from Spokes
+          examples:
+          - 172.16.0.0/16
+          type: string
+        summarized_subnet_to_lan_bgp:
+          description: toward LAN-side BGP peers
+          examples:
+          - 172.16.0.0/16
+          type: string
+        summarized_subnet_to_lan_ospf:
+          description: toward LAN-side OSPF peers
+          examples:
+          - 172.16.0.0/16
+          type: string
+      type: object
+    network_internet_access_static_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_internet_access_static_nat_property'
+      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
+      type: object
+    network_internet_access:
+      additionalProperties: false
+      description: Direct internet access settings for an organization network
+      properties:
+        create_simple_service_policy:
+          default: false
+          description: Whether Mist should create simple service policies for restricted internet access
+          type: boolean
+        destination_nat:
+          $ref: '#/components/schemas/network_internet_access_destination_nat'
+          description: Destination NAT rules for direct internet access
+        enabled:
+          description: Whether direct internet access is enabled for this network
+          type: boolean
+        restricted:
+          default: false
+          description: By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
+          type: boolean
+        static_nat:
+          $ref: '#/components/schemas/network_internet_access_static_nat'
+          description: Static NAT rules for direct internet access
+      type: object
+    vlan_id_with_variable:
+      description: VLAN ID, either numeric or expressed as a template variable string
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    network_tenant:
+      additionalProperties: false
+      description: Tenant address entry for a network
+      properties:
+        addresses:
+          $ref: '#/components/schemas/network_tenant_addresses'
+          description: IP addresses or subnets assigned to this tenant in the network
+      type: object
+    network_vpn_access_static_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_static_nat_property'
+      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
+      type: object
+    network_routed_for_networks:
+      description: For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
+      items:
+        examples:
+        - pos
+        type: string
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    network_tenants:
+      additionalProperties:
+        $ref: '#/components/schemas/network_tenant'
+      description: Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}")
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    network_multicast_groups:
+      additionalProperties:
+        $ref: '#/components/schemas/network_multicast_group'
+      description: Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32")
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    network_internet_access_static_nat_property:
+      additionalProperties: false
+      description: Direct-internet static NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.3
+          type: string
+        name:
+          description: Label for this direct internet static NAT rule
+          examples:
+          - pos_station-1
+          type: string
+        wan_name:
+          description: SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. "{{myvar}}")
+          examples:
+          - wan0
+          type: string
+      type: object
+    network_vpn_access_destination_nat_property:
+      additionalProperties: false
+      description: VPN access destination NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Destination NAT destination IP address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.30
+          type: string
+        name:
+          description: Label for this VPN destination NAT rule
+          examples:
+          - web server
+          type: string
+        port:
+          description: Destination port or variable for this VPN destination NAT rule
+          examples:
+          - '443'
+          type: string
+      type: object
+    network_internet_access_destination_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_internet_access_destination_nat_property'
+      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    network_multicast_group:
+      additionalProperties: false
+      description: Multicast group rendezvous point mapping
+      properties:
+        rp_ip:
+          description: RP (rendezvous point) IP address
+          type: string
+      type: object
+    network_multicast:
+      additionalProperties: false
+      description: Whether to enable multicast support (only PIM-sparse mode is supported)
+      properties:
+        disable_igmp:
+          default: false
+          description: If the network will only be the source of the multicast traffic, IGMP can be disabled
+          type: boolean
+        enabled:
+          default: false
+          description: Whether multicast support is enabled for this network
+          type: boolean
+        groups:
+          $ref: '#/components/schemas/network_multicast_groups'
+          description: Multicast group-to-RP mappings for this network
+      type: object
+    network:
+      description: Organization-level Layer 3 network definition that can be merged into site settings and used for service routes. Networks are used to define the service routes in the Gateway settings or templates
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the network was created
+        disallow_mist_services:
+          default: false
+          description: Whether to disallow Mist Devices in the network
+          type: boolean
+        gateway:
+          description: IPv4 gateway address for this network
+          examples:
+          - 192.168.70.1
+          format: ipv4
+          type: string
+        gateway6:
+          description: IPv6 gateway address for this network
+          examples:
+          - fdad:b0bc:f29e::1
+          format: ipv6
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the network
+        internal_access:
+          $ref: '#/components/schemas/network_internal_access'
+          description: Internal access settings for this network
+        internet_access:
+          $ref: '#/components/schemas/network_internet_access'
+          description: Direct internet access and NAT settings for this network
+        isolation:
+          description: Whether to allow clients in the network to talk to each other
+          type: boolean
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the network was last modified
+        multicast:
+          $ref: '#/components/schemas/network_multicast'
+          description: Settings for multicast routing on this network
+        name:
+          description: Display name of the organization network
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this network
+        routed_for_networks:
+          $ref: '#/components/schemas/network_routed_for_networks'
+          description: Other network names this network can route to, for example through BGP, OSPF or static routes
+        subnet:
+          description: IPv4 subnet CIDR for this network
+          examples:
+          - 192.168.70.0/24
+          type: string
+        subnet6:
+          description: IPv6 subnet CIDR for this network
+          examples:
+          - fdad:b0bc:f29e::/32
+          type: string
+        tenants:
+          $ref: '#/components/schemas/network_tenants'
+          description: Tenant address mappings associated with this network
+        vlan_id:
+          $ref: '#/components/schemas/vlan_id_with_variable'
+          description: VLAN ID or variable associated with this network
+        vpn_access:
+          $ref: '#/components/schemas/network_vpn_access'
+          description: VPN access settings keyed by VPN name for this network
+      required:
+      - name
+      type: object
+    network_internal_access:
+      additionalProperties: false
+      description: Internal access settings for an organization network
+      properties:
+        enabled:
+          description: Whether internal access is enabled for this network
+          type: boolean
+      type: object
+    network_tenant_addresses:
+      description: IP addresses or subnets assigned to a network tenant
+      items:
+        description: The user/tenant IP address (i.e. "192.168.70.30"), an Subnet (i.e. "192.168.70.0/24") or a Variable (i.e. "{{myvar}}")
+        examples:
+        - 192.168.70.30
+        type: string
+      type: array
+    network_internet_access_destination_nat_property:
+      additionalProperties: false
+      description: Direct-internet destination NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Destination NAT destination IP address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.30
+          type: string
+        name:
+          description: Label for this direct internet destination NAT rule
+          examples:
+          - web server
+          type: string
+        port:
+          description: The Destination NAT destination IP address. Must be a Port (i.e. "443") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - '443'
+          type: string
+        wan_name:
+          description: SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity
+          examples:
+          - wan0
+          type: string
+      type: object
+    network_vpn_access_destination_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_destination_nat_property'
+      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
+      type: object
+    networks:
+      description: List of organization network definitions
+      items:
+        $ref: '#/components/schemas/network'
+      type: array
+    network_vpn_access_static_nat_property:
+      additionalProperties: false
+      description: VPN access static NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.3
+          type: string
+        name:
+          description: Label for this VPN static NAT rule
+          examples:
+          - pos_station-1
+          type: string
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    network_vpn_access:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_config'
+      description: Property key is the VPN name. Whether this network can be accessed from vpn
+      type: object
+    network_vpn_access_config_other_vrfs:
+      description: By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
+      items:
+        examples:
+        - iot
+        type: string
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    network_id:
+      in: path
+      name: network_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    NetworksArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworksArrayExample'
+          schema:
+            $ref: '#/components/schemas/networks'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworksArrayExample'
+          schema:
+            $ref: '#/components/schemas/networks'
+      description: OK
+    Network:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworkExample'
+          schema:
+            $ref: '#/components/schemas/network'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworkExample'
+          schema:
+            $ref: '#/components/schemas/network'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    NetworksArrayExample:
+      value:
+      - created_time: 0
+        disallow_mist_services: false
+        gateway: 192.168.70.1
+        hosts:
+          property1:
+            external_ips: 172.16.10.32-172.16.10.35
+            ips: 192.168.70.32-192.168.70.35
+          property2:
+            external_ips: 172.16.10.32-172.16.10.35
+            ips: 192.168.70.32-192.168.70.35
+        id: 497f6eca-6276-4993-bfeb-53cbbbba6f13
+        internal_access:
+          enabled: true
+        internet_access:
+          create_simple_service_policy: false
+          destination_nat:
+            property1:
+              internal_ip: 192.168.70.30
+              name: web server
+              port: '443'
+            property2:
+              internal_ip: 192.168.70.30
+              name: web server
+              port: '443'
+          enabled: true
+          restricted: false
+          static_nat:
+            property1:
+              internal_ip: 192.168.70.3
+              name: printer-1
+            property2:
+              internal_ip: 192.168.70.3
+              name: printer-1
+        isolation: true
+        modified_time: 0
+        name: string
+        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+        subnet: 192.168.70.0/24
+        tenants:
+          property1:
+            addresses:
+            - 10.10.10.10
+          property2:
+            addresses:
+            - 10.10.10.45
+        vlan_id: 10
+        vpn_access:
+          property1:
+            allow_ping: true
+            destination_nat:
+              property1:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+              property2:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+            nat_pool: 172.16.0.0/26
+            routed: true
+            source_nat:
+              external_ip: 172.16.0.8/30
+            static_nat:
+              property1:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+              property2:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+            summarized_subnet: 172.16.0.0/16
+          property2:
+            allow_ping: true
+            destination_nat:
+              property1:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+              property2:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+            nat_pool: 172.16.0.0/26
+            routed: true
+            source_nat:
+              external_ip: 172.16.0.8/30
+            static_nat:
+              property1:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+              property2:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+            summarized_subnet: 172.16.0.0/16
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    NetworkExample:
+      value:
+        created_time: 0
+        disallow_mist_services: false
+        gateway: 192.168.70.1
+        hosts:
+          property1:
+            external_ips: 172.16.10.32-172.16.10.35
+            ips: 192.168.70.32-192.168.70.35
+          property2:
+            external_ips: 172.16.10.32-172.16.10.35
+            ips: 192.168.70.32-192.168.70.35
+        id: 497f6eca-6276-4993-bfeb-53cbbbba6f12
+        internal_access:
+          enabled: true
+        internet_access:
+          create_simple_service_policy: false
+          destination_nat:
+            property1:
+              internal_ip: 192.168.70.30
+              name: web server
+              port: '443'
+            property2:
+              internal_ip: 192.168.70.30
+              name: web server
+              port: '443'
+          enabled: true
+          restricted: false
+          static_nat:
+            property1:
+              internal_ip: 192.168.70.3
+              name: printer-1
+            property2:
+              internal_ip: 192.168.70.3
+              name: printer-1
+        isolation: true
+        modified_time: 0
+        name: string
+        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+        subnet: 192.168.70.0/24
+        tenants:
+          property1:
+            addresses:
+            - 10.10.10.10
+          property2:
+            addresses:
+            - 10.10.10.52
+        vlan_id: 10
+        vpn_access:
+          property1:
+            allow_ping: true
+            destination_nat:
+              property1:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+              property2:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+            nat_pool: 172.16.0.0/26
+            routed: true
+            source_nat:
+              external_ip: 172.16.0.8/30
+            static_nat:
+              property1:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+              property2:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+            summarized_subnet: 172.16.0.0/16
+          property2:
+            allow_ping: true
+            destination_nat:
+              property1:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+              property2:
+                internal_ip: 192.168.70.5/30
+                name: web server
+                port: '443'
+            nat_pool: 172.16.0.0/26
+            routed: true
+            source_nat:
+              external_ip: 172.16.0.8/30
+            static_nat:
+              property1:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+              property2:
+                internal_ip: 192.168.70.3
+                name: pos_station-1
+            summarized_subnet: 172.16.0.0/16
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

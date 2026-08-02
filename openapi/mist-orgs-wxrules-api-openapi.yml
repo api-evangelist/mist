@@ -1,0 +1,674 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs WxRules API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'ORg WxRules are a set of rules, restrictions, and settings that can be applied to WLANs within a specific WLAN Template.
+
+
+    These policies determine how the devices and traffic are treated by the network and can be used to control access, define VLANs, and apply labels to users and resources.'
+  name: Orgs WxRules
+paths:
+  /api/v1/orgs/{org_id}/wxrules:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: Get List of Org WxRules
+      operationId: listOrgWxRules
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/WxruleArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgWxRules
+      tags:
+      - Orgs WxRules
+    post:
+      description: Create Org WxRule
+      operationId: createOrgWxRule
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  action: allow
+                  apply_tags:
+                  - c049dfcd-0c73-5014-1c64-062e9903f1e5
+                  blocked_apps:
+                  - mist
+                  - all-videos
+                  dst_allow_wxtags:
+                  - fff34466-eec0-3756-6765-381c728a6037
+                  - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+                  dst_deny_wxtags:
+                  - aaa34466-eec0-3756-6765-381c728a6037
+                  - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+                  enabled: true
+                  order: 1
+                  src_wxtags:
+                  - 8bfc2490-d726-3587-038d-cb2e71bd2330
+                  - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+            schema:
+              $ref: '#/components/schemas/wxlan_rule'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Wxrule'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgWxRule
+      tags:
+      - Orgs WxRules
+  /api/v1/orgs/{org_id}/wxrules/{wxrule_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/wxrule_id'
+    delete:
+      description: Delete Org WxRule
+      operationId: deleteOrgWxRule
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgWxRule
+      tags:
+      - Orgs WxRules
+    get:
+      description: Get Org WxRule Details
+      operationId: getOrgWxRule
+      responses:
+        '200':
+          $ref: '#/components/responses/Wxrule'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgWxRule
+      tags:
+      - Orgs WxRules
+    put:
+      description: Update Org WxRule
+      operationId: updateOrgWxRule
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  action: allow
+                  apply_tags:
+                  - c049dfcd-0c73-5014-1c64-062e9903f1e5
+                  blocked_apps:
+                  - mist
+                  - all-videos
+                  dst_allow_wxtags:
+                  - fff34466-eec0-3756-6765-381c728a6037
+                  - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+                  dst_deny_wxtags:
+                  - aaa34466-eec0-3756-6765-381c728a6037
+                  - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+                  enabled: true
+                  order: 1
+                  src_wxtags:
+                  - 8bfc2490-d726-3587-038d-cb2e71bd2330
+                  - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+            schema:
+              $ref: '#/components/schemas/wxlan_rule'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/Wxrule'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgWxRule
+      tags:
+      - Orgs WxRules
+components:
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    wxrule_id:
+      in: path
+      name: wxrule_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+  responses:
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    WxruleArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WxruleArrayExample'
+          schema:
+            $ref: '#/components/schemas/wxlan_rules'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WxruleArrayExample'
+          schema:
+            $ref: '#/components/schemas/wxlan_rules'
+      description: List of WxRules
+    Wxrule:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WxruleExample'
+          schema:
+            $ref: '#/components/schemas/wxlan_rule'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WxruleExample'
+          schema:
+            $ref: '#/components/schemas/wxlan_rule'
+      description: Wrule
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  schemas:
+    wxlan_rule_src_wxtags:
+      description: List of WxTag UUID to determine if this rule would match
+      examples:
+      - - 8bfc2490-d726-3587-038d-cb2e71bd2330
+        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+      items:
+        type: string
+      type: array
+    wxlan_rules:
+      description: WxLAN policy rules returned by a list response
+      items:
+        $ref: '#/components/schemas/wxlan_rule'
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    wxlan_rule:
+      description: WxLAN policy rule controlling traffic between WxLAN tags
+      properties:
+        action:
+          $ref: '#/components/schemas/wxlan_rule_action'
+          description: Allow or block behavior applied by this WxLAN rule
+        apply_tags:
+          $ref: '#/components/schemas/wxlan_rule_apply_tags'
+          description: WxLAN tag identifiers applied when this rule matches
+        blocked_apps:
+          $ref: '#/components/schemas/wxlan_rule_blocked_apps'
+          description: Application keys always blocked by this rule, regardless of the rule action
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when this WxLAN rule was created, in epoch seconds
+        dst_allow_wxtags:
+          $ref: '#/components/schemas/wxlan_rule_dst_allow_wxtags'
+          description: Destination WxLAN tag identifiers explicitly allowed by this rule
+        dst_deny_wxtags:
+          $ref: '#/components/schemas/wxlan_rule_dst_deny_wxtags'
+          description: Destination WxLAN tag identifiers explicitly denied by this rule
+        dst_wxtags:
+          $ref: '#/components/schemas/wxlan_rule_dst_wxtags'
+          description: Destination WxLAN tag identifiers matched by this rule
+        enabled:
+          default: true
+          description: Whether this WxLAN rule is enabled
+          type: boolean
+        for_site:
+          description: Whether this WxLAN rule is scoped to a site
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for this WxLAN rule
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Time when this WxLAN rule was last modified, in epoch seconds
+        order:
+          description: Lookup priority for WxLAN rules; larger positive values match first, and -1 means LAST. Uniqueness is not checked
+          examples:
+          - 1
+          minimum: -1
+          type: integer
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization associated with this WxLAN rule
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Mist site associated with this WxLAN rule, when site-scoped
+        src_wxtags:
+          $ref: '#/components/schemas/wxlan_rule_src_wxtags'
+          description: Source WxLAN tag identifiers that must match for this rule to apply
+        template_id:
+          description: Only for Org Level WxRule
+          examples:
+          - 6aa54cbd-e039-4878-846a-04f270de8a5c
+          format: uuid
+          type: string
+      required:
+      - order
+      - src_wxtags
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    wxlan_rule_blocked_apps:
+      description: Blocked apps (always blocking, ignoring action), the key of Get Application List
+      examples:
+      - - mist
+        - all-videos
+      items:
+        type: string
+      type: array
+    wxlan_rule_dst_wxtags:
+      description: List of WxTag UUID
+      examples:
+      - - aaa34466-eec0-3756-6765-381c728a6037
+        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+      items:
+        type: string
+      type: array
+    wxlan_rule_apply_tags:
+      description: WxLAN tag identifiers applied when a rule matches
+      items:
+        examples:
+        - c049dfcd-0c73-5014-1c64-062e9903f1e5
+        type: string
+      type: array
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    wxlan_rule_dst_allow_wxtags:
+      description: List of WxTag UUID to indicate these tags are allowed access
+      examples:
+      - - fff34466-eec0-3756-6765-381c728a6037
+        - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+      items:
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    wxlan_rule_action:
+      description: 'type of action, allow / block. enum: `allow`, `block`'
+      enum:
+      - allow
+      - block
+      examples:
+      - allow
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    wxlan_rule_dst_deny_wxtags:
+      description: List of WxTag UUID to indicate these tags are blocked access
+      examples:
+      - - aaa34466-eec0-3756-6765-381c728a6037
+        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+      items:
+        type: string
+      type: array
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    WxruleArrayExample:
+      value:
+      - action: allow
+        apply_tags:
+        - c049dfcd-0c73-5014-1c64-062e9903f1e5
+        blocked_apps:
+        - mist
+        - all-videos
+        created_time: 0
+        dst_allow_wxtags:
+        - fff34466-eec0-3756-6765-381c728a6037
+        - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        dst_deny_wxtags:
+        - aaa34466-eec0-3756-6765-381c728a6037
+        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        enabled: true
+        for_site: true
+        id: 497f6eca-6276-4993-bfeb-53ebbbba6f08
+        modified_time: 0
+        order: 1
+        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+        site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+        src_wxtags:
+        - 8bfc2490-d726-3587-038d-cb2e71bd2330
+        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    WxruleExample:
+      value:
+        action: allow
+        apply_tags:
+        - c049dfcd-0c73-5014-1c64-062e9903f1e5
+        blocked_apps:
+        - mist
+        - all-videos
+        created_time: 0
+        dst_allow_wxtags:
+        - fff34466-eec0-3756-6765-381c728a6037
+        - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        dst_deny_wxtags:
+        - aaa34466-eec0-3756-6765-381c728a6037
+        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        enabled: true
+        for_site: true
+        id: 497f6eca-6276-4993-9feb-53cbbbba6f08
+        modified_time: 0
+        order: 1
+        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+        site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+        src_wxtags:
+        - 8bfc2490-d726-3587-038d-cb2e71bd2330
+        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

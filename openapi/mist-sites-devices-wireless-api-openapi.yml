@@ -1,0 +1,1097 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Devices - Wireless API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: API Calls specific to the Mist Access Points
+  name: Sites Devices - Wireless
+paths:
+  /api/v1/sites/{site_id}/devices/ap_channels:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get a list of allowed channels (per channel width)
+      operationId: listSiteDeviceRadioChannels
+      parameters:
+      - description: Country code for the site (for AP config generation), in [two-character](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+        example: US
+        in: query
+        name: country_code
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/DeviceRadioChannels'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteDeviceRadioChannels
+      tags:
+      - Sites Devices - Wireless
+  /api/v1/sites/{site_id}/devices/{device_id}/iot:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/device_id'
+    get:
+      description: Returns the current state of each enabled IoT pin configured as an output.
+      operationId: getSiteDeviceIotPort
+      responses:
+        '200':
+          $ref: '#/components/responses/DeviceIot'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteDeviceIotPort
+      tags:
+      - Sites Devices - Wireless
+    put:
+      description: "**Note**: For each IoT pin referenced:\n * The pin must be enabled using the Device `iot_config` API\n * The pin must support the output direction"
+      operationId: setSiteDeviceIotPort
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/device_iot_config'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/DeviceIot'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: setSiteDeviceIotPort
+      tags:
+      - Sites Devices - Wireless
+  /api/v1/sites/{site_id}/devices/{device_id}/zigbee_join:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/device_id'
+    post:
+      description: "Allow Zigbee end devices to join the network for a configurable duration. After the duration expires, new joins will be blocked (unless `allow_join`==`always` is configured on the device).\n\n#### Subscribe to Zigbee Join Events\n`WS /api-ws/v1/stream`\n\n```json\n{\n    \"subscribe\": \"/sites/{site_id}/devices/{device_id}/zigbee_join\"\n}\n```\n##### Example output from ws stream\n```json\n{\n    \"event\": \"data\",\n    \"channel\": \"/sites/4ac1dcf4-9d8b-7211-65c4-057819f0862b/devices/00000000-0000-0000-1000-5c5b350e0060/cmd\",\n    \"data\": {\n        \"session\": \"19e73828-937f-05e6-f709-e29efdb0a82b\",\n        \"zigbee_mac\": \"fd05eb86c04ac04a\",\n        \"event_type\": \"associated\",\n        \"detail\": {\n            \"lqi\": 180\n        }\n    }\n}\n```"
+      operationId: enableSiteDeviceZigbeeJoin
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  duration: 600
+            schema:
+              $ref: '#/components/schemas/utils_zigbee_join'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/ZigbeeJoin'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: enableSiteDeviceZigbeeJoin
+      tags:
+      - Sites Devices - Wireless
+components:
+  schemas:
+    ap_channel_band24_channel:
+      description: Supported 2.4 GHz channel numbers for a channel-width group
+      items:
+        examples:
+        - 1
+        type: integer
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    ap_channel_band5_channel:
+      description: Supported 5 GHz channel numbers for a channel-width group
+      items:
+        examples:
+        - 36
+        type: integer
+      type: array
+    ap_channel_band6_channel:
+      description: Supported 6 GHz channel numbers for a channel-width group
+      items:
+        examples:
+        - 1
+        type: integer
+      type: array
+    ap_channel_band6_channels:
+      additionalProperties:
+        $ref: '#/components/schemas/ap_channel_band6_channel'
+      description: Property key is the channel width
+      examples:
+      - '160':
+        - 1
+        - 5
+        - 9
+        - 13
+        - 17
+        - 21
+        - 25
+        - 29
+        - 33
+        - 37
+        - 41
+        - 45
+        - 49
+        - 53
+        - 57
+        - 61
+        - 65
+        - 69
+        - 73
+        - 77
+        - 81
+        - 85
+        - 89
+        - 93
+        - 97
+        - 101
+        - 105
+        - 109
+        - 113
+        - 117
+        - 121
+        - 125
+        - 129
+        - 133
+        - 137
+        - 141
+        - 145
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+        - 169
+        - 173
+        - 177
+        - 181
+        - 185
+        - 189
+        - 193
+        - 197
+        - 201
+        - 205
+        - 209
+        - 213
+        - 217
+        - 221
+        '20':
+        - 1
+        - 5
+        - 9
+        - 13
+        - 17
+        - 21
+        - 25
+        - 29
+        - 33
+        - 37
+        - 41
+        - 45
+        - 49
+        - 53
+        - 57
+        - 61
+        - 65
+        - 69
+        - 73
+        - 77
+        - 81
+        - 85
+        - 89
+        - 93
+        - 97
+        - 101
+        - 105
+        - 109
+        - 113
+        - 117
+        - 121
+        - 125
+        - 129
+        - 133
+        - 137
+        - 141
+        - 145
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+        - 169
+        - 173
+        - 177
+        - 181
+        - 185
+        - 189
+        - 193
+        - 197
+        - 201
+        - 205
+        - 209
+        - 213
+        - 217
+        - 221
+        - 225
+        - 229
+        - 233
+        '40':
+        - 1
+        - 5
+        - 9
+        - 13
+        - 17
+        - 21
+        - 25
+        - 29
+        - 33
+        - 37
+        - 41
+        - 45
+        - 49
+        - 53
+        - 57
+        - 61
+        - 65
+        - 69
+        - 73
+        - 77
+        - 81
+        - 85
+        - 89
+        - 93
+        - 97
+        - 101
+        - 105
+        - 109
+        - 113
+        - 117
+        - 121
+        - 125
+        - 129
+        - 133
+        - 137
+        - 141
+        - 145
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+        - 169
+        - 173
+        - 177
+        - 181
+        - 185
+        - 189
+        - 193
+        - 197
+        - 201
+        - 205
+        - 209
+        - 213
+        - 217
+        - 221
+        - 225
+        - 229
+        '80':
+        - 1
+        - 5
+        - 9
+        - 13
+        - 17
+        - 21
+        - 25
+        - 29
+        - 33
+        - 37
+        - 41
+        - 45
+        - 49
+        - 53
+        - 57
+        - 61
+        - 65
+        - 69
+        - 73
+        - 77
+        - 81
+        - 85
+        - 89
+        - 93
+        - 97
+        - 101
+        - 105
+        - 109
+        - 113
+        - 117
+        - 121
+        - 125
+        - 129
+        - 133
+        - 137
+        - 141
+        - 145
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+        - 169
+        - 173
+        - 177
+        - 181
+        - 185
+        - 189
+        - 193
+        - 197
+        - 201
+        - 205
+        - 209
+        - 213
+        - 217
+        - 221
+        psc:
+        - 5
+        - 21
+        - 37
+        - 53
+        - 69
+        - 85
+        - 101
+        - 117
+        - 133
+        - 149
+        - 165
+        - 181
+        - 197
+        - 213
+        - 229
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    ap_channel_band5_channels:
+      additionalProperties:
+        $ref: '#/components/schemas/ap_channel_band5_channel'
+      description: Property key is the channel width
+      examples:
+      - '20':
+        - 36
+        - 40
+        - 44
+        - 48
+        - 52
+        - 56
+        - 60
+        - 64
+        - 100
+        - 104
+        - 108
+        - 112
+        - 116
+        - 120
+        - 124
+        - 128
+        - 132
+        - 136
+        - 140
+        - 144
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+        '40':
+        - 36
+        - 40
+        - 44
+        - 48
+        - 52
+        - 56
+        - 60
+        - 64
+        - 100
+        - 104
+        - 108
+        - 112
+        - 116
+        - 120
+        - 124
+        - 128
+        - 132
+        - 136
+        - 140
+        - 144
+        - 149
+        - 153
+        - 157
+        - 161
+        '80':
+        - 36
+        - 40
+        - 44
+        - 48
+        - 52
+        - 56
+        - 60
+        - 64
+        - 100
+        - 104
+        - 108
+        - 112
+        - 116
+        - 120
+        - 124
+        - 128
+        - 132
+        - 136
+        - 140
+        - 144
+        - 149
+        - 153
+        - 157
+        - 161
+        dfs:
+        - 52
+        - 56
+        - 60
+        - 64
+        - 100
+        - 104
+        - 108
+        - 112
+        - 116
+        - 120
+        - 124
+        - 128
+        - 132
+        - 136
+        - 140
+        - 144
+        outdoor:
+        - 36
+        - 40
+        - 44
+        - 48
+        - 52
+        - 56
+        - 60
+        - 64
+        - 100
+        - 104
+        - 108
+        - 112
+        - 116
+        - 120
+        - 124
+        - 128
+        - 132
+        - 136
+        - 140
+        - 144
+        - 149
+        - 153
+        - 157
+        - 161
+        - 165
+      type: object
+    utils_zigbee_join:
+      additionalProperties: false
+      description: Request body for temporarily allowing Zigbee end-device joins
+      properties:
+        duration:
+          default: 600
+          description: Number of seconds to permit new Zigbee end-device joins; range is 30-3600
+          maximum: 3600
+          minimum: 30
+          type: integer
+      type: object
+    ap_channel_band24_channels:
+      additionalProperties:
+        $ref: '#/components/schemas/ap_channel_band24_channel'
+      description: Property key is the channel width
+      examples:
+      - '20':
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        '40':
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+      type: object
+    response_device_radio_channels:
+      additionalProperties: false
+      description: Country and regulatory-domain channel capabilities for AP radios
+      properties:
+        band24_40mhz_allowed:
+          description: Whether 40 MHz channels are allowed on the 2.4 GHz band
+          type: boolean
+        band24_channels:
+          $ref: '#/components/schemas/ap_channel_band24_channels'
+          description: Allowed 2.4 GHz channels for this country or regulatory domain
+        band24_enabled:
+          description: Whether the 2.4 GHz band is enabled for this country or regulatory domain
+          type: boolean
+        band5_channels:
+          $ref: '#/components/schemas/ap_channel_band5_channels'
+          description: Allowed 5 GHz channels for this country or regulatory domain
+        band5_enabled:
+          description: Whether the 5 GHz band is enabled for this country or regulatory domain
+          type: boolean
+        band6_channels:
+          $ref: '#/components/schemas/ap_channel_band6_channels'
+          description: Allowed 6 GHz channels for this country or regulatory domain
+        band6_enabled:
+          description: Whether the 6 GHz band is enabled for this country or regulatory domain
+          type: boolean
+        certified:
+          description: Whether AP operation is certified for this country or regulatory domain
+          type: boolean
+        code:
+          description: Country code in ISO 3166-1 numeric format
+          type: integer
+        dfs_ok:
+          description: Whether DFS channels are allowed in this country or regulatory domain
+          type: boolean
+        key:
+          description: Two-character ISO 3166-1 country code
+          type: string
+        name:
+          description: Country or regulatory-domain display name
+          type: string
+        uses:
+          description: Regulatory ruleset used for AP channel validation
+          type: string
+      required:
+      - key
+      - dfs_ok
+      - band5_enabled
+      - band24_enabled
+      - band24_40mhz_allowed
+      - certified
+      - band5_channels
+      - band24_channels
+      - code
+      - name
+      - uses
+      type: object
+    zigbee_join_response:
+      additionalProperties: false
+      description: Response containing the session identifier for a Zigbee join operation
+      properties:
+        session_id:
+          description: Session ID for the Zigbee join operation
+          examples:
+          - 19e73828-937f-05e6-f709-e29efdb0a82b
+          format: uuid
+          type: string
+      type: object
+    device_iot_config:
+      additionalProperties:
+        type: integer
+      description: Property key is the IoT port name (e.g. "A1"), value is the output state (0 or 1).
+      examples:
+      - A1: 1
+        DO: 0
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    ZigbeeJoin:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZigbeeJoinExample'
+          schema:
+            $ref: '#/components/schemas/zigbee_join_response'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ZigbeeJoinExample'
+          schema:
+            $ref: '#/components/schemas/zigbee_join_response'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    DeviceIot:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceIotExample'
+          schema:
+            $ref: '#/components/schemas/device_iot_config'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceIotExample'
+          schema:
+            $ref: '#/components/schemas/device_iot_config'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    DeviceRadioChannels:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceRadioChannelsExample'
+          schema:
+            $ref: '#/components/schemas/response_device_radio_channels'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceRadioChannelsExample'
+          schema:
+            $ref: '#/components/schemas/response_device_radio_channels'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    DeviceIotExample:
+      value:
+        A1: 1
+        DO: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    DeviceRadioChannelsExample:
+      value:
+        band24_40mhz_allowed: false
+        band24_channels:
+          '20':
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          '40':
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+        band24_enabled: true
+        band5_channels:
+          '20':
+          - 36
+          - 40
+          - 44
+          - 48
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          - 149
+          - 153
+          - 157
+          - 161
+          - 165
+          '40':
+          - 36
+          - 40
+          - 44
+          - 48
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          - 149
+          - 153
+          - 157
+          - 161
+          '80':
+          - 36
+          - 40
+          - 44
+          - 48
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          - 149
+          - 153
+          - 157
+          - 161
+          dfs:
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          outdoor:
+          - 36
+          - 40
+          - 44
+          - 48
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 108
+          - 112
+          - 116
+          - 120
+          - 124
+          - 128
+          - 132
+          - 136
+          - 140
+          - 144
+          - 149
+          - 153
+          - 157
+          - 161
+          - 165
+        band5_enabled: true
+        certified: true
+        code: 840
+        dfs_ok: true
+        key: US
+        name: United States
+        uses: US_FCC
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    ZigbeeJoinExample:
+      value:
+        session_id: 19e73828-937f-05e6-f709-e29efdb0a82b
+  parameters:
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

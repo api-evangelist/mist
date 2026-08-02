@@ -1,0 +1,644 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites NAC Fingerprints API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The NAC IDP allows users to integrate with various Identity Providers (IDPs) to enhance authentication and access control. Admins can configure identity providers such as microsoft EntraID, okta workforce identity cloud, and google workspace idp.
+  name: Sites NAC Fingerprints
+paths:
+  /api/v1/sites/{site_id}/insights/fingerprints/count:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Count Client Fingerprints
+      operationId: countSiteClientFingerprints
+      parameters:
+      - description: 'Field used to group this count response. enum: `family`, `model`, `os`, `os_type`'
+        in: query
+        name: distinct
+        schema:
+          $ref: '#/components/schemas/fingerprints_count_distinct'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/Count'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: countSiteClientFingerprints
+      tags:
+      - Sites NAC Fingerprints
+  /api/v1/sites/{site_id}/insights/fingerprints/search:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Search Client Fingerprints
+      operationId: searchSiteClientFingerprints
+      parameters:
+      - description: Device Category of the client device
+        example: EX Series Switch
+        in: query
+        name: family
+        schema:
+          type: string
+      - description: 'Filter results by client type. enum: `wireless`, `wired`, `vty`'
+        example: wired
+        in: query
+        name: client_type
+        schema:
+          $ref: '#/components/schemas/nac_access_type'
+      - description: Filter results by device model
+        example: ex4100-f-12p
+        in: query
+        name: model
+        schema:
+          type: string
+      - description: Manufacturer name of the client device
+        example: Juniper Networks, Inc.
+        in: query
+        name: mfg
+        schema:
+          type: string
+      - description: Operating System name and version of the client device
+        example: JUNOS 22.3R1.12
+        in: query
+        name: os
+        schema:
+          type: string
+      - description: Operating system name of the client device
+        example: JUNOS
+        in: query
+        name: os_type
+        schema:
+          type: string
+      - description: Filter results by MAC address
+        example: d420b080516d
+        in: query
+        name: mac
+        schema:
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/interval'
+      - $ref: '#/components/parameters/sort_wcid'
+      - $ref: '#/components/parameters/search_after'
+      responses:
+        '200':
+          $ref: '#/components/responses/FingerprintSearch'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: searchSiteClientFingerprints
+      tags:
+      - Sites NAC Fingerprints
+components:
+  schemas:
+    fingerprint:
+      additionalProperties: false
+      description: Client device fingerprint record returned by NAC fingerprint insights
+      properties:
+        family:
+          description: Device family or category inferred from client fingerprinting
+          readOnly: true
+          type: string
+        mac:
+          description: Client device MAC address for the fingerprint record
+          readOnly: true
+          type: string
+        mfg:
+          description: Manufacturer name inferred from client fingerprinting
+          readOnly: true
+          type: string
+        model:
+          description: Device model inferred from client fingerprinting
+          readOnly: true
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that contains the fingerprint record
+        os:
+          description: Operating system name and version inferred from client fingerprinting
+          readOnly: true
+          type: string
+        os_type:
+          description: Operating system family inferred from client fingerprinting
+          readOnly: true
+          type: string
+        random_mac:
+          description: Whether the client device uses a randomized MAC address
+          readOnly: true
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the fingerprint record
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the fingerprint record was observed
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    fingerprint_search_result:
+      additionalProperties: false
+      description: Search response for client device fingerprint records
+      properties:
+        end:
+          description: Upper bound of the time range for the fingerprint search
+          examples:
+          - 1711035686
+          type: integer
+        limit:
+          description: Maximum number of fingerprint records returned in the response
+          examples:
+          - 10
+          type: integer
+        next:
+          description: Pagination URL for the next page of fingerprint search results
+          type: string
+        results:
+          $ref: '#/components/schemas/fingerprints'
+          description: Fingerprint records returned for the search
+        start:
+          description: Lower bound of the time range for the fingerprint search
+          examples:
+          - 1710949286
+          type: integer
+        total:
+          description: Number of fingerprint records matching the search
+          examples:
+          - 232
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    nac_access_type:
+      description: 'Type of network access. enum: `wireless`, `wired`, `vty`'
+      enum:
+      - wireless
+      - wired
+      - vty
+      examples:
+      - wireless
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    fingerprints:
+      description: Client device fingerprint records
+      items:
+        $ref: '#/components/schemas/fingerprint'
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    fingerprints_count_distinct:
+      default: family
+      description: 'enum: `family`, `model`, `os`, `os_type`'
+      enum:
+      - family
+      - model
+      - os
+      - os_type
+      type: string
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    FingerprintSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/FingerprintSearchExample'
+          schema:
+            $ref: '#/components/schemas/fingerprint_search_result'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/FingerprintSearchExample'
+          schema:
+            $ref: '#/components/schemas/fingerprint_search_result'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    interval:
+      description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
+      in: query
+      name: interval
+      schema:
+        examples:
+        - 10m
+        type: string
+    sort_wcid:
+      description: On which field the list should be sorted, -prefix represents DESC order.
+      in: query
+      name: sort
+      schema:
+        default: wxid
+        examples:
+        - -site_id
+        type: string
+  examples:
+    FingerprintSearchExample:
+      value:
+        end: 1735678700
+        limit: 10
+        results:
+        - family: Apple
+          mac: d420b080516e
+          mfg: Apple, Inc.
+          model: Unknown
+          org_id: bb2fb165-0931-49c7-a1b8-9b5814326b7d
+          os: iOS 18.1.1
+          os_type: iOS
+          random_mac: true
+          site_id: 441a1214-6928-442a-8e92-e1d34b8ec6a6
+          timestamp: 1735678662.58
+        - family: EX Series Switch
+          mac: d420b080516d
+          mfg: Juniper Networks, Inc.
+          model: ex4100-f-12p
+          org_id: b6bc08f3-60a3-402b-8f0d-caf9132a1e9a
+          os: JUNOS 22.3R1.12
+          os_type: JUNOS
+          random_mac: false
+          site_id: 441a1214-6928-442a-8e92-e1d34b8ec6a6
+          timestamp: 1735669092.932
+        start: 1735678650
+        total: 2
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

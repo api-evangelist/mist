@@ -1,0 +1,1507 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites RRM API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum.
+
+
+    It involves making decisions on channel and power settings for access points (APs) based on factors such as user experience, client count, client usage, and interference.
+
+
+    Mist RRM uses a reinforcement learning-based feedback model to monitor the impact of changes in channel and power settings on the capacity and performance of the wireless network. It adapts dynamically to changing conditions throughout the day and aims to optimize wireless coverage and capacity across a site.'
+  name: Sites RRM
+paths:
+  /api/v1/sites/{site_id}/rrm/channel_scores/band/{band}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - description: 802.11 Band
+      in: path
+      name: band
+      required: true
+      schema:
+        $ref: '#/components/schemas/dot11_band'
+    get:
+      description: Get Site Channel Scores
+      operationId: getSiteChannelScores
+      parameters:
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      responses:
+        '200':
+          $ref: '#/components/responses/ChannelScores'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteChannelScores
+      tags:
+      - Sites RRM
+  /api/v1/sites/{site_id}/rrm/current:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get Current Channel Planning
+      operationId: getSiteCurrentChannelPlanning
+      responses:
+        '200':
+          $ref: '#/components/responses/Rrm'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteCurrentChannelPlanning
+      tags:
+      - Sites RRM
+  /api/v1/sites/{site_id}/rrm/current/devices/{device_id}/band/{band}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/device_id'
+    - description: 802.11 Band
+      in: path
+      name: band
+      required: true
+      schema:
+        $ref: '#/components/schemas/dot11_band'
+    get:
+      description: Get Current RRM Considerations for an AP on a Specific Band
+      operationId: getSiteCurrentRrmConsiderations
+      responses:
+        '200':
+          $ref: '#/components/responses/RrmConsideration'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteCurrentRrmConsiderations
+      tags:
+      - Sites RRM
+  /api/v1/sites/{site_id}/rrm/events:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: List Site RRM Events
+      operationId: listSiteRrmEvents
+      parameters:
+      - $ref: '#/components/parameters/dot11_band'
+      - $ref: '#/components/parameters/start'
+      - $ref: '#/components/parameters/end'
+      - $ref: '#/components/parameters/duration'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/RrmEvents'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteRrmEvents
+      tags:
+      - Sites RRM
+  /api/v1/sites/{site_id}/rrm/neighbors/band/{band}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - description: 802.11 Band
+      in: path
+      name: band
+      required: true
+      schema:
+        $ref: '#/components/schemas/dot11_band'
+    get:
+      description: List Current RRM observed neighbors
+      operationId: listSiteCurrentRrmNeighbors
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/RrmNeighbors'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteCurrentRrmNeighbors
+      tags:
+      - Sites RRM
+components:
+  schemas:
+    radio_band_channels:
+      default: []
+      description: For RFTemplates. List of channels, null or empty array means auto
+      items:
+        type: integer
+      type:
+      - array
+      - 'null'
+    response_events_rrm_results:
+      description: RRM event records returned by a search response
+      items:
+        $ref: '#/components/schemas/rrm_event'
+      type: array
+      uniqueItems: true
+    response_rrm_channel_scores:
+      additionalProperties: false
+      description: Response containing RRM channel score records
+      properties:
+        results:
+          $ref: '#/components/schemas/response_rrm_channel_scores_results'
+          description: Per-channel RRM score records for the requested band
+      required:
+      - results
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_rrm_channel_scores_results:
+      description: RRM channel score records returned for a band
+      items:
+        $ref: '#/components/schemas/rrm_channel_score'
+      type: array
+      uniqueItems: true
+    rrm_band_metric_naps_by_channel:
+      additionalProperties:
+        type: number
+      description: Property key is the channel number, value is number of APs on that channel
+      type: object
+    rrm_band:
+      additionalProperties: false
+      description: RRM proposed and current radio settings for an AP band
+      properties:
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth'
+          description: Proposed channel width for the radio band, in MHz
+        channel:
+          description: Proposed RF channel for the radio band
+          type: integer
+        curr_bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth'
+          description: Current channel width for the radio band, in MHz
+        curr_channel:
+          description: Current RF channel for the radio band
+          type: integer
+        curr_power:
+          description: Current transmit power for the radio band
+          type: integer
+        curr_usage:
+          description: Current radio usage band for the AP radio
+          minLength: 1
+          type: string
+        power:
+          description: Proposed transmit power for the radio band
+          type: integer
+        usage:
+          description: Proposed radio usage band for the AP radio
+          minLength: 1
+          type: string
+      type: object
+    dot11_band:
+      description: 'enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
+      enum:
+      - '24'
+      - '5'
+      - 5-dedicated
+      - 5-selectable
+      - '6'
+      - 6-dedicated
+      - 6-selectable
+      type: string
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    dot11_bandwidth24:
+      default: 20
+      description: 'channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`'
+      enum:
+      - 0
+      - 20
+      - 40
+      examples:
+      - 20
+      type: integer
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    radio_band_preamble:
+      default: short
+      description: 'enum: `auto`, `long`, `short`'
+      enum:
+      - auto
+      - long
+      - short
+      type: string
+    rftemplate_radio_band6:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 6 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 6 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 6 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth6'
+          description: Channel width configured for the 6 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 7
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 6 GHz radio
+        standard_power:
+          default: false
+          description: For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
+          type: boolean
+      type: object
+    rrm_band_metric:
+      additionalProperties: false
+      description: Aggregate RRM metrics for a radio band
+      properties:
+        avg_aps_per_channel:
+          description: Average number of APs per channel
+          type: number
+        channel_distribution_uniformity:
+          description: Distribution of channel across the Access Points
+          type: number
+        cochannel_neighbors:
+          description: Average number of co-channel neighbors
+          type: number
+        density:
+          description: defined by how APs can hear from one and another, 0 - 1 (everyone can hear everyone)
+          maximum: 1
+          minimum: 0
+          type: number
+        interferences:
+          additionalProperties:
+            $ref: '#/components/schemas/rrm_band_metric_interference'
+          description: Property key is the channel number
+          examples:
+          - '149':
+              radar: 0.3
+            '153':
+              radar: 0.2
+          type: object
+        naps_by_channel:
+          $ref: '#/components/schemas/rrm_band_metric_naps_by_channel'
+          description: Number of APs grouped by channel for this band
+        naps_by_power:
+          $ref: '#/components/schemas/rrm_band_metric_naps_by_power'
+          description: Number of APs grouped by transmit power for this band
+        neighbors:
+          description: Average number of neighbors
+          type: number
+        noise:
+          description: Average noise in dBm
+          type: number
+      required:
+      - cochannel_neighbors
+      - density
+      - neighbors
+      - noise
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    rrm_event_type:
+      description: 'enum: `interference-ap-co-channel`, `interference-ap-non-wifi`, `neighbor-ap-down`, `neighbor-ap-recovered`, `radar-detected`, `rrm-radar`, `scheduled-site_rrm`, `triggered-site_rrm`'
+      enum:
+      - interference-ap-co-channel
+      - interference-ap-non-wifi
+      - neighbor-ap-down
+      - neighbor-ap-recovered
+      - radar-detected
+      - rrm-radar
+      - scheduled-site_rrm
+      - triggered-site_rrm
+      type: string
+    dot11_bandwidth:
+      description: 'channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      - 160
+      examples:
+      - 20
+      type: integer
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    radio_band_24_usage:
+      description: 'enum: `24`, `5`, `6`, `auto`'
+      enum:
+      - '24'
+      - '5'
+      - '6'
+      - auto
+      type: string
+    rrm:
+      additionalProperties: false
+      description: Current RRM channel-planning state for a site
+      properties:
+        band_24:
+          additionalProperties:
+            $ref: '#/components/schemas/rrm_band'
+          description: RRM proposed channel, power, and usage settings for 2.4 GHz radios; property key is AP ID
+          type: object
+        band_24_metric:
+          $ref: '#/components/schemas/rrm_band_metric'
+          description: Aggregate RRM metrics for the 2.4 GHz band
+        band_5:
+          additionalProperties:
+            $ref: '#/components/schemas/rrm_band'
+          description: RRM proposed channel, power, and usage settings for 5 GHz radios; property key is AP ID
+          type: object
+        band_5_metric:
+          $ref: '#/components/schemas/rrm_band_metric'
+          description: Aggregate RRM metrics for the 5 GHz band
+        band_6:
+          additionalProperties:
+            $ref: '#/components/schemas/rrm_band'
+          description: RRM proposed channel, power, and usage settings for 6 GHz radios; property key is AP ID
+          type: object
+        band_6_metric:
+          $ref: '#/components/schemas/rrm_band_metric'
+          description: Aggregate RRM metrics for the 6 GHz band
+        rftemplate:
+          $ref: '#/components/schemas/rf_template'
+          description: RF template used by the current RRM calculation
+        rftemplate_id:
+          description: RF template identifier used by the current RRM calculation
+          format: uuid
+          type: string
+        rftemplate_name:
+          description: RF template name used by the current RRM calculation
+          type: string
+        status:
+          $ref: '#/components/schemas/rrm_status'
+          description: Current RRM calculation status
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the current RRM data was generated
+      required:
+      - band_24
+      - band_24_metric
+      - band_5
+      - band_5_metric
+      - rftemplate
+      - rftemplate_id
+      - rftemplate_name
+      - status
+      - timestamp
+      type: object
+    rrm_neighbors_neighbor:
+      additionalProperties: false
+      description: Neighbor AP observed by RRM
+      properties:
+        mac:
+          description: Neighbor AP MAC address observed by RRM
+          examples:
+          - 5c5b35000311
+          type: string
+        rssi:
+          description: Observed RSSI for the neighbor AP, in dBm
+          examples:
+          - -66
+          type: integer
+      type: object
+    rrm_channel_score:
+      additionalProperties: false
+      description: RRM utilization score for a channel
+      properties:
+        channel:
+          description: RF channel number represented by this score record
+          type: integer
+        util_score:
+          description: Utilization score for the channel, 0-1, lower means cleaner RF
+          type: number
+        util_score_noise_floor:
+          description: Score contribution from noise, 0-1, lower means cleaner RF
+          type: number
+        util_score_non_wifi:
+          description: Score contribution from non-wifi utilization, 0-1, lower means cleaner RF
+          type: number
+        util_score_other:
+          description: Score contribution from RxOtherBss utilization (wifi packets destined for other radios), 0-1, lower means cleaner RF
+          type: number
+        util_score_radar:
+          description: Score contribution from radar detections, 0-1, lower means cleaner RF
+          type: number
+        util_score_undecodable_wifi:
+          description: Score contribution from undecodable wifi utilization (wifi packets which can't be decoded), 0-1, lower means cleaner RF
+          type: number
+        util_score_unknown_wifi:
+          description: Score contribution from unknown wifi utilization (wifi packets of unknown type), 0-1, lower means cleaner RF
+          type: number
+      required:
+      - channel
+      - util_score
+      - util_score_noise_floor
+      - util_score_non_wifi
+      - util_score_other
+      - util_score_radar
+      - util_score_undecodable_wifi
+      - util_score_unknown_wifi
+      type: object
+    response_rrm_neighbors_results:
+      description: RRM neighbor records returned for the requested site and band
+      items:
+        $ref: '#/components/schemas/rrm_neighbors'
+      type: array
+      uniqueItems: true
+    rrm_band_metric_interference:
+      additionalProperties: false
+      description: Interference metrics observed for one channel
+      properties:
+        radar:
+          description: Interference value attributed to radar on the channel
+          type: number
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_rrm_neighbors:
+      additionalProperties: false
+      description: Paginated response for current RRM neighbor observations
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the RRM neighbor observation window
+          type: integer
+        limit:
+          description: Maximum number of RRM neighbor records returned in this page
+          type: integer
+        next:
+          description: Link to query next set of results. value is null if no next page exists.
+          type: string
+        results:
+          $ref: '#/components/schemas/response_rrm_neighbors_results'
+          description: RRM neighbor records observed for the requested site and band
+        start:
+          description: Epoch timestamp, in seconds, for the start of the RRM neighbor observation window
+          type: integer
+      required:
+      - end
+      - limit
+      - results
+      - start
+      type: object
+    response_rrm_consideration:
+      additionalProperties: false
+      description: Response containing current RRM considerations for an AP radio band
+      properties:
+        results:
+          $ref: '#/components/schemas/response_rrm_consideration_results'
+          description: Channel consideration metrics used by RRM for the AP radio band
+      required:
+      - results
+      type: object
+    rrm_consideration:
+      additionalProperties: false
+      description: RRM consideration metrics for one candidate channel
+      properties:
+        channel:
+          description: Candidate RF channel evaluated by RRM
+          type: integer
+        noise:
+          description: Observed noise floor for the candidate channel, in dBm
+          type: number
+        other_rssi:
+          description: Avg RSSI heard from other APs (that does NOT belongs to the same site)
+          type: number
+        other_ssid:
+          description: SSID from other AP that we heard from with the max RSSI
+          type: string
+        rssi:
+          description: Avg RSSI heard from APs (that belongs to the same site)
+          type: number
+        util_score:
+          description: utilization score, 0-1, lower means less utilization (cleaner RF)
+          type: number
+        util_score_non_wifi:
+          description: non-Wi-Fi utilization score, 0-1, lower means less utilization (cleaner RF)
+          type: number
+        util_score_other:
+          description: other utilization score, 0-1, lower means less utilization (cleaner RF)
+          type: number
+      required:
+      - channel
+      - noise
+      - util_score
+      - util_score_other
+      - util_score_non_wifi
+      type: object
+    rf_template:
+      description: RF template used by the current RRM calculation
+      properties:
+        ant_gain_24:
+          description: External antenna gain for the 2.4 GHz radio
+          type: integer
+        ant_gain_5:
+          description: External antenna gain for the 5 GHz radio
+          type: integer
+        ant_gain_6:
+          description: External antenna gain for the 6 GHz radio
+          type: integer
+        band_24:
+          $ref: '#/components/schemas/rftemplate_radio_band24'
+          description: 2.4 GHz radio settings in this RF template
+        band_24_usage:
+          $ref: '#/components/schemas/radio_band_24_usage'
+          description: Radio usage mode for the 2.4 GHz-capable radio in this RF template
+        band_5:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: 5 GHz radio settings in this RF template
+        band_5_on_24_radio:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode
+        band_6:
+          $ref: '#/components/schemas/rftemplate_radio_band6'
+          description: 6 GHz radio settings in this RF template
+        country_code:
+          description: Optional, country code to use. If specified, this gets applied to all sites using the RF Template
+          type: string
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the RF template was created
+        for_site:
+          description: Whether the RF template is scoped to a site rather than the organization
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the RF template
+        model_specific:
+          additionalProperties:
+            $ref: '#/components/schemas/rf_template_model_specific_property'
+          description: overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. "AP63")
+          type: object
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the RF template was last modified
+        name:
+          description: The name of the RF template
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this RF template
+        scanning_enabled:
+          description: Whether scanning radio is enabled
+          type: boolean
+      required:
+      - name
+      type: object
+    response_events_rrm:
+      additionalProperties: false
+      description: Paginated response for RRM event results
+      properties:
+        end:
+          description: Epoch timestamp for the end of the RRM event search window
+          type: integer
+        limit:
+          description: Maximum number of RRM event records returned in this page
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of RRM event records; null when no next page exists
+          type: string
+        results:
+          $ref: '#/components/schemas/response_events_rrm_results'
+          description: RRM event records matching the search filters
+        start:
+          description: Epoch timestamp for the start of the RRM event search window
+          type: integer
+      required:
+      - end
+      - limit
+      - results
+      - start
+      type: object
+    rrm_event:
+      additionalProperties: false
+      description: RRM event record for radio setting changes or RF conditions
+      properties:
+        ap:
+          description: MAC address of the AP associated with the RRM event
+          examples:
+          - 5c5b350e0001
+          type: string
+        band:
+          $ref: '#/components/schemas/dot11_band'
+          description: Radio band affected by the RRM event
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth'
+          description: Channel width after the RRM event, in MHz
+        channel:
+          description: RF channel after the RRM event
+          type: integer
+        event:
+          $ref: '#/components/schemas/rrm_event_type'
+          description: RRM event type that caused or records the change
+        power:
+          description: Transmit power after the RRM event
+          type: integer
+        pre_bandwidth:
+          $ref: '#/components/schemas/rrm_event_pre_bandwidth'
+          description: Channel width before the RRM event, in MHz
+        pre_channel:
+          description: RF channel before the RRM event; 0 means no previous value was available
+          type: integer
+        pre_power:
+          description: Transmit power before the RRM event; 0 means no previous value was available
+          type: number
+        pre_usage:
+          description: Radio usage band before the RRM event
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the RRM event occurred
+        usage:
+          description: Radio usage band after the RRM event
+          type: string
+      required:
+      - ap
+      - band
+      - bandwidth
+      - channel
+      - event
+      - power
+      - pre_bandwidth
+      - pre_channel
+      - pre_power
+      - pre_usage
+      - timestamp
+      - usage
+      type: object
+    response_rrm_consideration_results:
+      description: RRM channel consideration records returned for an AP radio band
+      items:
+        $ref: '#/components/schemas/rrm_consideration'
+      type: array
+      uniqueItems: true
+    rftemplate_radio_band5:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 5 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 5 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 5 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth5'
+          description: Channel width configured for the 5 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 6
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 5 GHz radio
+      type: object
+    rf_template_model_specific_property:
+      additionalProperties: false
+      description: AP model-specific RF overrides for an RF template
+      properties:
+        ant_gain_24:
+          default: 0
+          description: Model-specific external antenna gain for the 2.4 GHz radio
+          type: integer
+        ant_gain_5:
+          default: 0
+          description: Model-specific external antenna gain for the 5 GHz radio
+          type: integer
+        ant_gain_6:
+          default: 0
+          description: Model-specific external antenna gain for the 6 GHz radio
+          type: integer
+        band_24:
+          $ref: '#/components/schemas/rftemplate_radio_band24'
+          description: Model-specific 2.4 GHz radio settings that override RF template defaults
+        band_24_usage:
+          $ref: '#/components/schemas/radio_band_24_usage'
+          description: Model-specific radio usage mode for the 2.4 GHz-capable radio
+        band_5:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: Model-specific 5 GHz radio settings that override RF template defaults
+        band_5_on_24_radio:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: Model-specific 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode
+        band_6:
+          $ref: '#/components/schemas/rftemplate_radio_band6'
+          description: Model-specific 6 GHz radio settings that override RF template defaults
+      type: object
+    rrm_status:
+      description: 'enum: `ready`, `unknown`, `updating`'
+      enum:
+      - ready
+      - unknown
+      - updating
+      type: string
+    rrm_band_metric_naps_by_power:
+      additionalProperties:
+        type: number
+      description: Property key is the power level, value is number of APs on that power level
+      type: object
+    radio_band_antenna_mode:
+      default: default
+      description: 'enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`'
+      enum:
+      - 1x1
+      - 2x2
+      - 3x3
+      - 4x4
+      - default
+      examples:
+      - default
+      type: string
+    rrm_event_pre_bandwidth:
+      description: '(previously) channel width for the band , 0 means no previously available. enum: `0`, `20`, `40`, `80`, `160`'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      - 160
+      type: integer
+    dot11_bandwidth5:
+      default: 40
+      description: 'channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      examples:
+      - 40
+      type: integer
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    rrm_neighbors_neighbors:
+      description: Neighbor AP observations heard by an AP
+      items:
+        $ref: '#/components/schemas/rrm_neighbors_neighbor'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    rftemplate_radio_band24:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 2.4 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 2.4 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth24'
+          description: Channel width configured for the 2.4 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 3
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 3
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 3
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 2.4 GHz radio
+      type: object
+    rrm_neighbors:
+      additionalProperties: false
+      description: RRM neighbor observations for one AP
+      properties:
+        mac:
+          description: AP MAC address whose neighbors are reported
+          examples:
+          - 5c5b35000001
+          type: string
+        neighbors:
+          $ref: '#/components/schemas/rrm_neighbors_neighbors'
+          description: Neighbor AP observations heard by this AP
+      type: object
+    dot11_bandwidth6:
+      default: 80
+      description: 'channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      - 160
+      examples:
+      - 80
+      type: integer
+  examples:
+    RrmExample:
+      value:
+        band_24: {}
+        band_24_metric:
+          avg_aps_per_channel: 0
+          channel_distribution_uniformity: 0
+          cochannel_neighbors: 0
+          density: 0
+          naps_by_channel: {}
+          naps_by_power: {}
+          neighbors: 0
+          noise: 0
+        band_5: {}
+        band_5_metric:
+          avg_aps_per_channel: 0
+          channel_distribution_uniformity: 0
+          cochannel_neighbors: 0
+          density: 0
+          naps_by_channel: {}
+          naps_by_power: {}
+          neighbors: 0
+          noise: 0
+        rftemplate:
+          band_24:
+            allow_rrm_disable: true
+            antenna_mode: default
+            bandwidth: 20
+            channels:
+            - 1
+            - 6
+            - 11
+            disabled: true
+            power: 5
+            power_max: 3
+            power_min: 18
+            preamble: auto
+          band_5:
+            allow_rrm_disable: true
+            antenna_mode: default
+            bandwidth: 20
+            channels:
+            - 36
+            - 40
+            - 44
+            - 48
+            - 52
+            - 56
+            - 60
+            - 64
+            - 100
+            - 104
+            - 108
+            - 112
+            disabled: true
+            power: 9
+            power_max: 6
+            power_min: 17
+            preamble: auto
+          country_code: string
+          created_time: 0
+          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          model_specific:
+            property1:
+              band_24:
+                allow_rrm_disable: true
+                antenna_mode: default
+                bandwidth: 20
+                channels:
+                - 1
+                - 6
+                - 11
+                disabled: true
+                power: 9
+                power_max: 6
+                power_min: 17
+                preamble: auto
+              band_5:
+                allow_rrm_disable: true
+                antenna_mode: default
+                bandwidth: 20
+                channels:
+                - 36
+                - 40
+                - 44
+                - 48
+                - 52
+                - 56
+                - 60
+                - 64
+                - 100
+                - 104
+                - 108
+                - 112
+                disabled: true
+                power: 10
+                power_max: 6
+                power_min: 15
+                preamble: auto
+          modified_time: 0
+          name: string
+          org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        rftemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        rftemplate_name: string
+        status: updating
+        timestamp: 0
+    RrmEventsExample:
+      value:
+        end: 1428954000
+        limit: 100
+        next: /api/v1/sites/dca0a44b-324c-11e6-a776-0243ad110007/events/rrm?start=1428939600&end=1428949600&limit=200&token=001a0010000000120010000005005880ec18000004776c616e007fffffeb067ab8e29c1d659b6a7c8cf698bf81490003
+        results:
+        - ap: 5c5b359e4fe0
+          band: '24'
+          bandwidth: 20
+          channel: 6
+          event: scheduled-site_rrm
+          power: 5
+          pre_bandwidth: 20
+          pre_channel: 1
+          pre_power: 11
+          pre_usage: '24'
+          timestamp: 1428939600
+          usage: '24'
+        start: 1428939600
+    ChannelScoresExample:
+      value:
+        results:
+        - channel: 36
+          util_score: 0.009
+          util_score_noise_floor: 0.001
+          util_score_non_wifi: 0.003
+          util_score_other: 0.002
+          util_score_radar: 0.0
+          util_score_undecodable_wifi: 0.004
+          util_score_unknown_wifi: 0.0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    RrmNeighborsExample:
+      value:
+        end: 1428954000
+        limit: 100
+        next: /api/v1/sites/dca0a44b-324c-11e6-a776-0243ad110007/events/rrm?start=1428939600&end=1428949600&limit=200&token=001a0010000000120010000005005880ec18000004776c616e007fffffeb067ab8e29c1d659b6a7c8cf698bf81490003
+        results:
+        - mac: a7c7096d7b8f
+          neighbors:
+          - mac: 5c5b35000311
+            rssi: -75
+        start: 1428939600
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    RrmConsiderationExample:
+      value:
+        results:
+        - channel: 36
+          noise: -78
+          other_rssi: -66
+          other_ssid: Rivendell5G
+          rssi: -48
+          util_score: 0.1
+          util_score_non_wifi: 0.01
+          util_score_other: 0.05
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  parameters:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    dot11_band:
+      description: '802.11 band used to filter radio results. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
+      in: query
+      name: band
+      schema:
+        $ref: '#/components/schemas/dot11_band'
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  responses:
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    RrmNeighbors:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmNeighborsExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_neighbors'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmNeighborsExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_neighbors'
+      description: OK
+    Rrm:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmExample'
+          schema:
+            $ref: '#/components/schemas/rrm'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmExample'
+          schema:
+            $ref: '#/components/schemas/rrm'
+      description: OK
+    ChannelScores:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ChannelScoresExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_channel_scores'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ChannelScoresExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_channel_scores'
+      description: OK
+    RrmConsideration:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmConsiderationExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_consideration'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmConsiderationExample'
+          schema:
+            $ref: '#/components/schemas/response_rrm_consideration'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    RrmEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmEventsExample'
+          schema:
+            $ref: '#/components/schemas/response_events_rrm'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RrmEventsExample'
+          schema:
+            $ref: '#/components/schemas/response_events_rrm'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

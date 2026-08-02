@@ -1,0 +1,376 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Admins Login API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'Login Endpoints when using Login/Password authentication, with or without 2FA.
+
+
+    If the Login/Password authentication is successful, Mist will add a `csrftoken` cookie that must be added into the later API Requests (please see [csrfToken (Custom Header Signature)]($h/__auth_CsrfToken))'
+  name: Admins Login
+paths:
+  /api/v1/login:
+    post:
+      description: 'Authenticate an administrator with email and password. A successful login creates the browser session cookies, including the `csrftoken` value used with the `X-CSRFToken` header on later API requests.
+
+
+        When 2FA is enabled, either include the `two_factor` code in this request or submit the first factor here and complete the login with [Two Factor](/#operations/twoFactor).'
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            examples:
+              with-2FA:
+                value:
+                  email: test@mistsys.com
+                  password: foryoureyesonly
+                  two_factor: '123456'
+              without-2FA:
+                value:
+                  email: test@mistsys.com
+                  password: foryoureyesonly
+            schema:
+              $ref: '#/components/schemas/login'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginSuccess'
+        '400':
+          $ref: '#/components/responses/LoginFailure'
+      security: []
+      summary: login
+      tags:
+      - Admins Login
+  /api/v1/login/two_factor:
+    post:
+      description: Complete a two-factor login by submitting the 2FA code after the initial email/password step has created a pending login session.
+      operationId: twoFactor
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  two_factor: '123456'
+            schema:
+              $ref: '#/components/schemas/two_factor_string'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          description: two_factor code is incorrect or the user hasn't login yet
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          description: The user doesn't have 2FA enabled
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      security: []
+      summary: twoFactor
+      tags:
+      - Admins Login
+components:
+  responses:
+    OK:
+      description: OK
+    LoginFailure:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LoginFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_login_failure'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LoginFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_login_failure'
+      description: Login Failed
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    LoginSuccess:
+      content:
+        application/json:
+          examples:
+            2FA-required:
+              $ref: '#/components/examples/LoginSuccess2FArequired'
+            OK:
+              $ref: '#/components/examples/LoginSuccessOK'
+          schema:
+            $ref: '#/components/schemas/response_login_success'
+        application/vnd.api+json:
+          examples:
+            2FA-required:
+              $ref: '#/components/examples/LoginSuccess2FArequired'
+            OK:
+              $ref: '#/components/examples/LoginSuccessOK'
+          schema:
+            $ref: '#/components/schemas/response_login_success'
+      description: Login Success
+      headers:
+        Set-Cookie:
+          description: Session Cookie if login/password authentication is successful
+          schema:
+            examples:
+            - csrftoken=vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx; expires=Tue, 15-Mar-2016 19:47:20 GMT; Max-Age=31449600; Path=/
+            type: string
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+  schemas:
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    login:
+      description: Login request using email/password and an optional two-factor code
+      properties:
+        email:
+          description: Administrator email address used to log in
+          examples:
+          - test@mistsys.com
+          type: string
+        password:
+          description: Administrator password used to log in
+          examples:
+          - foryoureyesonly
+          type: string
+        two_factor:
+          description: Optional two-factor authentication code for the login request
+          examples:
+          - '123456'
+          type: string
+      required:
+      - email
+      - password
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    two_factor_string:
+      description: Request body for submitting a 2FA login code
+      properties:
+        two_factor:
+          description: One-time 2FA login code generated by the user's authenticator app
+          examples:
+          - '123456'
+          type: string
+      required:
+      - two_factor
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_login_failure:
+      additionalProperties: false
+      description: Login failure response returned when authentication cannot continue locally
+      properties:
+        detail:
+          description: Human-readable login failure message returned by the API
+          type: string
+        forward_url:
+          description: SSO URL where the user should continue login, when provided
+          type: string
+      required:
+      - detail
+      type: object
+    response_login_success:
+      additionalProperties: false
+      description: Login response body, empty on normal success or populated with two-factor state
+      properties:
+        email:
+          description: Admin email address for a login flow that requires two-factor authentication
+          type: string
+        two_factor_passed:
+          description: Whether the supplied two-factor code has been accepted for this login
+          type: boolean
+        two_factor_required:
+          description: Whether this login requires a two-factor code before a session is established
+          type: boolean
+      type: object
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    LoginSuccessOK:
+      value: {}
+    LoginFailureExample:
+      value:
+        detail: sso admin login needs to be initiated by IdP
+        forward_url: https://my.sso/idp_sso_url
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    LoginSuccess2FArequired:
+      value:
+        email: test@mistsys.com
+        two_factor_passed: false
+        two_factor_required: true
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

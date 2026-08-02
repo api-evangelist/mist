@@ -1,0 +1,632 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs UI Settings API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The Org UI Settings are used to configure the MArvis dashboards
+  name: Orgs UI Settings
+paths:
+  /api/v1/orgs/{org_id}/uisettings:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List the Orgs UI settings/databoard
+      operationId: listOrgUiSettings
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgUiSettingsArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgUiSettings
+      tags:
+      - Orgs UI Settings
+    post:
+      description: Create an Org UI settings/databoard
+      operationId: createOrgUiSettings
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  description: AP related stats
+                  isCustomDataboard: true
+                  name: AP Stats
+                  purpose: marvisdashboard
+                  tiles:
+                  - description: User typed tile descr
+                    isAutoTitle: true
+                    name: List top 10 APs by bandwidth
+                    nl_query: List top 10 APs by bandwidth
+                    position:
+                      col: 1
+                      colSpan: 2
+                      row: 1
+                      rowSpan: 1
+            schema:
+              $ref: '#/components/schemas/org_ui_settings'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgUiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: createOrgUiSettings
+      tags:
+      - Orgs UI Settings
+  /api/v1/orgs/{org_id}/uisettings/{uisetting_id}:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/uisetting_id'
+    delete:
+      description: Delete an Org UI settings
+      operationId: deleteOrgUiSetting
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: deleteOrgUiSetting
+      tags:
+      - Orgs UI Settings
+    get:
+      description: Get an Org UI settings/databoard
+      operationId: getOrgUiSetting
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgUiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgUiSetting
+      tags:
+      - Orgs UI Settings
+    post:
+      description: Org UI settings/databoard
+      operationId: updateOrgUiSetting
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  description: AP related stats
+                  isCustomDataboard: true
+                  name: AP Stats
+                  purpose: marvisdashboard
+                  tiles:
+                  - description: User typed tile descr
+                    isAutoTitle: true
+                    name: List top 10 APs by bandwidth
+                    nl_query: List top 10 APs by bandwidth
+                    position:
+                      col: 1
+                      colSpan: 2
+                      row: 1
+                      rowSpan: 1
+            schema:
+              $ref: '#/components/schemas/org_ui_settings'
+        description: Request Body
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgUiSettings'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgUiSetting
+      tags:
+      - Orgs UI Settings
+components:
+  parameters:
+    uisetting_id:
+      in: path
+      name: uisetting_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  schemas:
+    org_ui_settings:
+      description: Organization UI settings databoard
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the databoard was created
+        description:
+          description: Text describing the databoard
+          examples:
+          - This databoard shows AP stats
+          type: string
+        for_site:
+          description: Whether this databoard is scoped to a site
+          examples:
+          - false
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the databoard
+        isCustomDataboard:
+          description: Whether this is a custom databoard or not
+          type: boolean
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the databoard was last modified
+        name:
+          description: Display name of the databoard
+          examples:
+          - AP Stats
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the databoard
+        purpose:
+          $ref: '#/components/schemas/org_ui_settings_purpose'
+          description: UI surface or purpose for this databoard
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the databoard when `for_site` is true
+        tiles:
+          $ref: '#/components/schemas/org_ui_settings_tiles'
+          description: Configured tiles for the databoard
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    org_ui_settings_tile_position:
+      additionalProperties: false
+      description: Grid position for a databoard tile
+      properties:
+        col:
+          description: Grid column index for the tile
+          examples:
+          - 1
+          type: integer
+        colSpan:
+          description: Grid column span for the tile
+          examples:
+          - 5
+          type: integer
+        row:
+          description: Grid row index for the tile
+          examples:
+          - 1
+          type: integer
+        rowSpan:
+          description: Grid row span for the tile
+          examples:
+          - 2
+          type: integer
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    org_ui_settings_purpose:
+      description: 'UI surface or purpose for this databoard. enum: `marvisdashboard`'
+      enum:
+      - marvisdashboard
+      type: string
+    org_ui_settings_tiles:
+      description: List of tiles in the databoard
+      items:
+        $ref: '#/components/schemas/org_ui_settings_tile'
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    org_ui_settings_list:
+      description: List of organization UI databoards
+      items:
+        $ref: '#/components/schemas/org_ui_settings'
+      type: array
+    org_ui_settings_tile:
+      additionalProperties: false
+      description: Tile shown on an organization UI databoard
+      properties:
+        description:
+          description: Text describing the databoard tile
+          examples:
+          - This tile shows the top 10 APs by bandwidth
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the databoard tile
+        isAutoTitle:
+          description: Whether the tile title is auto generated or not
+          type: boolean
+        name:
+          description: Display name of the databoard tile
+          examples:
+          - Top 10 APs by Bandwidth
+          type: string
+        nl_query:
+          description: Natural Language query for the tile
+          examples:
+          - List top 10 APs by bandwidth
+          type: string
+        position:
+          $ref: '#/components/schemas/org_ui_settings_tile_position'
+          description: Grid position and span for the databoard tile
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  responses:
+    OK:
+      description: OK
+    OrgUiSettingsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgUiSettingsArrayExample'
+          schema:
+            $ref: '#/components/schemas/org_ui_settings_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgUiSettingsArrayExample'
+          schema:
+            $ref: '#/components/schemas/org_ui_settings_list'
+      description: List of Org UI Setting
+    OrgUiSettings:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgUiSettingsExample'
+          schema:
+            $ref: '#/components/schemas/org_ui_settings'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgUiSettingsExample'
+          schema:
+            $ref: '#/components/schemas/org_ui_settings'
+      description: Example response
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    OrgUiSettingsArrayExample:
+      value:
+      - created_time: 1749083436
+        description: AP related stats
+        for_site: false
+        id: 9a702097-0dd3-48af-909b-2be4ff94d139
+        isCustomDataboard: true
+        modified_time: 1749083436
+        name: AP Stats
+        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+        purpose: marvisdashboard
+        site_id: 00000000-0000-0000-0000-000000000000
+        tiles:
+        - description: User typed tile descr
+          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
+          isAutoTitle: true
+          name: List top 10 APs by bandwidth
+          nl_query: List top 10 APs by bandwidth
+          position:
+            col: 1
+            colSpan: 2
+            row: 1
+            rowSpan: 1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OrgUiSettingsExample:
+      value:
+        created_time: 1749083436
+        description: AP related stats
+        for_site: false
+        id: 9a702097-0dd3-48af-909b-2be4ff94d139
+        isCustomDataboard: true
+        modified_time: 1749083436
+        name: AP Stats
+        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+        purpose: marvisdashboard
+        site_id: 00000000-0000-0000-0000-000000000000
+        tiles:
+        - description: User typed tile descr
+          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
+          isAutoTitle: true
+          name: List top 10 APs by bandwidth
+          nl_query: List top 10 APs by bandwidth
+          position:
+            col: 1
+            colSpan: 2
+            row: 1
+            rowSpan: 1
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

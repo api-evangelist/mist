@@ -1,0 +1,524 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites Stats - Clients SDK API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: 'SDK Clients are devices that have installed an application using the Mist Software Development Kit (SDK).
+
+
+    These clients can provide specific data and information that is not available without the installation of the SDK application.'
+  name: Sites Stats - Clients SDK
+paths:
+  /api/v1/sites/{site_id}/stats/maps/{map_id}/sdkclients:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/map_id'
+    get:
+      description: Get SdkClient Stats By Map
+      operationId: getSiteSdkStatsByMap
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/stats_sdkclients'
+          description: OK
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteSdkStatsByMap
+      tags:
+      - Sites Stats - Clients SDK
+  /api/v1/sites/{site_id}/stats/sdkclients/{sdkclient_id}:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    - $ref: '#/components/parameters/sdkclient_id'
+    get:
+      description: Get Detail Stats of a SdkClient
+      operationId: getSiteSdkStats
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Example:
+                  value:
+                    id: d56bd5fa-0a0a-4861-a9df-5ac83d3a2eeb
+                    last_seen: 1428939600
+                    name: John's iPhone
+                    network_connection:
+                      mac: c3-b6-e5-af-41-15
+                      rssi: -75
+                      signal_level: 3
+                      type: WiFi
+                    uuid: ada72f8f-1643-e5c6-94db-f2a5636f1a64
+                    vbeacons:
+                    - id: d379d29d-24b4-96c5-5dd4-6f2a2dc5aaeb
+                      since: 1428939300
+                    x: 60
+                    y: 80
+                    zones:
+                    - id: 8ac84899-32db-6327-334c-9b6d58544cfe
+                      since: 1428939600
+              schema:
+                $ref: '#/components/schemas/sdkstats_wireless_client'
+          description: OK
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getSiteSdkStats
+      tags:
+      - Sites Stats - Clients SDK
+components:
+  schemas:
+    stats_sdkclients:
+      description: SDK client statistics records returned by a stats response
+      items:
+        $ref: '#/components/schemas/stats_sdkclient'
+      type: array
+    sdkstats_wireless_client_vbeacon:
+      additionalProperties: false
+      description: Virtual beacon currently associated with an SDK client
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Virtual beacon identifier currently associated with the SDK client
+        since:
+          description: Time when the SDK client began matching the virtual beacon, in epoch seconds
+          type: number
+      required:
+      - id
+      - since
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    sdkstats_wireless_client_zones:
+      description: Zone memberships for the SDK client, including when each membership began
+      items:
+        $ref: '#/components/schemas/sdkstats_wireless_client_zone'
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    sdkstats_wireless_client_vbeacons:
+      description: Virtual beacon associations for the SDK client, including when each began
+      items:
+        $ref: '#/components/schemas/sdkstats_wireless_client_vbeacon'
+      type: array
+      uniqueItems: true
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    stats_sdkclient:
+      additionalProperties: false
+      description: Detailed statistics for an individual SDK client
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the SDK client
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Time when the SDK client was last observed, in epoch seconds
+        map_id:
+          description: Map identifier for the SDK client's location, if known
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type:
+          - string
+          - 'null'
+        name:
+          description: Display name provided for the SDK client
+          examples:
+          - John's iPhone
+          type: string
+        network_connection:
+          $ref: '#/components/schemas/stats_sdkclient_network_connection'
+          description: Current network connection details for the SDK client
+        uuid:
+          description: Application UUID for the SDK client
+          examples:
+          - ada72f8f-1643-e5c6-94db-f2a5636f1a64
+          format: uuid
+          type: string
+        x:
+          description: Horizontal map coordinate of the SDK client location, in pixels, if known
+          examples:
+          - 60
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the SDK client location, in pixels, if known
+          examples:
+          - 80
+          format: double
+          type: number
+      required:
+      - id
+      - uuid
+      - network_connection
+      type: object
+    sdkstats_wireless_client:
+      additionalProperties: false
+      description: Detailed statistics for an individual SDK client
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the SDK client
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Time when the SDK client was last observed, in epoch seconds
+        map_id:
+          description: Map identifier for the SDK client's location, if known
+          format: uuid
+          type:
+          - string
+          - 'null'
+        name:
+          description: Display name provided for the SDK client
+          type: string
+        network_connection:
+          $ref: '#/components/schemas/stats_sdkclient_network_connection'
+          description: Current network connection details for the SDK client
+        uuid:
+          description: Application UUID for the SDK client
+          format: uuid
+          type: string
+        vbeacons:
+          $ref: '#/components/schemas/sdkstats_wireless_client_vbeacons'
+          description: Virtual beacons currently associated with the SDK client and when each association began
+        x:
+          description: Horizontal map coordinate of the SDK client location, in pixels, if known
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the SDK client location, in pixels, if known
+          format: double
+          type: number
+        zones:
+          $ref: '#/components/schemas/sdkstats_wireless_client_zones'
+          description: Current zone memberships for the SDK client and when the client entered each zone
+      required:
+      - id
+      - uuid
+      type: object
+    sdkstats_wireless_client_zone:
+      additionalProperties: false
+      description: Zone currently containing an SDK client
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Zone identifier that currently contains the SDK client
+        since:
+          description: Time when the SDK client entered the zone, in epoch seconds
+          type: number
+      required:
+      - id
+      - since
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    stats_sdkclient_network_connection:
+      additionalProperties: false
+      description: Current network connection details reported for an SDK client
+      properties:
+        mac:
+          description: Current network connection MAC address reported for the SDK client
+          type: string
+        rssi:
+          description: Received signal strength indicator for the SDK client's current network connection, in dBm
+          type: number
+        signal_level:
+          description: Numeric signal quality level reported with the SDK client's current network connection
+          type: number
+        type:
+          description: Network connection type reported for the SDK client, such as WiFi
+          type: string
+      required:
+      - type
+      - rssi
+      - mac
+      - signal_level
+      type: object
+  parameters:
+    sdkclient_id:
+      in: path
+      name: sdkclient_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

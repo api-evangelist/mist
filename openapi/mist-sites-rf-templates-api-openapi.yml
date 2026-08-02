@@ -1,0 +1,708 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Sites RF Templates API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: The API Endpoints for the RF Templates at the site level can be used to get the site derived configuration, meaning the org level configuration with the site variables resolved..
+  name: Sites RF Templates
+paths:
+  /api/v1/sites/{site_id}/rftemplates/derived:
+    parameters:
+    - $ref: '#/components/parameters/site_id'
+    get:
+      description: Get the list of derived RF Templates a Site
+      operationId: listSiteRfTemplatesDerived
+      parameters:
+      - description: Whether resolve the site variables
+        in: query
+        name: resolve
+        schema:
+          type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/RftemplatesArray'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listSiteRfTemplatesDerived
+      tags:
+      - Sites RF Templates
+components:
+  schemas:
+    radio_band_channels:
+      default: []
+      description: For RFTemplates. List of channels, null or empty array means auto
+      items:
+        type: integer
+      type:
+      - array
+      - 'null'
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    dot11_bandwidth24:
+      default: 20
+      description: 'channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`'
+      enum:
+      - 0
+      - 20
+      - 40
+      examples:
+      - 20
+      type: integer
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    rftemplate_radio_band6:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 6 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 6 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 6 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth6'
+          description: Channel width configured for the 6 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 7
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 6 GHz radio
+        standard_power:
+          default: false
+          description: For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
+          type: boolean
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    radio_band_24_usage:
+      description: 'enum: `24`, `5`, `6`, `auto`'
+      enum:
+      - '24'
+      - '5'
+      - '6'
+      - auto
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    rf_template:
+      description: RF template used by the current RRM calculation
+      properties:
+        ant_gain_24:
+          description: External antenna gain for the 2.4 GHz radio
+          type: integer
+        ant_gain_5:
+          description: External antenna gain for the 5 GHz radio
+          type: integer
+        ant_gain_6:
+          description: External antenna gain for the 6 GHz radio
+          type: integer
+        band_24:
+          $ref: '#/components/schemas/rftemplate_radio_band24'
+          description: 2.4 GHz radio settings in this RF template
+        band_24_usage:
+          $ref: '#/components/schemas/radio_band_24_usage'
+          description: Radio usage mode for the 2.4 GHz-capable radio in this RF template
+        band_5:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: 5 GHz radio settings in this RF template
+        band_5_on_24_radio:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode
+        band_6:
+          $ref: '#/components/schemas/rftemplate_radio_band6'
+          description: 6 GHz radio settings in this RF template
+        country_code:
+          description: Optional, country code to use. If specified, this gets applied to all sites using the RF Template
+          type: string
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the RF template was created
+        for_site:
+          description: Whether the RF template is scoped to a site rather than the organization
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the RF template
+        model_specific:
+          additionalProperties:
+            $ref: '#/components/schemas/rf_template_model_specific_property'
+          description: overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. "AP63")
+          type: object
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the RF template was last modified
+        name:
+          description: The name of the RF template
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns this RF template
+        scanning_enabled:
+          description: Whether scanning radio is enabled
+          type: boolean
+      required:
+      - name
+      type: object
+    rftemplate_radio_band5:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 5 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 5 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 5 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth5'
+          description: Channel width configured for the 5 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 6
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 17
+          minimum: 5
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 5 GHz radio
+      type: object
+    rf_template_model_specific_property:
+      additionalProperties: false
+      description: AP model-specific RF overrides for an RF template
+      properties:
+        ant_gain_24:
+          default: 0
+          description: Model-specific external antenna gain for the 2.4 GHz radio
+          type: integer
+        ant_gain_5:
+          default: 0
+          description: Model-specific external antenna gain for the 5 GHz radio
+          type: integer
+        ant_gain_6:
+          default: 0
+          description: Model-specific external antenna gain for the 6 GHz radio
+          type: integer
+        band_24:
+          $ref: '#/components/schemas/rftemplate_radio_band24'
+          description: Model-specific 2.4 GHz radio settings that override RF template defaults
+        band_24_usage:
+          $ref: '#/components/schemas/radio_band_24_usage'
+          description: Model-specific radio usage mode for the 2.4 GHz-capable radio
+        band_5:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: Model-specific 5 GHz radio settings that override RF template defaults
+        band_5_on_24_radio:
+          $ref: '#/components/schemas/rftemplate_radio_band5'
+          description: Model-specific 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode
+        band_6:
+          $ref: '#/components/schemas/rftemplate_radio_band6'
+          description: Model-specific 6 GHz radio settings that override RF template defaults
+      type: object
+    radio_band_antenna_mode:
+      default: default
+      description: 'enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`'
+      enum:
+      - 1x1
+      - 2x2
+      - 3x3
+      - 4x4
+      - default
+      examples:
+      - default
+      type: string
+    dot11_bandwidth5:
+      default: 40
+      description: 'channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      examples:
+      - 40
+      type: integer
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    rftemplate_radio_band24:
+      additionalProperties: false
+      description: Radio Band AP settings
+      properties:
+        allow_rrm_disable:
+          default: false
+          description: Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
+          type: boolean
+        ant_gain:
+          default: 0
+          description: External antenna gain for the 2.4 GHz radio
+          maximum: 10
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        antenna_mode:
+          $ref: '#/components/schemas/radio_band_antenna_mode'
+          description: Radio chain mode for the 2.4 GHz radio
+        bandwidth:
+          $ref: '#/components/schemas/dot11_bandwidth24'
+          description: Channel width configured for the 2.4 GHz radio
+        channels:
+          $ref: '#/components/schemas/radio_band_channels'
+          description: Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
+        disabled:
+          default: false
+          description: Whether to disable the radio
+          type: boolean
+        power:
+          default: null
+          description: Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+          examples:
+          - 3
+          maximum: 25
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        power_max:
+          description: When power=null/unset, max tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 3
+          type:
+          - integer
+          - 'null'
+        power_min:
+          description: When power=null/unset, min tx power to use, HW-specific values will be used if not set
+          maximum: 18
+          minimum: 3
+          type:
+          - integer
+          - 'null'
+        preamble:
+          $ref: '#/components/schemas/radio_band_preamble'
+          description: 802.11 preamble mode used by the 2.4 GHz radio
+      type: object
+    rf_templates:
+      description: List of RF templates
+      items:
+        $ref: '#/components/schemas/rf_template'
+      type: array
+    dot11_bandwidth6:
+      default: 80
+      description: 'channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`'
+      enum:
+      - 0
+      - 20
+      - 40
+      - 80
+      - 160
+      examples:
+      - 80
+      type: integer
+    radio_band_preamble:
+      default: short
+      description: 'enum: `auto`, `long`, `short`'
+      enum:
+      - auto
+      - long
+      - short
+      type: string
+  responses:
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    RftemplatesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RftemplatesArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_templates'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RftemplatesArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_templates'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    RftemplatesArrayExample:
+      value:
+      - ant_gain_24: 0
+        ant_gain_5: 0
+        band_24:
+          allow_rrm_disable: true
+          ant_gain: 0
+          bandwidth: 20
+          channels:
+          - 1
+          - 6
+          - 11
+          disabled: false
+          power_max: 11
+          power_min: 3
+          preamble: short
+        band_24_usage: auto
+        band_5:
+          allow_rrm_disable: false
+          ant_gain: 0
+          bandwidth: 80
+          channels:
+          - 36
+          - 40
+          - 44
+          - 48
+          - 52
+          - 56
+          - 60
+          - 64
+          - 100
+          - 104
+          - 149
+          - 153
+          - 157
+          - 161
+          disabled: false
+          power_max: 16
+          power_min: 9
+          preamble: short
+        country_code: FR
+        created_time: 1594743723
+        id: b3f20330-f76a-49f1-bc65-0d8727140b1d
+        model_specific: {}
+        modified_time: 1613582192
+        name: Lab
+        org_id: 203d3d02-dbc0-4c1b-9f41-76896a3330f4
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

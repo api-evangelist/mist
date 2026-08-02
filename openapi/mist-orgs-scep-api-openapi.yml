@@ -1,0 +1,615 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs SCEP API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- name: Orgs SCEP
+paths:
+  /api/v1/orgs/{org_id}/setting/mist_scep:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    delete:
+      description: Disable Mist SCEP for the organization and return the updated read-only SCEP settings.
+      operationId: disableOrgMistScep
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgScep'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: disableOrgMistScep
+      tags:
+      - Orgs SCEP
+    get:
+      description: Return Mist SCEP settings for the organization, including enabled and suspended status, configured certificate providers, and generated enrollment or webhook URLs.
+      operationId: getOrgMistScep
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgScep'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: getOrgMistScep
+      tags:
+      - Orgs SCEP
+    put:
+      description: Update Mist SCEP settings for the organization, including enabled state, suspension state, and certificate providers.
+      operationId: updateOrgMistScep
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  enabled: true
+            schema:
+              $ref: '#/components/schemas/org_setting_scep'
+      responses:
+        '200':
+          $ref: '#/components/responses/OrgScep'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: updateOrgMistScep
+      tags:
+      - Orgs SCEP
+  /api/v1/orgs/{org_id}/setting/mist_scep/client_certs:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    get:
+      description: List Mist SCEP client certificates issued for the organization. Results can be filtered by common name, certificate provider, serial number, device ID, or time range.
+      operationId: listOrgIssuedClientCertificates
+      parameters:
+      - description: Filter by certificate common name (e.g. user UPN or device identifier)
+        in: query
+        name: common_name
+        schema:
+          type: string
+      - description: Filter by MDM or certificate provider that issued the certificate. Accepts multiple comma-separated values.
+        in: query
+        name: cert_provider
+        schema:
+          type: string
+      - description: Filter by certificate serial number. Accepts multiple comma-separated values.
+        in: query
+        name: serial_number
+        schema:
+          type: string
+      - description: Filter by device identifier associated with the certificate. Accepts multiple comma-separated values.
+        in: query
+        name: device_id
+        schema:
+          type: string
+      - description: Filter by certificate expiry time, in epoch seconds
+        in: query
+        name: expire_time
+        schema:
+          type: integer
+      - description: Filter by certificate issuance time, in epoch seconds
+        in: query
+        name: created_time
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          $ref: '#/components/responses/IssuedClientCertificates'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: listOrgIssuedClientCertificates
+      tags:
+      - Orgs SCEP
+  /api/v1/orgs/{org_id}/setting/mist_scep/client_certs/revoke:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: Revoke issued Mist SCEP client certificates by certificate serial number.
+      operationId: revokeOrgIssuedClientCertificates
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  serial_numbers:
+                  - 13 00 13 03 23 EE D5 84 01
+            schema:
+              $ref: '#/components/schemas/client_cert_serial_numbers'
+      responses:
+        '200':
+          $ref: '#/components/responses/OK'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: revokeOrgIssuedClientCertificates
+      tags:
+      - Orgs SCEP
+components:
+  schemas:
+    org_setting_scep_cert_provider:
+      description: 'enum: `intune`, `jamf`, `byod`'
+      enum:
+      - intune
+      - jamf
+      - byod
+      type: string
+    issued_client_certificates:
+      description: Issued client certificates returned by a SCEP certificate query
+      items:
+        $ref: '#/components/schemas/issued_client_certificate'
+      type: array
+    device_id:
+      description: Read-only UUID identifier for a device
+      examples:
+      - 00000000-0000-0000-1000-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    org_setting_scep:
+      description: Mist SCEP settings for certificate enrollment
+      properties:
+        cert_providers:
+          $ref: '#/components/schemas/org_setting_scep_cert_providers'
+          description: Certificate providers enabled for Mist SCEP
+        enable:
+          description: Whether SCEP is enabled for this org
+          type: boolean
+        suspended:
+          default: false
+          description: Whether SCEP is suspended for this org
+          type: boolean
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    org_setting_scep_response:
+      additionalProperties: false
+      description: Read-only Mist SCEP settings returned for the organization
+      properties:
+        cert_providers:
+          $ref: '#/components/schemas/org_setting_scep_cert_providers'
+          description: Certificate providers configured for Mist SCEP
+        enabled:
+          description: Whether Mist SCEP is enabled for this organization
+          readOnly: true
+          type: boolean
+        intune_scep_url:
+          description: Intune SCEP enrollment URL for this organization
+          examples:
+          - https://scep.mistsys.com/api/v1/incoming/intune/:org_id/scep
+          readOnly: true
+          type: string
+        jamf_access_token:
+          description: Access token used by Jamf to call Mist SCEP
+          examples:
+          - 1Z4QqEnCt05Jjt3TV5LgPJ4V_WL_RWnJ7dqVMLYHj81=
+          readOnly: true
+          type: string
+        jamf_scep_url:
+          description: Jamf SCEP enrollment URL for this organization
+          examples:
+          - https://scep.mistsys.com/api/v1/incoming/intune/:org_id/scep
+          readOnly: true
+          type: string
+        jamf_webhook_url:
+          description: Jamf webhook URL for SCEP status callbacks
+          examples:
+          - https://scep.mistsys.com/api/v1/webhook/jamf/:org_id/scep
+          readOnly: true
+          type: string
+        suspended:
+          default: false
+          description: Whether SCEP is suspended for this org
+          type: boolean
+      type: object
+    client_cert_serial_numbers:
+      description: Client certificate serial numbers targeted by a certificate operation
+      examples:
+      - serial_numbers:
+        - 13 00 13 03 23 EE D5 84 01
+      properties:
+        serial_numbers:
+          $ref: '#/components/schemas/strings'
+          description: Certificate serial numbers to revoke
+      type: object
+    org_setting_scep_cert_providers:
+      description: List of SCEP cert providers, e.g. `intune`, `jamf`, `byod`
+      items:
+        $ref: '#/components/schemas/org_setting_scep_cert_provider'
+      type: array
+    issued_client_certificate:
+      additionalProperties: false
+      description: Issued Mist SCEP client certificate metadata
+      properties:
+        cert_provider:
+          description: Certificate provider that issued this client certificate
+          examples:
+          - byod
+          type: string
+        common_name:
+          description: Subject common name encoded in the issued client certificate
+          examples:
+          - john@corp.com
+          type: string
+        created_time:
+          description: Certificate issuance time, in epoch seconds
+          type: integer
+        device_id:
+          $ref: '#/components/schemas/device_id'
+          description: Device associated with the issued client certificate
+        expire_time:
+          description: Certificate expiry time, in epoch seconds
+          type: integer
+        serial_number:
+          description: Certificate serial number used for lookup or revocation
+          examples:
+          - 91984382552102771A2B3C4E5F224719956718003374658
+          type: string
+      type: object
+    issued_client_certificates_results:
+      additionalProperties: false
+      description: Issued client certificate search results wrapper
+      properties:
+        limit:
+          description: Maximum number of results requested
+          type: integer
+        page:
+          description: Current page number
+          type: integer
+        results:
+          $ref: '#/components/schemas/issued_client_certificates'
+          description: List of issued client certificates returned by the query
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+  responses:
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    IssuedClientCertificates:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/IssuedClientCertificatesExample'
+          schema:
+            $ref: '#/components/schemas/issued_client_certificates_results'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/IssuedClientCertificatesExample'
+          schema:
+            $ref: '#/components/schemas/issued_client_certificates_results'
+      description: OK
+    OrgScep:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgScepExample'
+          schema:
+            $ref: '#/components/schemas/org_setting_scep_response'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgScepExample'
+          schema:
+            $ref: '#/components/schemas/org_setting_scep_response'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    OrgScepExample:
+      value:
+        cert_providers:
+        - jamf
+        - intune
+        - byod
+        enabled: false
+        intune_scep_url: https://scep.mistsys.com/api/v1/incoming/intune/:org_id/scep
+        jamf_access_token: 1Z4QqEnCt05Jjt3TV5LgPJ4V_WL_RWnJ7dqVMLYHj81=
+        jamf_scep_url: https://scep.mistsys.com/api/v1/incoming/intune/:org_id/scep
+        jamf_webhook_url: https://scep.mistsys.com/api/v1/webhook/jamf/:org_id/scep
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    IssuedClientCertificatesExample:
+      value:
+        limit: 100
+        page: 1
+        results:
+        - cert_provider: jamf
+          common_name: john@corp.com
+          created_time: 1431382121
+          device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          expire_time: 1718921115
+          serial_number: 13 00 13 03 23 EE D5 84 01
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

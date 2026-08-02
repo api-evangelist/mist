@@ -1,0 +1,654 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist Admins Orgs Maps API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- description: These API Calls to import Site Maps at the Org level
+  name: Orgs Maps
+paths:
+  /api/v1/orgs/{org_id}/maps/import:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    post:
+      description: 'Import data from files is a multipart POST which has a file, an optional json, and an optional csv, to create floorplan, assign matching inventory to specific site, place ap if name or mac matches
+
+
+        ### CSV File Format
+
+        ```csv
+
+        Vendor AP name,Mist AP Mac
+
+        US Office AP-2 - 5c:5b:35:00:00:02,5c5b35000002
+
+        ```'
+      operationId: importOrgMaps
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/map_org_import_file'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapImport'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: importOrgMaps
+      tags:
+      - Orgs Maps
+  /api/v1/orgs/{org_id}/sites/{site_name}/maps/import:
+    parameters:
+    - $ref: '#/components/parameters/org_id'
+    - $ref: '#/components/parameters/site_name'
+    post:
+      description: Import floorplan data into a site from a multipart upload. The upload includes an Ekahau or iBwave floorplan file, optional import options JSON, and optional AP name-mapping CSV; matching inventory can be assigned to the site and APs placed when names or MAC addresses match.
+      operationId: importOrgMapToSite
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/map_site_import_file'
+        description: 'a JSON string, site id required, vendor option: ekahau, ibwave, etc., import_all_floorplans: optional, default: false, import_height: optional, default: true, import_orientation: optional, default: true
+
+          "file": a binary file, option: .esx
+
+          "csv": a csv file for ap name mapping, optional'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapImport'
+        '400':
+          $ref: '#/components/responses/HTTP400'
+        '401':
+          $ref: '#/components/responses/HTTP401'
+        '403':
+          $ref: '#/components/responses/HTTP403'
+        '404':
+          $ref: '#/components/responses/HTTP404'
+        '429':
+          $ref: '#/components/responses/HTTP429'
+      summary: importOrgMapToSite
+      tags:
+      - Orgs Maps
+components:
+  schemas:
+    response_map_import_floorplans:
+      description: Floorplan import results produced by the map import
+      items:
+        $ref: '#/components/schemas/response_map_import_floorplan'
+      type: array
+      uniqueItems: true
+    map_org_import_file:
+      additionalProperties: false
+      description: Multipart payload for importing map files at organization scope
+      properties:
+        auto_deviceprofile_assignment:
+          description: Whether to auto assign device to deviceprofile by name
+          examples:
+          - true
+          type: boolean
+        csv:
+          contentMediaType: application/octet-stream
+          description: Optional AP name-mapping CSV file
+          type: string
+        file:
+          contentMediaType: application/octet-stream
+          description: Ekahau or iBwave floorplan file to import
+          type: string
+        json:
+          $ref: '#/components/schemas/map_org_import_file_json'
+          description: Import options for the organization map file
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    map_org_import_file_json_vendor_name:
+      description: 'Map import vendor for the uploaded file. enum: `ekahau`, `ibwave`'
+      enum:
+      - ekahau
+      - ibwave
+      examples:
+      - ekahau
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_map_import:
+      additionalProperties: false
+      description: Result of importing map files and matching AP placements
+      properties:
+        aps:
+          $ref: '#/components/schemas/response_map_import_aps'
+          description: AP placement results produced by the map import
+        floorplans:
+          $ref: '#/components/schemas/response_map_import_floorplans'
+          description: Floorplan import results produced by the map import
+        for_site:
+          description: Whether this map import response is scoped to a site
+          readOnly: true
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the map import result
+        summary:
+          $ref: '#/components/schemas/response_map_import_summary'
+          description: Counts summarizing assignments made during the map import
+      required:
+      - site_id
+      - aps
+      - floorplans
+      - summary
+      type: object
+    response_map_import_ap_action:
+      description: 'enum: `assigned-named-placed`, `assigned-placed`, `ignored`, `named-placed`, `placed`'
+      enum:
+      - assigned-named-placed
+      - assigned-placed
+      - ignored
+      - named-placed
+      - placed
+      type: string
+    map_import_json:
+      additionalProperties: false
+      description: Options for importing map data from Ekahau or iBwave JSON
+      properties:
+        import_all_floorplans:
+          default: false
+          description: Whether to import all floorplans from the uploaded map JSON
+          type: boolean
+        import_height:
+          default: true
+          description: Whether to import height metadata from the uploaded map JSON
+          type: boolean
+        import_orientation:
+          default: true
+          description: Whether to import orientation metadata from the uploaded map JSON
+          type: boolean
+        vendor_name:
+          $ref: '#/components/schemas/map_import_json_vendor_name'
+          description: Map import vendor for the uploaded JSON
+      required:
+      - vendor_name
+      type: object
+    response_map_import_ap:
+      additionalProperties: false
+      description: AP placement result from a map import
+      properties:
+        action:
+          $ref: '#/components/schemas/response_map_import_ap_action'
+          description: Import action applied to this AP
+        floorplan_id:
+          description: Floorplan identifier where the AP placement was imported
+          format: uuid
+          type: string
+        height:
+          description: Mounting height for the AP on the imported floorplan
+          format: double
+          type: number
+        mac:
+          description: AP MAC address matched from the import file
+          type: string
+        map_id:
+          description: Map identifier associated with the imported AP placement
+          format: uuid
+          type: string
+        orientation:
+          description: AP orientation in degrees on the imported floorplan
+          type: integer
+        reason:
+          description: Explanation of why the AP import action was not completed, when provided
+          type: string
+      required:
+      - mac
+      - action
+      - map_id
+      - floorplan_id
+      - orientation
+      type: object
+    response_map_import_summary:
+      additionalProperties: false
+      description: Counts summarizing assignments made during the map import
+      properties:
+        num_ap_assigned:
+          description: Number of AP placements assigned during the map import
+          type: integer
+        num_inv_assigned:
+          description: Number of inventory records assigned to the site during the map import
+          type: integer
+        num_map_assigned:
+          description: Number of map floorplans assigned during the map import
+          type: integer
+      required:
+      - num_ap_assigned
+      - num_map_assigned
+      - num_inv_assigned
+      type: object
+    response_map_import_floorplan:
+      additionalProperties: false
+      description: Floorplan result from a map import
+      properties:
+        action:
+          description: Import action applied to this floorplan
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Floorplan identifier returned by the import
+        map_id:
+          description: Map identifier associated with the imported floorplan
+          format: uuid
+          type: string
+        name:
+          description: Floorplan name imported from the map file
+          type: string
+        reason:
+          description: Explanation of why the floorplan import action was not completed, when provided
+          type: string
+      required:
+      - id
+      - name
+      - action
+      - map_id
+      type: object
+    map_site_import_file:
+      additionalProperties: false
+      description: Multipart payload for importing map files at site scope
+      properties:
+        auto_deviceprofile_assignment:
+          description: Whether to auto assign device to deviceprofile by name
+          examples:
+          - true
+          type: boolean
+        csv:
+          contentMediaType: application/octet-stream
+          description: Optional AP name-mapping CSV file
+          type: string
+        file:
+          contentMediaType: application/octet-stream
+          description: Ekahau or iBwave floorplan file to import
+          type: string
+        json:
+          $ref: '#/components/schemas/map_import_json'
+          description: Import options for the site map file
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    map_import_json_vendor_name:
+      description: 'Map import vendor for the uploaded JSON. enum: `ekahau`, `ibwave`'
+      enum:
+      - ekahau
+      - ibwave
+      examples:
+      - ekahau
+      type: string
+    map_org_import_file_json:
+      additionalProperties: false
+      description: Options for importing map files at organization scope
+      properties:
+        import_all_floorplans:
+          default: false
+          description: Whether to import all floorplans from the uploaded map file
+          type: boolean
+        import_height:
+          default: true
+          description: Whether to import height metadata from the uploaded map file
+          type: boolean
+        import_orientation:
+          default: true
+          description: Whether to import orientation metadata from the uploaded map file
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Target site for imported floorplans, when specified
+        vendor_name:
+          $ref: '#/components/schemas/map_org_import_file_json_vendor_name'
+          description: Map import vendor for the uploaded file
+      required:
+      - vendor_name
+      type: object
+    response_map_import_aps:
+      description: AP placement results produced by the map import
+      items:
+        $ref: '#/components/schemas/response_map_import_ap'
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_name:
+      in: path
+      name: site_name
+      required: true
+      schema:
+        type: string
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    MapImport:
+      content:
+        application/json:
+          examples:
+            Assigned And Placed:
+              $ref: '#/components/examples/MapImportAssignedAndPlaced'
+            Assigned Named And Placed:
+              $ref: '#/components/examples/MapImportAssignedNamedAndPlaced'
+            Placed:
+              $ref: '#/components/examples/MapImportPlaced'
+          schema:
+            $ref: '#/components/schemas/response_map_import'
+        application/vnd.api+json:
+          examples:
+            Assigned And Placed:
+              $ref: '#/components/examples/MapImportAssignedAndPlaced'
+            Assigned Named And Placed:
+              $ref: '#/components/examples/MapImportAssignedNamedAndPlaced'
+            Placed:
+              $ref: '#/components/examples/MapImportPlaced'
+          schema:
+            $ref: '#/components/schemas/response_map_import'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+  examples:
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    MapImportAssignedNamedAndPlaced:
+      value:
+        aps:
+        - action: assigned-named-placed
+          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
+    MapImportAssignedAndPlaced:
+      value:
+        aps:
+        - action: assigned-placed
+          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+          height: 3
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    MapImportPlaced:
+      value:
+        aps:
+        - action: placed
+          floorplan_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          height: 3
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey
