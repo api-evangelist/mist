@@ -1,0 +1,268 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Orgs Psks API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Orgs Psks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "listOrgPsks",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "name",
+                "value": "psk-a,psk-b",
+                "type": "query",
+                "description": "Filter results by name. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "ssid",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by SSID. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "role",
+                "value": "",
+                "type": "query",
+                "description": "Filter PSK results by role. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Select the page number to return when using page-based pagination; starts at `1`"
+              }
+            ]
+          },
+          "docs": "List organization personal PSKs for WLAN access, optionally filtering by name, SSID, or role."
+        },
+        {
+          "info": {
+            "name": "createOrgPsk",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upsert",
+                "value": "",
+                "type": "query",
+                "description": "If a key exists with the same `name`, replace it with the new one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an organization personal PSK for WLAN access, including SSID, passphrase, usage mode, optional client MAC binding, role, VLAN, and expiration settings.\n\n\nWhen `usage`==`macs`, corresponding \"macs\" field will hold a list consisting of client MAC addresses ([\"xx:xx:xx:xx:xx\",...]) or mac patterns([\"xx:xx:*\",\"xx*\",...]) or both ([\"xx:xx:xx:xx:xx:xx\", \"xx:*\", ...]). This list is capped at 5000"
+        },
+        {
+          "info": {
+            "name": "updateOrgMultiplePsks",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update multiple organization personal PSKs in one request, including passphrase, usage mode, role, VLAN, expiration, and notification settings."
+        },
+        {
+          "info": {
+            "name": "deleteOrgPskList",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/delete",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Delete one or more organization PSKs by ID.\n\nThe request accepts a single PSK ID string or a list of PSK ID strings.\n**Warning**: If no PSK IDs are provided in the request, all organization PSKs will be deleted and clients will no longer be able to authenticate to any SSID with a PSK."
+        },
+        {
+          "info": {
+            "name": "importOrgPsks",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/import",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Import organization PSKs from a CSV file or JSON payload.\n\n## CSV File Format\n```\nPSK Import CSV File Format:\nname,ssid,passphrase,usage,vlan_id,mac,max_usage,role,expire_time,notify_expiry,expiry_notification_time,notify_on_create_or_edit,email\nCommon,warehouse,foryoureyesonly,single,35,a31425f31278,0,student,1618594236\nJustin,reception,visible,multi,1002,200,teacher,1618594236\nCommon2,ssid,1245678-xx,single,35,a31425f31278,0,student,1618594236,true,7,true,admin@test.com\n```"
+        },
+        {
+          "info": {
+            "name": "getOrgPsk",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/:psk_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "psk_id",
+                "value": "",
+                "type": "path",
+                "description": "PSK ID"
+              }
+            ]
+          },
+          "docs": "Retrieve details for an organization personal PSK, including SSID, usage mode, MAC binding, role, VLAN, expiration, and notification settings."
+        },
+        {
+          "info": {
+            "name": "updateOrgPsk",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/:psk_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "psk_id",
+                "value": "",
+                "type": "path",
+                "description": "PSK ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an organization personal PSK, including passphrase, usage mode, MAC binding, role, VLAN, expiration, and notification settings."
+        },
+        {
+          "info": {
+            "name": "deleteOrgPsk",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/:psk_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "psk_id",
+                "value": "",
+                "type": "path",
+                "description": "PSK ID"
+              }
+            ]
+          },
+          "docs": "Delete an organization personal PSK by PSK ID so clients can no longer authenticate with that key."
+        },
+        {
+          "info": {
+            "name": "deleteOrgPskOldPassphrase",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/psks/:psk_id/delete_old_passphrase",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "psk_id",
+                "value": "",
+                "type": "path",
+                "description": "PSK ID"
+              }
+            ]
+          },
+          "docs": "Remove the stored `old_passphrase` from a PSK after rotation. \nIf successful, the response returns the PSK with `old_passphrase` removed."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

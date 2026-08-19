@@ -1,0 +1,280 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Sites Maps - Auto-placement API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Sites Maps - Auto-placement",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "acceptSiteApLocalizationData",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/apply_autoplacement",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Accept the cached autoplacement and auto-orientation values of a map or subset of APs on a map. Any APs that have autoplacement values are stored in cache for up to 7 days while awaiting acceptance.\n\n\nAccepting the autoplacement values overwrites the existing X, Y, and orientation of the accepted APs with their cached autoplacement values.\n\nOnce a decision to accept is made, or the 7-day time-to-live (TTL) expires, the cached values are deleted."
+        },
+        {
+          "info": {
+            "name": "getSiteApAutoOrientation",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_orient",
+            "params": [
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This API is called to view the current status of auto orient for a given map."
+        },
+        {
+          "info": {
+            "name": "startSiteApAutoOrientation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_orient",
+            "params": [
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This API is called to trigger a map for auto orient. For auto orient feature to work, BLE data needs to be collected from the APs on the map. This precess is not disruptive unlike FTM collection. Repeated POST requests to this endpoint while a map is still running will be rejected.\n\n\n`force_collection` is set to `false` by default. If `force_collection`==`false`, the API attempts to start orientation with existing data. If no data exists, the API attempts to start collecting orientation data. If"
+        },
+        {
+          "info": {
+            "name": "deleteSiteApAutoOrientation",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_orient",
+            "params": [
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This API is called to force stop auto placement for a given map"
+        },
+        {
+          "info": {
+            "name": "getSiteApAutoplacement",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_placement",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This API is called to view the current status of auto placement for a given map.\n\n\n#### Status Descriptions\n\n| Status | Description |\n| --- | --- |\n| `pending` | Autoplacement has not been requested for this map |\n| `inprogress` | Autoplacement is currently processing |\n| `done` | The autoplacement process has completed |\n| `data_needed` | Additional position data is required for autoplacement. Users should verify the requested anchor APs have a position on the map |\n| `invalid_model` | Autoplac"
+        },
+        {
+          "info": {
+            "name": "runSiteApAutoplacement",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_placement",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This API is called to trigger auto placement for a map. For the auto placement feature to work, RTT-FTM data needs to be collected from the APs on the map.  \nThis scan is disruptive, and users must be notified of service disruption during the auto placement process. Repeated POST requests to this endpoint while a map is still running will be rejected.\n\n\n`force_collection` is set to `false` by default. If `force_collection` is set to `false`, the API attempts to start localization with existing d"
+        },
+        {
+          "info": {
+            "name": "deleteSiteApAutoplacement",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/auto_placement",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "This API is called to force stop auto placement for a given map"
+        },
+        {
+          "info": {
+            "name": "clearSiteApAutoOrient",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/clear_auto_orient",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "This API is used to destroy the autoorientations of a map or subset of APs on a map."
+        },
+        {
+          "info": {
+            "name": "clearSiteApAutoplacement",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/clear_autoplacement",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Reject the cached autoplacement and auto-orientation values of a map or subset of APs on a map. Any APs that have autoplacement values are stored in cache for up to 7 days while awaiting rejection.\n\n\nRejecting the autoplacement values causes the APs to retain their current X, Y, and orientation.\n\nOnce a decision to reject is made, or the 7-day time-to-live (TTL) expires, the cached values are deleted."
+        },
+        {
+          "info": {
+            "name": "confirmSiteApLocalizationData",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/maps/:map_id/use_auto_ap_values",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "**Deprecated** — use [Accept Site AP Autoplacement](/#operations/acceptSiteApLocalizationData) to accept cached values, or [Clear Site AP Autoplacement](/#operations/clearSiteApAutoplacement) to reject them."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

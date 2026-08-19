@@ -1,0 +1,406 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Orgs Inventory API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Orgs Inventory",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "getOrgInventory",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "serial",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by device serial number. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by device model. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "type",
+                "value": "switch,ap",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "mac",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by MAC address. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by one site identifier. Use a single value; comma-separated values are not supported"
+              },
+              {
+                "name": "vc_mac",
+                "value": "",
+                "type": "query",
+                "description": "Virtual Chassis MAC address. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "vc",
+                "value": "",
+                "type": "query",
+                "description": "To display Virtual Chassis members"
+              },
+              {
+                "name": "unassigned",
+                "value": "",
+                "type": "query",
+                "description": "To display Unassigned devices"
+              },
+              {
+                "name": "modified_after",
+                "value": "",
+                "type": "query",
+                "description": "Filter on inventory last modified time, in epoch"
+              },
+              {
+                "name": "disconnected_before",
+                "value": "",
+                "type": "query",
+                "description": "Filter results to devices that were last disconnected before this time, in epoch seconds"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Select the page number to return when using page-based pagination; starts at `1`"
+              }
+            ]
+          },
+          "docs": "Get Org Inventory\n\n### VC (Virtual-Chassis) Management \n\nStarting with the April release, Virtual Chassis devices in Mist will now use\na cloud-assigned virtual MAC address as the device ID, instead of the physical\nMAC address of the FPC0 member.\n\n\n**Retrieving the device ID or Site ID of a Virtual Chassis:**\n\n1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.\n\n2. In the response, check the `vc_mac` and `mac` fields:\n\n    - If `vc_mac` is e"
+        },
+        {
+          "info": {
+            "name": "addOrgInventory",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Claim devices into the organization inventory using order activation codes or device claim codes."
+        },
+        {
+          "info": {
+            "name": "updateOrgInventoryAssignment",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update inventory assignment for one or more devices, such as assigning them to a site, unassigning them, or deleting inventory records by MAC address or serial number."
+        },
+        {
+          "info": {
+            "name": "countOrgInventory",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/count",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "distinct",
+                "value": "",
+                "type": "query",
+                "description": "Field used to group this count response. enum: `model`, `status`, `site_id`, `sku`, `version`"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by site identifier"
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by device model. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by software version"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by status. enum: `connected`, `disconnected`"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              }
+            ]
+          },
+          "docs": "Count organization inventory records, optionally grouped by `distinct` and filtered by device type, site, model, version, and status."
+        },
+        {
+          "info": {
+            "name": "createOrgGatewayHaCluster",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/create_ha_cluster",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a gateway HA cluster from unassigned gateway inventory nodes and assign the cluster to the specified site."
+        },
+        {
+          "info": {
+            "name": "deleteOrgGatewayHaCluster",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/delete_ha_cluster",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Delete HA Cluster\n\nAfter HA cluster deleted, both of the nodes will be unassigned."
+        },
+        {
+          "info": {
+            "name": "reevaluateOrgAutoAssignment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/reevaluate_auto_assignment",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Re-run organization inventory auto-assignment rules against devices that are eligible for automatic site assignment."
+        },
+        {
+          "info": {
+            "name": "replaceOrgDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/replace",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "It’s a common request we get from the customers. When a AP HW has problem and need a replacement, they would want to copy the existing attributes (Device Config) of this old AP to the new one. It can be done by providing the MAC of a device that’s currently in the inventory but not assigned. The Device replaced will become unassigned.\n\nThis API also supports replacement of Mist Edges. This API copies device agnostic attributes from old Mist edge to new one.\nMist manufactured Mist Edges will be r"
+        },
+        {
+          "info": {
+            "name": "searchOrgInventory",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/inventory/search",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`"
+              },
+              {
+                "name": "mac",
+                "value": "",
+                "type": "query",
+                "description": "Filter by MAC address. Partial matches may use `*` wildcards (e.g. `*5b35*` matches `5c5b350e0001` and `5c5b35000301`). Accepts multiple comma-separated values."
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Partial / full Device model. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `AP4*` and `*P4*` match `AP43`). Suffix-only wildcards (e.g. `*43`) are not supported. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "name",
+                "value": "",
+                "type": "query",
+                "description": "Device name. Always a partial match (e.g. `london` will match `london-1`, `london-2`, `my-london-device`...). Accepts multiple comma-separated values."
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter inventory results by site identifier. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "serial",
+                "value": "",
+                "type": "query",
+                "description": "Device serial number. Partial match allowed with wildcard * (e.g. `*123*` will match `AB123CD`, `12345`, `XY123`). Accepts multiple comma-separated values."
+              },
+              {
+                "name": "master",
+                "value": "",
+                "type": "query",
+                "description": "Filter inventory results by whether the device is the Virtual Chassis master"
+              },
+              {
+                "name": "sku",
+                "value": "",
+                "type": "query",
+                "description": "Device SKU. Partial match allowed with wildcard * (e.g. `*2300*` will match `EX2300-F-12P`). Accepts multiple comma-separated values."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "Device version. Partial match allowed with wildcard * (e.g. `2R3` will match `21.2R3-S3.5`). Accepts multiple comma-separated values."
+              },
+              {
+                "name": "status",
+                "value": "connected,disconnected",
+                "type": "query",
+                "description": "Device status. enum: `connected`, `disconnected`. Accepts multiple comma-separated values."
+              },
+              {
+                "name": "text",
+                "value": "",
+                "type": "query",
+                "description": "Wildcards for name, mac, serial"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "On which field the list should be sorted, -prefix represents DESC order"
+              },
+              {
+                "name": "search_after",
+                "value": "",
+                "type": "query",
+                "description": "Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."
+              }
+            ]
+          },
+          "docs": "Search organization inventory records with filters for type, MAC address, model, name, site, serial number, Virtual Chassis master state, SKU, version, status, and text."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

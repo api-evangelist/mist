@@ -1,0 +1,118 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Self Account API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Self Account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "getSelf",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/self"
+          },
+          "docs": "Get ‘whoami’ and privileges (which org and which sites I have access to)"
+        },
+        {
+          "info": {
+            "name": "updateSelf",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/self",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Account Information"
+        },
+        {
+          "info": {
+            "name": "deleteSelf",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/self"
+          },
+          "docs": "To delete ones account and every associated with it. The effects:\n\nthe account would be deleted\nany orphaned Org (that only has this account as admin) will be deleted\nalong with all data with Org (sites, wlans, devices) will be gone."
+        },
+        {
+          "info": {
+            "name": "getSelfLoginFailures",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/self/login_failures"
+          },
+          "docs": "Get a list of failed login attempts across all Orgs for the current admin"
+        },
+        {
+          "info": {
+            "name": "updateSelfEmail",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/self/update",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Change Email\nWe require the user to verify that they actually own the email address they intend to change it to.\n\nAfter the API call, the user will receive an email to the new email address with a link like https://manage.mist.com/verify/update?expire=:exp_time&email=:admin_email&token=:token\n\nUpon clicking the link, the user is provided with a login page to authenticate using existing credentials. After successful login, the email address of the user gets updated\n\n**Note**: The request paramete"
+        },
+        {
+          "info": {
+            "name": "verifySelfEmail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/self/update/verify/:token",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Verify Email change"
+        },
+        {
+          "info": {
+            "name": "getSelfApiUsage",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/self/usage"
+          },
+          "docs": "Get the status of the API usage for the current user or API Token"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

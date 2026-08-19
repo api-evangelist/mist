@@ -1,0 +1,271 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Utilities PCAPs API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Utilities PCAPs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "listOrgPacketCaptures",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/pcaps",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "start",
+                "value": "",
+                "type": "query",
+                "description": "Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`"
+              },
+              {
+                "name": "end",
+                "value": "",
+                "type": "query",
+                "description": "Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`"
+              },
+              {
+                "name": "duration",
+                "value": "",
+                "type": "query",
+                "description": "Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Select the page number to return when using page-based pagination; starts at `1`"
+              }
+            ]
+          },
+          "docs": "List organization packet capture sessions and generated capture files for the selected time range."
+        },
+        {
+          "info": {
+            "name": "getOrgCapturingStatus",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/pcaps/capture",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve the current organization packet capture status, including active capture targets and progress."
+        },
+        {
+          "info": {
+            "name": "startOrgPacketCapture",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/pcaps/capture",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Start an organization-level packet capture for org-level Mist Edges\n\n**NOTE**: For packet captures of org level Mist Edges only. Use [Start Site Packet Capture](/#operations/startSitePacketCapture) for site level Mist Edges. \n\nThe output will be available through websocket. As there can be multiple commands issued against the same AP at the same time and the output all goes through the same websocket stream, session is introduced for demux.\n\n#### Subscribe to Device Command outputs\n`WS /api-ws/v"
+        },
+        {
+          "info": {
+            "name": "stopOrgPacketCapture",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/pcaps/capture",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Stop the currently running organization packet capture and end its websocket output stream."
+        },
+        {
+          "info": {
+            "name": "listSitePacketCaptures",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/pcaps",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "client_mac",
+                "value": "",
+                "type": "query",
+                "description": "Optional client mac filter"
+              },
+              {
+                "name": "start",
+                "value": "",
+                "type": "query",
+                "description": "Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`"
+              },
+              {
+                "name": "end",
+                "value": "",
+                "type": "query",
+                "description": "Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`"
+              },
+              {
+                "name": "duration",
+                "value": "",
+                "type": "query",
+                "description": "Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Select the page number to return when using page-based pagination; starts at `1`"
+              }
+            ]
+          },
+          "docs": "List packet captures for a site, optionally filtered by client MAC address and time range. Use [List Org Packet Captures](/#operations/listOrgPacketCaptures) to retrieve packet captures across the organization."
+        },
+        {
+          "info": {
+            "name": "getSiteCapturingStatus",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/pcaps/capture",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Capturing status"
+        },
+        {
+          "info": {
+            "name": "startSitePacketCapture",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/pcaps/capture",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiate a Site Packet Capture\n\nThe output will be available through websocket. As there can be multiple commands issued against the same AP at the same time and the output all goes through the same websocket stream, session is introduced for demux.\n\n#### Subscribe to Device Command outputs\n`WS /api-ws/v1/stream`\n\n```json\n{\n    \"subscribe\": \"/sites/{site_id}/pcaps\"\n}\n```\n#### Response (MxEdge)\n```json\n{\n    \"event\": \"data\"\n    \"channel\": \"/sites/{site_id}/pcaps\"\n    \"data\": {\n         \"capture_i"
+        },
+        {
+          "info": {
+            "name": "stopSitePacketCapture",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/pcaps/capture",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Stop current capture"
+        },
+        {
+          "info": {
+            "name": "updateSitePacketCapture",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/pcaps/:pcap_id",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "pcap_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update or add notes to a completed packet capture"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

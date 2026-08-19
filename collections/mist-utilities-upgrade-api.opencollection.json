@@ -1,0 +1,710 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Utilities Upgrade API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Utilities Upgrade",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "listOrgDeviceUpgrades",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/devices/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List organization-level device upgrade jobs, including the site-level upgrade jobs created under each organization upgrade."
+        },
+        {
+          "info": {
+            "name": "upgradeOrgDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/devices/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Start an organization-level device upgrade job across selected sites. The request selects device type, sites, models, firmware versions, and upgrade strategy; AP-specific and Junos-specific options apply only where supported."
+        },
+        {
+          "info": {
+            "name": "getOrgDeviceUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/devices/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve details for an organization-level device upgrade job, including per-site upgrade status and device targets."
+        },
+        {
+          "info": {
+            "name": "cancelOrgDeviceUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/devices/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel an organization-level device upgrade job on a best-effort basis. Devices that have already completed the upgrade are not changed."
+        },
+        {
+          "info": {
+            "name": "listOrgAvailableDeviceVersions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/devices/versions",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`"
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices). Accepts multiple comma-separated values."
+              }
+            ]
+          },
+          "docs": "List available firmware versions for organization devices, optionally filtered by device type and model."
+        },
+        {
+          "info": {
+            "name": "upgradeOrgJsiDevice",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/jsi/devices/:device_mac/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Start a software upgrade for a JSI-connected device identified by MAC address using the requested target version."
+        },
+        {
+          "info": {
+            "name": "listOrgMxEdgeUpgrades",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/mxedges/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List Mist Edge upgrade requests for the organization, including status, rollout strategy, target versions, and per-status target counts."
+        },
+        {
+          "info": {
+            "name": "upgradeOrgMxEdges",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/mxedges/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Schedule a Mist Edge upgrade for selected Mist Edges, using service target versions or an optional Linux distro upgrade with rollout strategy and canary settings."
+        },
+        {
+          "info": {
+            "name": "getOrgMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/mxedges/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve status, rollout strategy, target versions, and target counts for a specific Mist Edge upgrade request."
+        },
+        {
+          "info": {
+            "name": "updateOrgMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/mxedges/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a queued Mist Edge upgrade request, such as target versions, rollout strategy, start time, or target Mist Edge IDs. Only upgrades in `queued` state can be updated."
+        },
+        {
+          "info": {
+            "name": "cancelOrgMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/mxedges/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel a Mist Edge upgrade request on a best-effort basis. Mist Edges that have already been upgraded are not changed."
+        },
+        {
+          "info": {
+            "name": "listOrgSsrUpgrades",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/ssr/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List SSR firmware upgrade jobs for the organization, including status, rollout strategy, target versions, release channel, and device counts."
+        },
+        {
+          "info": {
+            "name": "upgradeOrgSsrs",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/ssr/upgrade",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an SSR firmware upgrade job for selected devices, with firmware version or channel, rollout strategy, and optional download or reboot timing."
+        },
+        {
+          "info": {
+            "name": "getOrgSsrUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/ssr/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return detailed status for an SSR firmware upgrade job, including target device IDs grouped by upgrade status."
+        },
+        {
+          "info": {
+            "name": "cancelOrgSsrUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/ssr/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel an SSR firmware upgrade job on a best-effort basis. Devices that have already upgraded are not changed."
+        },
+        {
+          "info": {
+            "name": "listOrgAvailableSsrVersions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/orgs/:org_id/ssr/versions",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "channel",
+                "value": "",
+                "type": "query",
+                "description": "SSR release channel used to filter available versions. enum: `alpha`, `beta`, `stable`"
+              },
+              {
+                "name": "mac",
+                "value": "",
+                "type": "query",
+                "description": "Optional. MAC address, or comma separated MAC address list."
+              }
+            ]
+          },
+          "docs": "List SSR firmware versions available for upgrade, optionally filtered by release channel and one or more SSR MAC addresses."
+        },
+        {
+          "info": {
+            "name": "listSiteDeviceUpgrades",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by status. enum: `cancelled`, `completed`, `created`, `downloaded`, `downloading`, `failed`, `queued`, `upgrading`"
+              }
+            ]
+          },
+          "docs": "List device upgrade operations for a site, optionally filtered by upgrade status. Use [List Org Device Upgrades](/#operations/listOrgDeviceUpgrades) to retrieve device upgrade operations across the organization."
+        },
+        {
+          "info": {
+            "name": "upgradeSiteDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Upgrade Site Device\n\n**Note**: this call doesn’t guarantee the devices to be upgraded right away (they may be offline)"
+        },
+        {
+          "info": {
+            "name": "getSiteDeviceUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Site Device Upgrade"
+        },
+        {
+          "info": {
+            "name": "cancelSiteDeviceUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Best effort to cancel an upgrade. Devices which are already upgraded wont be touched"
+        },
+        {
+          "info": {
+            "name": "listSiteAvailableDeviceVersions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/versions",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`"
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)"
+              }
+            ]
+          },
+          "docs": "List firmware versions available for devices in a site, optionally filtered by device type and model. Use [List Org Available Device Versions](/#operations/listOrgAvailableDeviceVersions) to retrieve available device versions across the organization."
+        },
+        {
+          "info": {
+            "name": "upgradeDevice",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/devices/:device_id/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Device Upgrade"
+        },
+        {
+          "info": {
+            "name": "listSiteMxEdgeUpgrades",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/mxedges/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List Mist Edge upgrade operations for a site. Use [List Org Mist Edge Upgrades](/#operations/listOrgMxEdgeUpgrades) to retrieve Mist Edge upgrade operations across the organization."
+        },
+        {
+          "info": {
+            "name": "upgradeSiteMxEdges",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/mxedges/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Upgrade Mist Edges in a Site.\n\nSee [Org Mist Edges](/#tag/Utilities-Upgrade/operation/upgradeOrgMxEdges) for package upgrades\n\nSee [Org Mist Edges Distro](/#tag/Utilities-Upgrade/operation/upgradeOrgMxEdges) for distro upgrades"
+        },
+        {
+          "info": {
+            "name": "getSiteMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/mxedges/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Mist Edge Upgrade"
+        },
+        {
+          "info": {
+            "name": "updateSiteMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/mxedges/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Mist Edge Upgrade. Only upgrades in `queued` state can be updated."
+        },
+        {
+          "info": {
+            "name": "cancelSiteMxEdgeUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/mxedges/upgrade/:upgrade_id/cancel",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel Mist Edge Upgrade. Best effort to cancel an upgrade. MxEdges which are already upgraded won't be touched."
+        },
+        {
+          "info": {
+            "name": "getSiteSsrUpgrade",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/ssr/upgrade/:upgrade_id",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "upgrade_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Specific Site SSR Upgrade"
+        },
+        {
+          "info": {
+            "name": "upgradeSsr",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/ssr/:device_id/upgrade",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Upgrade Site SSR device"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

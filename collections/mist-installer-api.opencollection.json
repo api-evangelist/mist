@@ -1,0 +1,615 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Installer API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Installer",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "listInstallerAlarmTemplates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/alarmtemplates",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return alarm templates available to installer workflows in the organization."
+        },
+        {
+          "info": {
+            "name": "listInstallerDeviceProfiles",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/deviceprofiles",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by type. enum: `ap`, `gateway`, `switch`"
+              }
+            ]
+          },
+          "docs": "Return device profiles that installers can use when provisioning recently claimed devices, optionally filtered by device type."
+        },
+        {
+          "info": {
+            "name": "listInstallerListOfRecentlyClaimedDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "model",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by device model"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by site name"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter results by site identifier"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Select the page number to return when using page-based pagination; starts at `1`"
+              }
+            ]
+          },
+          "docs": "Return recently claimed devices visible to installer workflows, with optional filters for model, site name, or site identifier."
+        },
+        {
+          "info": {
+            "name": "claimInstallerDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Claim devices into the organization inventory by activation code through the installer workflow."
+        },
+        {
+          "info": {
+            "name": "provisionInstallerDevices",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Provision or replace an installer-managed device. \n\nIf replacing_mac is in the request payload, other attributes are ignored, we attempt to replace existing device (with MAC address `replacing_mac`) with the inventory device being configured. The replacement device must be in the inventory but not assigned, and the replacing_mac device must be assigned to a site, and satisfy grace period requirements. The Device replaced will become unassigned."
+        },
+        {
+          "info": {
+            "name": "unassignInstallerRecentlyClaimedDevice",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Unassign a recently claimed device from its current site so it can be provisioned again through the installer workflow."
+        },
+        {
+          "info": {
+            "name": "startInstallerLocateDevice",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac/locate",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Start locating an installer-managed device by blinking its LED. The locate state persists until [Stop Locating Installer Device](/#operations/stopInstallerLocateDevice) is called."
+        },
+        {
+          "info": {
+            "name": "stopInstallerLocateDevice",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac/unlocate",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Stop the locate LED state for an installer-managed device."
+        },
+        {
+          "info": {
+            "name": "addInstallerDeviceImage",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac/:image_name",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "image_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            }
+          },
+          "docs": "Upload an image associated with an installer-managed device using `multipart/form-data`."
+        },
+        {
+          "info": {
+            "name": "deleteInstallerDeviceImage",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:device_mac/:image_name",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "image_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "device_mac",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Remove a previously uploaded image associated with an installer-managed device, such as an installation photo or device placement image."
+        },
+        {
+          "info": {
+            "name": "getInstallerDeviceVirtualChassis",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:fpc0_mac/vc",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "fpc0_mac",
+                "value": "",
+                "type": "path",
+                "description": "FPC0 MAC address"
+              }
+            ]
+          },
+          "docs": "Return Virtual Chassis status for an installer-managed switch, including topology and member statistics.\n\nThe response is a combined view of the Virtual Chassis state."
+        },
+        {
+          "info": {
+            "name": "createInstallerVirtualChassis",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:fpc0_mac/vc",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "fpc0_mac",
+                "value": "",
+                "type": "path",
+                "description": "FPC0 MAC address"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "For models (e.g. EX3400 and up) having dedicated VC ports, it is easier to form a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new VC and update the inventory.\n\nIn case that the user would like to choose the dedicated switch as a VC master or for EX2300-C-12P and EX2300-C-12T which doesn't have dedicated VC ports, below are procedures to automate the VC creation:\n\n1. Power on the switch that is chosen as the VC master first. And then powering on the other membe"
+        },
+        {
+          "info": {
+            "name": "updateInstallerVirtualChassisMember",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/devices/:fpc0_mac/vc",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "fpc0_mac",
+                "value": "",
+                "type": "path",
+                "description": "FPC0 MAC address"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "The VC creation and adding member switch API will update the device’ s virtual chassis config which is applied after VC is formed to create JUNOS pre-provisioned virtual chassis configuration.\n\n## Change to use preprovisioned VC\nTo switch the VC to use preprovisioned VC, enable preprovisioned in virtual_chassis config. Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config.\n\nIn this config, fpc0 has to be the same as the mac of device_id. Use renu"
+        },
+        {
+          "info": {
+            "name": "listInstallerRfTemplatesNames",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/rftemplates",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return RF template names available to installer workflows for site creation or updates."
+        },
+        {
+          "info": {
+            "name": "listInstallerSiteGroups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sitegroups",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return site groups that installers can assign when creating or updating sites."
+        },
+        {
+          "info": {
+            "name": "listInstallerSites",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return sites visible to installer workflows for device assignment and map operations."
+        },
+        {
+          "info": {
+            "name": "createOrUpdateInstallerSites",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Use `site_name` to create a site when it does not exist, or to update installer-editable fields on an existing site. Installers use these sites for device assignment, and grace-period rules also apply when updating an existing site."
+        },
+        {
+          "info": {
+            "name": "listInstallerMaps",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name/maps",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return maps for an installer-managed site, used for floorplan selection and AP placement during provisioning."
+        },
+        {
+          "info": {
+            "name": "importInstallerMap",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name/maps/import",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            }
+          },
+          "docs": "Import a site floorplan and optional placement data from multipart files. The request can include an image file, optional JSON, and optional CSV data to create the map and assign or place APs when names or MAC addresses match."
+        },
+        {
+          "info": {
+            "name": "createInstallerMap",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Define a map or floorplan for an installer-managed site, including metadata used for AP placement and site visualization."
+        },
+        {
+          "info": {
+            "name": "updateInstallerMap",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify map or floorplan metadata for an installer-managed site, including dimensions, orientation, and placement-related settings."
+        },
+        {
+          "info": {
+            "name": "deleteInstallerMap",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.mist.com/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id",
+            "params": [
+              {
+                "name": "org_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "map_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Remove a map or floorplan from an installer-managed site. This removes the map used for AP placement, but does not delete the site."
+        },
+        {
+          "info": {
+            "name": "optimizeInstallerRrm",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/installer/sites/:site_name/optimize",
+            "params": [
+              {
+                "name": "site_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Trigger RF optimization after installation is complete, such as after APs have been placed on maps and powered on. This starts RRM before the next automatic optimization schedule."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

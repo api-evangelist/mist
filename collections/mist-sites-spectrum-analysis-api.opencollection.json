@@ -1,0 +1,108 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Mist Admins Sites Spectrum Analysis API",
+    "version": "2606.1.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Sites Spectrum Analysis",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "getSiteRunningSpectrumAnalysis",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/analyze_spectrum",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the running spectrum analysis for a site"
+        },
+        {
+          "info": {
+            "name": "initiateSiteAnalyzeSpectrum",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/analyze_spectrum",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiate a spectrum analysis for a site\n\n\nThe output will be available through websocket. As there can be multiple command\nissued against the same device at the same time and the output all goes through\nthe same websocket stream, session is introduced for demux.\n\n\n\n#### Subscribe to Device Command outputs\n\n`WS /api-ws/v1/stream`\n\n\n```json { \"subscribe\": \"/sites/{site_id}/analyze_spectrum\" } ```\n\n#### Example output from ws stream\n\n```json\n{\n  \"event\": \"data\",\n  \"channel\": \"/sites/4ac1dcf4-9d8b-7"
+        },
+        {
+          "info": {
+            "name": "listSiteSpectrumAnalysis",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.mist.com/api/v1/sites/:site_id/stats/analyze_spectrum",
+            "params": [
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of results to return per page"
+              },
+              {
+                "name": "start",
+                "value": "",
+                "type": "query",
+                "description": "Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`"
+              },
+              {
+                "name": "end",
+                "value": "",
+                "type": "query",
+                "description": "Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`"
+              },
+              {
+                "name": "duration",
+                "value": "",
+                "type": "query",
+                "description": "Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`"
+              }
+            ]
+          },
+          "docs": "List the past spectrum analysis for a site"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
