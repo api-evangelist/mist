@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Maps - Auto-Zone API
+  title: Mist Sites Maps - Auto-Zone API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -147,118 +147,50 @@ paths:
       tags:
       - Sites Maps - Auto-Zone
 components:
-  responses:
-    AutoZoneStatus:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoZoneStatusExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_zone'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoZoneStatusExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_zone'
-      description: Status of Auto-Zone request
-    OK:
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   schemas:
-    response_auto_zone_zone_vertices:
-      description: List of points comprising the suggested zone polygon in map pixels
-      items:
-        $ref: '#/components/schemas/response_auto_zone_zone_vertex'
-      type: array
-    response_http429:
+    response_auto_zone:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Auto zones status and suggested zone response
+      properties:
+        status:
+          $ref: '#/components/schemas/response_auto_zone_status'
+          description: Current auto zones service state for the map
+        zones:
+          $ref: '#/components/schemas/response_auto_zone_zones'
+          description: Suggested zones awaiting review for the map
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
+          description: Human-readable explanation of the permission error
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - You do not have permission to perform this action.
           type: string
       type: object
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
+      type: object
+    response_auto_zone_zone:
+      additionalProperties: false
+      description: Suggested zone returned by the auto zones service
+      properties:
+        name:
+          description: Human-readable name of the suggested zone
+          examples:
+          - zone1
+          type: string
+        vertices:
+          $ref: '#/components/schemas/response_auto_zone_zone_vertices'
+          description: Polygon vertices defining the suggested zone on the map image
       type: object
     response_auto_zone_zone_vertex:
       additionalProperties: false
@@ -275,63 +207,6 @@ components:
           - 42
           type: integer
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_auto_zone_zone:
-      additionalProperties: false
-      description: Suggested zone returned by the auto zones service
-      properties:
-        name:
-          description: Human-readable name of the suggested zone
-          examples:
-          - zone1
-          type: string
-        vertices:
-          $ref: '#/components/schemas/response_auto_zone_zone_vertices'
-          description: Polygon vertices defining the suggested zone on the map image
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_auto_zone_status:
-      description: 'Status of auto-zone generation for a map. enum: `in_progress`, `awaiting_review`, `not_started`, `error`. `not_started` means the service has not run or results were cleared, `in_progress` means generation is active, `awaiting_review` means suggested zones are ready for review, and `error` means generation failed'
-      enum:
-      - in_progress
-      - awaiting_review
-      - not_started
-      - error
-      type: string
-    response_auto_zone:
-      additionalProperties: false
-      description: Auto zones status and suggested zone response
-      properties:
-        status:
-          $ref: '#/components/schemas/response_auto_zone_status'
-          description: Current auto zones service state for the map
-        zones:
-          $ref: '#/components/schemas/response_auto_zone_zones'
-          description: Suggested zones awaiting review for the map
-      type: object
-    response_auto_zone_zones:
-      description: Suggested zones returned by the auto zones service
-      items:
-        $ref: '#/components/schemas/response_auto_zone_zone'
-      type: array
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -340,10 +215,154 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_auto_zone_zones:
+      description: Suggested zones returned by the auto zones service
+      items:
+        $ref: '#/components/schemas/response_auto_zone_zone'
+      type: array
+    response_auto_zone_status:
+      description: 'Status of auto-zone generation for a map. enum: `in_progress`, `awaiting_review`, `not_started`, `error`. `not_started` means the service has not run or results were cleared, `in_progress` means generation is active, `awaiting_review` means suggested zones are ready for review, and `error` means generation failed'
+      enum:
+      - in_progress
+      - awaiting_review
+      - not_started
+      - error
+      type: string
+    response_auto_zone_zone_vertices:
+      description: List of points comprising the suggested zone polygon in map pixels
+      items:
+        $ref: '#/components/schemas/response_auto_zone_zone_vertex'
+      type: array
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    OK:
+      description: OK
+    AutoZoneStatus:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoZoneStatusExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_zone'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoZoneStatusExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_zone'
+      description: Status of Auto-Zone request
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
-    HTTP403Example:
+    HTTP400Example:
       value:
-        detail: You do not have permission to perform this action.
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     AutoZoneStatusExample:
       value:
         status: awaiting_review
@@ -368,34 +387,15 @@ components:
             y: 20
           - x: 20
             y: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    map_id:
-      in: path
-      name: map_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

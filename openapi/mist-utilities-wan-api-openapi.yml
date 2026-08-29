@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Utilities WAN API
+  title: Mist Utilities WAN API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -511,6 +511,163 @@ paths:
       - Utilities WAN
 components:
   schemas:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    utils_clear_session_session_ids:
+      description: Session identifiers to clear
+      examples:
+      - - 88776655-0123-4567-890a-112233445566
+      items:
+        format: uuid
+        type: string
+      type: array
+    utils_release_dhcp:
+      description: Request to release the DHCP lease on a device interface
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to release the DHCP lease
+        port_id:
+          description: Network interface whose current DHCP lease should be released
+          examples:
+          - ge-0/0/1.10
+          minLength: 1
+          type: string
+      required:
+      - port_id
+      type: object
+    utils_clear_session:
+      description: To use five tuples to lookup the session to be cleared, all must be provided
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to clear sessions
+        service_name:
+          description: Service name, only supported in SSR
+          examples:
+          - internet-wan_and_lte
+          type: string
+        session_ids:
+          $ref: '#/components/schemas/utils_clear_session_session_ids'
+          description: Session identifiers to clear
+      type: object
+    utils_clear_bgp_type:
+      default: hard
+      description: 'enum: `hard`, `in`, `out`, `soft`'
+      enum:
+      - hard
+      - in
+      - out
+      - soft
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    utils_show_ospf_summary:
+      description: OSPF summary command request for SSR and SRX devices
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to show the OSPF summary
+        vrf:
+          description: Routing instance or VRF filter for OSPF summary output
+          examples:
+          - lan
+          type: string
+      type: object
+    utils_show_session:
+      description: Active session lookup request for device command output
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to show active sessions
+        service_name:
+          description: The exact service name for which to display the active sessions
+          examples:
+          - any
+          type: string
+        session_id:
+          description: Identifier of the session to show in detail
+          type: string
+      type: object
+    utils_show_ospf_database:
+      description: OSPF database command request for SSR and SRX devices
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to show the OSPF database
+        self_originate:
+          default: false
+          description: Whether to show only self-originated OSPF database entries
+          type: boolean
+        vrf:
+          description: Routing instance or VRF filter for OSPF database output
+          examples:
+          - lan
+          type: string
+      type: object
+    utils_clear_arp:
+      description: Request to clear ARP entries on a device
+      properties:
+        ip:
+          description: The IP address for which to clear an ARP entry. port_id must be specified.
+          examples:
+          - 10.1.1.1
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to clear ARP entries
+        port_id:
+          description: The device interface on which to clear the ARP cache.
+          examples:
+          - wan
+          type: string
+        vlan:
+          description: The VLAN on which to clear the ARP cache. port_id must be specified.
+          examples:
+          - 1000
+          type: integer
+        vrf:
+          description: The vrf for which to clear an ARP entry. applicable for switch.
+          examples:
+          - guest
+          type: string
+      type: object
+    utils_clear_bgp:
+      description: Request to clear BGP sessions on a device
+      properties:
+        neighbor:
+          default: all
+          description: can be ip, ipv6, all
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to clear BGP sessions
+        type:
+          $ref: '#/components/schemas/utils_clear_bgp_type'
+          description: BGP clear operation type to run
+        vrf:
+          description: Routing instance or VRF containing the BGP session
+          type: string
+      required:
+      - neighbor
+      - type
+      type: object
     websocket_session_with_url:
       additionalProperties: false
       description: Response containing a WebSocket session handle and connection URL
@@ -529,6 +686,20 @@ components:
       - session
       - url
       type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    ha_cluster_node_enum:
+      description: 'HA cluster node selector. enum: `node0`, `node1`'
+      enum:
+      - node0
+      - node1
+      type: string
     utils_show_route:
       description: Route table lookup request for device command output
       properties:
@@ -571,57 +742,6 @@ components:
           - default
           type: string
       type: object
-    websocket_session:
-      additionalProperties: false
-      description: Response containing the WebSocket session handle for asynchronous command output
-      properties:
-        session:
-          description: Identifier used to correlate output on the WebSocket stream
-          examples:
-          - 19e73828-937f-05e6-f709-e29efdb0a82b
-          type: string
-      required:
-      - session
-      type: object
-    utils_clear_bgp:
-      description: Request to clear BGP sessions on a device
-      properties:
-        neighbor:
-          default: all
-          description: can be ip, ipv6, all
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to clear BGP sessions
-        type:
-          $ref: '#/components/schemas/utils_clear_bgp_type'
-          description: BGP clear operation type to run
-        vrf:
-          description: Routing instance or VRF containing the BGP session
-          type: string
-      required:
-      - neighbor
-      - type
-      type: object
-    utils_clear_bgp_type:
-      default: hard
-      description: 'enum: `hard`, `in`, `out`, `soft`'
-      enum:
-      - hard
-      - in
-      - out
-      - soft
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -632,88 +752,15 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    utils_release_dhcp:
-      description: Request to release the DHCP lease on a device interface
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to release the DHCP lease
-        port_id:
-          description: Network interface whose current DHCP lease should be released
-          examples:
-          - ge-0/0/1.10
-          minLength: 1
-          type: string
-      required:
-      - port_id
-      type: object
-    response_http403:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - You do not have permission to perform this action.
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-      type: object
-    ha_cluster_node_enum:
-      description: 'HA cluster node selector. enum: `node0`, `node1`'
-      enum:
-      - node0
-      - node1
-      type: string
-    utils_show_route_protocol:
-      default: bgp
-      description: 'enum: `any`, `bgp`, `direct`, `evpn`, `ospf`, `static`'
-      enum:
-      - any
-      - bgp
-      - direct
-      - evpn
-      - ospf
-      - static
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    utils_show_ospf_database:
-      description: OSPF database command request for SSR and SRX devices
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to show the OSPF database
-        self_originate:
-          default: false
-          description: Whether to show only self-originated OSPF database entries
-          type: boolean
-        vrf:
-          description: Routing instance or VRF filter for OSPF database output
-          examples:
-          - lan
-          type: string
-      type: object
-    utils_clear_session:
-      description: To use five tuples to lookup the session to be cleared, all must be provided
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to clear sessions
-        service_name:
-          description: Service name, only supported in SSR
-          examples:
-          - internet-wan_and_lte
-          type: string
-        session_ids:
-          $ref: '#/components/schemas/utils_clear_session_session_ids'
-          description: Session identifiers to clear
       type: object
     utils_show_ospf_interfaces:
       description: OSPF interfaces command request for SSR and SRX devices
@@ -732,48 +779,47 @@ components:
           - lan
           type: string
       type: object
-    utils_show_session:
-      description: Active session lookup request for device command output
+    utils_service_ping:
+      description: Service ping request for SSR devices
       properties:
+        count:
+          default: 10
+          description: Number of ICMP echo requests to send for the service ping
+          type: integer
+        host:
+          description: Destination IPv4 address for the service ping
+          format: ipv4
+          type: string
         node:
           $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to show active sessions
-        service_name:
-          description: The exact service name for which to display the active sessions
-          examples:
-          - any
+          description: HA cluster node from which to send the service ping
+        service:
+          description: Ping packet takes the same path as the service
           type: string
-        session_id:
-          description: Identifier of the session to show in detail
+        size:
+          default: 56
+          description: ICMP payload size, in bytes
+          maximum: 65535
+          minimum: 56
+          type: integer
+        tenant:
+          description: Routing tenant context in which the packet is sent
           type: string
+      required:
+      - host
+      - service
       type: object
-    utils_show_ospf_summary:
-      description: OSPF summary command request for SSR and SRX devices
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to show the OSPF summary
-        vrf:
-          description: Routing instance or VRF filter for OSPF summary output
-          examples:
-          - lan
-          type: string
-      type: object
-    ha_cluster_node:
-      description: HA cluster node selector for device operations
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to run the device operation
-      type: object
-    utils_clear_session_session_ids:
-      description: Session identifiers to clear
-      examples:
-      - - 88776655-0123-4567-890a-112233445566
-      items:
-        format: uuid
-        type: string
-      type: array
+    utils_show_route_protocol:
+      default: bgp
+      description: 'enum: `any`, `bgp`, `direct`, `evpn`, `ospf`, `static`'
+      enum:
+      - any
+      - bgp
+      - direct
+      - evpn
+      - ospf
+      - static
+      type: string
     utils_show_service_path:
       description: Service path lookup request for SSR devices
       properties:
@@ -808,74 +854,60 @@ components:
           - lan
           type: string
       type: object
-    utils_clear_arp:
-      description: Request to clear ARP entries on a device
+    ha_cluster_node:
+      description: HA cluster node selector for device operations
       properties:
-        ip:
-          description: The IP address for which to clear an ARP entry. port_id must be specified.
-          examples:
-          - 10.1.1.1
-          type: string
         node:
           $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to clear ARP entries
-        port_id:
-          description: The device interface on which to clear the ARP cache.
-          examples:
-          - wan
-          type: string
-        vlan:
-          description: The VLAN on which to clear the ARP cache. port_id must be specified.
-          examples:
-          - 1000
-          type: integer
-        vrf:
-          description: The vrf for which to clear an ARP entry. applicable for switch.
-          examples:
-          - guest
-          type: string
+          description: HA cluster node on which to run the device operation
       type: object
-    utils_service_ping:
-      description: Service ping request for SSR devices
+    websocket_session:
+      additionalProperties: false
+      description: Response containing the WebSocket session handle for asynchronous command output
       properties:
-        count:
-          default: 10
-          description: Number of ICMP echo requests to send for the service ping
-          type: integer
-        host:
-          description: Destination IPv4 address for the service ping
-          format: ipv4
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node from which to send the service ping
-        service:
-          description: Ping packet takes the same path as the service
-          type: string
-        size:
-          default: 56
-          description: ICMP payload size, in bytes
-          maximum: 65535
-          minimum: 56
-          type: integer
-        tenant:
-          description: Routing tenant context in which the packet is sent
+        session:
+          description: Identifier used to correlate output on the WebSocket stream
+          examples:
+          - 19e73828-937f-05e6-f709-e29efdb0a82b
           type: string
       required:
-      - host
-      - service
+      - session
       type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
-    OK:
-      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -891,6 +923,17 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -924,15 +967,6 @@ components:
           schema:
             $ref: '#/components/schemas/websocket_session'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -948,53 +982,19 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-  parameters:
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

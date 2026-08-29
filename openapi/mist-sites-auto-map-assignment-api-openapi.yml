@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Auto Map Assignment API
+  title: Mist Sites Auto Map Assignment API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -228,114 +228,6 @@ paths:
       - Sites Auto Map Assignment
 components:
   schemas:
-    auto_map_assignment_request:
-      additionalProperties: false
-      description: Request body for accepting or clearing pending map assignments
-      properties:
-        map_ids:
-          description: Optional list of specific map IDs to apply/clear. If not provided or empty, all pending map assignments are accepted/rejected.
-          items:
-            format: uuid
-            type: string
-          type: array
-      type: object
-    response_auto_map_assignment_devices:
-      additionalProperties:
-        $ref: '#/components/schemas/response_auto_map_assignment_device'
-      description: Contains the validation status of each device. The property key is the device MAC address.
-      type: object
-    auto_map_assignment:
-      additionalProperties: false
-      description: Request options for validating or starting automatic AP map assignment
-      properties:
-        dryrun:
-          default: false
-          description: If `true`, validates the site's APs without starting the map assignment process. Returns device validity and estimated runtime.
-          type: boolean
-        force_collection:
-          default: false
-          description: If `true`, forces data collection via orchestration. If `false`, attempts to use existing BLE data first.
-          type: boolean
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_auto_map_assignment_device:
-      additionalProperties: false
-      description: Per-device validation result for auto map assignment
-      properties:
-        reason:
-          description: Provides the reason for the status if the AP is invalid
-          type: string
-        valid:
-          description: Indicates whether the device meets requirements for auto map assignment
-          type: boolean
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_auto_map_assignment:
-      additionalProperties: false
-      description: Auto map assignment start response
-      properties:
-        devices:
-          $ref: '#/components/schemas/response_auto_map_assignment_devices'
-          description: Per-device validation results for auto map assignment, keyed by device MAC address
-        estimated_runtime:
-          description: Estimated runtime for the process in seconds
-          type: integer
-        reason:
-          description: Provides the reason for the status
-          type: string
-        started:
-          description: Indicates whether the auto map assignment process has started
-          type: boolean
-        valid:
-          description: Indicates whether the auto map assignment request is valid
-          type: boolean
-      type: object
-    response_auto_map_assignment_info_status:
-      description: "The status of auto map assignment for a given site. enum:\n  * `not_started`: Auto map assignment has not been requested\n  * `in_progress`: Auto map assignment is currently processing\n  * `completed`: The auto map assignment process has completed\n  * `error`: There was an error in the auto map assignment process"
-      enum:
-      - not_started
-      - in_progress
-      - completed
-      - error
-      type: string
     response_auto_map_assignment_clear:
       additionalProperties: false
       description: Result returned after clearing auto map assignment candidates
@@ -352,6 +244,37 @@ components:
       required:
       - message
       - rejected_maps
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_auto_map_assignment_device:
+      additionalProperties: false
+      description: Per-device validation result for auto map assignment
+      properties:
+        reason:
+          description: Provides the reason for the status if the AP is invalid
+          type: string
+        valid:
+          description: Indicates whether the device meets requirements for auto map assignment
+          type: boolean
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
       type: object
     response_auto_map_assignment_info:
       additionalProperties: false
@@ -375,6 +298,86 @@ components:
       required:
       - status
       type: object
+    auto_map_assignment_request:
+      additionalProperties: false
+      description: Request body for accepting or clearing pending map assignments
+      properties:
+        map_ids:
+          description: Optional list of specific map IDs to apply/clear. If not provided or empty, all pending map assignments are accepted/rejected.
+          items:
+            format: uuid
+            type: string
+          type: array
+      type: object
+    auto_map_assignment:
+      additionalProperties: false
+      description: Request options for validating or starting automatic AP map assignment
+      properties:
+        dryrun:
+          default: false
+          description: If `true`, validates the site's APs without starting the map assignment process. Returns device validity and estimated runtime.
+          type: boolean
+        force_collection:
+          default: false
+          description: If `true`, forces data collection via orchestration. If `false`, attempts to use existing BLE data first.
+          type: boolean
+      type: object
+    response_auto_map_assignment_info_status:
+      description: "The status of auto map assignment for a given site. enum:\n  * `not_started`: Auto map assignment has not been requested\n  * `in_progress`: Auto map assignment is currently processing\n  * `completed`: The auto map assignment process has completed\n  * `error`: There was an error in the auto map assignment process"
+      enum:
+      - not_started
+      - in_progress
+      - completed
+      - error
+      type: string
+    response_auto_map_assignment:
+      additionalProperties: false
+      description: Auto map assignment start response
+      properties:
+        devices:
+          $ref: '#/components/schemas/response_auto_map_assignment_devices'
+          description: Per-device validation results for auto map assignment, keyed by device MAC address
+        estimated_runtime:
+          description: Estimated runtime for the process in seconds
+          type: integer
+        reason:
+          description: Provides the reason for the status
+          type: string
+        started:
+          description: Indicates whether the auto map assignment process has started
+          type: boolean
+        valid:
+          description: Indicates whether the auto map assignment request is valid
+          type: boolean
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     response_auto_map_assignment_apply:
       additionalProperties: false
       description: Result returned after applying accepted auto map assignments
@@ -392,17 +395,84 @@ components:
       - accepted_maps
       - message
       type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
+    response_auto_map_assignment_devices:
+      additionalProperties:
+        $ref: '#/components/schemas/response_auto_map_assignment_device'
+      description: Contains the validation status of each device. The property key is the device MAC address.
       type: object
+  examples:
+    AutoMapAssignmentInfoExample:
+      value:
+        est_time_left: 280.5
+        start_time: 1678900062
+        status: in_progress
+        time_updated: 1678900100
+    AutoMapAssignmentExample:
+      value:
+        devices:
+          5c5b35000001:
+            reason: Device meets the minimum requirements for auto map assignment
+            valid: true
+          5c5b35000002:
+            reason: Device meets the minimum requirements for auto map assignment
+            valid: true
+          5c5b35000003:
+            reason: Device meets the minimum requirements for auto map assignment
+            valid: true
+        estimated_runtime: 300
+        reason: Started auto map assignment
+        started: true
+        valid: true
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    AutoMapAssignmentClearExample:
+      value:
+        message: 'Rejected map assignments for map_ids: [''d3c42998-9012-4859-9743-6b9bee475309'', ''f7a21456-7891-4abc-def0-123456789abc'']'
+        rejected_maps:
+        - d3c42998-9012-4859-9743-6b9bee475309
+        - f7a21456-7891-4abc-def0-123456789abc
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    AutoMapAssignmentApplyExample:
+      value:
+        accepted_maps:
+        - d3c42998-9012-4859-9743-6b9bee475309
+        - f7a21456-7891-4abc-def0-123456789abc
+        message: 'Accepted map assignments for map_ids: [''d3c42998-9012-4859-9743-6b9bee475309'', ''f7a21456-7891-4abc-def0-123456789abc'']'
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
-    OK:
-      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -418,6 +488,47 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    AutoMapAssignmentInfo:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoMapAssignmentInfoExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_map_assignment_info'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoMapAssignmentInfoExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_map_assignment_info'
+      description: OK
+    AutoMapAssignmentApply:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoMapAssignmentApplyExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_map_assignment_apply'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AutoMapAssignmentApplyExample'
+          schema:
+            $ref: '#/components/schemas/response_auto_map_assignment_apply'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -448,60 +559,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_auto_map_assignment'
       description: OK
-    AutoMapAssignmentInfo:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentInfoExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_info'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentInfoExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_info'
-      description: OK
-    AutoMapAssignmentClear:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentClearExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_clear'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentClearExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_clear'
-      description: OK
-    AutoMapAssignmentApply:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentApplyExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_apply'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AutoMapAssignmentApplyExample'
-          schema:
-            $ref: '#/components/schemas/response_auto_map_assignment_apply'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -517,78 +574,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
+    AutoMapAssignmentClear:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/AutoMapAssignmentClearExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
+            $ref: '#/components/schemas/response_auto_map_assignment_clear'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/AutoMapAssignmentClearExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-  examples:
-    AutoMapAssignmentApplyExample:
-      value:
-        accepted_maps:
-        - d3c42998-9012-4859-9743-6b9bee475309
-        - f7a21456-7891-4abc-def0-123456789abc
-        message: 'Accepted map assignments for map_ids: [''d3c42998-9012-4859-9743-6b9bee475309'', ''f7a21456-7891-4abc-def0-123456789abc'']'
-    AutoMapAssignmentInfoExample:
-      value:
-        est_time_left: 280.5
-        start_time: 1678900062
-        status: in_progress
-        time_updated: 1678900100
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    AutoMapAssignmentExample:
-      value:
-        devices:
-          5c5b35000001:
-            reason: Device meets the minimum requirements for auto map assignment
-            valid: true
-          5c5b35000002:
-            reason: Device meets the minimum requirements for auto map assignment
-            valid: true
-          5c5b35000003:
-            reason: Device meets the minimum requirements for auto map assignment
-            valid: true
-        estimated_runtime: 300
-        reason: Started auto map assignment
-        started: true
-        valid: true
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    AutoMapAssignmentClearExample:
-      value:
-        message: 'Rejected map assignments for map_ids: [''d3c42998-9012-4859-9743-6b9bee475309'', ''f7a21456-7891-4abc-def0-123456789abc'']'
-        rejected_maps:
-        - d3c42998-9012-4859-9743-6b9bee475309
-        - f7a21456-7891-4abc-def0-123456789abc
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+            $ref: '#/components/schemas/response_auto_map_assignment_clear'
+      description: OK
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs Clients - Marvis API
+  title: Mist Orgs Clients - Marvis API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -311,22 +311,188 @@ paths:
       - Orgs Clients - Marvis
 components:
   schemas:
-    marvis_client_event_neighbor_ap:
+    marvis_client_events_search:
       additionalProperties: false
-      description: A neighboring AP observed in a Marvis Client event
+      description: Paginated list of Marvis Client events
       properties:
-        band:
-          description: Wi-Fi band the AP is operating on
-          type: string
-        bssid:
-          description: BSSID of the neighboring AP
-          type: string
-        channel:
-          description: Channel the neighboring AP is on
+        limit:
+          description: Maximum number of results requested
           type: integer
-        rssi:
-          description: RSSI of the neighboring AP signal, in dBm
+        results:
+          description: List of Marvis Client events
+          items:
+            $ref: '#/components/schemas/marvis_client_event'
+          type: array
+        total:
+          description: Total number of matching results
           type: integer
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    stats_marvis_client_location:
+      additionalProperties: false
+      description: Last known location fix for a Marvis Client device
+      properties:
+        map_id:
+          description: UUID of the floor-plan map
+          format: uuid
+          type: string
+        site_id:
+          description: UUID of the site the device was located in
+          format: uuid
+          type: string
+        timestamp:
+          description: Timestamp of the location fix, in epoch seconds
+          type: integer
+        x:
+          description: X coordinate on the floor-plan map, in pixels
+          type: number
+        y:
+          description: Y coordinate on the floor-plan map, in pixels
+          type: number
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    marvis_client_insights:
+      additionalProperties: false
+      description: Time-series performance metrics for a Marvis Client device
+      properties:
+        avg_battery:
+          description: Average battery level per interval bucket
+          items:
+            type: number
+          type: array
+        avg_cellular_rssi:
+          description: Average cellular RSSI per interval bucket, in dBm
+          items:
+            type: number
+          type: array
+        avg_cpu:
+          description: Average CPU utilization per interval bucket (0–100)
+          items:
+            type: number
+          type: array
+        avg_memory:
+          description: Average memory utilization per interval bucket (0–100)
+          items:
+            type: number
+          type: array
+        avg_wifi_rssi:
+          description: Average Wi-Fi RSSI per interval bucket, in dBm
+          items:
+            type: number
+          type: array
+        end:
+          description: End of the reporting window, in epoch seconds
+          type: integer
+        interval:
+          description: Duration of each interval bucket, in seconds
+          type: integer
+        limit:
+          description: Maximum number of results requested
+          type: integer
+        page:
+          description: Current page number
+          type: integer
+        rt:
+          description: List of ISO 8601 timestamp strings for each interval bucket
+          items:
+            type: string
+          type: array
+        start:
+          description: Start of the reporting window, in epoch seconds
+          type: integer
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
       type: object
     marvis_client_event:
       additionalProperties: false
@@ -391,224 +557,79 @@ components:
           description: Device Wi-Fi MAC address
           type: string
       type: object
-    response_http429:
+    marvis_client_event_neighbor_ap:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: A neighboring AP observed in a Marvis Client event
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        band:
+          description: Wi-Fi band the AP is operating on
           type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
+        bssid:
+          description: BSSID of the neighboring AP
           type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    marvis_client_insights:
-      additionalProperties: false
-      description: Time-series performance metrics for a Marvis Client device
-      properties:
-        avg_battery:
-          description: Average battery level per interval bucket
-          items:
-            type: number
-          type: array
-        avg_cellular_rssi:
-          description: Average cellular RSSI per interval bucket, in dBm
-          items:
-            type: number
-          type: array
-        avg_cpu:
-          description: Average CPU utilization per interval bucket (0–100)
-          items:
-            type: number
-          type: array
-        avg_memory:
-          description: Average memory utilization per interval bucket (0–100)
-          items:
-            type: number
-          type: array
-        avg_wifi_rssi:
-          description: Average Wi-Fi RSSI per interval bucket, in dBm
-          items:
-            type: number
-          type: array
-        end:
-          description: End of the reporting window, in epoch seconds
+        channel:
+          description: Channel the neighboring AP is on
           type: integer
-        interval:
-          description: Duration of each interval bucket, in seconds
-          type: integer
-        limit:
-          description: Maximum number of results requested
-          type: integer
-        page:
-          description: Current page number
-          type: integer
-        rt:
-          description: List of ISO 8601 timestamp strings for each interval bucket
-          items:
-            type: string
-          type: array
-        start:
-          description: Start of the reporting window, in epoch seconds
+        rssi:
+          description: RSSI of the neighboring AP signal, in dBm
           type: integer
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    stats_marvis_client_location:
-      additionalProperties: false
-      description: Last known location fix for a Marvis Client device
-      properties:
-        map_id:
-          description: UUID of the floor-plan map
-          format: uuid
-          type: string
-        site_id:
-          description: UUID of the site the device was located in
-          format: uuid
-          type: string
-        timestamp:
-          description: Timestamp of the location fix, in epoch seconds
-          type: integer
-        x:
-          description: X coordinate on the floor-plan map, in pixels
-          type: number
-        y:
-          description: Y coordinate on the floor-plan map, in pixels
-          type: number
-      type: object
-    count_result:
-      additionalProperties:
+  parameters:
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
         type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    response_count:
-      additionalProperties: false
-      description: Distinct count response for time-bounded search results
-      properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
-    marvis_client_events_search:
-      additionalProperties: false
-      description: Paginated list of Marvis Client events
-      properties:
-        limit:
-          description: Maximum number of results requested
-          type: integer
-        results:
-          description: List of Marvis Client events
-          items:
-            $ref: '#/components/schemas/marvis_client_event'
-          type: array
-        total:
-          description: Total number of matching results
-          type: integer
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    interval:
+      description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
+      in: query
+      name: interval
+      schema:
+        examples:
+        - 10m
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
   examples:
-    MarvisClientEventsSearchExample:
-      value:
-        limit: 100
-        results:
-        - bssid: 00:11:22:33:44:55
-          channel: 6
-          device_id: 0c2a2c6c-5a95-4956-a02d-e1b39c2e5c6e
-          hostname: my-android-phone
-          neighbor_ap_report:
-          - band: 2.4GHz
-            bssid: aa:bb:cc:dd:ee:ff
-            channel: 1
-            rssi: -72
-          org_id: c168ddee-c14c-11e5-8e81-1258369c38a9
-          pre_bssid: aa:bb:cc:dd:ee:ff
-          pre_channel: 1
-          pre_rssi: -70
-          rssi: -58
-          ssid: Corp-WiFi
-          timestamp: 1717027200
-          type: ROAM
-          wifi_ip: 192.168.1.55
-          wifi_mac: 00:aa:bb:cc:dd:ee
-        total: 1
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
     MarvisClientInsightsExample:
       value:
         avg_battery:
@@ -634,76 +655,68 @@ components:
         - '2026-05-30T16:00:00Z'
         - '2026-05-30T17:00:00Z'
         start: 1717027200
-    HTTP403Example:
+    MarvisClientEventsSearchExample:
       value:
-        detail: You do not have permission to perform this action.
+        limit: 100
+        results:
+        - bssid: 00:11:22:33:44:55
+          channel: 6
+          device_id: 0c2a2c6c-5a95-4956-a02d-e1b39c2e5c6e
+          hostname: my-android-phone
+          neighbor_ap_report:
+          - band: 2.4GHz
+            bssid: aa:bb:cc:dd:ee:ff
+            channel: 1
+            rssi: -72
+          org_id: c168ddee-c14c-11e5-8e81-1258369c38a9
+          pre_bssid: aa:bb:cc:dd:ee:ff
+          pre_channel: 1
+          pre_rssi: -70
+          rssi: -58
+          ssid: Corp-WiFi
+          timestamp: 1717027200
+          type: ROAM
+          wifi_ip: 192.168.1.55
+          wifi_mac: 00:aa:bb:cc:dd:ee
+        total: 1
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    interval:
-      description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
-      in: query
-      name: interval
-      schema:
-        examples:
-        - 10m
-        type: string
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
   responses:
-    OK:
-      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -719,6 +732,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
     MarvisClientInsights:
       content:
         application/json:
@@ -734,6 +749,30 @@ components:
           schema:
             $ref: '#/components/schemas/marvis_client_insights'
       description: Marvis Client time-series metrics
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    MarvisClientEventsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_events_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_events_search'
+      description: Paginated Marvis Client events search results
     HTTP403:
       content:
         application/json:
@@ -764,30 +803,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_count'
       description: Count result
-    MarvisClientEventsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_events_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_events_search'
-      description: Paginated Marvis Client events search results
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -803,21 +818,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

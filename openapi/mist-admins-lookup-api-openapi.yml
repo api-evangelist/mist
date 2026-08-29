@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Admins Lookup API
+  title: Mist Admins Lookup API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -117,15 +117,41 @@ paths:
       tags:
       - Admins Lookup
 components:
+  examples:
+    LoginLookupSSOuserexists:
+      value:
+        sso_url: https://my.sso/idp_sso_url
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    LoginLookuplocaluserexists:
+      value: {}
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
   schemas:
-    response_http401:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the permission error
           examples:
-          - Authentication credentials were not provided.
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_login_lookup:
+      additionalProperties: false
+      description: Login lookup response indicating whether SSO is available for the account
+      properties:
+        sso_url:
+          description: URL for SSO login when the account must authenticate through an identity provider
           type: string
       type: object
     email_string:
@@ -138,14 +164,6 @@ components:
       required:
       - email
       type: object
-    response_login_lookup:
-      additionalProperties: false
-      description: Login lookup response indicating whether SSO is available for the account
-      properties:
-        sso_url:
-          description: URL for SSO login when the account must authenticate through an identity provider
-          type: string
-      type: object
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -154,16 +172,6 @@ components:
           description: Human-readable explanation of the rate limit error
           examples:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
           type: string
       type: object
     response_http400:
@@ -176,40 +184,17 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-  examples:
-    LoginLookuplocaluserexists:
-      value: {}
-    LoginLookupSSOuserexists:
-      value:
-        sso_url: https://my.sso/idp_sso_url
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -225,6 +210,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP429:
       content:
         application/json:
@@ -240,6 +240,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     LoginLookup:
       content:
         application/json:
@@ -259,21 +274,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_login_lookup'
       description: Account exists
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs MxClusters API
+  title: Mist Orgs MxClusters API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -235,7 +235,102 @@ paths:
       tags:
       - Orgs MxClusters
 components:
+  parameters:
+    mxcluster_id:
+      in: path
+      name: mxcluster_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
   schemas:
+    mxclusters:
+      description: List of Mist Edge clusters
+      items:
+        $ref: '#/components/schemas/mxcluster'
+      type: array
+    mxcluster_radsec_tls:
+      additionalProperties: false
+      description: TLS settings for RadSec on a Mist Edge cluster
+      properties:
+        keypair:
+          description: Name or identifier of the TLS keypair used by RadSec
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    proxy:
+      additionalProperties: false
+      description: Proxy Configuration to talk to Mist
+      properties:
+        disabled:
+          default: false
+          description: Whether this proxy configuration is disabled
+          examples:
+          - true
+          type: boolean
+        url:
+          description: Proxy URL used to reach Mist
+          examples:
+          - https://proxy.corp.com:8080/
+          type: string
+      type: object
+    mxcluster_nac_client_ips:
+      additionalProperties:
+        $ref: '#/components/schemas/mxcluster_nac_client_ip'
+      description: Mist NAC client settings keyed by RADIUS client IP address or subnet
+      type: object
+    tunterm_dhcpd_type:
+      default: relay
+      description: 'DHCP handling mode for tunnel termination. enum: `relay`'
+      enum:
+      - relay
+      type: string
+    mxcluster_tunterm_hosts:
+      description: Hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)
+      items:
+        type: string
+      type: array
+    mxcluster_tunterm_monitoring:
+      description: Tunnel termination monitoring checks for a Mist Edge cluster
+      items:
+        $ref: '#/components/schemas/tunterm_monitoring'
+      type: array
     mxedge_mgmt:
       additionalProperties: false
       description: Management settings for a Mist Edge appliance
@@ -266,90 +361,164 @@ components:
           format: password
           type: string
       type: object
-    mxcluster_tunterm_hosts_order:
-      description: List of index of tunterm_hosts
-      items:
-        type: integer
-      type: array
-    mxcluster_radsec_proxy_hosts:
-      description: Hostnames or IPs for Mist AP to use as the TLS Server (i.e. they are reachable from AP) in addition to `tunterm_hosts`
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    mxcluster_radsec_auth_server_ssids:
+      description: List of ssids that will use this server if match_ssid is true and match is found
       items:
         type: string
       type: array
-    mxcluster_nac_client_vendor:
-      description: 'convention to be followed is : "<vendor>-<variant>", <variant> could be an os/platform/model/company. For ex: for cisco vendor, there could variants wrt os (such as ios, nxos etc), platforms (asa etc), or acquired companies (such as meraki, aironet) etc. enum: `aruba`, `cisco-aironet`, `cisco-dnac`, `cisco-ios`, `cisco-meraki`, `brocade`, `generic`, `juniper`, `paloalto`'
-      enum:
-      - aruba
-      - cisco-aironet
-      - cisco-dnac
-      - cisco-ios
-      - cisco-meraki
-      - brocade
-      - generic
-      - juniper
-      - paloalto
-      examples:
-      - cisco-ios
-      type: string
-    mxcluster_tunterm_hosts_selection:
-      default: shuffle
-      description: "Ordering of tunterm_hosts for Mist Edge within the same mxcluster. enum:\n  * `shuffle`: the ordering of tunterm_hosts is randomized by the device''s MAC\n  * `shuffle-by-site`: shuffle by site_id+tunnel_id (so when client connects to a specific Tunnel, it will go to the same (order of) mxedge, and we load-balancing between tunnels)\n  * `ordered`: order decided by tunterm_hosts_order"
-      enum:
-      - ordered
-      - shuffle
-      - shuffle-by-site
-      type: string
-    mxcluster_radsec_tls:
+    mxcluster_nac:
       additionalProperties: false
-      description: TLS settings for RadSec on a Mist Edge cluster
+      description: Mist NAC RADIUS settings for a Mist Edge cluster. Used when the Mist Edge Cluster is used as a RADIUS Proxy between the local devices and the Mist NAC
       properties:
-        keypair:
-          description: Name or identifier of the TLS keypair used by RadSec
-          type: string
-      type: object
-    proxy:
-      additionalProperties: false
-      description: Proxy Configuration to talk to Mist
-      properties:
-        disabled:
-          default: false
-          description: Whether this proxy configuration is disabled
-          examples:
-          - true
-          type: boolean
-        url:
-          description: Proxy URL used to reach Mist
-          examples:
-          - https://proxy.corp.com:8080/
-          type: string
-      type: object
-    mxedge_das_coa_server:
-      additionalProperties: false
-      description: CoA or Disconnect-Message client allowed to contact Mist Edge DAS
-      properties:
-        disable_event_timestamp_check:
-          default: false
-          description: Whether to disable Event-Timestamp Check
-          type: boolean
-        enabled:
-          description: Whether this DAS CoA or Disconnect-Message client is enabled
-          type: boolean
-        host:
-          description: Server host allowed to send CoA or Disconnect-Message requests to Mist Edges
-          type: string
-        port:
-          default: 3799
-          description: UDP port where Mist Edges accept CoA or Disconnect-Message requests from this host
+        acct_server_port:
+          default: 1813
+          description: RADIUS accounting port used by Mist NAC on the cluster
           type: integer
-        require_message_authenticator:
+        auth_server_port:
+          default: 1812
+          description: RADIUS authentication port used by Mist NAC on the cluster
+          type: integer
+        client_ips:
+          additionalProperties:
+            $ref: '#/components/schemas/mxcluster_nac_client_ips'
+          description: Property key is the RADIUS Client IP/Subnet.
+          type: object
+        enabled:
           default: false
-          description: Whether to require Message-Authenticator in requests
+          description: Whether Mist NAC is enabled on the cluster
           type: boolean
         secret:
-          description: Shared secret used by this DAS CoA or Disconnect-Message client
-          format: password
+          description: Shared RADIUS secret used by Mist NAC clients
+          examples:
+          - testing123
           type: string
       type: object
+    tunterm_dhcpd_config_property:
+      additionalProperties: false
+      description: Per-VLAN DHCP relay configuration for tunnel termination
+      properties:
+        enabled:
+          default: false
+          description: Whether DHCP relay is enabled for this tunneled VLAN
+          type: boolean
+        servers:
+          $ref: '#/components/schemas/strings'
+          description: DHCP server IP addresses used as relay targets for this VLAN
+        type:
+          $ref: '#/components/schemas/tunterm_dhcpd_type'
+          description: DHCP forwarding mode for this tunneled VLAN
+      type: object
+    mxedge_das:
+      additionalProperties: false
+      description: Cloud-assisted Dynamic Authorization Service settings for a Mist Edge cluster
+      properties:
+        coa_servers:
+          $ref: '#/components/schemas/mxedge_das_coa_servers'
+          description: Dynamic authorization clients allowed to send CoA or Disconnect-Message requests
+        enabled:
+          default: false
+          description: Whether cloud-assisted DAS is enabled for the Mist Edge cluster
+          type: boolean
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    mxedge_mgmt_oob_ip_type6:
+      default: autoconf
+      description: 'enum: `autoconf`, `dhcp`, `disabled`, `static`'
+      enum:
+      - autoconf
+      - dhcp
+      - disabled
+      - static
+      type: string
+    mxcluster_radsec_acct_server_ssids:
+      description: List of ssids that will use this server if match_ssid is true and match is found
+      items:
+        type: string
+      type: array
+    mxcluster_nacedge:
+      additionalProperties: false
+      description: NAC Edge survivability settings for a Mist Edge cluster. Requires `mist_nac` to be enabled on the cluster
+      properties:
+        auth_ttl:
+          default: 604800
+          description: Cache TTL for last auth result in seconds
+          maximum: 2592000
+          minimum: 60
+          type: integer
+        caching_site_ids:
+          $ref: '#/components/schemas/mxcluster_nacedge_caching_site_ids'
+          description: List of site UUIDs whose auth requests should be cached by NAC Edges in this cluster
+        default_dot1x_vlan:
+          description: Default VLAN for all dot1x devices, if different from default_vlan
+          examples:
+          - '20'
+          type: string
+        default_vlan:
+          description: Default VLAN to assign for devices not in the cache
+          examples:
+          - testVlan
+          type: string
+        enabled:
+          default: false
+          description: Whether NAC Edge survivability is enabled for this cluster
+          type: boolean
+        nac_edge_hosts:
+          $ref: '#/components/schemas/mxcluster_nacedge_nac_edge_hosts'
+          description: NAC Edge hostnames used by APs for survivability authentication
+      type: object
+    mxcluster_nacedge_nac_edge_hosts:
+      description: List of Mist NAC Edge hosts for AP survivability authentication
+      examples:
+      - - nac-west-1.corp.com
+        - nac-west-2.corp.com
+      items:
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    mxcluster_radsec_src_ip_source:
+      default: any
+      description: 'Specify IP address to connect to auth_servers and acct_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`'
+      enum:
+      - any
+      - oob
+      - oob6
+      - tunnel
+      - tunnel6
+      type: string
+    mxedge_mgmt_oob_ip_type:
+      default: dhcp
+      description: 'enum: `dhcp`, `disabled`, `static`'
+      enum:
+      - dhcp
+      - disabled
+      - static
+      type: string
     mxcluster_radsec:
       additionalProperties: false
       description: RadSec proxy configuration for a Mist Edge cluster. Used when the Mist Edge Cluster is used as a RADIUS Proxy between the local devices and external RADIUS Server.
@@ -379,80 +548,6 @@ components:
           $ref: '#/components/schemas/mxcluster_radsec_src_ip_source'
           description: Connection source interface or address used when reaching RADIUS servers
       type: object
-    mxcluster_tunterm_extra_route:
-      additionalProperties: false
-      description: Extra route for Mist Tunneled VLAN traffic
-      properties:
-        via:
-          description: Next-hop IP address for this extra route
-          type: string
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    mxcluster_nac_client_ip:
-      additionalProperties: false
-      description: Mist NAC client settings for a RADIUS client IP or subnet
-      properties:
-        require_message_authenticator:
-          default: false
-          description: Whether to require Message-Authenticator in requests
-          type: boolean
-        secret:
-          description: Client-specific shared secret, if different from the cluster default
-          type: string
-        site_id:
-          description: Present only for third-party clients, identifies the associated site
-          examples:
-          - 00000000-0000-0000-1234-000000000000
-          format: uuid
-          type: string
-        vendor:
-          $ref: '#/components/schemas/mxcluster_nac_client_vendor'
-          description: RADIUS client vendor profile for this IP or subnet
-      type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
     mxcluster:
       description: Mist Edge cluster that groups one or more Mist Edge devices for tunneling, RadSec, and related edge services
       properties:
@@ -524,180 +619,75 @@ components:
           description: Whether tunnel termination monitoring is disabled for the cluster
           type: boolean
       type: object
-    mxcluster_tunterm_monitoring:
-      description: Tunnel termination monitoring checks for a Mist Edge cluster
+    mxcluster_radsec_auth_servers:
+      description: List of RADIUS authentication servers, order matters where the first one is treated as primary
       items:
-        $ref: '#/components/schemas/tunterm_monitoring'
+        $ref: '#/components/schemas/mxcluster_radsec_auth_server'
       type: array
-    mxcluster_tunterm_hosts:
-      description: Hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)
+      uniqueItems: true
+    mxcluster_tunterm_hosts_order:
+      description: List of index of tunterm_hosts
       items:
-        type: string
+        type: integer
       type: array
     mxcluster_tunterm_ap_subnets:
       description: List of subnets where we allow AP to establish Mist Tunnels from
       items:
         type: string
       type: array
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    mxcluster_radsec_src_ip_source:
-      default: any
-      description: 'Specify IP address to connect to auth_servers and acct_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`'
-      enum:
-      - any
-      - oob
-      - oob6
-      - tunnel
-      - tunnel6
-      type: string
-    tunterm_dhcpd_type:
-      default: relay
-      description: 'DHCP handling mode for tunnel termination. enum: `relay`'
-      enum:
-      - relay
-      type: string
-    mxclusters:
-      description: List of Mist Edge clusters
+    tunterm_monitoring:
+      description: Tunnel termination monitoring checks
       items:
-        $ref: '#/components/schemas/mxcluster'
+        $ref: '#/components/schemas/tunterm_monitoring_item'
       type: array
-    tunterm_dhcpd_config_property:
+    mxcluster_nac_client_ip:
       additionalProperties: false
-      description: Per-VLAN DHCP relay configuration for tunnel termination
+      description: Mist NAC client settings for a RADIUS client IP or subnet
       properties:
-        enabled:
+        require_message_authenticator:
           default: false
-          description: Whether DHCP relay is enabled for this tunneled VLAN
-          type: boolean
-        servers:
-          $ref: '#/components/schemas/strings'
-          description: DHCP server IP addresses used as relay targets for this VLAN
-        type:
-          $ref: '#/components/schemas/tunterm_dhcpd_type'
-          description: DHCP forwarding mode for this tunneled VLAN
-      type: object
-    tunterm_monitoring_protocol:
-      description: 'enum: `arp`, `ping`, `tcp`'
-      enum:
-      - arp
-      - ping
-      - tcp
-      examples:
-      - tcp
-      minLength: 1
-      type: string
-    mxcluster_tunterm_extra_routes:
-      additionalProperties:
-        $ref: '#/components/schemas/mxcluster_tunterm_extra_route'
-      description: Extra routes for Mist Tunneled VLANs. Property key is a CIDR
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    mxcluster_rad_auth_server_keywrap_format:
-      default: ascii
-      description: 'if used for Mist APs. enum: `ascii`, `hex`'
-      enum:
-      - ascii
-      - hex
-      type:
-      - string
-      - 'null'
-    mxcluster_nacedge_caching_site_ids:
-      description: Site UUIDs whose auth requests are cached by NAC Edges in the cluster
-      examples:
-      - - 4ac1dcf4-9d8b-7910-ac87-6ad873648a5c
-        - 7dc1acf4-9d8b-7910-ac87-6ad873648a5c
-      items:
-        format: uuid
-        type: string
-      type: array
-    mxcluster_radsec_nas_ip_source:
-      default: any
-      description: 'SSpecify NAS-IP-ADDRESS, NAS-IPv6-ADDRESS to use with auth_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`'
-      enum:
-      - any
-      - oob
-      - oob6
-      - tunnel
-      - tunnel6
-      type: string
-    mxedge_mgmt_oob_ip_type6:
-      default: autoconf
-      description: 'enum: `autoconf`, `dhcp`, `disabled`, `static`'
-      enum:
-      - autoconf
-      - dhcp
-      - disabled
-      - static
-      type: string
-    mxcluster_nac:
-      additionalProperties: false
-      description: Mist NAC RADIUS settings for a Mist Edge cluster. Used when the Mist Edge Cluster is used as a RADIUS Proxy between the local devices and the Mist NAC
-      properties:
-        acct_server_port:
-          default: 1813
-          description: RADIUS accounting port used by Mist NAC on the cluster
-          type: integer
-        auth_server_port:
-          default: 1812
-          description: RADIUS authentication port used by Mist NAC on the cluster
-          type: integer
-        client_ips:
-          additionalProperties:
-            $ref: '#/components/schemas/mxcluster_nac_client_ips'
-          description: Property key is the RADIUS Client IP/Subnet.
-          type: object
-        enabled:
-          default: false
-          description: Whether Mist NAC is enabled on the cluster
+          description: Whether to require Message-Authenticator in requests
           type: boolean
         secret:
-          description: Shared RADIUS secret used by Mist NAC clients
+          description: Client-specific shared secret, if different from the cluster default
+          type: string
+        site_id:
+          description: Present only for third-party clients, identifies the associated site
           examples:
-          - testing123
+          - 00000000-0000-0000-1234-000000000000
+          format: uuid
+          type: string
+        vendor:
+          $ref: '#/components/schemas/mxcluster_nac_client_vendor'
+          description: RADIUS client vendor profile for this IP or subnet
+      type: object
+    mxedge_das_coa_server:
+      additionalProperties: false
+      description: CoA or Disconnect-Message client allowed to contact Mist Edge DAS
+      properties:
+        disable_event_timestamp_check:
+          default: false
+          description: Whether to disable Event-Timestamp Check
+          type: boolean
+        enabled:
+          description: Whether this DAS CoA or Disconnect-Message client is enabled
+          type: boolean
+        host:
+          description: Server host allowed to send CoA or Disconnect-Message requests to Mist Edges
+          type: string
+        port:
+          default: 3799
+          description: UDP port where Mist Edges accept CoA or Disconnect-Message requests from this host
+          type: integer
+        require_message_authenticator:
+          default: false
+          description: Whether to require Message-Authenticator in requests
+          type: boolean
+        secret:
+          description: Shared secret used by this DAS CoA or Disconnect-Message client
+          format: password
           type: string
       type: object
-    tunterm_dhcpd_config:
-      additionalProperties:
-        $ref: '#/components/schemas/tunterm_dhcpd_config_property'
-      description: DHCP server/relay configuration of Mist Tunneled VLANs. Property key is the VLAN ID
-      properties:
-        enabled:
-          default: false
-          description: Whether DHCP relay is enabled for tunnel termination VLANs
-          type: boolean
-        servers:
-          $ref: '#/components/schemas/strings'
-          description: DHCP server IP addresses used as relay targets
-        type:
-          $ref: '#/components/schemas/tunterm_dhcpd_type'
-          description: DHCP forwarding mode for tunnel termination VLANs
-      type: object
-    mxedge_mgmt_oob_ip_type:
-      default: dhcp
-      description: 'enum: `dhcp`, `disabled`, `static`'
-      enum:
-      - dhcp
-      - disabled
-      - static
-      type: string
     mxcluster_radsec_acct_server:
       additionalProperties: false
       description: RadSec accounting server settings for a Mist Edge cluster
@@ -717,130 +707,36 @@ components:
           $ref: '#/components/schemas/mxcluster_radsec_acct_server_ssids'
           description: WLAN SSID filters that use this accounting server when matching is enabled
       type: object
-    mxcluster_radsec_server_selection:
-      default: ordered
-      description: 'When ordered, Mist Edge will prefer and go back to the first RADIUS server if possible. enum: `ordered`, `unordered`'
+    mxcluster_radsec_nas_ip_source:
+      default: any
+      description: 'SSpecify NAS-IP-ADDRESS, NAS-IPv6-ADDRESS to use with auth_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`'
       enum:
-      - ordered
-      - unordered
+      - any
+      - oob
+      - oob6
+      - tunnel
+      - tunnel6
       type: string
-    mxcluster_radsec_acct_servers:
-      description: List of RADIUS accounting servers, optional, order matters where the first one is treated as primary
-      items:
-        $ref: '#/components/schemas/mxcluster_radsec_acct_server'
-      type: array
-      uniqueItems: true
-    mxcluster_nac_client_ips:
-      additionalProperties:
-        $ref: '#/components/schemas/mxcluster_nac_client_ip'
-      description: Mist NAC client settings keyed by RADIUS client IP address or subnet
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    mxedge_das:
+    response_http429:
       additionalProperties: false
-      description: Cloud-assisted Dynamic Authorization Service settings for a Mist Edge cluster
+      description: Standard HTTP 429 rate limit error response
       properties:
-        coa_servers:
-          $ref: '#/components/schemas/mxedge_das_coa_servers'
-          description: Dynamic authorization clients allowed to send CoA or Disconnect-Message requests
-        enabled:
-          default: false
-          description: Whether cloud-assisted DAS is enabled for the Mist Edge cluster
-          type: boolean
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
       type: object
-    mxcluster_nacedge:
+    response_http401:
       additionalProperties: false
-      description: NAC Edge survivability settings for a Mist Edge cluster. Requires `mist_nac` to be enabled on the cluster
+      description: Standard HTTP 401 authentication error response
       properties:
-        auth_ttl:
-          default: 604800
-          description: Cache TTL for last auth result in seconds
-          maximum: 2592000
-          minimum: 60
-          type: integer
-        caching_site_ids:
-          $ref: '#/components/schemas/mxcluster_nacedge_caching_site_ids'
-          description: List of site UUIDs whose auth requests should be cached by NAC Edges in this cluster
-        default_dot1x_vlan:
-          description: Default VLAN for all dot1x devices, if different from default_vlan
+        detail:
+          description: Human-readable explanation of the authentication error
           examples:
-          - '20'
+          - Authentication credentials were not provided.
           type: string
-        default_vlan:
-          description: Default VLAN to assign for devices not in the cache
-          examples:
-          - testVlan
-          type: string
-        enabled:
-          default: false
-          description: Whether NAC Edge survivability is enabled for this cluster
-          type: boolean
-        nac_edge_hosts:
-          $ref: '#/components/schemas/mxcluster_nacedge_nac_edge_hosts'
-          description: NAC Edge hostnames used by APs for survivability authentication
       type: object
-    mxcluster_radsec_auth_servers:
-      description: List of RADIUS authentication servers, order matters where the first one is treated as primary
-      items:
-        $ref: '#/components/schemas/mxcluster_radsec_auth_server'
-      type: array
-      uniqueItems: true
-    mxcluster_radsec_auth_server_ssids:
-      description: List of ssids that will use this server if match_ssid is true and match is found
-      items:
-        type: string
-      type: array
-    tunterm_monitoring_item:
-      additionalProperties: false
-      description: Monitoring check for tunnel termination reachability
-      properties:
-        host:
-          description: Can be ip, ipv6, hostname
-          examples:
-          - 10.2.8.15
-          minLength: 1
-          type: string
-        port:
-          description: When `protocol`==`tcp`, TCP port checked by the monitoring probe
-          examples:
-          - 80
-          type: integer
-        protocol:
-          $ref: '#/components/schemas/tunterm_monitoring_protocol'
-          description: Monitoring method used for this tunnel termination check
-        src_vlan_id:
-          description: Optional source for the monitoring check, vlan_id configured in tunterm_other_ip_configs
-          examples:
-          - 5
-          type: integer
-        timeout:
-          default: 300
-          description: Maximum time for this monitoring check, in seconds
-          examples:
-          - 300
-          type: integer
-      type: object
-    mxedge_das_coa_servers:
-      description: Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799
-      items:
-        $ref: '#/components/schemas/mxedge_das_coa_server'
-      type: array
-    tunterm_monitoring:
-      description: Tunnel termination monitoring checks
-      items:
-        $ref: '#/components/schemas/tunterm_monitoring_item'
-      type: array
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
     mxcluster_radsec_auth_server:
       additionalProperties: false
       description: RadSec authentication server settings for a Mist Edge cluster
@@ -889,6 +785,81 @@ components:
           description: Authentication request timeout, in seconds
           type: integer
       type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    mxcluster_radsec_proxy_hosts:
+      description: Hostnames or IPs for Mist AP to use as the TLS Server (i.e. they are reachable from AP) in addition to `tunterm_hosts`
+      items:
+        type: string
+      type: array
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    mxcluster_rad_auth_server_keywrap_format:
+      default: ascii
+      description: 'if used for Mist APs. enum: `ascii`, `hex`'
+      enum:
+      - ascii
+      - hex
+      type:
+      - string
+      - 'null'
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    mxcluster_tunterm_extra_route:
+      additionalProperties: false
+      description: Extra route for Mist Tunneled VLAN traffic
+      properties:
+        via:
+          description: Next-hop IP address for this extra route
+          type: string
+      type: object
+    tunterm_monitoring_protocol:
+      description: 'enum: `arp`, `ping`, `tcp`'
+      enum:
+      - arp
+      - ping
+      - tcp
+      examples:
+      - tcp
+      minLength: 1
+      type: string
+    mxcluster_tunterm_hosts_selection:
+      default: shuffle
+      description: "Ordering of tunterm_hosts for Mist Edge within the same mxcluster. enum:\n  * `shuffle`: the ordering of tunterm_hosts is randomized by the device''s MAC\n  * `shuffle-by-site`: shuffle by site_id+tunnel_id (so when client connects to a specific Tunnel, it will go to the same (order of) mxedge, and we load-balancing between tunnels)\n  * `ordered`: order decided by tunterm_hosts_order"
+      enum:
+      - ordered
+      - shuffle
+      - shuffle-by-site
+      type: string
+    mxcluster_radsec_server_selection:
+      default: ordered
+      description: 'When ordered, Mist Edge will prefer and go back to the first RADIUS server if possible. enum: `ordered`, `unordered`'
+      enum:
+      - ordered
+      - unordered
+      type: string
+    mxcluster_nacedge_caching_site_ids:
+      description: Site UUIDs whose auth requests are cached by NAC Edges in the cluster
+      examples:
+      - - 4ac1dcf4-9d8b-7910-ac87-6ad873648a5c
+        - 7dc1acf4-9d8b-7910-ac87-6ad873648a5c
+      items:
+        format: uuid
+        type: string
+      type: array
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -897,21 +868,113 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    mxcluster_nacedge_nac_edge_hosts:
-      description: List of Mist NAC Edge hosts for AP survivability authentication
+    mxcluster_nac_client_vendor:
+      description: 'convention to be followed is : "<vendor>-<variant>", <variant> could be an os/platform/model/company. For ex: for cisco vendor, there could variants wrt os (such as ios, nxos etc), platforms (asa etc), or acquired companies (such as meraki, aironet) etc. enum: `aruba`, `cisco-aironet`, `cisco-dnac`, `cisco-ios`, `cisco-meraki`, `brocade`, `generic`, `juniper`, `paloalto`'
+      enum:
+      - aruba
+      - cisco-aironet
+      - cisco-dnac
+      - cisco-ios
+      - cisco-meraki
+      - brocade
+      - generic
+      - juniper
+      - paloalto
       examples:
-      - - nac-west-1.corp.com
-        - nac-west-2.corp.com
+      - cisco-ios
+      type: string
+    mxcluster_tunterm_extra_routes:
+      additionalProperties:
+        $ref: '#/components/schemas/mxcluster_tunterm_extra_route'
+      description: Extra routes for Mist Tunneled VLANs. Property key is a CIDR
+      type: object
+    mxedge_das_coa_servers:
+      description: Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799
       items:
-        type: string
+        $ref: '#/components/schemas/mxedge_das_coa_server'
       type: array
-    mxcluster_radsec_acct_server_ssids:
-      description: List of ssids that will use this server if match_ssid is true and match is found
+    tunterm_monitoring_item:
+      additionalProperties: false
+      description: Monitoring check for tunnel termination reachability
+      properties:
+        host:
+          description: Can be ip, ipv6, hostname
+          examples:
+          - 10.2.8.15
+          minLength: 1
+          type: string
+        port:
+          description: When `protocol`==`tcp`, TCP port checked by the monitoring probe
+          examples:
+          - 80
+          type: integer
+        protocol:
+          $ref: '#/components/schemas/tunterm_monitoring_protocol'
+          description: Monitoring method used for this tunnel termination check
+        src_vlan_id:
+          description: Optional source for the monitoring check, vlan_id configured in tunterm_other_ip_configs
+          examples:
+          - 5
+          type: integer
+        timeout:
+          default: 300
+          description: Maximum time for this monitoring check, in seconds
+          examples:
+          - 300
+          type: integer
+      type: object
+    tunterm_dhcpd_config:
+      additionalProperties:
+        $ref: '#/components/schemas/tunterm_dhcpd_config_property'
+      description: DHCP server/relay configuration of Mist Tunneled VLANs. Property key is the VLAN ID
+      properties:
+        enabled:
+          default: false
+          description: Whether DHCP relay is enabled for tunnel termination VLANs
+          type: boolean
+        servers:
+          $ref: '#/components/schemas/strings'
+          description: DHCP server IP addresses used as relay targets
+        type:
+          $ref: '#/components/schemas/tunterm_dhcpd_type'
+          description: DHCP forwarding mode for tunnel termination VLANs
+      type: object
+    mxcluster_radsec_acct_servers:
+      description: List of RADIUS accounting servers, optional, order matters where the first one is treated as primary
       items:
-        type: string
+        $ref: '#/components/schemas/mxcluster_radsec_acct_server'
       type: array
+      uniqueItems: true
   responses:
-    OK:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    MxclustersArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxclustersArrayExample'
+          schema:
+            $ref: '#/components/schemas/mxclusters'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxclustersArrayExample'
+          schema:
+            $ref: '#/components/schemas/mxclusters'
       description: OK
     HTTP400:
       content:
@@ -928,21 +991,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+    OK:
+      description: OK
     Mxcluster:
       content:
         application/json:
@@ -958,21 +1008,6 @@ components:
           schema:
             $ref: '#/components/schemas/mxcluster'
       description: OK
-    MxclustersArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MxclustersArrayExample'
-          schema:
-            $ref: '#/components/schemas/mxclusters'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MxclustersArrayExample'
-          schema:
-            $ref: '#/components/schemas/mxclusters'
-      description: OK
     HTTP404:
       content:
         application/json:
@@ -982,6 +1017,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http404'
       description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -997,109 +1047,13 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    mxcluster_id:
-      in: path
-      name: mxcluster_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    MxclustersArrayExample:
+    HTTP429Example:
       value:
-      - created_time: 0
-        for_site: true
-        id: 467f6eca-6276-4993-bfeb-53cbbbba6f78
-        modified_time: 0
-        name: string
-        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
-        radsec:
-          acct_servers:
-          - host: string
-            port: 1813
-            secret: string
-          auth_servers:
-          - host: string
-            port: 1812
-            secret: string
-          enabled: true
-          server_selection: ordered
-        radsec_tls:
-          keypair: string
-        site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
-        tunterm_ap_subnets:
-        - string
-        tunterm_dhcpd_config:
-          enabled: false
-          property1:
-            enabled: false
-            servers:
-            - string
-            type: relay
-          property2:
-            enabled: false
-            servers:
-            - string
-            type: relay
-          servers:
-          - string
-          type: relay
-        tunterm_extra_routes:
-          property1:
-            via: string
-          property2:
-            via: string
-        tunterm_hosts:
-        - string
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     MxclusterExample:
       value:
         created_time: 0
@@ -1146,9 +1100,55 @@ components:
             via: string
         tunterm_hosts:
         - string
-    HTTP429Example:
+    MxclustersArrayExample:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+      - created_time: 0
+        for_site: true
+        id: 467f6eca-6276-4993-bfeb-53cbbbba6f78
+        modified_time: 0
+        name: string
+        org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+        radsec:
+          acct_servers:
+          - host: string
+            port: 1813
+            secret: string
+          auth_servers:
+          - host: string
+            port: 1812
+            secret: string
+          enabled: true
+          server_selection: ordered
+        radsec_tls:
+          keypair: string
+        site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+        tunterm_ap_subnets:
+        - string
+        tunterm_dhcpd_config:
+          enabled: false
+          property1:
+            enabled: false
+            servers:
+            - string
+            type: relay
+          property2:
+            enabled: false
+            servers:
+            - string
+            type: relay
+          servers:
+          - string
+          type: relay
+        tunterm_extra_routes:
+          property1:
+            via: string
+          property2:
+            via: string
+        tunterm_hosts:
+        - string
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

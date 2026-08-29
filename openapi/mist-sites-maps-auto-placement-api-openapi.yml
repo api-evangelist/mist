@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Maps - Auto-placement API
+  title: Mist Sites Maps - Auto-placement API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -397,14 +397,21 @@ paths:
       - Sites Maps - Auto-placement
 components:
   schemas:
-    response_auto_orientation_info_status:
-      description: "The status of auto orient for a given map. enum:\n  * `pending`: Auto orient has not been requested for this map\n  * `inprogress`: Auto orient is currently processing\n  * `done`: The auto orient process has completed\n  * `error`: There was an error in the auto orient process"
-      enum:
-      - pending
-      - inprogress
-      - done
-      - error
-      type: string
+    use_auto_ap_values_macs:
+      description: AP MAC addresses to accept or reject. If omitted, the API applies the decision to the full map.
+      items:
+        type: string
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     response_auto_placement_info:
       additionalProperties: false
       description: Auto-placement status response with progress and validation details
@@ -421,6 +428,186 @@ components:
         status:
           $ref: '#/components/schemas/auto_placement_info_status'
           description: Current autoplacement processing state
+      type: object
+    mac_addresses:
+      description: Request containing one or more MAC addresses
+      properties:
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
+      required:
+      - macs
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_auto_orientation_device:
+      additionalProperties: false
+      description: Per-device validation result for auto orientation
+      properties:
+        reason:
+          description: Provides the reason for the status if the AP is invalid.
+          type: string
+        valid:
+          description: Indicates whether the auto orient request is valid for the device.
+          type: boolean
+      type: object
+    auto_placement:
+      description: Request options for validating or starting AP auto-placement
+      properties:
+        dryrun:
+          default: false
+          description: Set to `true` to perform an invalid AP check and provide an estimated run time without enqueuing the run into the auto placement service.
+          type: boolean
+        force_collection:
+          default: false
+          description: "* If `force_collection`==`false`: the API attempts to start localization with existing data. \n* If `force_collection`==`true`: maintenance the API attempts to start orchestration."
+          type: boolean
+        macs:
+          $ref: '#/components/schemas/auto_placement_macs'
+          description: AP MAC addresses to include in the auto-placement run
+        override:
+          default: false
+          description: Set to `true` to run auto placement even if there are invalid APs in the selected APs.
+          type: boolean
+      type: object
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
+    response_autoplacement_device:
+      additionalProperties: false
+      description: Per-AP validation result for autoplacement
+      properties:
+        reason:
+          description: Provides the reason for the status if the AP is invalid.
+          readOnly: true
+          type: string
+        valid:
+          description: Indicates whether the ap is valid.
+          readOnly: true
+          type: boolean
+      type: object
+    auto_orient_macs:
+      description: List of device macs
+      items:
+        type: string
+      type: array
+    response_auto_orientation_info_status:
+      description: "The status of auto orient for a given map. enum:\n  * `pending`: Auto orient has not been requested for this map\n  * `inprogress`: Auto orient is currently processing\n  * `done`: The auto orient process has completed\n  * `error`: There was an error in the auto orient process"
+      enum:
+      - pending
+      - inprogress
+      - done
+      - error
+      type: string
+    auto_placement_info_status:
+      description: 'the status of autoplacement for a given map. enum: `done`, `error`, `inprogress`, `pending`'
+      enum:
+      - done
+      - error
+      - inprogress
+      - pending
+      type: string
+    autoplacement_localization_selector:
+      description: Request body to apply or clear cached autoplacement or auto-orientation values for a map or subset of APs
+      properties:
+        for:
+          default: placement
+          description: 'The selector to choose auto placement or auto orientation. enum: `orientation`, `placement`'
+          enum:
+          - orientation
+          - placement
+          type: string
+        macs:
+          description: List of AP MAC addresses to apply the action to. If omitted, the action applies to all APs on the map
+          items:
+            type: string
+          type: array
+      type: object
+    response_auto_orientation_info:
+      additionalProperties: false
+      description: Auto orientation status response
+      properties:
+        est_time_left:
+          description: Only when `status`==`inprogress`, estimate of the time to completion
+          type: number
+        start_time:
+          description: Timestamp when auto orient process was last queued for this map
+          type: number
+        status:
+          $ref: '#/components/schemas/response_auto_orientation_info_status'
+          description: Current auto orientation processing state
+        stop_time:
+          description: Timestamp when auto orient completed or was manually stopped
+          type: number
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    use_auto_ap_values:
+      description: Request to accept or reject cached AP placement or orientation values on a map
+      properties:
+        accept:
+          default: false
+          description: Whether to accept cached values; false rejects them for the selected APs
+          type: boolean
+        for:
+          $ref: '#/components/schemas/use_auto_ap_values_for'
+          description: Localization value type to accept or reject
+        macs:
+          $ref: '#/components/schemas/use_auto_ap_values_macs'
+          description: AP MAC addresses whose cached values are accepted or rejected
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_auto_orientation_devices:
+      additionalProperties:
+        $ref: '#/components/schemas/response_auto_orientation_device'
+      description: Contains the validation status of each device. The property key is the device MAC address.
+      type: object
+    response_detail_string:
+      additionalProperties: false
+      description: Response containing a human-readable detail message
+      properties:
+        detail:
+          description: Human-readable detail message returned by the API
+          type: string
       type: object
     response_autoplacement_devices:
       additionalProperties:
@@ -450,130 +637,13 @@ components:
       items:
         type: string
       type: array
-    auto_orient_macs:
-      description: List of device macs
-      items:
-        type: string
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    autoplacement_localization_selector:
-      description: Request body to apply or clear cached autoplacement or auto-orientation values for a map or subset of APs
-      properties:
-        for:
-          default: placement
-          description: 'The selector to choose auto placement or auto orientation. enum: `orientation`, `placement`'
-          enum:
-          - orientation
-          - placement
-          type: string
-        macs:
-          description: List of AP MAC addresses to apply the action to. If omitted, the action applies to all APs on the map
-          items:
-            type: string
-          type: array
-      type: object
-    auto_placement_info_status:
-      description: 'the status of autoplacement for a given map. enum: `done`, `error`, `inprogress`, `pending`'
+    use_auto_ap_values_for:
+      default: placement
+      description: 'The selector to choose auto placement or auto orientation. enum: `orientation`, `placement`'
       enum:
-      - done
-      - error
-      - inprogress
-      - pending
+      - orientation
+      - placement
       type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    auto_placement:
-      description: Request options for validating or starting AP auto-placement
-      properties:
-        dryrun:
-          default: false
-          description: Set to `true` to perform an invalid AP check and provide an estimated run time without enqueuing the run into the auto placement service.
-          type: boolean
-        force_collection:
-          default: false
-          description: "* If `force_collection`==`false`: the API attempts to start localization with existing data. \n* If `force_collection`==`true`: maintenance the API attempts to start orchestration."
-          type: boolean
-        macs:
-          $ref: '#/components/schemas/auto_placement_macs'
-          description: AP MAC addresses to include in the auto-placement run
-        override:
-          default: false
-          description: Set to `true` to run auto placement even if there are invalid APs in the selected APs.
-          type: boolean
-      type: object
-    response_detail_string:
-      additionalProperties: false
-      description: Response containing a human-readable detail message
-      properties:
-        detail:
-          description: Human-readable detail message returned by the API
-          type: string
-      type: object
-    response_auto_orientation_device:
-      additionalProperties: false
-      description: Per-device validation result for auto orientation
-      properties:
-        reason:
-          description: Provides the reason for the status if the AP is invalid.
-          type: string
-        valid:
-          description: Indicates whether the auto orient request is valid for the device.
-          type: boolean
-      type: object
-    response_auto_orientation_info:
-      additionalProperties: false
-      description: Auto orientation status response
-      properties:
-        est_time_left:
-          description: Only when `status`==`inprogress`, estimate of the time to completion
-          type: number
-        start_time:
-          description: Timestamp when auto orient process was last queued for this map
-          type: number
-        status:
-          $ref: '#/components/schemas/response_auto_orientation_info_status'
-          description: Current auto orientation processing state
-        stop_time:
-          description: Timestamp when auto orient completed or was manually stopped
-          type: number
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
     response_autoplacement:
       additionalProperties: false
       description: Auto-placement start response returned after scheduling the run
@@ -601,48 +671,6 @@ components:
           description: Indicates whether the auto placement process will interrupt WiFi traffic.
           type: boolean
       type: object
-    use_auto_ap_values:
-      description: Request to accept or reject cached AP placement or orientation values on a map
-      properties:
-        accept:
-          default: false
-          description: Whether to accept cached values; false rejects them for the selected APs
-          type: boolean
-        for:
-          $ref: '#/components/schemas/use_auto_ap_values_for'
-          description: Localization value type to accept or reject
-        macs:
-          $ref: '#/components/schemas/use_auto_ap_values_macs'
-          description: AP MAC addresses whose cached values are accepted or rejected
-      type: object
-    response_auto_orientation_devices:
-      additionalProperties:
-        $ref: '#/components/schemas/response_auto_orientation_device'
-      description: Contains the validation status of each device. The property key is the device MAC address.
-      type: object
-    mac_addresses:
-      description: Request containing one or more MAC addresses
-      properties:
-        macs:
-          $ref: '#/components/schemas/mac_addresses_macs'
-          description: List of MAC addresses included in the request
-      required:
-      - macs
-      type: object
-    use_auto_ap_values_macs:
-      description: AP MAC addresses to accept or reject. If omitted, the API applies the decision to the full map.
-      items:
-        type: string
-      type: array
-    mac_addresses_macs:
-      description: Unique MAC addresses included in a request
-      examples:
-      - - 683b679ac024
-      items:
-        type: string
-      minItems: 1
-      type: array
-      uniqueItems: true
     response_auto_orientation:
       additionalProperties: false
       description: Auto orientation start response
@@ -666,91 +694,8 @@ components:
           description: Indicates whether the auto orient process will interrupt WiFi traffic.
           type: boolean
       type: object
-    response_autoplacement_device:
-      additionalProperties: false
-      description: Per-AP validation result for autoplacement
-      properties:
-        reason:
-          description: Provides the reason for the status if the AP is invalid.
-          readOnly: true
-          type: string
-        valid:
-          description: Indicates whether the ap is valid.
-          readOnly: true
-          type: boolean
-      type: object
-    use_auto_ap_values_for:
-      default: placement
-      description: 'The selector to choose auto placement or auto orientation. enum: `orientation`, `placement`'
-      enum:
-      - orientation
-      - placement
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
   examples:
-    AutoPlacementInfoPending:
-      value:
-        status: pending
-    HTTP200AutoPlacementServicefailedtostartduecontaininginvalidAPs:
-      value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-          '00000000004':
-            reason: Device model AP41 is not supported for auto placement
-            valid: false
-          '00000000005':
-            reason: Device firmware 0.14.28300 does not meet the minimum requirement 0.14.28310
-            valid: false
-        reason: Map has APs that do not meet the minimum requirements for auto placement
-        started: false
-        valid: false
-    HTTP200AutoPlacementDryrunformapcompleted:
-      value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-        estimated_runtime: 30
-        reason: Map has met the minimum requirements for auto placement
-        valid: true
-        wifi_interrupting: true
-    AutoOrientationFailedExample2:
-      value:
-        detail: Auto AP orient is already in progress for this Map
-    AutoOrientationServiceFailedToStartDueContainingInvalidAPs:
-      value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-          '00000000004':
-            reason: Device model AP41 is not supported for auto orient
-            valid: false
-          '00000000005':
-            reason: Device firmware 0.14.28300 does not meet the minimum requirement 0.14.28310
-            valid: false
-        reason: Map has APs that do not meet the minimum requirements for auto orient
-        started: false
-        valid: false
-    AutoOrientationUnableToReachTheOrientService:
+    AutoOrientationMapFailedToStartAsItHadLessThan3APsAssociatedWithIt:
       value:
         devices:
           '00000000001':
@@ -760,10 +705,32 @@ components:
           '00000000003':
             valid: true
         estimated_runtime: 300
-        reason: Unable to reach auto orient service
+        reason: Map Already Enqueued
         started: false
         valid: true
         wifi_interrupting: true
+    AutoOrientationFailedExample2:
+      value:
+        detail: Auto AP orient is already in progress for this Map
+    HTTP200AutoPlacementServicestartedsuccessfullyfororchestration:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+        estimated_runtime: 30
+        reason: Started collection for auto placement
+        started: true
+        valid: true
+        wifi_interrupting: true
+    AutoPlacementInfoInProgress:
+      value:
+        est_time_left: 300
+        start_time: 1678900062
+        status: inprogress
     HTTP200AutoPlacementServicestartedafteroverridefororchestration:
       value:
         devices:
@@ -784,6 +751,48 @@ components:
         started: true
         valid: false
         wifi_interrupting: true
+    HTTP200AutoPlacementAutoplacementisalreadyinprogressforthismap:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+        estimated_runtime: 30
+        reason: Map Already Enqueued
+        started: false
+        valid: true
+        wifi_interrupting: true
+    AutoPlacementInfoDone:
+      value:
+        end_time: 1678900362
+        start_time: 1678900062
+        status: done
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    AutoOrientationFailedExample3:
+      value:
+        detail: Auto orient data does not exist or has gone stale
+    AutoOrientationUnableToReachTheOrientService:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+        estimated_runtime: 300
+        reason: Unable to reach auto orient service
+        started: false
+        valid: true
+        wifi_interrupting: true
+    AutoOrientationFailedExample:
+      value:
+        detail: Map has less than 3 APs associated with it to perform auto orient
     AutoOrientationDryrunForMapCompleted:
       value:
         devices:
@@ -800,11 +809,61 @@ components:
         reason: Map has met the minimum requirements for auto orient
         valid: true
         wifi_interrupting: true
-    AutoOrientationInfoInProgress:
+    AutoPlacementInfoPending:
       value:
-        est_time_left: 300.0
-        start_time: 1678900062
-        status: inprogress
+        status: pending
+    AutoOrientationServiceFailedToStartDueContainingInvalidAPs:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+          '00000000004':
+            reason: Device model AP41 is not supported for auto orient
+            valid: false
+          '00000000005':
+            reason: Device firmware 0.14.28300 does not meet the minimum requirement 0.14.28310
+            valid: false
+        reason: Map has APs that do not meet the minimum requirements for auto orient
+        started: false
+        valid: false
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    AutoOrientationServiceStartedSuccessfullyForLocalizationOrientCollection:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+        estimated_runtime: 300
+        reason: Started collection for auto orient
+        started: true
+        valid: true
+    HTTP200AutoPlacementServicefailedtostartduecontaininginvalidAPs:
+      value:
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+          '00000000004':
+            reason: Device model AP41 is not supported for auto placement
+            valid: false
+          '00000000005':
+            reason: Device firmware 0.14.28300 does not meet the minimum requirement 0.14.28310
+            valid: false
+        reason: Map has APs that do not meet the minimum requirements for auto placement
+        started: false
+        valid: false
     AutoOrientationServiceStartedAfterOverrideForLocalizationOrientCollection:
       value:
         devices:
@@ -824,20 +883,16 @@ components:
         reason: Started collection for auto orient
         started: true
         valid: false
-    HTTP200AutoPlacementAutoplacementisalreadyinprogressforthismap:
+    AutoPlacementInfoError:
       value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-        estimated_runtime: 30
-        reason: Map Already Enqueued
-        started: false
-        valid: true
-        wifi_interrupting: true
+        end_time: 1678900362
+        start_time: 1678900062
+        status: error
+    AutoOrientationInfoInProgress:
+      value:
+        est_time_left: 300.0
+        start_time: 1678900062
+        status: inprogress
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
@@ -855,36 +910,14 @@ components:
         started: false
         valid: true
         wifi_interrupting: true
-    HTTP400Example:
+    AutoOrientationInfoCompleted:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    AutoOrientationServiceStartedSuccessfullyForLocalizationOrientCollection:
+        start_time: 1678900062
+        status: done
+        stop_time: 1678900362
+    HTTP401Example:
       value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-        estimated_runtime: 300
-        reason: Started collection for auto orient
-        started: true
-        valid: true
-    HTTP200AutoPlacementServicestartedsuccessfullyfororchestration:
-      value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-        estimated_runtime: 30
-        reason: Started collection for auto placement
-        started: true
-        valid: true
-        wifi_interrupting: true
+        detail: Authentication credentials were not provided.
     HTTP200AutoPlacementServicestartedsuccessfullyforlocalization:
       value:
         devices:
@@ -897,23 +930,19 @@ components:
         reason: Started localization for auto placement
         started: true
         valid: true
-    AutoPlacementInfoInProgress:
+    HTTP200AutoPlacementDryrunformapcompleted:
       value:
-        est_time_left: 300
-        start_time: 1678900062
-        status: inprogress
-    HTTP200AutoPlacementMapfailedtostartasithadlessthan3APsassociatedwithit:
-      value:
-        devices: {}
-        reason: Map has less than 3 APs associated with it to perform auto placement
-        started: false
-        valid: false
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    AutoOrientationFailedExample:
-      value:
-        detail: Map has less than 3 APs associated with it to perform auto orient
+        devices:
+          '00000000001':
+            valid: true
+          '00000000002':
+            valid: true
+          '00000000003':
+            valid: true
+        estimated_runtime: 30
+        reason: Map has met the minimum requirements for auto placement
+        valid: true
+        wifi_interrupting: true
     HTTP200AutoPlacementServicestartedafteroverrideforlocalization:
       value:
         devices:
@@ -932,42 +961,62 @@ components:
         reason: Started localization for auto placement
         started: true
         valid: false
-    AutoOrientationMapFailedToStartAsItHadLessThan3APsAssociatedWithIt:
+    HTTP200AutoPlacementMapfailedtostartasithadlessthan3APsassociatedwithit:
       value:
-        devices:
-          '00000000001':
-            valid: true
-          '00000000002':
-            valid: true
-          '00000000003':
-            valid: true
-        estimated_runtime: 300
-        reason: Map Already Enqueued
+        devices: {}
+        reason: Map has less than 3 APs associated with it to perform auto placement
         started: false
-        valid: true
-        wifi_interrupting: true
-    AutoOrientationFailedExample3:
-      value:
-        detail: Auto orient data does not exist or has gone stale
-    AutoPlacementInfoError:
-      value:
-        end_time: 1678900362
-        start_time: 1678900062
-        status: error
-    AutoPlacementInfoDone:
-      value:
-        end_time: 1678900362
-        start_time: 1678900062
-        status: done
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    AutoOrientationInfoCompleted:
-      value:
-        start_time: 1678900062
-        status: done
-        stop_time: 1678900362
+        valid: false
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     OK:
       description: OK
     AutoOrientation:
@@ -1005,55 +1054,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_auto_orientation'
       description: Map queued for auto orientation
-    AutoOrientationInfo:
-      content:
-        application/json:
-          examples:
-            Completed:
-              $ref: '#/components/examples/AutoOrientationInfoCompleted'
-            In Progress:
-              $ref: '#/components/examples/AutoOrientationInfoInProgress'
-          schema:
-            $ref: '#/components/schemas/response_auto_orientation_info'
-        application/vnd.api+json:
-          examples:
-            Completed:
-              $ref: '#/components/examples/AutoOrientationInfoCompleted'
-            In Progress:
-              $ref: '#/components/examples/AutoOrientationInfoInProgress'
-          schema:
-            $ref: '#/components/schemas/response_auto_orientation_info'
-      description: Map queued for auto orientation
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     HTTP200AutoPlacement:
       content:
         application/json:
@@ -1101,15 +1101,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_autoplacement'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     AutoPlacementInfo:
       content:
         application/json:
@@ -1137,6 +1128,49 @@ components:
           schema:
             $ref: '#/components/schemas/response_auto_placement_info'
       description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    AutoOrientationInfo:
+      content:
+        application/json:
+          examples:
+            Completed:
+              $ref: '#/components/examples/AutoOrientationInfoCompleted'
+            In Progress:
+              $ref: '#/components/examples/AutoOrientationInfoInProgress'
+          schema:
+            $ref: '#/components/schemas/response_auto_orientation_info'
+        application/vnd.api+json:
+          examples:
+            Completed:
+              $ref: '#/components/examples/AutoOrientationInfoCompleted'
+            In Progress:
+              $ref: '#/components/examples/AutoOrientationInfoInProgress'
+          schema:
+            $ref: '#/components/schemas/response_auto_orientation_info'
+      description: Map queued for auto orientation
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     AutoOrientationFailed:
       content:
         application/json:
@@ -1175,40 +1209,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    map_id:
-      in: path
-      name: map_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

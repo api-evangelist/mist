@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs SecIntel Profiles API
+  title: Mist Orgs SecIntel Profiles API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -217,7 +217,154 @@ paths:
       tags:
       - Orgs SecIntel Profiles
 components:
+  schemas:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    secintel_profile_profiles:
+      description: Category-specific SecIntel action settings
+      items:
+        $ref: '#/components/schemas/secintel_profile_profile'
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    secintel_profiles:
+      description: SecIntel profiles returned by list operations
+      items:
+        $ref: '#/components/schemas/secintel_profile'
+      type: array
+    secintel_profile:
+      description: SecIntel profile containing category-specific threat intelligence actions
+      properties:
+        name:
+          description: Display name of the SecIntel profile
+          examples:
+          - secintel-custom
+          type: string
+        profiles:
+          $ref: '#/components/schemas/secintel_profile_profiles'
+          description: Category-specific SecIntel action settings included in this profile
+      type: object
+    secintel_profile_profile_action:
+      default: default
+      description: 'enum: `default`, `standard`, `strict`'
+      enum:
+      - default
+      - standard
+      - strict
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    secintel_profile_profile:
+      additionalProperties: false
+      description: SecIntel action setting for a specific feed category
+      properties:
+        action:
+          $ref: '#/components/schemas/secintel_profile_profile_action'
+          description: Protection level applied to the SecIntel category
+        category:
+          $ref: '#/components/schemas/secintel_profile_profile_category'
+          description: SecIntel feed category configured by this profile entry
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    secintel_profile_profile_category:
+      description: 'enum: `CC`, `IH` (Infected Host), `DNS`'
+      enum:
+      - CC
+      - DNS
+      - IH
+      type: string
+  parameters:
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    secintelprofile_id:
+      in: path
+      name: secintelprofile_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
   responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     SecIntelProfilesArray:
       content:
         application/json:
@@ -233,23 +380,6 @@ components:
           schema:
             $ref: '#/components/schemas/secintel_profiles'
       description: Example response
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    OK:
-      description: OK
     HTTP400:
       content:
         application/json:
@@ -265,6 +395,17 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -295,163 +436,34 @@ components:
           schema:
             $ref: '#/components/schemas/secintel_profile'
       description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP401:
+    HTTP429:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/response_http401'
+            $ref: '#/components/schemas/response_http429'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    secintelprofile_id:
-      in: path
-      name: secintelprofile_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-  schemas:
-    secintel_profile_profile_category:
-      description: 'enum: `CC`, `IH` (Infected Host), `DNS`'
-      enum:
-      - CC
-      - DNS
-      - IH
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    secintel_profile_profiles:
-      description: Category-specific SecIntel action settings
-      items:
-        $ref: '#/components/schemas/secintel_profile_profile'
-      type: array
-    secintel_profile:
-      description: SecIntel profile containing category-specific threat intelligence actions
-      properties:
-        name:
-          description: Display name of the SecIntel profile
-          examples:
-          - secintel-custom
-          type: string
-        profiles:
-          $ref: '#/components/schemas/secintel_profile_profiles'
-          description: Category-specific SecIntel action settings included in this profile
-      type: object
-    secintel_profiles:
-      description: SecIntel profiles returned by list operations
-      items:
-        $ref: '#/components/schemas/secintel_profile'
-      type: array
-    secintel_profile_profile:
-      additionalProperties: false
-      description: SecIntel action setting for a specific feed category
-      properties:
-        action:
-          $ref: '#/components/schemas/secintel_profile_profile_action'
-          description: Protection level applied to the SecIntel category
-        category:
-          $ref: '#/components/schemas/secintel_profile_profile_category'
-          description: SecIntel feed category configured by this profile entry
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    secintel_profile_profile_action:
-      default: default
-      description: 'enum: `default`, `standard`, `strict`'
-      enum:
-      - default
-      - standard
-      - strict
-      type: string
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
+    SecIntelProfileExample:
+      value:
+        name: secintel-custom
+        profiles:
+        - action: default
+          category: CC
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     SecIntelProfilesArrayExample:
       value:
       - name: secintel-custom
@@ -461,18 +473,6 @@ components:
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    SecIntelProfileExample:
-      value:
-        name: secintel-custom
-        profiles:
-        - action: default
-          category: CC
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Wlans API
+  title: Mist Sites Wlans API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -784,122 +784,53 @@ paths:
       - Sites Wlans
 components:
   schemas:
-    vlan_id_with_variable:
-      description: VLAN ID, either numeric or expressed as a template variable string
-      oneOf:
-      - type: string
-      - maximum: 4094
-        minimum: 1
-        type: integer
-    wlan_portal_sponsors:
-      description: Object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty. Property key is the sponsor email, Property value is the sponsor name. List of email allowed for backward compatibility
-      oneOf:
-      - $ref: '#/components/schemas/wlan_portal_sponsors_list'
-      - $ref: '#/components/schemas/wlan_portal_sponsors_object'
-    wlan_limit:
-      anyOf:
-      - maximum: 999000
-        minimum: 1
-        type: integer
-      - type: string
-      description: In kbps, value from 1 to 999000
-    wlan_airwatch:
-      additionalProperties: false
-      description: AirWatch integration settings for the WLAN
-      properties:
-        api_key:
-          default: ''
-          description: API key used to authenticate to the AirWatch service
-          examples:
-          - aHhlbGxvYXNkZmFzZGZhc2Rmc2RmCg=="
-          type: string
-        console_url:
-          default: ''
-          description: Base console URL of the AirWatch deployment
-          examples:
-          - https://hs1.airwatchportals.com
-          type: string
-        enabled:
-          default: false
-          description: Whether AirWatch integration is enabled for the WLAN
-          type: boolean
-        password:
-          default: ''
-          description: AirWatch integration account password for this WLAN
-          examples:
-          - user1
-          format: password
-          type: string
-        username:
-          default: ''
-          description: AirWatch integration account username for this WLAN
-          examples:
-          - test123
-          type: string
-      type: object
-    wlan_auth_owe:
-      default: disabled
-      description: 'if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`'
+    wlan_dynamic_vlan_type:
+      default: standard
+      description: 'standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`'
       enum:
-      - disabled
-      - enabled
-      - required
-      type: string
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+      - airespace-interface-name
+      - standard
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
+      - airespace-interface-name
       type: string
-    wlan_vlan_ids_string:
-      description: If `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs to be used in the VLAN Pool
-      examples:
-      - 1,2
-      type: string
-    wlan_datarates_legacy:
-      description: If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
-      examples:
-      - - '6'
-        - '9'
-        - '12'
-        - '18'
-        - 24b
-        - '36'
-        - '48'
-        - '54'
+    radius_acct_port:
+      anyOf:
+      - maximum: 65545
+        minimum: 1
+        type: integer
+      - type: string
+      description: RADIUS Auth Port, value from 1 to 65535, default is 1813
+    wlan_cisco_cwa_allowed_hostnames:
+      description: List of hostnames without http(s):// (matched by substring)
       items:
-        $ref: '#/components/schemas/wlan_datarates_legacy_item'
+        examples:
+        - snapchat.com
+        type: string
       type: array
-    wlan_bands:
-      default:
-      - '24'
-      - '5'
-      - '6'
-      description: 'List of radios that the wlan should apply to. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
-      items:
-        $ref: '#/components/schemas/dot11_band'
-      type: array
-    wlan_portal_sponsor_email_domains:
-      description: List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
+    wlan_portal_denied_hostnames:
+      default: []
+      description: List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
       examples:
-      - - reserved.net
-        - reserved.org
+      - - msg.snapchat.com
       items:
         type: string
       type: array
-    wlan_qos:
-      additionalProperties: false
-      description: QoS override settings for WLAN client traffic
-      properties:
-        class:
-          $ref: '#/components/schemas/wlan_qos_class'
-          description: QoS traffic class applied when WLAN QoS override is enabled
-        overwrite:
-          default: false
-          description: Whether to overwrite QoS
-          type: boolean
-      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    wlan_vlan_ids_list:
+      description: If `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
+      examples:
+      - - 3
+        - 4
+        - 5
+      items:
+        $ref: '#/components/schemas/vlan_id_with_variable'
+      type: array
     radius_acct_server:
       additionalProperties: false
       description: RADIUS accounting server settings
@@ -938,690 +869,80 @@ components:
       - host
       - secret
       type: object
-    wlan_portal_sms_provider:
-      default: manual
-      description: 'Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`'
-      enum:
-      - broadnet
-      - clickatell
-      - gupshup
-      - manual
-      - puzzel
-      - telstra
-      - twilio
-      - smsglobal
-      examples:
-      - twilio
-      type: string
-    radsec_proxy_hosts:
-      description: Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site Mist Edges) are used irrespective of `use_site_mxedge`
-      items:
-        examples:
-        - mxedge1.local
-        type: string
-      type: array
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    wlan_hotspot20_operators_item:
-      description: 'enum: `ameriband`, `att`, `boingo`, `charter`, `eduroam`, `global_reach`, `google`, `hughes_systique`, `openroaming_legacy`, `openroaming_settled`, `openroaming_settlement_free`, `single_digits`, `tmobile`, `verizon`'
-      enum:
-      - ameriband
-      - att
-      - boingo
-      - charter
-      - eduroam
-      - global_reach
-      - google
-      - hughes_systique
-      - openroaming_legacy
-      - openroaming_settled
-      - openroaming_settlement_free
-      - single_digits
-      - tmobile
-      - verizon
-      type: string
-    dscp:
-      anyOf:
-      - type: string
-      - maximum: 63
-        minimum: 0
-        type: integer
-      description: DSCP value range between 0 and 63
-    additional_vlan_ids_array:
-      description: Additional VLAN IDs represented as an array
-      items:
-        $ref: '#/components/schemas/vlan_id_with_variable'
-      type: array
-    wlan_hotspot20_operators:
-      description: List of operators to support
-      examples:
-      - - google
-        - att
-      items:
-        $ref: '#/components/schemas/wlan_hotspot20_operators_item'
-      type: array
-    wlan_app_limit:
-      additionalProperties: false
-      description: Bandwidth limiting for apps (applies to up/down)
-      properties:
-        apps:
-          additionalProperties:
-            type: integer
-          default: {}
-          description: "Map from app key to bandwidth in kbps. \nProperty key is the app key, defined in Get Application List"
-          examples:
-          - dropbox: 300
-            netflix: 60
-          type: object
-        enabled:
-          default: false
-          description: Whether application bandwidth limits are enabled for this WLAN
-          type: boolean
-        wxtag_ids:
-          additionalProperties:
-            type: integer
-          default: {}
-          description: Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps. Property key is the `wxtag_id`
-          examples:
-          - f99862d9-2726-931f-7559-3dfdf5d070d3: 30
-          type: object
-      type: object
-    radsec_server:
-      additionalProperties: false
-      description: External RadSec server settings
-      properties:
-        host:
-          description: Address or hostname of the RadSec server
-          examples:
-          - 1.1.1.1
-          type: string
-        port:
-          description: TCP port used by the RadSec server
-          examples:
-          - 1812
-          maximum: 65535
-          minimum: 1
-          type: integer
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    msp_id:
-      description: Managed service provider identifier
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      readOnly: true
-      type: string
-    wlan_vlan_id_with_variable:
-      description: WLAN VLAN ID, either numeric, a variable string, or null
-      oneOf:
-      - type: string
-      - maximum: 4094
-        minimum: 1
-        type: integer
-      - type: 'null'
-    wlan_datarates_template:
-      default: compatible
-      description: "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined"
-      enum:
-      - compatible
-      - legacy-only
-      - custom
-      - no-legacy
-      - high-density
-      type:
-      - string
-      - 'null'
-    wlan_auth:
-      additionalProperties: false
-      description: WLAN client authentication settings
-      properties:
-        anticlog_threshold:
-          default: 16
-          description: SAE anti-clogging token threshold
-          examples:
-          - 16
-          maximum: 32
-          minimum: 16
-          type: integer
-        eap_reauth:
-          default: false
-          description: Whether to trigger EAP reauth when the session ends
-          type: boolean
-        enable_beacon_protection:
-          default: false
-          description: Enable Beacon Protection; default is false for better compatibility
-          type: boolean
-        enable_gcmp256:
-          default: false
-          description: Enable GCMP-256 encryption suite; default is false for better compatibility
-          type: boolean
-        enable_mac_auth:
-          default: false
-          description: Whether to enable MAC Auth, uses the same auth_servers
-          type: boolean
-        key_idx:
-          default: 1
-          description: When `type`==`wep`, index of the WEP key used as the default transmit key
-          maximum: 4
-          minimum: 1
-          type: integer
-        keys:
-          $ref: '#/components/schemas/wlan_auth_keys'
-          description: When `type`==`wep`, WEP keys configured for this WLAN
-        multi_psk_only:
-          default: false
-          description: When `type`==`psk`, whether to only use multi_psk
-          type: boolean
-        owe:
-          $ref: '#/components/schemas/wlan_auth_owe'
-          description: When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN
-        pairwise:
-          $ref: '#/components/schemas/wlan_auth_pairwise'
-          description: When `type`==`psk` or `type`==`eap`, pairwise cipher suites allowed for this WLAN
-        private_wlan:
-          default: false
-          description: When `multi_psk_only`==`true`, whether private wlan is enabled
-          type: boolean
-        psk:
-          default: ''
-          description: When `type`==`psk`, 8-64 characters, or 64 hex characters
-          examples:
-          - foryoureyesonly
-          maxLength: 64
-          minLength: 8
-          type:
-          - string
-          - 'null'
-        type:
-          $ref: '#/components/schemas/wlan_auth_type'
-          description: Authentication mode used by this WLAN
-        wep_as_secondary_auth:
-          default: false
-          description: Enable WEP as secondary auth
-          type: boolean
-      required:
-      - type
-      type: object
-    wlan_portal_template_setting_locale:
-      additionalProperties: false
-      description: Localized portal template strings for a specific language
-      properties:
-        authButtonAmazon:
-          description: Label for Amazon auth button
-          type: string
-        authButtonAzure:
-          description: Label for Azure auth button
-          type: string
-        authButtonEmail:
-          description: Label for Email auth button
-          type: string
-        authButtonFacebook:
-          description: Label for Facebook auth button
-          type: string
-        authButtonGoogle:
-          description: Label for Google auth button
-          type: string
-        authButtonMicrosoft:
-          description: Label for Microsoft auth button
-          type: string
-        authButtonPassphrase:
-          description: Label for passphrase auth button
-          type: string
-        authButtonSms:
-          description: Label for SMS auth button
-          type: string
-        authButtonSponsor:
-          description: Label for Sponsor auth button
-          type: string
-        authLabel:
-          description: Localized heading text displayed above portal authentication options
-          type: string
-        backLink:
-          description: Label of the link to go back to /logon
-          type: string
-        companyError:
-          description: Error message when company not provided
-          type: string
-        companyLabel:
-          description: Localized label displayed for the company input field
-          type: string
-        emailAccessDomainError:
-          description: Error message when a user has valid social login but doesn't match specified email domains.
-          type: string
-        emailCancel:
-          description: Label for cancel confirmation code submission using email auth
-          type: string
-        emailCodeCancel:
-          description: Localized link text for requesting help when the email access code was not received
-          type: string
-        emailCodeError:
-          description: Localized error message shown when the alternate email address for access-code delivery is invalid
-          type: string
-        emailCodeFieldLabel:
-          description: Localized label for the email access-code input field
-          type: string
-        emailCodeMessage:
-          description: Localized instructional text shown before entering the email access code
-          type: string
-        emailCodeSubmit:
-          description: Localized button label for submitting the email access code
-          type: string
-        emailCodeTitle:
-          description: Localized title shown on the email access-code entry page
-          type: string
-        emailError:
-          description: Error message when email not provided
-          type: string
-        emailFieldLabel:
-          description: Localized label for the email address input field
-          type: string
-        emailLabel:
-          description: Localized label displayed for the email input field
-          type: string
-        emailMessage:
-          description: Localized instructional text explaining email access-code delivery
-          type: string
-        emailSubmit:
-          description: Label for confirmation code submit button using email auth
-          type: string
-        emailTitle:
-          description: Title for the Email registration
-          type: string
-        field1Error:
-          description: Error message when field1 not provided
-          type: string
-        field1Label:
-          description: Localized label for custom field 1 input
-          type: string
-        field2Error:
-          description: Error message when field2 not provided
-          type: string
-        field2Label:
-          description: Localized label for custom field 2 input
-          type: string
-        field3Error:
-          description: Error message when field3 not provided
-          type: string
-        field3Label:
-          description: Localized label for custom field 3 input
-          type: string
-        field4Error:
-          description: Error message when field4 not provided
-          type: string
-        field4Label:
-          description: Localized label for custom field 4 input
-          type: string
-        marketingPolicyLink:
-          description: label of the link to go to /marketing_policy
-          type: string
-        marketingPolicyOptIn:
-          description: Whether marketing policy optin is enabled
-          type: boolean
-        marketingPolicyOptInLabel:
-          description: label for marketing optin
-          type: string
-        marketingPolicyOptInText:
-          description: Localized text of the marketing policy opt-in content
-          type: string
-        message:
-          description: Localized main message displayed on the guest portal sign-in page
-          type: string
-        nameError:
-          description: Error message when name not provided
-          type: string
-        nameLabel:
-          description: Localized label displayed for the name input field
-          type: string
-        optoutLabel:
-          description: Label for Do Not Store My Personal Information
-          type: string
-        pageTitle:
-          description: Localized browser or page title shown for the guest portal
-          type: string
-        passphraseCancel:
-          description: Label for the Passphrase cancel button
-          type: string
-        passphraseError:
-          description: Error message when invalid passphrase is provided
-          type: string
-        passphraseLabel:
-          description: Localized label for the passphrase input field
-          type: string
-        passphraseMessage:
-          description: Localized instructional text shown on the passphrase sign-in page
-          type: string
-        passphraseSubmit:
-          description: Label for the Passphrase submit button
-          type: string
-        passphraseTitle:
-          description: Title for passphrase details page
-          type: string
-        privacyPolicyAcceptLabel:
-          description: Prefix of the label of the link to go to Privacy Policy
-          type: string
-        privacyPolicyError:
-          description: Error message when Privacy Policy not accepted
-          type: string
-        privacyPolicyLink:
-          description: Label of the link to go to Privacy Policy
-          type: string
-        privacyPolicyText:
-          description: Text of the Privacy Policy
-          type: string
-        requiredFieldLabel:
-          description: Localized text used to mark a form field as required
-          type: string
-        signInLabel:
-          description: Label of the button to signin
-          type: string
-        smsCarrierDefault:
-          description: Localized default option text shown in the SMS carrier selector
-          type: string
-        smsCarrierError:
-          description: Localized error message shown when no mobile carrier is selected
-          type: string
-        smsCarrierFieldLabel:
-          description: Label for mobile carrier drop-down list
-          type: string
-        smsCodeCancel:
-          description: Label for cancel confirmation code submission
-          type: string
-        smsCodeError:
-          description: Error message when confirmation code is invalid
-          type: string
-        smsCodeFieldLabel:
-          description: Localized label for the SMS confirmation-code input field
-          type: string
-        smsCodeMessage:
-          description: Localized instructional text shown before entering the SMS access code
-          type: string
-        smsCodeSubmit:
-          description: Label for confirmation code submit button
-          type: string
-        smsCodeTitle:
-          description: Localized title shown on the SMS access-code entry page
-          type: string
-        smsCountryFieldLabel:
-          description: Localized label for the SMS country-code input field
-          type: string
-        smsCountryFormat:
-          description: Localized example country code format shown for SMS authentication
-          type: string
-        smsHaveAccessCode:
-          description: Label for checkbox to specify that the user has access code
-          type: string
-        smsMessageFormat:
-          description: Format of access code sms message. {{code}} and {{duration}} are placeholders and should be retained as is.
-          type: string
-        smsNumberCancel:
-          description: Label for canceling mobile details for SMS auth
-          type: string
-        smsNumberError:
-          description: Localized error message shown when the mobile number is invalid
-          type: string
-        smsNumberFieldLabel:
-          description: Label for field to provide mobile number
-          type: string
-        smsNumberFormat:
-          description: Localized example mobile number format shown for SMS authentication
-          type: string
-        smsNumberMessage:
-          description: Localized instructional text explaining SMS access-code delivery
-          type: string
-        smsNumberSubmit:
-          description: Label for submit button for code generation
-          type: string
-        smsNumberTitle:
-          description: Title for phone number details
-          type: string
-        smsUsernameFormat:
-          description: Localized example username format shown for SMS authentication
-          type: string
-        sponsorBackLink:
-          description: Localized link text for returning to edit the sponsor request form
-          type: string
-        sponsorCancel:
-          description: Localized button label for canceling sponsor authentication
-          type: string
-        sponsorEmail:
-          description: Label for Sponsor Email
-          type: string
-        sponsorEmailError:
-          description: Localized error message shown when the sponsor email address is invalid
-          type: string
-        sponsorInfoApproved:
-          description: Localized status message prefix shown when a sponsor approves the request
-          type: string
-        sponsorInfoDenied:
-          description: Localized status message prefix shown when a sponsor denies the request
-          type: string
-        sponsorInfoPending:
-          description: Localized status message prefix shown after a sponsor notification is sent
-          type: string
-        sponsorName:
-          description: Label for Sponsor Name
-          type: string
-        sponsorNameError:
-          description: Localized error message shown when the sponsor name is missing
-          type: string
-        sponsorNotePending:
-          description: Localized additional status text shown while sponsor approval is pending
-          type: string
-        sponsorRequestAccess:
-          description: Submit button label request Wifi Access and notify sponsor about guest request
-          type: string
-        sponsorStatusApproved:
-          description: Text to display if sponsor approves request
-          type: string
-        sponsorStatusDenied:
-          description: Text to display when sponsor denies request
-          type: string
-        sponsorStatusPending:
-          description: Text to display if request is still pending
-          type: string
-        sponsorSubmit:
-          description: Submit button label to notify sponsor about guest request
-          type: string
-        sponsorsError:
-          description: Localized error message shown when no sponsor is selected
-          type: string
-        sponsorsFieldLabel:
-          description: Localized label for the sponsor selection field
-          type: string
-        tosAcceptLabel:
-          description: Prefix of the label of the link to go to tos
-          type: string
-        tosError:
-          description: Error message when tos not accepted
-          type: string
-        tosLink:
-          description: Label of the link to go to tos
-          type: string
-        tosText:
-          description: Text of the Terms of Service
-          type: string
-      type: object
-    wlan_cisco_cwa_allowed_hostnames:
-      description: List of hostnames without http(s):// (matched by substring)
-      items:
-        examples:
-        - snapchat.com
-        type: string
-      type: array
-    wlan_dynamic_vlan_local_vlan_ids:
-      description: VLAN_ids to be locally bridged
-      items:
-        $ref: '#/components/schemas/vlan_id_with_variable'
-      type: array
-    wlan_portal_amazon_email_domains:
-      default: []
-      description: Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-      items:
-        type: string
-      type: array
-    wlan_bonjour:
-      additionalProperties: false
-      description: Bonjour gateway wlan settings
-      properties:
-        additional_vlan_ids:
-          $ref: '#/components/schemas/additional_vlan_ids'
-          description: VLAN IDs, beyond the client VLAN, where Bonjour queries and responses are forwarded
-        enabled:
-          default: false
-          description: Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
-          type: boolean
-        services:
-          additionalProperties:
-            $ref: '#/components/schemas/wlan_bonjour_service_properties'
-          description: "What services are allowed. \nProperty key is the service name"
-          examples:
-          - airplay:
-              radius_groups:
-              - teachers
-              scope: same_ap
-          type: object
-      type: object
-    image_import:
-      additionalProperties: false
-      description: Multipart image upload payload
-      properties:
-        file:
-          contentMediaType: application/octet-stream
-          description: Image file content uploaded as multipart form data
-          type: string
-        json:
-          description: Optional JSON metadata submitted with the image upload
-          type: string
-      required:
-      - file
-      type: object
-    wlan_vlan_ids_list:
-      description: If `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
-      examples:
-      - - 3
-        - 4
-        - 5
-      items:
-        $ref: '#/components/schemas/vlan_id_with_variable'
-      type: array
     wlan_auth_servers:
       description: List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary
       items:
         $ref: '#/components/schemas/radius_auth_server'
       type: array
-    wlan_dynamic_vlan_default_vlan_id:
-      description: VLAN ID, VLAN range or variable to use when there’s no match from RADIUS
-      oneOf:
-      - type: string
-      - default: 999
-        maximum: 4094
+    wlan_qos:
+      additionalProperties: false
+      description: QoS override settings for WLAN client traffic
+      properties:
+        class:
+          $ref: '#/components/schemas/wlan_qos_class'
+          description: QoS traffic class applied when WLAN QoS override is enabled
+        overwrite:
+          default: false
+          description: Whether to overwrite QoS
+          type: boolean
+      type: object
+    wlan_acct_servers:
+      description: List of RADIUS accounting servers, optional, order matters where the first one is treated as primary
+      items:
+        $ref: '#/components/schemas/radius_acct_server'
+      type: array
+    radius_coa_port:
+      anyOf:
+      - maximum: 65545
         minimum: 1
         type: integer
-    wlan_portal_allowed_subnets:
+      - type: string
+      description: RADIUS CoA Port, value from 1 to 65535, default is 3799
+    wlan_portal_google_email_domains:
       default: []
-      description: Guest portal CIDR subnets that clients may reach before authorization
+      description: Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
       examples:
-      - - 63.5.3.0/24
+      - - mydomain.edu
+        - mydomain.org
       items:
         type: string
       type: array
-    wlan_hotspot20_rcoi:
-      description: Roaming Consortium Organization Identifiers advertised for Hotspot 2.0
-      examples:
-      - - 5A03BA0000
+    strings:
+      description: Unique string values returned or accepted by this schema
       items:
         type: string
       type: array
-    wlan_dynamic_vlan:
+      uniqueItems: true
+    coa_server:
       additionalProperties: false
-      description: Dynamic VLAN assignment settings for 802.1X WLAN authentication
+      description: RADIUS Change of Authorization (CoA) server settings
       properties:
-        default_vlan_id:
-          $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_id_deprecated'
-          description: Deprecated default VLAN ID used when no RADIUS VLAN match is returned. Please use `default_vlan_ids` instead, which can support VLAN pools.
-        default_vlan_ids:
-          $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_ids'
-          description: Fallback VLAN IDs, ranges, or variables used when no RADIUS VLAN match is returned
+        disable_event_timestamp_check:
+          default: false
+          description: Whether to disable Event-Timestamp Check
+          type: boolean
         enabled:
           default: false
-          description: Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
+          description: Whether this RADIUS CoA server is enabled
           type: boolean
-        local_vlan_ids:
-          $ref: '#/components/schemas/wlan_dynamic_vlan_local_vlan_ids'
-          description: VLAN IDs that should be locally bridged for dynamic VLAN assignment
-        type:
-          $ref: '#/components/schemas/wlan_dynamic_vlan_type'
-          description: Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes
-        vlans:
-          additionalProperties:
-            type: string
-          description: "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the VLAN ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the VLAN ID and property value is the Airespace Interface Name"
+        ip:
+          description: Server IPv4 address for RADIUS CoA messages
           examples:
-          - '131': default
-            '322': fast,video
-          type: object
-      type:
-      - object
-      - 'null'
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - 1.2.3.4
+          format: ipv4
           type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
+        port:
+          $ref: '#/components/schemas/radius_coa_port'
+          description: UDP port used to send RADIUS CoA messages to the server
+        secret:
+          description: Shared secret used to authenticate RADIUS CoA messages
           examples:
-          - Authentication credentials were not provided.
+          - testing456
           type: string
+      required:
+      - ip
+      - secret
       type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    wlan_inject_dhcp_option_82:
-      additionalProperties: false
-      description: DHCP Option 82 injection settings for a WLAN
-      properties:
-        circuit_id:
-          description: "Information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}"
-          examples:
-          - '{{SSID}}:{{AP_MAC}}'
-          type: string
-        enabled:
-          default: false
-          description: Whether to inject option 82 when forwarding DHCP packets
-          type: boolean
-      type: object
-    wlan_portal_microsoft_email_domains:
-      default: []
-      description: Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-      items:
-        type: string
-      type: array
     wlan_dynamic_psk:
       additionalProperties: false
       description: "For dynamic PSK where we get per_user PSK from RADIUS. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)"
@@ -1668,133 +989,42 @@ components:
           description: Whether Cisco CWA is enabled for this WLAN
           type: boolean
       type: object
-    wlan_cisco_cwa_allowed_subnets:
-      description: CIDR subnets allowed for Cisco CWA client access before authorization
-      items:
-        examples:
-        - 63.5.3.0/24
-        type: string
-      type: array
-    wlan_dynamic_vlan_default_vlan_id_deprecated:
-      deprecated: true
-      description: vlan_id to use when there’s no match from RADIUS
-      oneOf:
-      - type: string
-      - default: 999
-        maximum: 4094
-        minimum: 1
-        type: integer
-    radius_keywrap_format:
-      description: 'Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`'
+    wlan_portal_sms_provider:
+      default: manual
+      description: 'Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`'
       enum:
-      - ascii
-      - hex
-      type: string
-    wlan_auth_server_selection:
-      default: ordered
-      description: 'When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`'
-      enum:
-      - ordered
-      - unordered
+      - broadnet
+      - clickatell
+      - gupshup
+      - manual
+      - puzzel
+      - telstra
+      - twilio
+      - smsglobal
       examples:
-      - ordered
+      - twilio
       type: string
-    wlan_portal_sponsors_object:
-      additionalProperties:
-        type: string
-      description: Allowed guest portal sponsors keyed by email address with sponsor names as values
+    msp_id:
+      description: Managed service provider identifier
       examples:
-      - sponsor1@company.com: FirstName1 LastName1
-        sponsor2@company.com: FirstName2 LastName2
-      type: object
-    coa_servers:
-      description: List of COA (change of authorization) servers, optional
-      items:
-        $ref: '#/components/schemas/coa_server'
-      type: array
-    wlan_datarates_legacy_item:
-      description: 'enum: `1`, `11`, `11b`, `12`, `12b`, `18`, `18b`, `1b`, `2`, `24`, `24b`, `2b`, `36`, `36b`, `48`, `48b`, `5.5`, `5.5b`, `54`, `54b`, `6`, `6b`, `9`, `9b`'
-      enum:
-      - '1'
-      - '11'
-      - 11b
-      - '12'
-      - 12b
-      - '18'
-      - 18b
-      - 1b
-      - '2'
-      - '24'
-      - 24b
-      - 2b
-      - '36'
-      - 36b
-      - '48'
-      - 48b
-      - '5.5'
-      - 5.5b
-      - '54'
-      - 54b
-      - '6'
-      - 6b
-      - '9'
-      - 9b
-      type: string
-    wlan_mxtunnel_ids:
-      description: When `interface`=`mxtunnel`, id of the Mist Tunnel
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
       format: uuid
+      readOnly: true
+      type: string
+    wlan_hotspot20_operators:
+      description: List of operators to support
+      examples:
+      - - google
+        - att
+      items:
+        $ref: '#/components/schemas/wlan_hotspot20_operators_item'
+      type: array
+    radsec_proxy_hosts:
+      description: Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site Mist Edges) are used irrespective of `use_site_mxedge`
       items:
         examples:
-        - 08cd7499-5841-51c8-e663-fb16b6f3b45e
+        - mxedge1.local
         type: string
-      type: array
-    wlan_portal_auth:
-      default: none
-      description: 'authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`'
-      enum:
-      - amazon
-      - azure
-      - email
-      - external
-      - facebook
-      - google
-      - microsoft
-      - multi
-      - none
-      - password
-      - sms
-      - sponsor
-      - sso
-      examples:
-      - none
-      type: string
-    wlan_wxtag_ids:
-      description: Identifiers of WxLAN tags used when `apply_to`==`wxtags`
-      items:
-        format: uuid
-        type: string
-      type:
-      - array
-      - 'null'
-    wlan_portal_idp_sign_algo:
-      default: sha1
-      description: 'Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`'
-      enum:
-      - sha1
-      - sha256
-      - sha384
-      - sha512
-      type: string
-    wlan_app_qos_others:
-      description: Custom application QoS rules for traffic matched by subnet, port, and protocol
-      items:
-        $ref: '#/components/schemas/wlan_app_qos_others_item'
-      type: array
-      uniqueItems: true
-    wlans:
-      description: WLAN records returned by a list response
-      items:
-        $ref: '#/components/schemas/wlan'
       type: array
     radsec:
       additionalProperties: false
@@ -1832,160 +1062,6 @@ components:
           description: Whether to use site Mist Edge instances when this WLAN does not use mxtunnel
           type: boolean
       type: object
-    wlan_schedule:
-      additionalProperties: false
-      description: WLAN operating schedule, default is disabled
-      properties:
-        enabled:
-          default: false
-          description: Whether the WLAN operating schedule is enabled
-          type: boolean
-        hours:
-          $ref: '#/components/schemas/hours'
-          description: Time ranges when the WLAN is scheduled to operate
-      type: object
-    wlan_app_qos_others_item:
-      additionalProperties: false
-      description: Custom QoS rewrite rule for traffic not matched by a named application
-      properties:
-        dscp:
-          $ref: '#/components/schemas/dscp'
-          description: Differentiated Services Code Point value applied to matching traffic
-        dst_subnet:
-          description: Destination subnet filter for this custom QoS rule
-          examples:
-          - 10.2.0.0/16
-          type: string
-        port_ranges:
-          description: TCP or UDP port ranges matched by this custom QoS rule
-          examples:
-          - 80,1024-6553
-          type: string
-        protocol:
-          description: IP protocol matched by this custom QoS rule
-          examples:
-          - udp
-          type: string
-        src_subnet:
-          description: Source subnet filter for this custom QoS rule
-          examples:
-          - 10.2.0.0/16
-          type: string
-      type: object
-    wlan_auth_type:
-      default: open
-      description: 'enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`'
-      enum:
-      - eap
-      - eap192
-      - open
-      - psk
-      - psk-tkip
-      - psk-wpa2-tkip
-      - wep
-      examples:
-      - psk
-      type: string
-    wlan_portal_allowed_hostnames:
-      default: []
-      description: List of hostnames without http(s):// (matched by substring)
-      examples:
-      - - snapchat.com
-        - ibm.com
-      items:
-        type: string
-      type: array
-    portal_template_alignment:
-      default: center
-      description: 'defines alignment on portal. enum: `center`, `left`, `right`'
-      enum:
-      - center
-      - left
-      - right
-      type: string
-    wlan_bonjour_service_properties_scope:
-      default: same_site
-      description: 'how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`'
-      enum:
-      - same_ap
-      - same_map
-      - same_site
-      type: string
-    wlan_auth_pairwise_item:
-      description: 'enum: `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`'
-      enum:
-      - wpa1-ccmp
-      - wpa1-tkip
-      - wpa2-ccmp
-      - wpa2-tkip
-      - wpa3
-      examples:
-      - wpa3
-      type:
-      - string
-      - 'null'
-    wlan_portal_template:
-      description: Guest portal template payload for a WLAN
-      properties:
-        portal_template:
-          $ref: '#/components/schemas/wlan_portal_template_setting'
-          description: Template settings that define guest portal text, layout, and localization
-      type: object
-    wlan_apply_to:
-      description: 'enum: `aps`, `site`, `wxtags`'
-      enum:
-      - aps
-      - site
-      - wxtags
-      type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    wlan_interface:
-      default: all
-      description: 'where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`'
-      enum:
-      - all
-      - eth0
-      - eth1
-      - eth2
-      - eth3
-      - mxtunnel
-      - site_mxedge
-      - wxtunnel
-      examples:
-      - all
-      type: string
-    wlan_mxtunnel_name:
-      description: When `interface`=`site_mxedge`, name of the Mist Tunnel defined under `site_setting.mxtunnel.additional_mxtunnels`
-      items:
-        default: default
-        examples:
-        - default
-        type: string
-      type: array
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    wlan_portal_denied_hostnames:
-      default: []
-      description: List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
-      examples:
-      - - msg.snapchat.com
-      items:
-        type: string
-      type: array
     dynamic_psk_source:
       default: radius
       description: 'Origin used to retrieve per-user PSKs. enum: `cloud_psks`, `radius`'
@@ -1995,81 +1071,113 @@ components:
       examples:
       - cloud_psks
       type: string
-    radius_acct_port:
+    radsec_idle_timeout:
       anyOf:
-      - maximum: 65545
-        minimum: 1
+      - default: 60
         type: integer
       - type: string
-      description: RADIUS Auth Port, value from 1 to 65535, default is 1813
-    wlan_rateset:
-      additionalProperties:
-        $ref: '#/components/schemas/wlan_datarates'
-      description: 'Property key is the RF band. enum: `24`, `5`, `6`'
-      type: object
-    wlan_auth_pairwise:
-      default:
-      - wpa2-ccmp
-      description: When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`
+      description: RadSec idle timeout in seconds. Default is 60
+    wlan_ap_ids:
+      description: List of device ids
       items:
-        $ref: '#/components/schemas/wlan_auth_pairwise_item'
-      type: array
-    hour:
-      default: ''
-      description: Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+        format: uuid
+        type: string
+      type:
+      - array
+      - 'null'
+    wlan_hotspot20_domain_name:
+      description: Domain names advertised to Hotspot 2.0 clients
       examples:
-      - 09:00-17:00
-      type: string
-    hours:
+      - - mist.com
+      items:
+        type: string
+      type: array
+    wlan_dynamic_vlan_default_vlan_id:
+      description: VLAN ID, VLAN range or variable to use when there’s no match from RADIUS
+      oneOf:
+      - type: string
+      - default: 999
+        maximum: 4094
+        minimum: 1
+        type: integer
+    wlan_datarates_legacy:
+      description: If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
+      examples:
+      - - '6'
+        - '9'
+        - '12'
+        - '18'
+        - 24b
+        - '36'
+        - '48'
+        - '54'
+      items:
+        $ref: '#/components/schemas/wlan_datarates_legacy_item'
+      type: array
+    wlan_mxtunnel_name:
+      description: When `interface`=`site_mxedge`, name of the Mist Tunnel defined under `site_setting.mxtunnel.additional_mxtunnels`
+      items:
+        default: default
+        examples:
+        - default
+        type: string
+      type: array
+    wlan_datarates:
       additionalProperties: false
-      description: Day-of-week operating hour filters using hour ranges such as 09:00-17:00
+      description: Data rates wlan settings
       properties:
-        fri:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Friday
-        mon:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Monday
-        sat:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Saturday
-        sun:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Sunday
-        thu:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Thursday
-        tue:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Tuesday
-        wed:
-          $ref: '#/components/schemas/hour'
-          description: Operating hour range for Wednesday
+        eht:
+          description: If `template`==`custom`. EHT MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit)
+          examples:
+          - 3fff0fff0fff03ff
+          type:
+          - string
+          - 'null'
+        he:
+          description: If `template`==`custom`. HE MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit
+          examples:
+          - 0fff0fff0fff0fff
+          type:
+          - string
+          - 'null'
+        ht:
+          description: If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+          examples:
+          - 00ff00ff00ff
+          type:
+          - string
+          - 'null'
+        legacy:
+          $ref: '#/components/schemas/wlan_datarates_legacy'
+          description: If `template`==`custom`, legacy 802.11 data rates allowed on this WLAN
+        min_rssi:
+          default: 0
+          description: Minimum RSSI for client to connect, 0 means not enforcing
+          examples:
+          - -70
+          type: integer
+        template:
+          $ref: '#/components/schemas/wlan_datarates_template'
+          description: Data rate template used to derive WLAN rate settings
+        vht:
+          description: If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
+          examples:
+          - 03ff03ff03ff01ff
+          type:
+          - string
+          - 'null'
       type: object
-    wlan_roam_mode:
-      default: NONE
-      description: 'enum: `11r`, `OKC`, `NONE`'
-      enum:
-      - 11r
-      - NONE
-      - OKC
+    radsec_servers:
+      description: External RadSec servers. Only if not Mist Edge.
+      items:
+        $ref: '#/components/schemas/radsec_server'
+      type: array
+      uniqueItems: true
+    wlan_vlan_ids_string:
+      description: If `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs to be used in the VLAN Pool
       examples:
-      - NONE
+      - 1,2
       type: string
-    wlan_portal_google_email_domains:
-      default: []
-      description: Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-      examples:
-      - - mydomain.edu
-        - mydomain.org
-      items:
-        type: string
-      type: array
-    wlan_bonjour_service_properties_radius_groups:
-      description: Optional, if the service is further restricted for certain RADIUS groups
-      items:
-        type: string
-      type: array
     wlan_dns_server_rewrite:
       additionalProperties: false
       description: For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)
@@ -2089,81 +1197,64 @@ components:
       type:
       - object
       - 'null'
-    additional_vlan_ids:
-      anyOf:
-      - type: string
-      - $ref: '#/components/schemas/additional_vlan_ids_array'
-      description: List or Comma separated list of additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
-    radsec_idle_timeout:
-      anyOf:
-      - default: 60
-        type: integer
-      - type: string
-      description: RadSec idle timeout in seconds. Default is 60
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    wlan_cisco_cwa_blocked_subnets:
-      description: List of blocked CIDRs
+    coa_servers:
+      description: List of COA (change of authorization) servers, optional
       items:
-        examples:
-        - 192.168.0.0/16
-        type: string
+        $ref: '#/components/schemas/coa_server'
       type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    wlan_app_qos_apps_properties:
-      additionalProperties: false
-      description: QoS rewrite settings for traffic matching a named application
-      properties:
-        dscp:
-          $ref: '#/components/schemas/dscp'
-          description: Differentiated Services Code Point value applied to matching application traffic
-        dst_subnet:
-          description: Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
-          type: string
-        src_subnet:
-          description: Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
-          type: string
-      type: object
-    wlan_hotspot_20:
-      additionalProperties: false
-      description: Hotspot 2.0 WLAN settings
-      properties:
-        domain_name:
-          $ref: '#/components/schemas/wlan_hotspot20_domain_name'
-          description: Advertised domain names for Hotspot 2.0 clients
-        enabled:
-          description: Whether to enable hotspot 2.0 config
-          type: boolean
-        nai_realms:
-          $ref: '#/components/schemas/strings'
-          description: NAI realms advertised for Hotspot 2.0 authentication
-        operators:
-          $ref: '#/components/schemas/wlan_hotspot20_operators'
-          description: Operator profiles supported by this Hotspot 2.0 configuration
-        rcoi:
-          $ref: '#/components/schemas/wlan_hotspot20_rcoi'
-          description: Roaming Consortium Organization Identifiers advertised for Hotspot 2.0
-        venue_name:
-          description: Venue name, default is site name
-          examples:
-          - some_name
-          type: string
-      type: object
-    wlan_dynamic_vlan_default_vlan_ids:
-      description: Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
+    wlan_auth_pairwise_item:
+      description: 'enum: `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`'
+      enum:
+      - wpa1-ccmp
+      - wpa1-tkip
+      - wpa2-ccmp
+      - wpa2-tkip
+      - wpa3
+      examples:
+      - wpa3
+      type:
+      - string
+      - 'null'
+    wlan_interface:
+      default: all
+      description: 'where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`'
+      enum:
+      - all
+      - eth0
+      - eth1
+      - eth2
+      - eth3
+      - mxtunnel
+      - site_mxedge
+      - wxtunnel
+      examples:
+      - all
+      type: string
+    wlan_auth_keys:
+      default: []
+      description: When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
       items:
-        $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_id'
+        type:
+        - string
+        - 'null'
       type: array
+    wlan_datarates_template:
+      default: compatible
+      description: "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined"
+      enum:
+      - compatible
+      - legacy-only
+      - custom
+      - no-legacy
+      - high-density
+      type:
+      - string
+      - 'null'
+    wlan_rateset:
+      additionalProperties:
+        $ref: '#/components/schemas/wlan_datarates'
+      description: 'Property key is the RF band. enum: `24`, `5`, `6`'
+      type: object
     dot11_band:
       description: 'enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
       enum:
@@ -2174,6 +1265,140 @@ components:
       - '6'
       - 6-dedicated
       - 6-selectable
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    wlan_bands:
+      default:
+      - '24'
+      - '5'
+      - '6'
+      description: 'List of radios that the wlan should apply to. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
+      items:
+        $ref: '#/components/schemas/dot11_band'
+      type: array
+    wlan_auth_server_selection:
+      default: ordered
+      description: 'When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`'
+      enum:
+      - ordered
+      - unordered
+      examples:
+      - ordered
+      type: string
+    radsec_mxcluster_ids:
+      description: To use Org Mist Edges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org Mist Edge(s) identified by mxcluster_ids
+      items:
+        examples:
+        - 572586b7-f97b-a22b-526c-8b97a3f609c4
+        format: uuid
+        type: string
+      type: array
+    wlan_bonjour_service_properties:
+      additionalProperties: false
+      description: Bonjour service discovery settings for one advertised service
+      properties:
+        disable_local:
+          default: false
+          description: Whether to prevent wireless clients to discover bonjour devices on the same WLAN
+          type: boolean
+        radius_groups:
+          $ref: '#/components/schemas/wlan_bonjour_service_properties_radius_groups'
+          description: RADIUS groups allowed to discover this Bonjour service, when restricted
+        scope:
+          $ref: '#/components/schemas/wlan_bonjour_service_properties_scope'
+          description: Discovery scope for this Bonjour service on the WLAN
+      type: object
+    wlan_portal_sponsor_email_domains:
+      description: List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
+      examples:
+      - - reserved.net
+        - reserved.org
+      items:
+        type: string
+      type: array
+    additional_vlan_ids_array:
+      description: Additional VLAN IDs represented as an array
+      items:
+        $ref: '#/components/schemas/vlan_id_with_variable'
+      type: array
+    wlan_dynamic_vlan_default_vlan_ids:
+      description: Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
+      items:
+        $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_id'
+      type: array
+    wlan_app_qos:
+      additionalProperties: false
+      description: APP qos wlan settings
+      properties:
+        apps:
+          additionalProperties:
+            $ref: '#/components/schemas/wlan_app_qos_apps_properties'
+          default: {}
+          description: Map of application keys to QoS rewrite settings
+          examples:
+          - skype-business-video:
+              dscp: 32
+              dst_subnet: 10.2.0.0/16
+              src_subnet: 10.2.0.0/16
+          type: object
+        enabled:
+          default: false
+          description: Whether application QoS rewrite rules are enabled for this WLAN
+          type: boolean
+        others:
+          $ref: '#/components/schemas/wlan_app_qos_others'
+          description: Custom traffic QoS rules that are not tied to named applications
+      type: object
+    wlan_dynamic_vlan_default_vlan_id_deprecated:
+      deprecated: true
+      description: vlan_id to use when there’s no match from RADIUS
+      oneOf:
+      - type: string
+      - default: 999
+        maximum: 4094
+        minimum: 1
+        type: integer
+    wlan_portal_auth:
+      default: none
+      description: 'authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`'
+      enum:
+      - amazon
+      - azure
+      - email
+      - external
+      - facebook
+      - google
+      - microsoft
+      - multi
+      - none
+      - password
+      - sms
+      - sponsor
+      - sso
+      examples:
+      - none
+      type: string
+    wlan_apply_to:
+      description: 'enum: `aps`, `site`, `wxtags`'
+      enum:
+      - aps
+      - site
+      - wxtags
+      type: string
+    hour:
+      default: ''
+      description: Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+      examples:
+      - 09:00-17:00
       type: string
     wlan_portal:
       additionalProperties: false
@@ -2538,87 +1763,24 @@ components:
           - string
           - 'null'
       type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
+    wlan_portal_sponsors_object:
+      additionalProperties:
         type: string
-      type: array
-      uniqueItems: true
-    wlan_hotspot20_domain_name:
-      description: Domain names advertised to Hotspot 2.0 clients
+      description: Allowed guest portal sponsors keyed by email address with sponsor names as values
       examples:
-      - - mist.com
-      items:
-        type: string
-      type: array
-    radius_auth_port:
-      anyOf:
-      - maximum: 65545
-        minimum: 1
-        type: integer
-      - type: string
-      description: RADIUS Auth Port, value from 1 to 65535, default is 1812
-    coa_server:
-      additionalProperties: false
-      description: RADIUS Change of Authorization (CoA) server settings
-      properties:
-        disable_event_timestamp_check:
-          default: false
-          description: Whether to disable Event-Timestamp Check
-          type: boolean
-        enabled:
-          default: false
-          description: Whether this RADIUS CoA server is enabled
-          type: boolean
-        ip:
-          description: Server IPv4 address for RADIUS CoA messages
-          examples:
-          - 1.2.3.4
-          format: ipv4
-          type: string
-        port:
-          $ref: '#/components/schemas/radius_coa_port'
-          description: UDP port used to send RADIUS CoA messages to the server
-        secret:
-          description: Shared secret used to authenticate RADIUS CoA messages
-          examples:
-          - testing456
-          type: string
-      required:
-      - ip
-      - secret
+      - sponsor1@company.com: FirstName1 LastName1
+        sponsor2@company.com: FirstName2 LastName2
       type: object
-    radius_coa_port:
+    dscp:
       anyOf:
-      - maximum: 65545
-        minimum: 1
-        type: integer
       - type: string
-      description: RADIUS CoA Port, value from 1 to 65535, default is 3799
-    wlan_portal_sponsors_list:
-      description: Allowed sponsor email addresses for guest portal sponsor approval
-      items:
-        type: string
-      type: array
-    wlan_auth_keys:
+      - maximum: 63
+        minimum: 0
+        type: integer
+      description: DSCP value range between 0 and 63
+    wlan_portal_amazon_email_domains:
       default: []
-      description: When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
-      items:
-        type:
-        - string
-        - 'null'
-      type: array
-    wlan_ap_ids:
-      description: List of device ids
-      items:
-        format: uuid
-        type: string
-      type:
-      - array
-      - 'null'
-    wlan_portal_facebook_email_domains:
-      default: []
-      description: Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+      description: Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
       items:
         type: string
       type: array
@@ -2629,21 +1791,571 @@ components:
       - email
       - unspecified
       type: string
-    wlan_dynamic_vlan_type:
-      default: standard
-      description: 'standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`'
-      enum:
-      - airespace-interface-name
-      - standard
-      examples:
-      - airespace-interface-name
-      type: string
-    radsec_servers:
-      description: External RadSec servers. Only if not Mist Edge.
+    wlan_wxtag_ids:
+      description: Identifiers of WxLAN tags used when `apply_to`==`wxtags`
       items:
-        $ref: '#/components/schemas/radsec_server'
+        format: uuid
+        type: string
+      type:
+      - array
+      - 'null'
+    wlan_auth:
+      additionalProperties: false
+      description: WLAN client authentication settings
+      properties:
+        anticlog_threshold:
+          default: 16
+          description: SAE anti-clogging token threshold
+          examples:
+          - 16
+          maximum: 32
+          minimum: 16
+          type: integer
+        eap_reauth:
+          default: false
+          description: Whether to trigger EAP reauth when the session ends
+          type: boolean
+        enable_beacon_protection:
+          default: false
+          description: Enable Beacon Protection; default is false for better compatibility
+          type: boolean
+        enable_gcmp256:
+          default: false
+          description: Enable GCMP-256 encryption suite; default is false for better compatibility
+          type: boolean
+        enable_mac_auth:
+          default: false
+          description: Whether to enable MAC Auth, uses the same auth_servers
+          type: boolean
+        key_idx:
+          default: 1
+          description: When `type`==`wep`, index of the WEP key used as the default transmit key
+          maximum: 4
+          minimum: 1
+          type: integer
+        keys:
+          $ref: '#/components/schemas/wlan_auth_keys'
+          description: When `type`==`wep`, WEP keys configured for this WLAN
+        multi_psk_only:
+          default: false
+          description: When `type`==`psk`, whether to only use multi_psk
+          type: boolean
+        owe:
+          $ref: '#/components/schemas/wlan_auth_owe'
+          description: When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN
+        pairwise:
+          $ref: '#/components/schemas/wlan_auth_pairwise'
+          description: When `type`==`psk` or `type`==`eap`, pairwise cipher suites allowed for this WLAN
+        private_wlan:
+          default: false
+          description: When `multi_psk_only`==`true`, whether private wlan is enabled
+          type: boolean
+        psk:
+          default: ''
+          description: When `type`==`psk`, 8-64 characters, or 64 hex characters
+          examples:
+          - foryoureyesonly
+          maxLength: 64
+          minLength: 8
+          type:
+          - string
+          - 'null'
+        type:
+          $ref: '#/components/schemas/wlan_auth_type'
+          description: Authentication mode used by this WLAN
+        wep_as_secondary_auth:
+          default: false
+          description: Enable WEP as secondary auth
+          type: boolean
+      required:
+      - type
+      type: object
+    wlan_portal_idp_sign_algo:
+      default: sha1
+      description: 'Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`'
+      enum:
+      - sha1
+      - sha256
+      - sha384
+      - sha512
+      type: string
+    wlan_app_qos_apps_properties:
+      additionalProperties: false
+      description: QoS rewrite settings for traffic matching a named application
+      properties:
+        dscp:
+          $ref: '#/components/schemas/dscp'
+          description: Differentiated Services Code Point value applied to matching application traffic
+        dst_subnet:
+          description: Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
+          type: string
+        src_subnet:
+          description: Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    wlan_bonjour_service_properties_radius_groups:
+      description: Optional, if the service is further restricted for certain RADIUS groups
+      items:
+        type: string
       type: array
-      uniqueItems: true
+    wlan_vlan_ids:
+      description: WLAN VLAN pool IDs represented as either a comma-separated string or a list
+      oneOf:
+      - $ref: '#/components/schemas/wlan_vlan_ids_string'
+      - $ref: '#/components/schemas/wlan_vlan_ids_list'
+    wlan_hotspot20_rcoi:
+      description: Roaming Consortium Organization Identifiers advertised for Hotspot 2.0
+      examples:
+      - - 5A03BA0000
+      items:
+        type: string
+      type: array
+    wlan_app_limit:
+      additionalProperties: false
+      description: Bandwidth limiting for apps (applies to up/down)
+      properties:
+        apps:
+          additionalProperties:
+            type: integer
+          default: {}
+          description: "Map from app key to bandwidth in kbps. \nProperty key is the app key, defined in Get Application List"
+          examples:
+          - dropbox: 300
+            netflix: 60
+          type: object
+        enabled:
+          default: false
+          description: Whether application bandwidth limits are enabled for this WLAN
+          type: boolean
+        wxtag_ids:
+          additionalProperties:
+            type: integer
+          default: {}
+          description: Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps. Property key is the `wxtag_id`
+          examples:
+          - f99862d9-2726-931f-7559-3dfdf5d070d3: 30
+          type: object
+      type: object
+    radius_auth_port:
+      anyOf:
+      - maximum: 65545
+        minimum: 1
+        type: integer
+      - type: string
+      description: RADIUS Auth Port, value from 1 to 65535, default is 1812
+    wlan_roam_mode:
+      default: NONE
+      description: 'enum: `11r`, `OKC`, `NONE`'
+      enum:
+      - 11r
+      - NONE
+      - OKC
+      examples:
+      - NONE
+      type: string
+    wlan_bonjour:
+      additionalProperties: false
+      description: Bonjour gateway wlan settings
+      properties:
+        additional_vlan_ids:
+          $ref: '#/components/schemas/additional_vlan_ids'
+          description: VLAN IDs, beyond the client VLAN, where Bonjour queries and responses are forwarded
+        enabled:
+          default: false
+          description: Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
+          type: boolean
+        services:
+          additionalProperties:
+            $ref: '#/components/schemas/wlan_bonjour_service_properties'
+          description: "What services are allowed. \nProperty key is the service name"
+          examples:
+          - airplay:
+              radius_groups:
+              - teachers
+              scope: same_ap
+          type: object
+      type: object
+    wlan_mist_nac:
+      additionalProperties: false
+      description: Mist NAC RADIUS settings for a WLAN
+      properties:
+        acct_interim_interval:
+          default: 0
+          description: How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled.
+          examples:
+          - 60
+          maximum: 65535
+          minimum: 0
+          type: integer
+        auth_servers_retries:
+          default: 2
+          description: RADIUS auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
+          examples:
+          - 3
+          maximum: 10
+          minimum: 1
+          type: integer
+        auth_servers_timeout:
+          default: 5
+          description: RADIUS auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
+          examples:
+          - 5
+          maximum: 30
+          minimum: 1
+          type: integer
+        coa_enabled:
+          default: false
+          description: Allows a RADIUS server to dynamically modify the authorization status of a user session.
+          type: boolean
+        coa_port:
+          description: the communication port used for “Change of Authorization” (CoA) messages
+          examples:
+          - 3799
+          maximum: 65535
+          minimum: 1
+          type: integer
+        enabled:
+          default: false
+          description: "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed"
+          type: boolean
+        fast_dot1x_timers:
+          default: false
+          description: If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.
+          type: boolean
+        network:
+          description: Which network the mist nac server resides in
+          examples:
+          - default
+          type:
+          - string
+          - 'null'
+        source_ip:
+          description: In case there is a static IP for this network, we can specify it using source ip
+          examples:
+          - 1.2.3.4
+          type:
+          - string
+          - 'null'
+      type: object
+    wlan_hotspot_20:
+      additionalProperties: false
+      description: Hotspot 2.0 WLAN settings
+      properties:
+        domain_name:
+          $ref: '#/components/schemas/wlan_hotspot20_domain_name'
+          description: Advertised domain names for Hotspot 2.0 clients
+        enabled:
+          description: Whether to enable hotspot 2.0 config
+          type: boolean
+        nai_realms:
+          $ref: '#/components/schemas/strings'
+          description: NAI realms advertised for Hotspot 2.0 authentication
+        operators:
+          $ref: '#/components/schemas/wlan_hotspot20_operators'
+          description: Operator profiles supported by this Hotspot 2.0 configuration
+        rcoi:
+          $ref: '#/components/schemas/wlan_hotspot20_rcoi'
+          description: Roaming Consortium Organization Identifiers advertised for Hotspot 2.0
+        venue_name:
+          description: Venue name, default is site name
+          examples:
+          - some_name
+          type: string
+      type: object
+    wlan_portal_template:
+      description: Guest portal template payload for a WLAN
+      properties:
+        portal_template:
+          $ref: '#/components/schemas/wlan_portal_template_setting'
+          description: Template settings that define guest portal text, layout, and localization
+      type: object
+    radsec_server:
+      additionalProperties: false
+      description: External RadSec server settings
+      properties:
+        host:
+          description: Address or hostname of the RadSec server
+          examples:
+          - 1.1.1.1
+          type: string
+        port:
+          description: TCP port used by the RadSec server
+          examples:
+          - 1812
+          maximum: 65535
+          minimum: 1
+          type: integer
+      type: object
+    wlan_portal_allowed_hostnames:
+      default: []
+      description: List of hostnames without http(s):// (matched by substring)
+      examples:
+      - - snapchat.com
+        - ibm.com
+      items:
+        type: string
+      type: array
+    wlans:
+      description: WLAN records returned by a list response
+      items:
+        $ref: '#/components/schemas/wlan'
+      type: array
+    radius_auth_server:
+      additionalProperties: false
+      description: RADIUS authentication server settings
+      properties:
+        host:
+          description: Address or hostname of the RADIUS authentication server
+          examples:
+          - 1.2.3.4
+          type: string
+        keywrap_enabled:
+          description: Whether RADIUS keywrap is enabled for messages sent to this authentication server
+          type: boolean
+        keywrap_format:
+          $ref: '#/components/schemas/radius_keywrap_format'
+          description: Encoding format for RADIUS keywrap KEK and MACK values
+        keywrap_kek:
+          description: RADIUS keywrap key encryption key (KEK)
+          examples:
+          - '1122334455'
+          type: string
+        keywrap_mack:
+          description: RADIUS keywrap message authentication code key (MACK)
+          examples:
+          - '1122334455'
+          type: string
+        port:
+          $ref: '#/components/schemas/radius_auth_port'
+          description: UDP port used by the RADIUS authentication server
+        require_message_authenticator:
+          default: false
+          description: Whether to require Message-Authenticator in requests
+          type: boolean
+        secret:
+          description: Shared secret used with this RADIUS authentication server
+          examples:
+          - testing123
+          format: password
+          type: string
+      required:
+      - host
+      - secret
+      type: object
+    additional_vlan_ids:
+      anyOf:
+      - type: string
+      - $ref: '#/components/schemas/additional_vlan_ids_array'
+      description: List or Comma separated list of additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
+    vlan_id_with_variable:
+      description: VLAN ID, either numeric or expressed as a template variable string
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    wlan_dynamic_vlan:
+      additionalProperties: false
+      description: Dynamic VLAN assignment settings for 802.1X WLAN authentication
+      properties:
+        default_vlan_id:
+          $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_id_deprecated'
+          description: Deprecated default VLAN ID used when no RADIUS VLAN match is returned. Please use `default_vlan_ids` instead, which can support VLAN pools.
+        default_vlan_ids:
+          $ref: '#/components/schemas/wlan_dynamic_vlan_default_vlan_ids'
+          description: Fallback VLAN IDs, ranges, or variables used when no RADIUS VLAN match is returned
+        enabled:
+          default: false
+          description: Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
+          type: boolean
+        local_vlan_ids:
+          $ref: '#/components/schemas/wlan_dynamic_vlan_local_vlan_ids'
+          description: VLAN IDs that should be locally bridged for dynamic VLAN assignment
+        type:
+          $ref: '#/components/schemas/wlan_dynamic_vlan_type'
+          description: Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes
+        vlans:
+          additionalProperties:
+            type: string
+          description: "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the VLAN ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the VLAN ID and property value is the Airespace Interface Name"
+          examples:
+          - '131': default
+            '322': fast,video
+          type: object
+      type:
+      - object
+      - 'null'
+    wlan_portal_microsoft_email_domains:
+      default: []
+      description: Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+      items:
+        type: string
+      type: array
+    wlan_hotspot20_operators_item:
+      description: 'enum: `ameriband`, `att`, `boingo`, `charter`, `eduroam`, `global_reach`, `google`, `hughes_systique`, `openroaming_legacy`, `openroaming_settled`, `openroaming_settlement_free`, `single_digits`, `tmobile`, `verizon`'
+      enum:
+      - ameriband
+      - att
+      - boingo
+      - charter
+      - eduroam
+      - global_reach
+      - google
+      - hughes_systique
+      - openroaming_legacy
+      - openroaming_settled
+      - openroaming_settlement_free
+      - single_digits
+      - tmobile
+      - verizon
+      type: string
+    wlan_auth_type:
+      default: open
+      description: 'enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`'
+      enum:
+      - eap
+      - eap192
+      - open
+      - psk
+      - psk-tkip
+      - psk-wpa2-tkip
+      - wep
+      examples:
+      - psk
+      type: string
+    wlan_portal_facebook_email_domains:
+      default: []
+      description: Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+      items:
+        type: string
+      type: array
+    wlan_qos_class:
+      default: best_effort
+      description: 'enum: `background`, `best_effort`, `video`, `voice`'
+      enum:
+      - background
+      - best_effort
+      - video
+      - voice
+      examples:
+      - best_effort
+      type: string
+    wlan_cisco_cwa_allowed_subnets:
+      description: CIDR subnets allowed for Cisco CWA client access before authorization
+      items:
+        examples:
+        - 63.5.3.0/24
+        type: string
+      type: array
+    wlan_bonjour_service_properties_scope:
+      default: same_site
+      description: 'how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`'
+      enum:
+      - same_ap
+      - same_map
+      - same_site
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    wlan_portal_sponsors:
+      description: Object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty. Property key is the sponsor email, Property value is the sponsor name. List of email allowed for backward compatibility
+      oneOf:
+      - $ref: '#/components/schemas/wlan_portal_sponsors_list'
+      - $ref: '#/components/schemas/wlan_portal_sponsors_object'
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    wlan_inject_dhcp_option_82:
+      additionalProperties: false
+      description: DHCP Option 82 injection settings for a WLAN
+      properties:
+        circuit_id:
+          description: "Information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}"
+          examples:
+          - '{{SSID}}:{{AP_MAC}}'
+          type: string
+        enabled:
+          default: false
+          description: Whether to inject option 82 when forwarding DHCP packets
+          type: boolean
+      type: object
+    wlan_limit:
+      anyOf:
+      - maximum: 999000
+        minimum: 1
+        type: integer
+      - type: string
+      description: In kbps, value from 1 to 999000
+    wlan_dynamic_vlan_local_vlan_ids:
+      description: VLAN_ids to be locally bridged
+      items:
+        $ref: '#/components/schemas/vlan_id_with_variable'
+      type: array
+    wlan_schedule:
+      additionalProperties: false
+      description: WLAN operating schedule, default is disabled
+      properties:
+        enabled:
+          default: false
+          description: Whether the WLAN operating schedule is enabled
+          type: boolean
+        hours:
+          $ref: '#/components/schemas/hours'
+          description: Time ranges when the WLAN is scheduled to operate
+      type: object
+    wlan_mxtunnel_ids:
+      description: When `interface`=`mxtunnel`, id of the Mist Tunnel
+      format: uuid
+      items:
+        examples:
+        - 08cd7499-5841-51c8-e663-fb16b6f3b45e
+        type: string
+      type: array
+    sponsor_link_validity_duration:
+      anyOf:
+      - default: 60
+        maximum: 60
+        minimum: 5
+        type: integer
+      - type: string
+      description: Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Value is between 5 and 60.
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
     wlan_portal_template_setting:
       additionalProperties: false
       description: Portal template settings for the WLAN guest portal
@@ -3268,229 +2980,56 @@ components:
       required:
       - pageTitle
       type: object
-    radius_auth_server:
-      additionalProperties: false
-      description: RADIUS authentication server settings
-      properties:
-        host:
-          description: Address or hostname of the RADIUS authentication server
-          examples:
-          - 1.2.3.4
-          type: string
-        keywrap_enabled:
-          description: Whether RADIUS keywrap is enabled for messages sent to this authentication server
-          type: boolean
-        keywrap_format:
-          $ref: '#/components/schemas/radius_keywrap_format'
-          description: Encoding format for RADIUS keywrap KEK and MACK values
-        keywrap_kek:
-          description: RADIUS keywrap key encryption key (KEK)
-          examples:
-          - '1122334455'
-          type: string
-        keywrap_mack:
-          description: RADIUS keywrap message authentication code key (MACK)
-          examples:
-          - '1122334455'
-          type: string
-        port:
-          $ref: '#/components/schemas/radius_auth_port'
-          description: UDP port used by the RADIUS authentication server
-        require_message_authenticator:
-          default: false
-          description: Whether to require Message-Authenticator in requests
-          type: boolean
-        secret:
-          description: Shared secret used with this RADIUS authentication server
-          examples:
-          - testing123
-          format: password
-          type: string
-      required:
-      - host
-      - secret
-      type: object
-    wlan_vlan_ids:
-      description: WLAN VLAN pool IDs represented as either a comma-separated string or a list
-      oneOf:
-      - $ref: '#/components/schemas/wlan_vlan_ids_string'
-      - $ref: '#/components/schemas/wlan_vlan_ids_list'
-    wlan_datarates:
-      additionalProperties: false
-      description: Data rates wlan settings
-      properties:
-        eht:
-          description: If `template`==`custom`. EHT MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit)
-          examples:
-          - 3fff0fff0fff03ff
-          type:
-          - string
-          - 'null'
-        he:
-          description: If `template`==`custom`. HE MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit
-          examples:
-          - 0fff0fff0fff0fff
-          type:
-          - string
-          - 'null'
-        ht:
-          description: If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
-          examples:
-          - 00ff00ff00ff
-          type:
-          - string
-          - 'null'
-        legacy:
-          $ref: '#/components/schemas/wlan_datarates_legacy'
-          description: If `template`==`custom`, legacy 802.11 data rates allowed on this WLAN
-        min_rssi:
-          default: 0
-          description: Minimum RSSI for client to connect, 0 means not enforcing
-          examples:
-          - -70
-          type: integer
-        template:
-          $ref: '#/components/schemas/wlan_datarates_template'
-          description: Data rate template used to derive WLAN rate settings
-        vht:
-          description: If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
-          examples:
-          - 03ff03ff03ff01ff
-          type:
-          - string
-          - 'null'
-      type: object
-    sponsor_link_validity_duration:
-      anyOf:
-      - default: 60
-        maximum: 60
-        minimum: 5
-        type: integer
-      - type: string
-      description: Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Value is between 5 and 60.
-    wlan_qos_class:
-      default: best_effort
-      description: 'enum: `background`, `best_effort`, `video`, `voice`'
-      enum:
-      - background
-      - best_effort
-      - video
-      - voice
+    wlan_portal_allowed_subnets:
+      default: []
+      description: Guest portal CIDR subnets that clients may reach before authorization
       examples:
-      - best_effort
-      type: string
-    wlan_acct_servers:
-      description: List of RADIUS accounting servers, optional, order matters where the first one is treated as primary
+      - - 63.5.3.0/24
       items:
-        $ref: '#/components/schemas/radius_acct_server'
-      type: array
-    wlan_mist_nac:
-      additionalProperties: false
-      description: Mist NAC RADIUS settings for a WLAN
-      properties:
-        acct_interim_interval:
-          default: 0
-          description: How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled.
-          examples:
-          - 60
-          maximum: 65535
-          minimum: 0
-          type: integer
-        auth_servers_retries:
-          default: 2
-          description: RADIUS auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
-          examples:
-          - 3
-          maximum: 10
-          minimum: 1
-          type: integer
-        auth_servers_timeout:
-          default: 5
-          description: RADIUS auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
-          examples:
-          - 5
-          maximum: 30
-          minimum: 1
-          type: integer
-        coa_enabled:
-          default: false
-          description: Allows a RADIUS server to dynamically modify the authorization status of a user session.
-          type: boolean
-        coa_port:
-          description: the communication port used for “Change of Authorization” (CoA) messages
-          examples:
-          - 3799
-          maximum: 65535
-          minimum: 1
-          type: integer
-        enabled:
-          default: false
-          description: "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed"
-          type: boolean
-        fast_dot1x_timers:
-          default: false
-          description: If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.
-          type: boolean
-        network:
-          description: Which network the mist nac server resides in
-          examples:
-          - default
-          type:
-          - string
-          - 'null'
-        source_ip:
-          description: In case there is a static IP for this network, we can specify it using source ip
-          examples:
-          - 1.2.3.4
-          type:
-          - string
-          - 'null'
-      type: object
-    wlan_bonjour_service_properties:
-      additionalProperties: false
-      description: Bonjour service discovery settings for one advertised service
-      properties:
-        disable_local:
-          default: false
-          description: Whether to prevent wireless clients to discover bonjour devices on the same WLAN
-          type: boolean
-        radius_groups:
-          $ref: '#/components/schemas/wlan_bonjour_service_properties_radius_groups'
-          description: RADIUS groups allowed to discover this Bonjour service, when restricted
-        scope:
-          $ref: '#/components/schemas/wlan_bonjour_service_properties_scope'
-          description: Discovery scope for this Bonjour service on the WLAN
-      type: object
-    wlan_app_qos:
-      additionalProperties: false
-      description: APP qos wlan settings
-      properties:
-        apps:
-          additionalProperties:
-            $ref: '#/components/schemas/wlan_app_qos_apps_properties'
-          default: {}
-          description: Map of application keys to QoS rewrite settings
-          examples:
-          - skype-business-video:
-              dscp: 32
-              dst_subnet: 10.2.0.0/16
-              src_subnet: 10.2.0.0/16
-          type: object
-        enabled:
-          default: false
-          description: Whether application QoS rewrite rules are enabled for this WLAN
-          type: boolean
-        others:
-          $ref: '#/components/schemas/wlan_app_qos_others'
-          description: Custom traffic QoS rules that are not tied to named applications
-      type: object
-    radsec_mxcluster_ids:
-      description: To use Org Mist Edges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org Mist Edge(s) identified by mxcluster_ids
-      items:
-        examples:
-        - 572586b7-f97b-a22b-526c-8b97a3f609c4
-        format: uuid
         type: string
+      type: array
+    portal_template_alignment:
+      default: center
+      description: 'defines alignment on portal. enum: `center`, `left`, `right`'
+      enum:
+      - center
+      - left
+      - right
+      type: string
+    wlan_app_qos_others_item:
+      additionalProperties: false
+      description: Custom QoS rewrite rule for traffic not matched by a named application
+      properties:
+        dscp:
+          $ref: '#/components/schemas/dscp'
+          description: Differentiated Services Code Point value applied to matching traffic
+        dst_subnet:
+          description: Destination subnet filter for this custom QoS rule
+          examples:
+          - 10.2.0.0/16
+          type: string
+        port_ranges:
+          description: TCP or UDP port ranges matched by this custom QoS rule
+          examples:
+          - 80,1024-6553
+          type: string
+        protocol:
+          description: IP protocol matched by this custom QoS rule
+          examples:
+          - udp
+          type: string
+        src_subnet:
+          description: Source subnet filter for this custom QoS rule
+          examples:
+          - 10.2.0.0/16
+          type: string
+      type: object
+    wlan_auth_pairwise:
+      default:
+      - wpa2-ccmp
+      description: When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`
+      items:
+        $ref: '#/components/schemas/wlan_auth_pairwise_item'
       type: array
     wlan:
       description: '**Note**: portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.'
@@ -3924,167 +3463,509 @@ components:
       required:
       - ssid
       type: object
-  responses:
-    Portaltemplate:
-      content:
-        application/json:
+    wlan_airwatch:
+      additionalProperties: false
+      description: AirWatch integration settings for the WLAN
+      properties:
+        api_key:
+          default: ''
+          description: API key used to authenticate to the AirWatch service
           examples:
-            Example:
-              $ref: '#/components/examples/PortaltemplateExample'
-          schema:
-            $ref: '#/components/schemas/wlan_portal_template'
-        application/vnd.api+json:
+          - aHhlbGxvYXNkZmFzZGZhc2Rmc2RmCg=="
+          type: string
+        console_url:
+          default: ''
+          description: Base console URL of the AirWatch deployment
           examples:
-            Example:
-              $ref: '#/components/examples/PortaltemplateExample'
-          schema:
-            $ref: '#/components/schemas/wlan_portal_template'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
+          - https://hs1.airwatchportals.com
+          type: string
+        enabled:
+          default: false
+          description: Whether AirWatch integration is enabled for the WLAN
+          type: boolean
+        password:
+          default: ''
+          description: AirWatch integration account password for this WLAN
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
+          - user1
+          format: password
+          type: string
+        username:
+          default: ''
+          description: AirWatch integration account username for this WLAN
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    Wlan:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WlanExample'
-          schema:
-            $ref: '#/components/schemas/wlan'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WlanExample'
-          schema:
-            $ref: '#/components/schemas/wlan'
-      description: OK
-    WlansArray:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/wlans'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/wlans'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    OK:
-      description: OK
+          - test123
+          type: string
+      type: object
+    hours:
+      additionalProperties: false
+      description: Day-of-week operating hour filters using hour ranges such as 09:00-17:00
+      properties:
+        fri:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Friday
+        mon:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Monday
+        sat:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Saturday
+        sun:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Sunday
+        thu:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Thursday
+        tue:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Tuesday
+        wed:
+          $ref: '#/components/schemas/hour'
+          description: Operating hour range for Wednesday
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    wlan_auth_owe:
+      default: disabled
+      description: 'if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`'
+      enum:
+      - disabled
+      - enabled
+      - required
+      type: string
+    radius_keywrap_format:
+      description: 'Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`'
+      enum:
+      - ascii
+      - hex
+      type: string
+    wlan_datarates_legacy_item:
+      description: 'enum: `1`, `11`, `11b`, `12`, `12b`, `18`, `18b`, `1b`, `2`, `24`, `24b`, `2b`, `36`, `36b`, `48`, `48b`, `5.5`, `5.5b`, `54`, `54b`, `6`, `6b`, `9`, `9b`'
+      enum:
+      - '1'
+      - '11'
+      - 11b
+      - '12'
+      - 12b
+      - '18'
+      - 18b
+      - 1b
+      - '2'
+      - '24'
+      - 24b
+      - 2b
+      - '36'
+      - 36b
+      - '48'
+      - 48b
+      - '5.5'
+      - 5.5b
+      - '54'
+      - 54b
+      - '6'
+      - 6b
+      - '9'
+      - 9b
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    wlan_portal_sponsors_list:
+      description: Allowed sponsor email addresses for guest portal sponsor approval
+      items:
+        type: string
+      type: array
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    wlan_portal_template_setting_locale:
+      additionalProperties: false
+      description: Localized portal template strings for a specific language
+      properties:
+        authButtonAmazon:
+          description: Label for Amazon auth button
+          type: string
+        authButtonAzure:
+          description: Label for Azure auth button
+          type: string
+        authButtonEmail:
+          description: Label for Email auth button
+          type: string
+        authButtonFacebook:
+          description: Label for Facebook auth button
+          type: string
+        authButtonGoogle:
+          description: Label for Google auth button
+          type: string
+        authButtonMicrosoft:
+          description: Label for Microsoft auth button
+          type: string
+        authButtonPassphrase:
+          description: Label for passphrase auth button
+          type: string
+        authButtonSms:
+          description: Label for SMS auth button
+          type: string
+        authButtonSponsor:
+          description: Label for Sponsor auth button
+          type: string
+        authLabel:
+          description: Localized heading text displayed above portal authentication options
+          type: string
+        backLink:
+          description: Label of the link to go back to /logon
+          type: string
+        companyError:
+          description: Error message when company not provided
+          type: string
+        companyLabel:
+          description: Localized label displayed for the company input field
+          type: string
+        emailAccessDomainError:
+          description: Error message when a user has valid social login but doesn't match specified email domains.
+          type: string
+        emailCancel:
+          description: Label for cancel confirmation code submission using email auth
+          type: string
+        emailCodeCancel:
+          description: Localized link text for requesting help when the email access code was not received
+          type: string
+        emailCodeError:
+          description: Localized error message shown when the alternate email address for access-code delivery is invalid
+          type: string
+        emailCodeFieldLabel:
+          description: Localized label for the email access-code input field
+          type: string
+        emailCodeMessage:
+          description: Localized instructional text shown before entering the email access code
+          type: string
+        emailCodeSubmit:
+          description: Localized button label for submitting the email access code
+          type: string
+        emailCodeTitle:
+          description: Localized title shown on the email access-code entry page
+          type: string
+        emailError:
+          description: Error message when email not provided
+          type: string
+        emailFieldLabel:
+          description: Localized label for the email address input field
+          type: string
+        emailLabel:
+          description: Localized label displayed for the email input field
+          type: string
+        emailMessage:
+          description: Localized instructional text explaining email access-code delivery
+          type: string
+        emailSubmit:
+          description: Label for confirmation code submit button using email auth
+          type: string
+        emailTitle:
+          description: Title for the Email registration
+          type: string
+        field1Error:
+          description: Error message when field1 not provided
+          type: string
+        field1Label:
+          description: Localized label for custom field 1 input
+          type: string
+        field2Error:
+          description: Error message when field2 not provided
+          type: string
+        field2Label:
+          description: Localized label for custom field 2 input
+          type: string
+        field3Error:
+          description: Error message when field3 not provided
+          type: string
+        field3Label:
+          description: Localized label for custom field 3 input
+          type: string
+        field4Error:
+          description: Error message when field4 not provided
+          type: string
+        field4Label:
+          description: Localized label for custom field 4 input
+          type: string
+        marketingPolicyLink:
+          description: label of the link to go to /marketing_policy
+          type: string
+        marketingPolicyOptIn:
+          description: Whether marketing policy optin is enabled
+          type: boolean
+        marketingPolicyOptInLabel:
+          description: label for marketing optin
+          type: string
+        marketingPolicyOptInText:
+          description: Localized text of the marketing policy opt-in content
+          type: string
+        message:
+          description: Localized main message displayed on the guest portal sign-in page
+          type: string
+        nameError:
+          description: Error message when name not provided
+          type: string
+        nameLabel:
+          description: Localized label displayed for the name input field
+          type: string
+        optoutLabel:
+          description: Label for Do Not Store My Personal Information
+          type: string
+        pageTitle:
+          description: Localized browser or page title shown for the guest portal
+          type: string
+        passphraseCancel:
+          description: Label for the Passphrase cancel button
+          type: string
+        passphraseError:
+          description: Error message when invalid passphrase is provided
+          type: string
+        passphraseLabel:
+          description: Localized label for the passphrase input field
+          type: string
+        passphraseMessage:
+          description: Localized instructional text shown on the passphrase sign-in page
+          type: string
+        passphraseSubmit:
+          description: Label for the Passphrase submit button
+          type: string
+        passphraseTitle:
+          description: Title for passphrase details page
+          type: string
+        privacyPolicyAcceptLabel:
+          description: Prefix of the label of the link to go to Privacy Policy
+          type: string
+        privacyPolicyError:
+          description: Error message when Privacy Policy not accepted
+          type: string
+        privacyPolicyLink:
+          description: Label of the link to go to Privacy Policy
+          type: string
+        privacyPolicyText:
+          description: Text of the Privacy Policy
+          type: string
+        requiredFieldLabel:
+          description: Localized text used to mark a form field as required
+          type: string
+        signInLabel:
+          description: Label of the button to signin
+          type: string
+        smsCarrierDefault:
+          description: Localized default option text shown in the SMS carrier selector
+          type: string
+        smsCarrierError:
+          description: Localized error message shown when no mobile carrier is selected
+          type: string
+        smsCarrierFieldLabel:
+          description: Label for mobile carrier drop-down list
+          type: string
+        smsCodeCancel:
+          description: Label for cancel confirmation code submission
+          type: string
+        smsCodeError:
+          description: Error message when confirmation code is invalid
+          type: string
+        smsCodeFieldLabel:
+          description: Localized label for the SMS confirmation-code input field
+          type: string
+        smsCodeMessage:
+          description: Localized instructional text shown before entering the SMS access code
+          type: string
+        smsCodeSubmit:
+          description: Label for confirmation code submit button
+          type: string
+        smsCodeTitle:
+          description: Localized title shown on the SMS access-code entry page
+          type: string
+        smsCountryFieldLabel:
+          description: Localized label for the SMS country-code input field
+          type: string
+        smsCountryFormat:
+          description: Localized example country code format shown for SMS authentication
+          type: string
+        smsHaveAccessCode:
+          description: Label for checkbox to specify that the user has access code
+          type: string
+        smsMessageFormat:
+          description: Format of access code sms message. {{code}} and {{duration}} are placeholders and should be retained as is.
+          type: string
+        smsNumberCancel:
+          description: Label for canceling mobile details for SMS auth
+          type: string
+        smsNumberError:
+          description: Localized error message shown when the mobile number is invalid
+          type: string
+        smsNumberFieldLabel:
+          description: Label for field to provide mobile number
+          type: string
+        smsNumberFormat:
+          description: Localized example mobile number format shown for SMS authentication
+          type: string
+        smsNumberMessage:
+          description: Localized instructional text explaining SMS access-code delivery
+          type: string
+        smsNumberSubmit:
+          description: Label for submit button for code generation
+          type: string
+        smsNumberTitle:
+          description: Title for phone number details
+          type: string
+        smsUsernameFormat:
+          description: Localized example username format shown for SMS authentication
+          type: string
+        sponsorBackLink:
+          description: Localized link text for returning to edit the sponsor request form
+          type: string
+        sponsorCancel:
+          description: Localized button label for canceling sponsor authentication
+          type: string
+        sponsorEmail:
+          description: Label for Sponsor Email
+          type: string
+        sponsorEmailError:
+          description: Localized error message shown when the sponsor email address is invalid
+          type: string
+        sponsorInfoApproved:
+          description: Localized status message prefix shown when a sponsor approves the request
+          type: string
+        sponsorInfoDenied:
+          description: Localized status message prefix shown when a sponsor denies the request
+          type: string
+        sponsorInfoPending:
+          description: Localized status message prefix shown after a sponsor notification is sent
+          type: string
+        sponsorName:
+          description: Label for Sponsor Name
+          type: string
+        sponsorNameError:
+          description: Localized error message shown when the sponsor name is missing
+          type: string
+        sponsorNotePending:
+          description: Localized additional status text shown while sponsor approval is pending
+          type: string
+        sponsorRequestAccess:
+          description: Submit button label request Wifi Access and notify sponsor about guest request
+          type: string
+        sponsorStatusApproved:
+          description: Text to display if sponsor approves request
+          type: string
+        sponsorStatusDenied:
+          description: Text to display when sponsor denies request
+          type: string
+        sponsorStatusPending:
+          description: Text to display if request is still pending
+          type: string
+        sponsorSubmit:
+          description: Submit button label to notify sponsor about guest request
+          type: string
+        sponsorsError:
+          description: Localized error message shown when no sponsor is selected
+          type: string
+        sponsorsFieldLabel:
+          description: Localized label for the sponsor selection field
+          type: string
+        tosAcceptLabel:
+          description: Prefix of the label of the link to go to tos
+          type: string
+        tosError:
+          description: Error message when tos not accepted
+          type: string
+        tosLink:
+          description: Label of the link to go to tos
+          type: string
+        tosText:
+          description: Text of the Terms of Service
+          type: string
+      type: object
+    image_import:
+      additionalProperties: false
+      description: Multipart image upload payload
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          description: Image file content uploaded as multipart form data
+          type: string
+        json:
+          description: Optional JSON metadata submitted with the image upload
+          type: string
+      required:
+      - file
+      type: object
+    wlan_cisco_cwa_blocked_subnets:
+      description: List of blocked CIDRs
+      items:
+        examples:
+        - 192.168.0.0/16
+        type: string
+      type: array
+    wlan_app_qos_others:
+      description: Custom application QoS rules for traffic matched by subnet, port, and protocol
+      items:
+        $ref: '#/components/schemas/wlan_app_qos_others_item'
+      type: array
+      uniqueItems: true
+    wlan_vlan_id_with_variable:
+      description: WLAN VLAN ID, either numeric, a variable string, or null
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+      - type: 'null'
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    wlan_id:
+      in: path
+      name: wlan_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
   examples:
-    WlanExample:
-      value:
-        allow_ipv6_ndp: true
-        allow_mdns: false
-        allow_ssdp: false
-        arp_filter: false
-        band_steer: false
-        band_steer_force_band5: false
-        bands:
-        - '24'
-        - '5'
-        block_blacklist_clients: false
-        bonjour:
-          additional_vlan_ids: 10, 20
-          enabled: false
-          services:
-            airplay:
-              radius_groups:
-              - teachers
-              scope: same_ap
-        client_limit_down: 1000
-        client_limit_down_enabled: false
-        client_limit_up: 512
-        client_limit_up_enabled: false
-        disable_11ax: false
-        disable_ht_vht_rates: false
-        disable_uapsd: false
-        disable_v1_roam_notify: false
-        disable_v2_roam_notify: false
-        disable_wmm: false
-        dynamic_vlan:
-          default_vlan_id: 999
-          enabled: false
-          local_vlan_ids:
-          - 1
-          type: airespace-interface-name
-          vlans:
-            '131': default
-            '322': fast,video
-        enable_local_keycaching: false
-        enable_wireless_bridging: false
-        enabled: true
-        fast_dot1x_timers: false
-        hide_ssid: false
-        hostname_ie: false
-        ssid: demo
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     PortaltemplateExample:
       value:
         portal_template:
@@ -4191,50 +4072,169 @@ components:
           tosError: string
           tosLink: string
           tosText: string
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP401Example:
+    WlanExample:
       value:
-        detail: Authentication credentials were not provided.
-  parameters:
-    wlan_id:
-      in: path
-      name: wlan_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
+        allow_ipv6_ndp: true
+        allow_mdns: false
+        allow_ssdp: false
+        arp_filter: false
+        band_steer: false
+        band_steer_force_band5: false
+        bands:
+        - '24'
+        - '5'
+        block_blacklist_clients: false
+        bonjour:
+          additional_vlan_ids: 10, 20
+          enabled: false
+          services:
+            airplay:
+              radius_groups:
+              - teachers
+              scope: same_ap
+        client_limit_down: 1000
+        client_limit_down_enabled: false
+        client_limit_up: 512
+        client_limit_up_enabled: false
+        disable_11ax: false
+        disable_ht_vht_rates: false
+        disable_uapsd: false
+        disable_v1_roam_notify: false
+        disable_v2_roam_notify: false
+        disable_wmm: false
+        dynamic_vlan:
+          default_vlan_id: 999
+          enabled: false
+          local_vlan_ids:
+          - 1
+          type: airespace-interface-name
+          vlans:
+            '131': default
+            '322': fast,video
+        enable_local_keycaching: false
+        enable_wireless_bridging: false
+        enabled: true
+        fast_dot1x_timers: false
+        hide_ssid: false
+        hostname_ie: false
+        ssid: demo
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+  responses:
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    Wlan:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WlanExample'
+          schema:
+            $ref: '#/components/schemas/wlan'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WlanExample'
+          schema:
+            $ref: '#/components/schemas/wlan'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    Portaltemplate:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PortaltemplateExample'
+          schema:
+            $ref: '#/components/schemas/wlan_portal_template'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/PortaltemplateExample'
+          schema:
+            $ref: '#/components/schemas/wlan_portal_template'
+      description: OK
+    OK:
+      description: OK
+    WlansArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/wlans'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/wlans'
+      description: OK
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Devices - WAN Cluster API
+  title: Mist Sites Devices - WAN Cluster API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -159,53 +159,6 @@ paths:
       - Sites Devices - WAN Cluster
 components:
   schemas:
-    gateway_cluster:
-      description: Gateway HA cluster request or response body
-      properties:
-        nodes:
-          $ref: '#/components/schemas/gateway_cluster_nodes'
-          description: Gateway nodes that form the HA cluster
-      required:
-      - nodes
-      type: object
-    gateway_cluster_nodes:
-      description: Gateway cluster nodes. When replacing a node, one node MAC address must remain the same as the existing cluster
-      items:
-        $ref: '#/components/schemas/gateway_cluster_node'
-      maxItems: 2
-      minItems: 1
-      type: array
-      uniqueItems: true
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    gateway_cluster_node:
-      additionalProperties: false
-      description: Gateway cluster node identified by MAC address
-      properties:
-        mac:
-          description: Gateway device MAC address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b")
-          type: string
-      required:
-      - mac
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -226,6 +179,24 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
+    gateway_cluster_node:
+      additionalProperties: false
+      description: Gateway cluster node identified by MAC address
+      properties:
+        mac:
+          description: Gateway device MAC address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b")
+          type: string
+      required:
+      - mac
+      type: object
+    gateway_cluster_nodes:
+      description: Gateway cluster nodes. When replacing a node, one node MAC address must remain the same as the existing cluster
+      items:
+        $ref: '#/components/schemas/gateway_cluster_node'
+      maxItems: 2
+      minItems: 1
+      type: array
+      uniqueItems: true
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -234,9 +205,70 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    gateway_cluster:
+      description: Gateway HA cluster request or response body
+      properties:
+        nodes:
+          $ref: '#/components/schemas/gateway_cluster_nodes'
+          description: Gateway nodes that form the HA cluster
+      required:
+      - nodes
+      type: object
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
-    OK:
-      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -252,21 +284,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+    OK:
+      description: OK
     GatewayCluster:
       content:
         application/json:
@@ -291,6 +310,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http404'
       description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -306,31 +340,16 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     GatewayClusterGatewayCluster:
       value:
         nodes:
@@ -339,25 +358,6 @@ components:
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-  parameters:
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

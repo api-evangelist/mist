@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs Stats - Other Devices API
+  title: Mist Orgs Stats - Other Devices API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -109,73 +109,45 @@ paths:
       tags:
       - Orgs Stats - Other Devices
 components:
-  examples:
-    DeviceOtherStatsOtherdeviceStats:
-      value:
-        cached_stats: true
-        connected_devices:
-          0200010edbca:
-            mac: 020001abcdef
-            name: DNT-NTR-GWE
-            port_id: ge-0/0/1
-            type: gateway
-        last_seen: 1740996902
-        lldp_enabled: true
-        mac: 00304498a1e8
-        uptime: 622828
-        vendor: cradlepoint
-        vendor_specific:
-          interfaces:
-            ethernet-IPPT:
-              bytes_in: 331068567
-              bytes_out: 6763536255
-              display_name: Primary LAN
-              ip: 192.168.0.1
-              link: true
-              mode: lan
-              port_parent: Primary LAN
-              service_mode: Ethernet
-              type: ethernet
-              uptime: 0
-            ethernet-lan:
-              bytes_in: 13072566048
-              bytes_out: 5617915438
-              display_name: Secondary LAN
-              ip: 192.168.0.1
-              link: false
-              mode: lan
-              port_parent: Secondary LAN
-              service_mode: Ethernet
-              type: ethernet
-              uptime: 0
-            mdm-8a1084c9:
-              bytes_in: 0
-              bytes_out: 0
-              carrier: Unknown Service
-              imei: '866401234567894'
-              imsi: ''
-              ip: ''
-              link: false
-              mode: wan
-              mtu: 1400
-              rsrp: 0
-              rsrq: 0
-              rssi: 0
-              service_mode: Not Available
-              sinr: 0
-              state: NOSIM
-              type: mdm
-              uptime: 0
-            mdm-8a1fc70c:
+  schemas:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    stats_device_other_vendor_specific:
+      additionalProperties: false
+      description: When `vendor`==`cradlepoint`, contains Cradlepoint-specific statistics reported for the other device
+      properties:
+        interfaces:
+          additionalProperties:
+            $ref: '#/components/schemas/stats_device_other_vendor_specific_port'
+          description: Cradlepoint interface statistics keyed by vendor interface identifier
+          examples:
+          - mdm-4d0e073b:
               bytes_in: 5623096929
               bytes_out: 12372750366
-              carrier: AT&T
+              carrier: Orange
               imei: '866401234567893'
-              imsi: '208001234567893'
-              ip: 12.68.86.17
+              imsi: '2080101234567893'
+              ip: 10.134.237.57
               link: true
               mode: wan
-              mtu: 1400
               rsrp: -108
               rsrq: -14
               rssi: -74
@@ -184,62 +156,11 @@ components:
               state: READY
               type: mdm
               uptime: 2095779
-        version: 7.24.80
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    device_mac:
-      in: path
-      name: device_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-  schemas:
-    stats_device_other_connected_devices:
-      additionalProperties:
-        $ref: '#/components/schemas/stats_device_other_connected_device'
-      description: Property key is the connected device MAC address
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
+          type: object
+        target_version:
+          description: Cradlepoint software version targeted for the device
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
+          - 7.23.40
           type: string
       type: object
     stats_device_other_vendor_specific_port:
@@ -342,57 +263,34 @@ components:
           - 2095779
           type: integer
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
+    stats_device_other_interfaces:
+      additionalProperties:
+        $ref: '#/components/schemas/stats_device_other_interface'
+      description: Property key is the interface name
       type: object
-    stats_device_other_vendor_specific:
+    stats_device_other_connected_device:
       additionalProperties: false
-      description: When `vendor`==`cradlepoint`, contains Cradlepoint-specific statistics reported for the other device
+      description: LLDP neighbor device discovered from an other-device statistics record
       properties:
-        interfaces:
-          additionalProperties:
-            $ref: '#/components/schemas/stats_device_other_vendor_specific_port'
-          description: Cradlepoint interface statistics keyed by vendor interface identifier
+        mac:
+          description: Connected device MAC address learned from LLDP
           examples:
-          - mdm-4d0e073b:
-              bytes_in: 5623096929
-              bytes_out: 12372750366
-              carrier: Orange
-              imei: '866401234567893'
-              imsi: '2080101234567893'
-              ip: 10.134.237.57
-              link: true
-              mode: wan
-              rsrp: -108
-              rsrq: -14
-              rssi: -74
-              service_mode: 5G NSA
-              sinr: -1.2
-              state: READY
-              type: mdm
-              uptime: 2095779
-          type: object
-        target_version:
-          description: Cradlepoint software version targeted for the device
-          examples:
-          - 7.23.40
+          - 020001abcdef
           type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
+        name:
+          description: LLDP system name reported for the connected device
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - DNT-NTR-GWE
+          type: string
+        port_id:
+          description: LLDP port identifier reported for the connected device
+          examples:
+          - ge-0/0/1
+          type: string
+        type:
+          description: Detected Mist device type for the connected neighbor
+          examples:
+          - gateway
           type: string
       type: object
     last_seen:
@@ -404,6 +302,34 @@ components:
       type:
       - number
       - 'null'
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     stats_device_other_interface:
       additionalProperties: false
       description: Network interface statistics for a third-party device tracked by Mist
@@ -494,36 +420,6 @@ components:
           - 2095779
           type: integer
       type: object
-    stats_device_other_interfaces:
-      additionalProperties:
-        $ref: '#/components/schemas/stats_device_other_interface'
-      description: Property key is the interface name
-      type: object
-    stats_device_other_connected_device:
-      additionalProperties: false
-      description: LLDP neighbor device discovered from an other-device statistics record
-      properties:
-        mac:
-          description: Connected device MAC address learned from LLDP
-          examples:
-          - 020001abcdef
-          type: string
-        name:
-          description: LLDP system name reported for the connected device
-          examples:
-          - DNT-NTR-GWE
-          type: string
-        port_id:
-          description: LLDP port identifier reported for the connected device
-          examples:
-          - ge-0/0/1
-          type: string
-        type:
-          description: Detected Mist device type for the connected neighbor
-          examples:
-          - gateway
-          type: string
-      type: object
     stats_device_other:
       additionalProperties: false
       description: Statistics for a third-party or other device tracked by Mist
@@ -582,84 +478,12 @@ components:
           - 7.22.70
           type: string
       type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
+    stats_device_other_connected_devices:
+      additionalProperties:
+        $ref: '#/components/schemas/stats_device_other_connected_device'
+      description: Property key is the connected device MAC address
       type: object
   responses:
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    DeviceOtherStats:
-      content:
-        application/json:
-          examples:
-            Otherdevice Stats:
-              $ref: '#/components/examples/DeviceOtherStatsOtherdeviceStats'
-          schema:
-            $ref: '#/components/schemas/stats_device_other'
-        application/vnd.api+json:
-          examples:
-            Otherdevice Stats:
-              $ref: '#/components/examples/DeviceOtherStatsOtherdeviceStats'
-          schema:
-            $ref: '#/components/schemas/stats_device_other'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401:
       content:
         application/json:
@@ -675,6 +499,182 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    DeviceOtherStats:
+      content:
+        application/json:
+          examples:
+            Otherdevice Stats:
+              $ref: '#/components/examples/DeviceOtherStatsOtherdeviceStats'
+          schema:
+            $ref: '#/components/schemas/stats_device_other'
+        application/vnd.api+json:
+          examples:
+            Otherdevice Stats:
+              $ref: '#/components/examples/DeviceOtherStatsOtherdeviceStats'
+          schema:
+            $ref: '#/components/schemas/stats_device_other'
+      description: Example response
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+  examples:
+    DeviceOtherStatsOtherdeviceStats:
+      value:
+        cached_stats: true
+        connected_devices:
+          0200010edbca:
+            mac: 020001abcdef
+            name: DNT-NTR-GWE
+            port_id: ge-0/0/1
+            type: gateway
+        last_seen: 1740996902
+        lldp_enabled: true
+        mac: 00304498a1e8
+        uptime: 622828
+        vendor: cradlepoint
+        vendor_specific:
+          interfaces:
+            ethernet-IPPT:
+              bytes_in: 331068567
+              bytes_out: 6763536255
+              display_name: Primary LAN
+              ip: 192.168.0.1
+              link: true
+              mode: lan
+              port_parent: Primary LAN
+              service_mode: Ethernet
+              type: ethernet
+              uptime: 0
+            ethernet-lan:
+              bytes_in: 13072566048
+              bytes_out: 5617915438
+              display_name: Secondary LAN
+              ip: 192.168.0.1
+              link: false
+              mode: lan
+              port_parent: Secondary LAN
+              service_mode: Ethernet
+              type: ethernet
+              uptime: 0
+            mdm-8a1084c9:
+              bytes_in: 0
+              bytes_out: 0
+              carrier: Unknown Service
+              imei: '866401234567894'
+              imsi: ''
+              ip: ''
+              link: false
+              mode: wan
+              mtu: 1400
+              rsrp: 0
+              rsrq: 0
+              rssi: 0
+              service_mode: Not Available
+              sinr: 0
+              state: NOSIM
+              type: mdm
+              uptime: 0
+            mdm-8a1fc70c:
+              bytes_in: 5623096929
+              bytes_out: 12372750366
+              carrier: AT&T
+              imei: '866401234567893'
+              imsi: '208001234567893'
+              ip: 12.68.86.17
+              link: true
+              mode: wan
+              mtu: 1400
+              rsrp: -108
+              rsrq: -14
+              rssi: -74
+              service_mode: 5G NSA
+              sinr: -1.2
+              state: READY
+              type: mdm
+              uptime: 2095779
+        version: 7.24.80
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  parameters:
+    device_mac:
+      in: path
+      name: device_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

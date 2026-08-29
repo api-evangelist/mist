@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs Services API
+  title: Mist Orgs Services API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -251,94 +251,6 @@ paths:
       - Orgs Services
 components:
   schemas:
-    service_apps:
-      description: "When `type`==`apps`, list of applications are available through:\n  * [List Applications](/#operations/listApplications)\n  * [List Gateway Applications](/#operations/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true"
-      examples:
-      - - office365
-        - okta
-      items:
-        type: string
-      type: array
-    service_dscp:
-      description: For SSR only, when `traffic_type`==`custom`. 0-63 or variable
-      oneOf:
-      - type: string
-      - maximum: 63
-        minimum: 0
-        type: integer
-    services:
-      description: Service definitions returned by list operations
-      items:
-        $ref: '#/components/schemas/service'
-      type: array
-    service_specs:
-      description: When `type`==`custom`, optional, if it doesn't exist, http and https is assumed
-      items:
-        $ref: '#/components/schemas/service_spec'
-      type: array
-    service_traffic_class:
-      default: best_effort
-      description: 'when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`'
-      enum:
-      - best_effort
-      - high
-      - low
-      - medium
-      type: string
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    service_max_loss:
-      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-100 or variable
-      oneOf:
-      - type: string
-      - maximum: 100
-        minimum: 0
-        type: integer
-    service_failover_policy:
-      default: revertible
-      description: 'enum: `non_revertible`, `none`, `revertible`'
-      enum:
-      - non_revertible
-      - none
-      - revertible
-      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -349,31 +261,51 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    service_app_categories:
-      description: When `type`==`app_categories`, list of application categories are available through [List App Category Definitions](/#operations/listAppCategoryDefinitions)
+    service_traffic_class:
+      default: best_effort
+      description: 'when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`'
+      enum:
+      - best_effort
+      - high
+      - low
+      - medium
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - - Sports
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    service_failover_policy:
+      default: revertible
+      description: 'enum: `non_revertible`, `none`, `revertible`'
+      enum:
+      - non_revertible
+      - none
+      - revertible
+      type: string
+    service_hostnames:
+      description: If `type`==`custom`, web filtering
       items:
+        examples:
+        - example.com
         type: string
       type: array
-    service_max_jitter:
-      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
-      oneOf:
-      - type: string
-      - maximum: 2147483647
-        minimum: 0
-        type: integer
-    service_urls:
-      description: When `type`==`urls`, no need for spec as URL can encode the ports being used
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    services:
+      description: Service definitions returned by list operations
       items:
-        type: string
-      type: array
-    service_app_subcategories:
-      description: When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions](/#operations/listAppSubCategoryDefinitions)
-      examples:
-      - - Shopping
-      items:
-        type: string
+        $ref: '#/components/schemas/service'
       type: array
     service:
       description: Traffic service definition for applications or destinations used by gateway and SSR policies
@@ -483,16 +415,100 @@ components:
           $ref: '#/components/schemas/service_urls'
           description: URL patterns matched by this service when `type`==`urls`
       type: object
-    response_http400:
+    service_specs:
+      description: When `type`==`custom`, optional, if it doesn't exist, http and https is assumed
+      items:
+        $ref: '#/components/schemas/service_spec'
+      type: array
+    service_max_loss:
+      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-100 or variable
+      oneOf:
+      - type: string
+      - maximum: 100
+        minimum: 0
+        type: integer
+    service_dscp:
+      description: For SSR only, when `traffic_type`==`custom`. 0-63 or variable
+      oneOf:
+      - type: string
+      - maximum: 63
+        minimum: 0
+        type: integer
+    service_max_jitter:
+      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
+      oneOf:
+      - type: string
+      - maximum: 2147483647
+        minimum: 0
+        type: integer
+    service_app_categories:
+      description: When `type`==`app_categories`, list of application categories are available through [List App Category Definitions](/#operations/listAppCategoryDefinitions)
+      examples:
+      - - Sports
+      items:
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    service_app_subcategories:
+      description: When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions](/#operations/listAppSubCategoryDefinitions)
+      examples:
+      - - Shopping
+      items:
+        type: string
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    service_type:
+      default: custom
+      description: 'enum: `app_categories`, `apps`, `custom`, `urls`'
+      enum:
+      - app_categories
+      - apps
+      - custom
+      - urls
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
     service_max_latency:
       description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
       oneOf:
@@ -500,13 +516,16 @@ components:
       - maximum: 2147483647
         minimum: 0
         type: integer
-    service_addresses:
-      description: If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
+    service_apps:
+      description: "When `type`==`apps`, list of applications are available through:\n  * [List Applications](/#operations/listApplications)\n  * [List Gateway Applications](/#operations/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true"
       examples:
-      - - 10.0.0.0/8
-        - 172.21.0.0/16
-        - 2001:db8:abcd:12::/64
-        - fd28::/128
+      - - office365
+        - okta
+      items:
+        type: string
+      type: array
+    service_urls:
+      description: When `type`==`urls`, no need for spec as URL can encode the ports being used
       items:
         type: string
       type: array
@@ -526,48 +545,37 @@ components:
           - tcp
           type: string
       type: object
-    service_type:
-      default: custom
-      description: 'enum: `app_categories`, `apps`, `custom`, `urls`'
-      enum:
-      - app_categories
-      - apps
-      - custom
-      - urls
-      type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    service_hostnames:
-      description: If `type`==`custom`, web filtering
+    service_addresses:
+      description: If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
+      examples:
+      - - 10.0.0.0/8
+        - 172.21.0.0/16
+        - 2001:db8:abcd:12::/64
+        - fd28::/128
       items:
-        examples:
-        - example.com
         type: string
       type: array
   parameters:
-    org_id:
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    service_id:
       in: path
-      name: org_id
+      name: service_id
       required: true
       schema:
         examples:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    service_id:
+    org_id:
       in: path
-      name: service_id
+      name: org_id
       required: true
       schema:
         examples:
@@ -582,32 +590,22 @@ components:
         default: 100
         minimum: 0
         type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
   responses:
-    HTTP429:
+    HTTP401:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP429Example'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_http429'
+            $ref: '#/components/schemas/response_http401'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP429Example'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    OK:
-      description: OK
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -623,6 +621,32 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    Service:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServiceExample'
+          schema:
+            $ref: '#/components/schemas/service'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServiceExample'
+          schema:
+            $ref: '#/components/schemas/service'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -653,46 +677,47 @@ components:
           schema:
             $ref: '#/components/schemas/services'
       description: OK
-    Service:
+    HTTP429:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/ServiceExample'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/service'
+            $ref: '#/components/schemas/response_http429'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/ServiceExample'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/service'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
+    ServicesArrayExample:
+      value:
+      - addresses:
+        - string
+        apps:
+        - string
+        dscp: 8
+        hostnames:
+        - string
+        max_jitter: 0
+        max_latency: 0
+        max_loss: 0
+        name: string
+        specs:
+        - port_range: '0'
+          protocol: any
+        traffic_class: best_effort
+        traffic_type: default
+        type: custom
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
@@ -724,31 +749,6 @@ components:
         traffic_type: data_best_effort
         type: custom
         vpn_name: addresses
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    ServicesArrayExample:
-      value:
-      - addresses:
-        - string
-        apps:
-        - string
-        dscp: 8
-        hostnames:
-        - string
-        max_jitter: 0
-        max_latency: 0
-        max_loss: 0
-        name: string
-        specs:
-        - port_range: '0'
-          protocol: any
-        traffic_class: best_effort
-        traffic_type: default
-        type: custom
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

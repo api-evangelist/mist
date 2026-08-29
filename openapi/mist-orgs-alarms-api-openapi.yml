@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs Alarms API
+  title: Mist Orgs Alarms API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -397,125 +397,76 @@ paths:
       tags:
       - Orgs Alarms
 components:
-  schemas:
-    alarm_search_result:
-      additionalProperties: false
-      description: Paginated response returned by an alarm search
-      properties:
-        component:
-          description: Alarm component matched by the search result
-          type: string
-        end:
-          description: Upper bound of the alarm search window, in epoch seconds
-          examples:
-          - 1711035686
-          type: integer
-        limit:
-          description: Maximum number of alarm results returned
-          examples:
-          - 10
-          type: integer
-        next:
-          description: URL for the next page of alarm search results
-          examples:
-          - /api/v1/orgs/b3b9f5e6-67b1-4112-9b4c-6824c565eaeb/alarms/search?end=1711035686&limit=10&search_after=%5B1711031354000%2C+%2256bfa7af-b2db-43ee-a4c8-9b820bbba0e1%22%5D&start=1710949286
-          type: string
-        page:
-          description: Current page number for paginated alarm search results
-          examples:
-          - 1
-          type: integer
-        results:
-          $ref: '#/components/schemas/alarm_search_results'
-          description: Alarm records returned for this search
-        start:
-          description: Lower bound of the alarm search window, in epoch seconds
-          examples:
-          - 1710949286
-          type: integer
-        total:
-          description: Number of alarm records matching the search
-          examples:
-          - 232
-          type: integer
-      required:
-      - start
-      - end
-      - limit
-      - total
-      - results
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    alarms:
-      description: Alarm identifiers and optional note used for bulk alarm state changes
-      properties:
-        alarm_ids:
-          $ref: '#/components/schemas/alarm_ids'
-          description: Alarm identifiers to acknowledge or unacknowledge
-        note:
-          description: Some text note describing the intent
-          type: string
-      required:
-      - alarm_ids
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
+  parameters:
+    alarm_id:
+      in: path
+      name: alarm_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
     org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    alarm_switches:
-      description: 'additional information: List of MACs of the switches'
-      examples:
-      - - ffeeddccbbaa
-        - ffeeddccbbab
-      items:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
         type: string
-      type: array
-    alarm_aps:
-      description: 'additional information: List of MACs of the APs'
-      examples:
-      - - ffeeddccbbaa
-        - ffeeddccbbab
-      items:
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
         type: string
-      type: array
-    alarm_search_results:
-      description: Alarm records returned by an alarm search response
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+  schemas:
+    alarm_bssids:
+      description: Wireless BSSIDs related to this alarm
       items:
-        $ref: '#/components/schemas/alarm'
+        examples:
+        - Corp SSID
+        type: string
       type: array
     response_http403:
       additionalProperties: false
@@ -527,30 +478,13 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    alarm_ids:
-      description: List of alarm identifiers
-      items:
-        format: uuid
-        type: string
-      type: array
-    alarm_bssids:
-      description: Wireless BSSIDs related to this alarm
-      items:
-        examples:
-        - Corp SSID
-        type: string
-      type: array
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    alarm_ssids:
-      description: Wireless SSIDs related to this alarm
-      items:
-        type: string
-      type: array
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
     response_http400:
       additionalProperties: false
       description: Standard HTTP 400 bad request error response
@@ -561,40 +495,11 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    alarm_hostnames:
-      description: 'additional information: List of Hostnames of the devices (AP/Switch/Gateway)'
-      examples:
-      - - MC_DavidL
-        - MCM_AP_33_Nishant
+    alarm_ssids:
+      description: Wireless SSIDs related to this alarm
       items:
         type: string
       type: array
-    alarm_status:
-      description: 'Current lifecycle status of this alarm. enum: `open`, `resolved`'
-      enum:
-      - open
-      - resolved
-      type: string
-    note_string:
-      description: Request body containing a note value
-      properties:
-        note:
-          description: Some text note describing the intent
-          examples:
-          - maintenance window
-          type: string
-      type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -625,29 +530,22 @@ components:
       - start
       - total
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    alarm_gateways:
-      description: 'additional information: List of MACs of the gateways'
+    alarm_switches:
+      description: 'additional information: List of MACs of the switches'
       examples:
       - - ffeeddccbbaa
         - ffeeddccbbab
       items:
         type: string
       type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
+    alarm_hostnames:
+      description: 'additional information: List of Hostnames of the devices (AP/Switch/Gateway)'
+      examples:
+      - - MC_DavidL
+        - MCM_AP_33_Nishant
+      items:
+        type: string
+      type: array
     alarm:
       additionalProperties: false
       description: Additional information per alarm type
@@ -752,87 +650,187 @@ components:
       - severity
       - count
       type: object
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
+    alarm_aps:
+      description: 'additional information: List of MACs of the APs'
+      examples:
+      - - ffeeddccbbaa
+        - ffeeddccbbab
+      items:
+        type: string
+      type: array
+    alarm_gateways:
+      description: 'additional information: List of MACs of the gateways'
+      examples:
+      - - ffeeddccbbaa
+        - ffeeddccbbab
+      items:
+        type: string
+      type: array
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    alarm_search_results:
+      description: Alarm records returned by an alarm search response
+      items:
+        $ref: '#/components/schemas/alarm'
+      type: array
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    alarms:
+      description: Alarm identifiers and optional note used for bulk alarm state changes
+      properties:
+        alarm_ids:
+          $ref: '#/components/schemas/alarm_ids'
+          description: Alarm identifiers to acknowledge or unacknowledge
+        note:
+          description: Some text note describing the intent
+          type: string
+      required:
+      - alarm_ids
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    note_string:
+      description: Request body containing a note value
+      properties:
+        note:
+          description: Some text note describing the intent
+          examples:
+          - maintenance window
+          type: string
+      type: object
+    alarm_status:
+      description: 'Current lifecycle status of this alarm. enum: `open`, `resolved`'
+      enum:
+      - open
+      - resolved
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    alarm_ids:
+      description: List of alarm identifiers
+      items:
         format: uuid
         type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    alarm_id:
-      in: path
-      name: alarm_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    alarm_search_result:
+      additionalProperties: false
+      description: Paginated response returned by an alarm search
+      properties:
+        component:
+          description: Alarm component matched by the search result
+          type: string
+        end:
+          description: Upper bound of the alarm search window, in epoch seconds
+          examples:
+          - 1711035686
+          type: integer
+        limit:
+          description: Maximum number of alarm results returned
+          examples:
+          - 10
+          type: integer
+        next:
+          description: URL for the next page of alarm search results
+          examples:
+          - /api/v1/orgs/b3b9f5e6-67b1-4112-9b4c-6824c565eaeb/alarms/search?end=1711035686&limit=10&search_after=%5B1711031354000%2C+%2256bfa7af-b2db-43ee-a4c8-9b820bbba0e1%22%5D&start=1710949286
+          type: string
+        page:
+          description: Current page number for paginated alarm search results
+          examples:
+          - 1
+          type: integer
+        results:
+          $ref: '#/components/schemas/alarm_search_results'
+          description: Alarm records returned for this search
+        start:
+          description: Lower bound of the alarm search window, in epoch seconds
+          examples:
+          - 1710949286
+          type: integer
+        total:
+          description: Number of alarm records matching the search
+          examples:
+          - 232
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
   responses:
-    OK:
-      description: OK
-    Count:
+    HTTP401:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/CountExample'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_count'
+            $ref: '#/components/schemas/response_http401'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/CountExample'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -848,6 +846,17 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -872,15 +881,21 @@ components:
           schema:
             $ref: '#/components/schemas/alarm_search_result'
       description: OK
-    HTTP404:
+    Count:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_count'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
     HTTP429:
       content:
         application/json:
@@ -896,22 +911,19 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   examples:
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     CountExample:
       value:
         distinct: string
@@ -922,18 +934,6 @@ components:
           property: string
         start: 0
         total: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Location API
+  title: Mist Sites Location API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -319,109 +319,117 @@ paths:
       tags:
       - Sites Location
 components:
-  responses:
-    OK:
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    Ml:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MlExample'
-          schema:
-            $ref: '#/components/schemas/response_ml'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MlExample'
-          schema:
-            $ref: '#/components/schemas/response_ml'
-      description: OK
-    LocationCoverage:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LocationCoverageExample'
-          schema:
-            $ref: '#/components/schemas/response_location_coverage'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LocationCoverageExample'
-          schema:
-            $ref: '#/components/schemas/response_location_coverage'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   schemas:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_location_coverage_beams_means_items:
+      description: One location coverage beam mean row, encoded as x, y, and mean values
+      items:
+        type: number
+      type: array
+    ml_overwrite:
+      additionalProperties:
+        $ref: '#/components/schemas/ml_overwrite_additional_properties'
+      description: Location machine learning parameter overwrites keyed by client model
+      type: object
+    response_location_coverage_beams_means:
+      description: List of [x, y, mean]s, x/y are in meters (UI would need to use map.ppm to calculate the pixel location from top-left).
+      items:
+        $ref: '#/components/schemas/response_location_coverage_beams_means_items'
+      type: array
+    response_location_coverage_result:
+      description: One location coverage result row whose columns follow `result_def`
+      items:
+        type: number
+      type: array
+    ml_overwrite_additional_properties:
+      additionalProperties: false
+      description: Location machine learning parameter overwrite values for one client model
+      properties:
+        int:
+          description: Location ML intercept value to use for the model
+          type: integer
+        ple:
+          description: Path-loss estimate value to use for the location machine learning model
+          type: integer
+      type: object
+    resolution:
+      default: default
+      description: 'Location resolution mode for map or placement calculations. enum: `default`, `fine`'
+      enum:
+      - default
+      - fine
+      type: string
+    response_location_coverage_results:
+      description: List of results, see result_def.
+      items:
+        $ref: '#/components/schemas/response_location_coverage_result'
+      type: array
+    rf_client_type:
+      description: 'enum: `asset`, `client`, `sdkclient`'
+      enum:
+      - asset
+      - client
+      - sdkclient
+      type: string
+    response_location_coverage_result_def:
+      description: List of names annotating the fields in results
+      items:
+        type: string
+      type: array
+    response_ml:
+      description: Machine-learning response records returned as opaque objects
+      items:
+        additionalProperties: true
+        type: object
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     response_location_coverage:
       additionalProperties: false
       description: Beam coverage overview for a site location map
@@ -452,141 +460,7 @@ components:
       - result_def
       - results
       type: object
-    response_location_coverage_beams_means:
-      description: List of [x, y, mean]s, x/y are in meters (UI would need to use map.ppm to calculate the pixel location from top-left).
-      items:
-        $ref: '#/components/schemas/response_location_coverage_beams_means_items'
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_ml:
-      description: Machine-learning response records returned as opaque objects
-      items:
-        additionalProperties: true
-        type: object
-      type: array
-      uniqueItems: true
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    rf_client_type:
-      description: 'enum: `asset`, `client`, `sdkclient`'
-      enum:
-      - asset
-      - client
-      - sdkclient
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_location_coverage_results:
-      description: List of results, see result_def.
-      items:
-        $ref: '#/components/schemas/response_location_coverage_result'
-      type: array
-    resolution:
-      default: default
-      description: 'Location resolution mode for map or placement calculations. enum: `default`, `fine`'
-      enum:
-      - default
-      - fine
-      type: string
-    response_location_coverage_beams_means_items:
-      description: One location coverage beam mean row, encoded as x, y, and mean values
-      items:
-        type: number
-      type: array
-    ml_overwrite_additional_properties:
-      additionalProperties: false
-      description: Location machine learning parameter overwrite values for one client model
-      properties:
-        int:
-          description: Location ML intercept value to use for the model
-          type: integer
-        ple:
-          description: Path-loss estimate value to use for the location machine learning model
-          type: integer
-      type: object
-    ml_overwrite:
-      additionalProperties:
-        $ref: '#/components/schemas/ml_overwrite_additional_properties'
-      description: Location machine learning parameter overwrites keyed by client model
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_location_coverage_result:
-      description: One location coverage result row whose columns follow `result_def`
-      items:
-        type: number
-      type: array
-    response_location_coverage_result_def:
-      description: List of names annotating the fields in results
-      items:
-        type: string
-      type: array
   parameters:
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
     site_id:
       in: path
       name: site_id
@@ -596,9 +470,15 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    map_id:
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    device_id:
       in: path
-      name: map_id
+      name: device_id
       required: true
       schema:
         examples:
@@ -617,13 +497,166 @@ components:
       name: resolution
       schema:
         $ref: '#/components/schemas/resolution'
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+  responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    Ml:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MlExample'
+          schema:
+            $ref: '#/components/schemas/response_ml'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MlExample'
+          schema:
+            $ref: '#/components/schemas/response_ml'
+      description: OK
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    LocationCoverage:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LocationCoverageExample'
+          schema:
+            $ref: '#/components/schemas/response_location_coverage'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LocationCoverageExample'
+          schema:
+            $ref: '#/components/schemas/response_location_coverage'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
-    HTTP403Example:
+    LocationCoverageExample:
       value:
-        detail: You do not have permission to perform this action.
+        beams_means:
+        - - 1
+          - 3
+          - 3.2
+        - - 6
+          - 10
+          - 6.5
+        end: 1428954000
+        gridsize: 1
+        result_def:
+        - x
+        - y
+        - beams_mean
+        - beacons_mean
+        - max_rssi
+        - avg_rssi
+        results:
+        - - 1
+          - 3
+          - 3.2
+          - 18.5
+          - -68
+          - -70
+        - - 6
+          - 10
+          - 6.5
+          - 30
+          - 1
+          - -72.5
+          - -75
+        start: 1428939600
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     MlExample:
       value:
       - current:
@@ -659,42 +692,9 @@ components:
             quality: last
             src: device
             timestamp: 1442854704
-    HTTP429Example:
+    HTTP403Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    LocationCoverageExample:
-      value:
-        beams_means:
-        - - 1
-          - 3
-          - 3.2
-        - - 6
-          - 10
-          - 6.5
-        end: 1428954000
-        gridsize: 1
-        result_def:
-        - x
-        - y
-        - beams_mean
-        - beacons_mean
-        - max_rssi
-        - avg_rssi
-        results:
-        - - 1
-          - 3
-          - 3.2
-          - 18.5
-          - -68
-          - -70
-        - - 6
-          - 10
-          - 6.5
-          - 30
-          - 1
-          - -72.5
-          - -75
-        start: 1428939600
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs EVPN Topologies API
+  title: Mist Orgs EVPN Topologies API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -256,6 +256,581 @@ paths:
       - Orgs EVPN Topologies
 components:
   schemas:
+    junos_port_config_duplex:
+      default: auto
+      description: 'enum: `auto`, `full`, `half`'
+      enum:
+      - auto
+      - full
+      - half
+      type: string
+    switch_port_usage_dynamic_rule:
+      additionalProperties: false
+      description: Dynamic port usage rule evaluated against LLDP, RADIUS, or peer MAC attributes
+      properties:
+        description:
+          description: Optional description of the rule
+          type: string
+        equals:
+          description: Exact value that the selected source attribute must match
+          type: string
+        equals_any:
+          $ref: '#/components/schemas/switch_port_usage_dynamic_rule_equals_any'
+          description: List of values where any match satisfies this dynamic rule
+        expression:
+          description: '"[0:3]":"abcdef" -> "abc"
+
+            "split(.)[1]": "a.b.c" -> "b"
+
+            "split(-)[1][0:3]: "a1234-b5678-c90" -> "b56"'
+          type: string
+        src:
+          $ref: '#/components/schemas/switch_port_usage_dynamic_rule_src'
+          description: Source attribute evaluated by this dynamic rule
+        usage:
+          description: Port usage name to apply when this dynamic rule matches
+          type: string
+      required:
+      - src
+      type: object
+    evpn_topology_switch_suggested_uplinks:
+      description: Builder-suggested uplink switch MAC addresses for an EVPN topology switch
+      examples:
+      - - 5c5b35000005
+        - 5c5b35000006
+      items:
+        readOnly: true
+        type: string
+      readOnly: true
+      type: array
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    switch_port_usage_dynamic_vlan_networks:
+      description: Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+      examples:
+      - - corp
+        - user
+      items:
+        type: string
+      type: array
+    junos_port_config:
+      additionalProperties: false
+      description: Junos switch port configuration
+      properties:
+        ae_disable_lacp:
+          description: To disable LACP support for the AE interface
+          type: boolean
+        ae_idx:
+          description: Users could force to use the designated AE name
+          type: integer
+        ae_lacp_force_up:
+          default: false
+          description: 'If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only'
+          type: boolean
+        ae_lacp_passive:
+          default: false
+          description: If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used
+          type: boolean
+        ae_lacp_slow:
+          description: To use slow timeout
+          type: boolean
+        aggregated:
+          default: false
+          description: Whether this port is configured as an aggregated Ethernet member
+          type: boolean
+        critical:
+          default: false
+          description: To generate port up/down alarm
+          type: boolean
+        description:
+          description: Human-readable description for this Junos port
+          type: string
+        disable_autoneg:
+          default: false
+          description: If `speed` and `duplex` are specified, whether to disable autonegotiation
+          type: boolean
+        duplex:
+          $ref: '#/components/schemas/junos_port_config_duplex'
+          description: Link duplex mode for this Junos port
+        dynamic_usage:
+          description: Enable dynamic usage for this port. Set to `dynamic` to enable.
+          type:
+          - string
+          - 'null'
+        esilag:
+          description: Whether this Junos port participates in an ESI-LAG
+          type: boolean
+        mtu:
+          default: 1514
+          description: Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
+          type: integer
+        networks:
+          description: List of network names. Required if `usage`==`inet`
+          items:
+            type: string
+          type: array
+        no_local_overwrite:
+          default: true
+          description: Prevent helpdesk to override the port config
+          type: boolean
+        poe_disabled:
+          default: false
+          description: Whether PoE capabilities are disabled for this Junos port
+          type: boolean
+        port_network:
+          description: Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
+          type: string
+        speed:
+          $ref: '#/components/schemas/junos_port_config_speed'
+          description: Link speed for this Junos port
+        usage:
+          description: Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+          type: string
+      required:
+      - usage
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    switch_port_usage_storm_control:
+      additionalProperties: false
+      description: Switch storm control. Only if `mode`!=`dynamic`
+      properties:
+        disable_port:
+          default: false
+          description: Whether to disable the port when storm control is triggered
+          type: boolean
+        no_broadcast:
+          default: false
+          description: Whether to disable storm control on broadcast traffic
+          type: boolean
+        no_multicast:
+          default: false
+          description: Whether to disable storm control on multicast traffic
+          type: boolean
+        no_registered_multicast:
+          default: false
+          description: Whether to disable storm control on registered multicast traffic
+          type: boolean
+        no_unknown_unicast:
+          default: false
+          description: Whether to disable storm control on unknown unicast traffic
+          type: boolean
+        percentage:
+          default: 80
+          description: Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth
+          maximum: 100
+          minimum: 0
+          type: integer
+      type: object
+    evpn_topology_switch_downlinks:
+      description: Downlink switch MAC addresses for an EVPN topology switch
+      examples:
+      - - 5c5b35000005
+        - 5c5b35000006
+      items:
+        type: string
+      type: array
+    switch_port_usage_mac_limit:
+      anyOf:
+      - default: 0
+        maximum: 16383
+        minimum: 0
+        type: integer
+      - type: string
+      description: Only if `mode`!=`dynamic`, max number of MAC addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
+    wired_port_config:
+      additionalProperties:
+        $ref: '#/components/schemas/junos_port_config'
+      description: Property key is the port name or range (e.g. "ge-0/0/0-10")
+      type: object
+    evpn_topology_switch_downlink_ips:
+      description: Downlink IP addresses used by an EVPN topology switch
+      items:
+        readOnly: true
+        type: string
+      readOnly: true
+      type: array
+    evpn_topology_switch_suggested_esilaglinks:
+      description: Builder-suggested ESI-LAG switch MAC addresses for an EVPN topology switch
+      examples:
+      - - 5c5b35000005
+        - 5c5b35000006
+      items:
+        readOnly: true
+        type: string
+      readOnly: true
+      type: array
+    junos_other_ip_config:
+      additionalProperties: false
+      description: Optional switch L3 presence on an additional network or VLAN
+      properties:
+        evpn_anycast:
+          default: false
+          description: For EVPN, whether anycast is desired
+          type: boolean
+        ip:
+          description: Required if `type`==`static`; IPv4 address for the additional Junos L3 presence
+          examples:
+          - 10.3.3.1
+          type: string
+        ip6:
+          description: Required if `type6`==`static`; IPv6 address for the additional Junos L3 presence
+          examples:
+          - fdad:b0bc:f29e::3d16
+          type: string
+        netmask:
+          description: Optional IPv4 netmask; `subnet` from `network` definition will be used if defined
+          examples:
+          - 255.255.255.0
+          type: string
+        netmask6:
+          description: Optional IPv6 prefix length; `subnet` from `network` definition will be used if defined
+          examples:
+          - /64
+          type: string
+        type:
+          $ref: '#/components/schemas/ip_type'
+          description: IPv4 assignment mode for the additional Junos L3 presence
+        type6:
+          $ref: '#/components/schemas/ip_type6'
+          description: IPv6 assignment mode for the additional Junos L3 presence
+      type: object
+    switch_network:
+      additionalProperties: false
+      description: A network represents a network segment. It can either represent a VLAN (then usually ties to a L3 subnet), optionally associate it with a subnet which can later be used to create addition routes. Used for ports doing `family ethernet-switching`. It can also be a pure L3-subnet that can then be used against a port that with `family inet`.
+      properties:
+        gateway:
+          description: Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
+          type: string
+        gateway6:
+          description: Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
+          type: string
+        isolation:
+          default: false
+          description: 'whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage'
+          type: boolean
+        isolation_vlan_id:
+          description: Required when `isolation`==`true`. Unique VLAN ID used for client isolation
+          examples:
+          - '3070'
+          type: string
+        subnet:
+          description: Optional for pure switching, required when L3 / routing features are used
+          type: string
+        subnet6:
+          description: Optional for pure switching, required when L3 / routing features are used
+          type: string
+        vlan_id:
+          $ref: '#/components/schemas/vlan_id_with_variable'
+          description: VLAN identifier for this switch network
+      required:
+      - vlan_id
+      type: object
+    evpn_topology_switch:
+      additionalProperties: false
+      description: Switch member of an EVPN topology, including role and link relationships
+      properties:
+        config:
+          $ref: '#/components/schemas/evpn_topology_switch_config'
+          description: Per-switch configuration supplied for this topology member. Use the [Update Site Device](/#operations/updateSiteDevice) endpoint to update the switch configuration.
+        deviceprofile_id:
+          description: Associated device profile identifier for the switch. Use the [Assign Org Device Profile](/#operations/assignOrgDeviceProfile) endpoint to assign a Device Profile to the switch.
+          examples:
+          - 6a1deab1-96df-4fa2-8455-d5253f943d06
+          format: uuid
+          readOnly: true
+          type: string
+        downlink_ips:
+          $ref: '#/components/schemas/evpn_topology_switch_downlink_ips'
+          description: IP addresses used by this switch for EVPN downlinks
+        downlinks:
+          $ref: '#/components/schemas/evpn_topology_switch_downlinks'
+          description: Switch MAC addresses connected as downlinks from this topology member
+        esilaglinks:
+          $ref: '#/components/schemas/evpn_topology_switch_esilaglinks'
+          description: Switch MAC addresses connected through ESI-LAG from this topology member
+        evpn_id:
+          description: Topology identifier number for this EVPN switch member
+          minimum: 1
+          readOnly: true
+          type: integer
+        mac:
+          description: Switch MAC address used to identify the topology member
+          examples:
+          - 5c5b35000003
+          minLength: 1
+          type: string
+        model:
+          description: Switch model for this topology member
+          examples:
+          - QFX10002-36Q
+          readOnly: true
+          type: string
+        pod:
+          default: 1
+          description: "Optionally, for distribution / access / esilag-access, they can be placed into different pods. e.g. \n  * for CLOS, to group dist / access switches into pods\n  * for ERB/CRB, to group dist / esilag-access into pods"
+          maximum: 255
+          minimum: 1
+          type: integer
+        pods:
+          $ref: '#/components/schemas/evpn_topology_switch_pods'
+          description: List of pod numbers this switch participates in
+        role:
+          $ref: '#/components/schemas/evpn_topology_switch_role'
+          description: EVPN topology role for this switch
+        router_id:
+          description: Routing identifier used by this switch for EVPN routing
+          examples:
+          - 172.16.254.4
+          readOnly: true
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Associated site for this EVPN topology switch
+        suggested_downlinks:
+          $ref: '#/components/schemas/evpn_topology_switch_suggested_downlinks'
+          description: Builder-suggested downlink switch MAC addresses
+        suggested_esilaglinks:
+          $ref: '#/components/schemas/evpn_topology_switch_suggested_esilaglinks'
+          description: Builder-suggested ESI-LAG switch MAC addresses
+        suggested_uplinks:
+          $ref: '#/components/schemas/evpn_topology_switch_suggested_uplinks'
+          description: Builder-suggested uplink switch MAC addresses
+        uplinks:
+          $ref: '#/components/schemas/evpn_topology_switch_uplinks'
+          description: Switch MAC addresses connected as uplinks from this topology member
+      required:
+      - mac
+      - role
+      type: object
+    evpn_topology_switches:
+      description: Switch members included in an EVPN topology
+      items:
+        $ref: '#/components/schemas/evpn_topology_switch'
+      type: array
+      uniqueItems: true
+    ip_type6:
+      default: disabled
+      description: 'enum: `autoconf`, `dhcp`, `disabled`, `static`'
+      enum:
+      - autoconf
+      - dhcp
+      - disabled
+      - static
+      examples:
+      - static
+      type: string
+    evpn_topology_switch_role:
+      description: 'use `role`==`none` to remove a switch from the topology. enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`'
+      enum:
+      - access
+      - border
+      - collapsed-core
+      - core
+      - distribution
+      - esilag-access
+      - none
+      minLength: 1
+      type: string
+    evpn_topology_switch_config:
+      additionalProperties: false
+      description: Per-switch configuration used by an EVPN topology member
+      properties:
+        dhcpd_config:
+          $ref: '#/components/schemas/evpn_topology_switch_config_dhcpd_config'
+          description: Switch DHCP server configuration for the topology member
+        networks:
+          $ref: '#/components/schemas/switch_networks'
+          description: EVPN network definitions for the topology member
+        other_ip_configs:
+          $ref: '#/components/schemas/evpn_topology_switch_config_other_ip_configs'
+          description: Additional interface IP configurations for the topology member
+        port_config:
+          $ref: '#/components/schemas/wired_port_config'
+          description: Switch port configuration for the topology member
+        port_usages:
+          $ref: '#/components/schemas/switch_port_usages'
+          description: Switch port usage definitions for the topology member
+        router_id:
+          description: Used for OSPF / BGP / EVPN
+          examples:
+          - 10.2.1.10
+          type: string
+        vrf_config:
+          $ref: '#/components/schemas/evpn_topology_switch_config_vrf_config'
+          description: Routing instance and VRF settings for the topology member
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    evpn_topology_switch_config_other_ip_configs:
+      additionalProperties:
+        $ref: '#/components/schemas/junos_other_ip_config'
+      description: Additional IP addresses configured on the switch. Property key is the port network name
+      type: object
+    evpn_topology_switch_pods:
+      description: "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods."
+      items:
+        type: integer
+      type: array
+    evpn_options_routed_at:
+      default: edge
+      description: 'optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`'
+      enum:
+      - core
+      - distribution
+      - edge
+      type: string
+    evpn_options_vs_instance:
+      additionalProperties: false
+      description: EVPN virtual-switch instance network mapping
+      properties:
+        networks:
+          $ref: '#/components/schemas/strings'
+          description: List of network names included in this virtual-switch instance
+      type: object
+    ip_type:
+      default: dhcp
+      description: 'IP address assignment mode, either DHCP or static. enum: `dhcp`, `static`'
+      enum:
+      - dhcp
+      - static
+      examples:
+      - static
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    junos_port_config_speed:
+      default: auto
+      description: 'enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
+      enum:
+      - 10m
+      - 100m
+      - 1g
+      - 2.5g
+      - 5g
+      - 10g
+      - 25g
+      - 40g
+      - 100g
+      - auto
+      type: string
+    switch_port_usage_speed:
+      default: auto
+      description: 'Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
+      enum:
+      - 10m
+      - 100m
+      - 1g
+      - 2.5g
+      - 5g
+      - 10g
+      - 25g
+      - 40g
+      - 100g
+      - auto
+      type: string
+    evpn_options_vs_instances:
+      additionalProperties:
+        $ref: '#/components/schemas/evpn_options_vs_instance'
+      description: Optional, for EX9200 only to segregate virtual-switches
+      examples:
+      - guest:
+          networks:
+          - guest
+        iot:
+          networks:
+          - iot-wifi
+          - iot-lan
+      type: object
+    switch_port_usage_dynamic_rule_src:
+      description: 'enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`'
+      enum:
+      - link_peermac
+      - lldp_chassis_id
+      - lldp_hardware_revision
+      - lldp_manufacturer_name
+      - lldp_oui
+      - lldp_serial_number
+      - lldp_system_description
+      - lldp_system_name
+      - radius_dynamicfilter
+      - radius_usermac
+      - radius_username
+      type: string
+    switch_port_usage_mtu:
+      anyOf:
+      - maximum: 9216
+        minimum: 256
+        type: integer
+      - type: string
+      - type: 'null'
+      description: Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
+    switch_port_usage_mac_auth_protocol:
+      default: eap-md5
+      description: 'Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`'
+      enum:
+      - eap-md5
+      - eap-peap
+      - pap
+      type: string
+    evpn_topologies_response:
+      description: EVPN topology records returned by list APIs
+      items:
+        $ref: '#/components/schemas/evpn_topology_response'
+      type: array
+    evpn_options_overlay:
+      additionalProperties: false
+      description: EVPN overlay BGP settings
+      properties:
+        as:
+          default: 65000
+          description: Overlay BGP Local AS Number
+          examples:
+          - 65000
+          maximum: 65535
+          minimum: 1
+          type: integer
+      type: object
+    evpn_topology_switch_configs:
+      additionalProperties:
+        $ref: '#/components/schemas/evpn_topology_switch_config'
+      description: Property key is the switch MAC address
+      type: object
+    switch_port_usage_dynamic_rules:
+      description: Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply
+      items:
+        $ref: '#/components/schemas/switch_port_usage_dynamic_rule'
+      type: array
+    evpn_topology_switch_suggested_downlinks:
+      description: Builder-suggested downlink switch MAC addresses for an EVPN topology switch
+      examples:
+      - - 5c5b35000005
+        - 5c5b35000006
+      items:
+        readOnly: true
+        type: string
+      readOnly: true
+      type: array
     vlan_id_with_variable:
       description: VLAN ID, either numeric or expressed as a template variable string
       oneOf:
@@ -263,25 +838,41 @@ components:
       - maximum: 4094
         minimum: 1
         type: integer
-    evpn_topology_switch_pods:
-      description: "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods."
-      items:
-        type: integer
-      type: array
-    switch_networks:
-      additionalProperties:
-        $ref: '#/components/schemas/switch_network'
-      description: Property key is network name
-      type: object
-    switch_port_usage_dynamic_reset_default_when:
-      default: link_down
-      description: 'Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)'
+    switch_port_usage_duplex:
+      default: auto
+      description: 'Only if `mode`!=`dynamic`. Link connection mode. enum: `auto`, `full`, `half`'
       enum:
-      - link_down
-      - none
-      examples:
-      - link_down
+      - auto
+      - full
+      - half
       type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    switch_port_usage_dot1x:
+      description: 'Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`'
+      enum:
+      - dot1x
+      type:
+      - string
+      - 'null'
     id:
       description: Unique ID of the object instance in the Mist Organization
       examples:
@@ -289,6 +880,193 @@ components:
       format: uuid
       readOnly: true
       type: string
+    evpn_topology_response:
+      additionalProperties: false
+      description: EVPN topology metadata returned by EVPN topology APIs
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the EVPN topology was created
+        evpn_options:
+          $ref: '#/components/schemas/evpn_options'
+          description: Generation options applied to the EVPN topology
+        for_site:
+          description: Whether the EVPN topology is scoped to a site rather than the organization
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the EVPN topology
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the EVPN topology was last modified
+        name:
+          description: Display name for the EVPN topology
+          examples:
+          - CC
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the EVPN topology
+        overwrite:
+          description: Whether generated EVPN configuration changes are applied automatically
+          type: boolean
+        pod_names:
+          additionalProperties:
+            type: string
+          description: Property key is the pod number
+          type: object
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the EVPN topology
+      type: object
+    switch_port_usage_reauth_interval:
+      anyOf:
+      - default: 3600
+        maximum: 65535
+        minimum: 10
+        type: integer
+      - type: string
+      description: 'Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication).'
+    switch_networks:
+      additionalProperties:
+        $ref: '#/components/schemas/switch_network'
+      description: Property key is network name
+      type: object
+    evpn_topology_switch_esilaglinks:
+      description: ESI-LAG switch MAC addresses for an EVPN topology switch
+      examples:
+      - - 5c5b35000005
+        - 5c5b35000006
+      items:
+        type: string
+      type: array
+    evpn_topology_switch_config_vrf_config:
+      additionalProperties: false
+      description: VRF enablement for an EVPN topology switch override
+      properties:
+        enabled:
+          description: Whether to enable VRF (when supported on the device)
+          type: boolean
+      type: object
+    evpn_topology_switch_config_dhcpd_config:
+      additionalProperties: false
+      description: DHCP server enablement for an EVPN topology switch override
+      properties:
+        enabled:
+          description: If DHCPD is enabled on the switch
+          type: boolean
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    evpn_options_underlay:
+      additionalProperties: false
+      description: EVPN underlay BGP and subnet settings
+      properties:
+        as_base:
+          default: 65001
+          description: Underlay BGP Base AS Number
+          examples:
+          - 65001
+          maximum: 65535
+          minimum: 1
+          type: integer
+        routed_id_prefix:
+          description: Prefix length used for automatically derived underlay router identifiers
+          examples:
+          - /24
+          type: string
+        subnet:
+          description: Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6
+          examples:
+          - 10.255.240.0/20
+          type: string
+        use_ipv6:
+          default: false
+          description: If v6 is desired for underlay
+          type: boolean
+      type: object
+    switch_port_usage_dynamic_rule_equals_any:
+      description: Use `equals_any` to match any item in a list
+      items:
+        type: string
+      type: array
+    switch_port_usage_mode:
+      description: '`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`'
+      enum:
+      - access
+      - dynamic
+      - inet
+      - trunk
+      type: string
+    evpn_topology:
+      description: EVPN topology create or update payload
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when the EVPN topology was created
+        evpn_options:
+          $ref: '#/components/schemas/evpn_options'
+          description: Generation options applied to the EVPN topology
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the EVPN topology
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when the EVPN topology was last modified
+        name:
+          description: Display name for the EVPN topology
+          examples:
+          - CC
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the EVPN topology
+        overwrite:
+          description: Whether to apply generated EVPN configuration changes automatically
+          type: boolean
+        pod_names:
+          additionalProperties:
+            type: string
+          description: Property key is the pod number
+          type: object
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the EVPN topology
+        switch_configs:
+          $ref: '#/components/schemas/evpn_topology_switch_configs'
+          description: Per-switch configuration overrides included in the EVPN topology
+        switches:
+          $ref: '#/components/schemas/evpn_topology_switches'
+          description: Topology member switches, roles, and links
+      required:
+      - switches
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    switch_port_usage_networks:
+      description: Only if `mode`==`trunk`, the list of network/vlans
+      items:
+        type: string
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     switch_port_usage:
       additionalProperties: false
       description: Junos switch port usage template and authentication settings
@@ -464,130 +1242,21 @@ components:
           - string
           - 'null'
       type: object
-    switch_port_usage_dynamic_rule_src:
-      description: 'enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`'
-      enum:
-      - link_peermac
-      - lldp_chassis_id
-      - lldp_hardware_revision
-      - lldp_manufacturer_name
-      - lldp_oui
-      - lldp_serial_number
-      - lldp_system_description
-      - lldp_system_name
-      - radius_dynamicfilter
-      - radius_usermac
-      - radius_username
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
       type: string
-    evpn_options_overlay:
-      additionalProperties: false
-      description: EVPN overlay BGP settings
-      properties:
-        as:
-          default: 65000
-          description: Overlay BGP Local AS Number
-          examples:
-          - 65000
-          maximum: 65535
-          minimum: 1
-          type: integer
-      type: object
-    switch_port_usage_storm_control:
-      additionalProperties: false
-      description: Switch storm control. Only if `mode`!=`dynamic`
-      properties:
-        disable_port:
-          default: false
-          description: Whether to disable the port when storm control is triggered
-          type: boolean
-        no_broadcast:
-          default: false
-          description: Whether to disable storm control on broadcast traffic
-          type: boolean
-        no_multicast:
-          default: false
-          description: Whether to disable storm control on multicast traffic
-          type: boolean
-        no_registered_multicast:
-          default: false
-          description: Whether to disable storm control on registered multicast traffic
-          type: boolean
-        no_unknown_unicast:
-          default: false
-          description: Whether to disable storm control on unknown unicast traffic
-          type: boolean
-        percentage:
-          default: 80
-          description: Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth
-          maximum: 100
-          minimum: 0
-          type: integer
-      type: object
-    evpn_options_underlay:
-      additionalProperties: false
-      description: EVPN underlay BGP and subnet settings
-      properties:
-        as_base:
-          default: 65001
-          description: Underlay BGP Base AS Number
-          examples:
-          - 65001
-          maximum: 65535
-          minimum: 1
-          type: integer
-        routed_id_prefix:
-          description: Prefix length used for automatically derived underlay router identifiers
-          examples:
-          - /24
-          type: string
-        subnet:
-          description: Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6
-          examples:
-          - 10.255.240.0/20
-          type: string
-        use_ipv6:
-          default: false
-          description: If v6 is desired for underlay
-          type: boolean
-      type: object
-    evpn_topology_switches:
-      description: Switch members included in an EVPN topology
-      items:
-        $ref: '#/components/schemas/evpn_topology_switch'
-      type: array
-      uniqueItems: true
-    evpn_options_routed_at:
-      default: edge
-      description: 'optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`'
+    switch_port_usage_dynamic_reset_default_when:
+      default: link_down
+      description: 'Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)'
       enum:
-      - core
-      - distribution
-      - edge
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    junos_port_config_speed:
-      default: auto
-      description: 'enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
-      enum:
-      - 10m
-      - 100m
-      - 1g
-      - 2.5g
-      - 5g
-      - 10g
-      - 25g
-      - 40g
-      - 100g
-      - auto
+      - link_down
+      - none
+      examples:
+      - link_down
       type: string
     evpn_topology_switch_uplinks:
       description: Uplink switch MAC addresses for an EVPN topology switch
@@ -597,77 +1266,10 @@ components:
       items:
         type: string
       type: array
-    switch_port_usage_duplex:
-      default: auto
-      description: 'Only if `mode`!=`dynamic`. Link connection mode. enum: `auto`, `full`, `half`'
-      enum:
-      - auto
-      - full
-      - half
-      type: string
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    junos_port_config_duplex:
-      default: auto
-      description: 'enum: `auto`, `full`, `half`'
-      enum:
-      - auto
-      - full
-      - half
-      type: string
-    evpn_topology_switch_suggested_downlinks:
-      description: Builder-suggested downlink switch MAC addresses for an EVPN topology switch
-      examples:
-      - - 5c5b35000005
-        - 5c5b35000006
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
-    evpn_topology_response:
-      additionalProperties: false
-      description: EVPN topology metadata returned by EVPN topology APIs
-      properties:
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Timestamp when the EVPN topology was created
-        evpn_options:
-          $ref: '#/components/schemas/evpn_options'
-          description: Generation options applied to the EVPN topology
-        for_site:
-          description: Whether the EVPN topology is scoped to a site rather than the organization
-          type: boolean
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the EVPN topology
-        modified_time:
-          $ref: '#/components/schemas/modified_time'
-          description: Timestamp when the EVPN topology was last modified
-        name:
-          description: Display name for the EVPN topology
-          examples:
-          - CC
-          type: string
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization that owns the EVPN topology
-        overwrite:
-          description: Whether generated EVPN configuration changes are applied automatically
-          type: boolean
-        pod_names:
-          additionalProperties:
-            type: string
-          description: Property key is the pod number
-          type: object
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with the EVPN topology
+    switch_port_usages:
+      additionalProperties:
+        $ref: '#/components/schemas/switch_port_usage'
+      description: Property key is the port usage name. Defines the profiles of port configuration configured on the switch
       type: object
     poe_priority:
       description: 'PoE priority. enum: `low`, `high`'
@@ -675,159 +1277,14 @@ components:
       - low
       - high
       type: string
-    switch_port_usage_dynamic_rule:
-      additionalProperties: false
-      description: Dynamic port usage rule evaluated against LLDP, RADIUS, or peer MAC attributes
-      properties:
-        description:
-          description: Optional description of the rule
-          type: string
-        equals:
-          description: Exact value that the selected source attribute must match
-          type: string
-        equals_any:
-          $ref: '#/components/schemas/switch_port_usage_dynamic_rule_equals_any'
-          description: List of values where any match satisfies this dynamic rule
-        expression:
-          description: '"[0:3]":"abcdef" -> "abc"
-
-            "split(.)[1]": "a.b.c" -> "b"
-
-            "split(-)[1][0:3]: "a1234-b5678-c90" -> "b56"'
-          type: string
-        src:
-          $ref: '#/components/schemas/switch_port_usage_dynamic_rule_src'
-          description: Source attribute evaluated by this dynamic rule
-        usage:
-          description: Port usage name to apply when this dynamic rule matches
-          type: string
-      required:
-      - src
-      type: object
-    switch_port_usages:
-      additionalProperties:
-        $ref: '#/components/schemas/switch_port_usage'
-      description: Property key is the port usage name. Defines the profiles of port configuration configured on the switch
-      type: object
-    junos_port_config:
-      additionalProperties: false
-      description: Junos switch port configuration
-      properties:
-        ae_disable_lacp:
-          description: To disable LACP support for the AE interface
-          type: boolean
-        ae_idx:
-          description: Users could force to use the designated AE name
-          type: integer
-        ae_lacp_force_up:
-          default: false
-          description: 'If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only'
-          type: boolean
-        ae_lacp_passive:
-          default: false
-          description: If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used
-          type: boolean
-        ae_lacp_slow:
-          description: To use slow timeout
-          type: boolean
-        aggregated:
-          default: false
-          description: Whether this port is configured as an aggregated Ethernet member
-          type: boolean
-        critical:
-          default: false
-          description: To generate port up/down alarm
-          type: boolean
-        description:
-          description: Human-readable description for this Junos port
-          type: string
-        disable_autoneg:
-          default: false
-          description: If `speed` and `duplex` are specified, whether to disable autonegotiation
-          type: boolean
-        duplex:
-          $ref: '#/components/schemas/junos_port_config_duplex'
-          description: Link duplex mode for this Junos port
-        dynamic_usage:
-          description: Enable dynamic usage for this port. Set to `dynamic` to enable.
-          type:
-          - string
-          - 'null'
-        esilag:
-          description: Whether this Junos port participates in an ESI-LAG
-          type: boolean
-        mtu:
-          default: 1514
-          description: Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
-          type: integer
-        networks:
-          description: List of network names. Required if `usage`==`inet`
-          items:
-            type: string
-          type: array
-        no_local_overwrite:
-          default: true
-          description: Prevent helpdesk to override the port config
-          type: boolean
-        poe_disabled:
-          default: false
-          description: Whether PoE capabilities are disabled for this Junos port
-          type: boolean
-        port_network:
-          description: Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
-          type: string
-        speed:
-          $ref: '#/components/schemas/junos_port_config_speed'
-          description: Link speed for this Junos port
-        usage:
-          description: Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
-          type: string
-      required:
-      - usage
-      type: object
-    evpn_topology:
-      description: EVPN topology create or update payload
-      properties:
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Timestamp when the EVPN topology was created
-        evpn_options:
-          $ref: '#/components/schemas/evpn_options'
-          description: Generation options applied to the EVPN topology
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the EVPN topology
-        modified_time:
-          $ref: '#/components/schemas/modified_time'
-          description: Timestamp when the EVPN topology was last modified
-        name:
-          description: Display name for the EVPN topology
-          examples:
-          - CC
-          type: string
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization that owns the EVPN topology
-        overwrite:
-          description: Whether to apply generated EVPN configuration changes automatically
-          type: boolean
-        pod_names:
-          additionalProperties:
-            type: string
-          description: Property key is the pod number
-          type: object
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with the EVPN topology
-        switch_configs:
-          $ref: '#/components/schemas/evpn_topology_switch_configs'
-          description: Per-switch configuration overrides included in the EVPN topology
-        switches:
-          $ref: '#/components/schemas/evpn_topology_switches'
-          description: Topology member switches, roles, and links
-      required:
-      - switches
-      type: object
+    mxedge_for_site:
+      default: any
+      description: 'enum: `any`, `false`, `true`'
+      enum:
+      - any
+      - 'false'
+      - 'true'
+      type: string
     evpn_options:
       additionalProperties: false
       description: EVPN topology generation options for campus fabric configuration
@@ -882,463 +1339,104 @@ components:
           $ref: '#/components/schemas/evpn_options_vs_instances'
           description: Virtual-switch instance mappings used to segregate EVPN networks
       type: object
-    ip_type:
-      default: dhcp
-      description: 'IP address assignment mode, either DHCP or static. enum: `dhcp`, `static`'
-      enum:
-      - dhcp
-      - static
-      examples:
-      - static
-      type: string
-    evpn_topology_switch:
-      additionalProperties: false
-      description: Switch member of an EVPN topology, including role and link relationships
-      properties:
-        config:
-          $ref: '#/components/schemas/evpn_topology_switch_config'
-          description: Per-switch configuration supplied for this topology member. Use the [Update Site Device](/#operations/updateSiteDevice) endpoint to update the switch configuration.
-        deviceprofile_id:
-          description: Associated device profile identifier for the switch. Use the [Assign Org Device Profile](/#operations/assignOrgDeviceProfile) endpoint to assign a Device Profile to the switch.
-          examples:
-          - 6a1deab1-96df-4fa2-8455-d5253f943d06
-          format: uuid
-          readOnly: true
-          type: string
-        downlink_ips:
-          $ref: '#/components/schemas/evpn_topology_switch_downlink_ips'
-          description: IP addresses used by this switch for EVPN downlinks
-        downlinks:
-          $ref: '#/components/schemas/evpn_topology_switch_downlinks'
-          description: Switch MAC addresses connected as downlinks from this topology member
-        esilaglinks:
-          $ref: '#/components/schemas/evpn_topology_switch_esilaglinks'
-          description: Switch MAC addresses connected through ESI-LAG from this topology member
-        evpn_id:
-          description: Topology identifier number for this EVPN switch member
-          minimum: 1
-          readOnly: true
-          type: integer
-        mac:
-          description: Switch MAC address used to identify the topology member
-          examples:
-          - 5c5b35000003
-          minLength: 1
-          type: string
-        model:
-          description: Switch model for this topology member
-          examples:
-          - QFX10002-36Q
-          readOnly: true
-          type: string
-        pod:
-          default: 1
-          description: "Optionally, for distribution / access / esilag-access, they can be placed into different pods. e.g. \n  * for CLOS, to group dist / access switches into pods\n  * for ERB/CRB, to group dist / esilag-access into pods"
-          maximum: 255
-          minimum: 1
-          type: integer
-        pods:
-          $ref: '#/components/schemas/evpn_topology_switch_pods'
-          description: List of pod numbers this switch participates in
-        role:
-          $ref: '#/components/schemas/evpn_topology_switch_role'
-          description: EVPN topology role for this switch
-        router_id:
-          description: Routing identifier used by this switch for EVPN routing
-          examples:
-          - 172.16.254.4
-          readOnly: true
-          type: string
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Associated site for this EVPN topology switch
-        suggested_downlinks:
-          $ref: '#/components/schemas/evpn_topology_switch_suggested_downlinks'
-          description: Builder-suggested downlink switch MAC addresses
-        suggested_esilaglinks:
-          $ref: '#/components/schemas/evpn_topology_switch_suggested_esilaglinks'
-          description: Builder-suggested ESI-LAG switch MAC addresses
-        suggested_uplinks:
-          $ref: '#/components/schemas/evpn_topology_switch_suggested_uplinks'
-          description: Builder-suggested uplink switch MAC addresses
-        uplinks:
-          $ref: '#/components/schemas/evpn_topology_switch_uplinks'
-          description: Switch MAC addresses connected as uplinks from this topology member
-      required:
-      - mac
-      - role
-      type: object
-    evpn_options_vs_instance:
-      additionalProperties: false
-      description: EVPN virtual-switch instance network mapping
-      properties:
-        networks:
-          $ref: '#/components/schemas/strings'
-          description: List of network names included in this virtual-switch instance
-      type: object
-    evpn_topology_switch_suggested_uplinks:
-      description: Builder-suggested uplink switch MAC addresses for an EVPN topology switch
-      examples:
-      - - 5c5b35000005
-        - 5c5b35000006
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    evpn_topology_switch_config:
-      additionalProperties: false
-      description: Per-switch configuration used by an EVPN topology member
-      properties:
-        dhcpd_config:
-          $ref: '#/components/schemas/evpn_topology_switch_config_dhcpd_config'
-          description: Switch DHCP server configuration for the topology member
-        networks:
-          $ref: '#/components/schemas/switch_networks'
-          description: EVPN network definitions for the topology member
-        other_ip_configs:
-          $ref: '#/components/schemas/evpn_topology_switch_config_other_ip_configs'
-          description: Additional interface IP configurations for the topology member
-        port_config:
-          $ref: '#/components/schemas/wired_port_config'
-          description: Switch port configuration for the topology member
-        port_usages:
-          $ref: '#/components/schemas/switch_port_usages'
-          description: Switch port usage definitions for the topology member
-        router_id:
-          description: Used for OSPF / BGP / EVPN
-          examples:
-          - 10.2.1.10
-          type: string
-        vrf_config:
-          $ref: '#/components/schemas/evpn_topology_switch_config_vrf_config'
-          description: Routing instance and VRF settings for the topology member
-      type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    switch_port_usage_dot1x:
-      description: 'Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`'
-      enum:
-      - dot1x
-      type:
-      - string
-      - 'null'
-    switch_port_usage_networks:
-      description: Only if `mode`==`trunk`, the list of network/vlans
-      items:
-        type: string
-      type: array
-    switch_port_usage_dynamic_vlan_networks:
-      description: Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
-      examples:
-      - - corp
-        - user
-      items:
-        type: string
-      type: array
-    mxedge_for_site:
-      default: any
-      description: 'enum: `any`, `false`, `true`'
-      enum:
-      - any
-      - 'false'
-      - 'true'
-      type: string
-    switch_port_usage_mtu:
-      anyOf:
-      - maximum: 9216
-        minimum: 256
+  parameters:
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
         type: integer
-      - type: string
-      - type: 'null'
-      description: Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
-    switch_port_usage_mac_limit:
-      anyOf:
-      - default: 0
-        maximum: 16383
+    evpn_topology_id:
+      in: path
+      name: evpn_topology_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
         minimum: 0
         type: integer
-      - type: string
-      description: Only if `mode`!=`dynamic`, max number of MAC addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
-    ip_type6:
-      default: disabled
-      description: 'enum: `autoconf`, `dhcp`, `disabled`, `static`'
-      enum:
-      - autoconf
-      - dhcp
-      - disabled
-      - static
-      examples:
-      - static
-      type: string
-    evpn_topology_switch_suggested_esilaglinks:
-      description: Builder-suggested ESI-LAG switch MAC addresses for an EVPN topology switch
-      examples:
-      - - 5c5b35000005
-        - 5c5b35000006
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    evpn_topology_switch_config_dhcpd_config:
-      additionalProperties: false
-      description: DHCP server enablement for an EVPN topology switch override
-      properties:
-        enabled:
-          description: If DHCPD is enabled on the switch
-          type: boolean
-      type: object
-    switch_port_usage_speed:
-      default: auto
-      description: 'Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
-      enum:
-      - 10m
-      - 100m
-      - 1g
-      - 2.5g
-      - 5g
-      - 10g
-      - 25g
-      - 40g
-      - 100g
-      - auto
-      type: string
-    switch_port_usage_mode:
-      description: '`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`'
-      enum:
-      - access
-      - dynamic
-      - inet
-      - trunk
-      type: string
-    evpn_topology_switch_config_vrf_config:
-      additionalProperties: false
-      description: VRF enablement for an EVPN topology switch override
-      properties:
-        enabled:
-          description: Whether to enable VRF (when supported on the device)
-          type: boolean
-      type: object
-    junos_other_ip_config:
-      additionalProperties: false
-      description: Optional switch L3 presence on an additional network or VLAN
-      properties:
-        evpn_anycast:
-          default: false
-          description: For EVPN, whether anycast is desired
-          type: boolean
-        ip:
-          description: Required if `type`==`static`; IPv4 address for the additional Junos L3 presence
-          examples:
-          - 10.3.3.1
-          type: string
-        ip6:
-          description: Required if `type6`==`static`; IPv6 address for the additional Junos L3 presence
-          examples:
-          - fdad:b0bc:f29e::3d16
-          type: string
-        netmask:
-          description: Optional IPv4 netmask; `subnet` from `network` definition will be used if defined
-          examples:
-          - 255.255.255.0
-          type: string
-        netmask6:
-          description: Optional IPv6 prefix length; `subnet` from `network` definition will be used if defined
-          examples:
-          - /64
-          type: string
-        type:
-          $ref: '#/components/schemas/ip_type'
-          description: IPv4 assignment mode for the additional Junos L3 presence
-        type6:
-          $ref: '#/components/schemas/ip_type6'
-          description: IPv6 assignment mode for the additional Junos L3 presence
-      type: object
-    evpn_topology_switch_role:
-      description: 'use `role`==`none` to remove a switch from the topology. enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`'
-      enum:
-      - access
-      - border
-      - collapsed-core
-      - core
-      - distribution
-      - esilag-access
-      - none
-      minLength: 1
-      type: string
-    evpn_topology_switch_esilaglinks:
-      description: ESI-LAG switch MAC addresses for an EVPN topology switch
-      examples:
-      - - 5c5b35000005
-        - 5c5b35000006
-      items:
-        type: string
-      type: array
-    switch_network:
-      additionalProperties: false
-      description: A network represents a network segment. It can either represent a VLAN (then usually ties to a L3 subnet), optionally associate it with a subnet which can later be used to create addition routes. Used for ports doing `family ethernet-switching`. It can also be a pure L3-subnet that can then be used against a port that with `family inet`.
-      properties:
-        gateway:
-          description: Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
-          type: string
-        gateway6:
-          description: Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
-          type: string
-        isolation:
-          default: false
-          description: 'whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage'
-          type: boolean
-        isolation_vlan_id:
-          description: Required when `isolation`==`true`. Unique VLAN ID used for client isolation
-          examples:
-          - '3070'
-          type: string
-        subnet:
-          description: Optional for pure switching, required when L3 / routing features are used
-          type: string
-        subnet6:
-          description: Optional for pure switching, required when L3 / routing features are used
-          type: string
-        vlan_id:
-          $ref: '#/components/schemas/vlan_id_with_variable'
-          description: VLAN identifier for this switch network
-      required:
-      - vlan_id
-      type: object
-    switch_port_usage_reauth_interval:
-      anyOf:
-      - default: 3600
-        maximum: 65535
-        minimum: 10
-        type: integer
-      - type: string
-      description: 'Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication).'
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    switch_port_usage_dynamic_rules:
-      description: Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply
-      items:
-        $ref: '#/components/schemas/switch_port_usage_dynamic_rule'
-      type: array
-    wired_port_config:
-      additionalProperties:
-        $ref: '#/components/schemas/junos_port_config'
-      description: Property key is the port name or range (e.g. "ge-0/0/0-10")
-      type: object
-    evpn_topology_switch_config_other_ip_configs:
-      additionalProperties:
-        $ref: '#/components/schemas/junos_other_ip_config'
-      description: Additional IP addresses configured on the switch. Property key is the port network name
-      type: object
-    evpn_options_vs_instances:
-      additionalProperties:
-        $ref: '#/components/schemas/evpn_options_vs_instance'
-      description: Optional, for EX9200 only to segregate virtual-switches
-      examples:
-      - guest:
-          networks:
-          - guest
-        iot:
-          networks:
-          - iot-wifi
-          - iot-lan
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    switch_port_usage_dynamic_rule_equals_any:
-      description: Use `equals_any` to match any item in a list
-      items:
-        type: string
-      type: array
-    evpn_topology_switch_downlinks:
-      description: Downlink switch MAC addresses for an EVPN topology switch
-      examples:
-      - - 5c5b35000005
-        - 5c5b35000006
-      items:
-        type: string
-      type: array
-    switch_port_usage_mac_auth_protocol:
-      default: eap-md5
-      description: 'Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`'
-      enum:
-      - eap-md5
-      - eap-peap
-      - pap
-      type: string
-    evpn_topology_switch_configs:
-      additionalProperties:
-        $ref: '#/components/schemas/evpn_topology_switch_config'
-      description: Property key is the switch MAC address
-      type: object
-    evpn_topologies_response:
-      description: EVPN topology records returned by list APIs
-      items:
-        $ref: '#/components/schemas/evpn_topology_response'
-      type: array
-    evpn_topology_switch_downlink_ips:
-      description: Downlink IP addresses used by an EVPN topology switch
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
+  examples:
+    EvpnTopologiesArrayExample:
+      value:
+      - created_time: 1736421230
+        evpn_options:
+          auto_loopback_subnet: 172.16.192.0/24
+          auto_loopback_subnet6: fd33:ab00:2::/64
+          auto_router_id_subnet: 172.16.254.0/23
+          core_as_border: true
+          overlay:
+            as: 65000
+          per_vlan_vga_v4_mac: false
+          routed_at: core
+          underlay:
+            as_base: 65001
+            subnet: 10.255.240.0/20
+            use_ipv6: false
+        for_site: false
+        id: 764fb173-94f9-447c-8454-def62e5a999f
+        modified_time: 1736421230
+        name: tert
+        org_id: 3a2627d7-bfbc-45af-b85d-8841581c6d63
+        pod_names:
+          '1': Pod 1
+        site_id: 00000000-0000-0000-0000-000000000000
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    EvpnTopologyExample:
+      value:
+        id: 9197ec96-4c8d-529f-c595-035895e688b2
+        name: CC
+        overwrite: true
+        pod_names:
+          '1': default
+          '2': default
+        switches:
+        - deviceprofile_id: 6a1deab1-96df-4fa2-8455-d5253f943d06
+          downlink_ips:
+          - 10.255.240.6
+          - 10.255.240.8
+          downlinks:
+          - 5c5b35000007
+          - 5c5b35000008
+          esilaglinks:
+          - 5c5b3500000f
+          evpn_id: 1
+          mac: 5c5b35000003
+          model: QFX10002-36Q
+          role: collapsed-core
+          site_id: 1916d52a-4a90-11e5-8b45-1258369c38a9
+          uplinks:
+          - 5c5b35000005
+          - 5c5b35000006
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
   responses:
     HTTP403:
       content:
@@ -1355,15 +1453,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    HTTP404:
+    EvpnTopologiesArray:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/EvpnTopologiesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/evpn_topologies_response'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/EvpnTopologiesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/evpn_topologies_response'
+      description: OK
     EvpnTopology:
       content:
         application/json:
@@ -1379,21 +1483,6 @@ components:
           schema:
             $ref: '#/components/schemas/evpn_topology'
       description: Example response
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401:
       content:
         application/json:
@@ -1424,121 +1513,32 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    EvpnTopologiesArray:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/EvpnTopologiesArrayExample'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/evpn_topologies_response'
+            $ref: '#/components/schemas/response_http429'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/EvpnTopologiesArrayExample'
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/evpn_topologies_response'
-      description: OK
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     OK:
       description: OK
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    EvpnTopologiesArrayExample:
-      value:
-      - created_time: 1736421230
-        evpn_options:
-          auto_loopback_subnet: 172.16.192.0/24
-          auto_loopback_subnet6: fd33:ab00:2::/64
-          auto_router_id_subnet: 172.16.254.0/23
-          core_as_border: true
-          overlay:
-            as: 65000
-          per_vlan_vga_v4_mac: false
-          routed_at: core
-          underlay:
-            as_base: 65001
-            subnet: 10.255.240.0/20
-            use_ipv6: false
-        for_site: false
-        id: 764fb173-94f9-447c-8454-def62e5a999f
-        modified_time: 1736421230
-        name: tert
-        org_id: 3a2627d7-bfbc-45af-b85d-8841581c6d63
-        pod_names:
-          '1': Pod 1
-        site_id: 00000000-0000-0000-0000-000000000000
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    EvpnTopologyExample:
-      value:
-        id: 9197ec96-4c8d-529f-c595-035895e688b2
-        name: CC
-        overwrite: true
-        pod_names:
-          '1': default
-          '2': default
-        switches:
-        - deviceprofile_id: 6a1deab1-96df-4fa2-8455-d5253f943d06
-          downlink_ips:
-          - 10.255.240.6
-          - 10.255.240.8
-          downlinks:
-          - 5c5b35000007
-          - 5c5b35000008
-          esilaglinks:
-          - 5c5b3500000f
-          evpn_id: 1
-          mac: 5c5b35000003
-          model: QFX10002-36Q
-          role: collapsed-core
-          site_id: 1916d52a-4a90-11e5-8b45-1258369c38a9
-          uplinks:
-          - 5c5b35000005
-          - 5c5b35000006
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    evpn_topology_id:
-      in: path
-      name: evpn_topology_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

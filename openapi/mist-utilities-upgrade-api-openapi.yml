@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Utilities Upgrade API
+  title: Mist Utilities Upgrade API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -925,59 +925,28 @@ paths:
       tags:
       - Utilities Upgrade
 components:
-  parameters:
-    ssr_version_channel:
-      description: 'SSR release channel used to filter available versions. enum: `alpha`, `beta`, `stable`'
-      in: query
-      name: channel
-      schema:
-        $ref: '#/components/schemas/ssr_version_channel'
-    upgrade_id:
-      in: path
-      name: upgrade_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    device_mac:
-      in: path
-      name: device_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   schemas:
+    upgrade_org_devices_item_site_upgrades:
+      description: Site-level upgrade jobs created for an organization upgrade
+      items:
+        $ref: '#/components/schemas/upgrade_org_devices_item_site_upgrade'
+      type: array
+    upgrade_devices_targets_failed:
+      description: List of device MAC addresses that failed to upgrade
+      items:
+        type: string
+      type: array
+    upgrade_org_devices_upgrade:
+      additionalProperties: false
+      description: Upgrade entry for a single site within an organization upgrade job
+      properties:
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Identifier of the site for this upgrade entry
+        upgrade:
+          $ref: '#/components/schemas/upgrade_org_devices_upgrade_info'
+          description: Site-level job details for this upgrade entry
+      type: object
     ssr_upgrade:
       description: Request to upgrade a single SSR device
       properties:
@@ -998,387 +967,11 @@ components:
       required:
       - version
       type: object
-    upgrade_devices_max_failures:
-      description: If `strategy`==`canary`. Number of failures allowed within each phase. Only applicable for `canary`. Array length should be same as `canary_phases`. Will be used if provided, else `max_failure_percentage` will be used
+    response_ssr_upgrades:
+      description: SSR firmware upgrade jobs returned by list operations
       items:
-        type: integer
+        $ref: '#/components/schemas/response_ssr_upgrade'
       type: array
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    ssr_version_channel:
-      default: stable
-      description: 'enum: `stable`, `beta`, `alpha`'
-      enum:
-      - alpha
-      - beta
-      - stable
-      type: string
-    upgrade_site_devices_device_ids:
-      description: Device IDs selected for a site device upgrade
-      items:
-        format: uuid
-        type: string
-      type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_ssr_upgrade_status:
-      additionalProperties: false
-      description: Detailed status for an SSR firmware upgrade job
-      properties:
-        channel:
-          description: Firmware release channel used for the SSR upgrade
-          minLength: 1
-          type: string
-        device_type:
-          description: Type of devices targeted by the SSR upgrade
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for the SSR upgrade job
-        status:
-          description: Current status of the SSR upgrade job
-          minLength: 1
-          type: string
-        targets:
-          $ref: '#/components/schemas/response_ssr_upgrade_status_targets'
-          description: SSR device IDs grouped by upgrade status
-        versions:
-          additionalProperties: true
-          description: SSR firmware versions included in the upgrade job
-          type: object
-      required:
-      - status
-      - versions
-      - channel
-      - id
-      - targets
-      type: object
-    response_upgrade_org_devices:
-      additionalProperties: false
-      description: Organization AP upgrade job details
-      properties:
-        enable_p2p:
-          description: Whether to allow local AP-to-AP FW upgrade
-          type: boolean
-        force:
-          description: Whether to force upgrade when requested version is same as running version
-          type: boolean
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique value identifying the organization upgrade job
-        strategy:
-          $ref: '#/components/schemas/upgrade_device_strategy'
-          description: Execution strategy used for the organization upgrade job
-        target_version:
-          description: Firmware version targeted by the organization AP upgrade
-          examples:
-          - 0.14.29411
-          type: string
-        upgrades:
-          $ref: '#/components/schemas/upgrade_org_devices_upgrade_infos'
-          description: Per-site upgrade jobs created for the organization upgrade
-      type: object
-    upgrade_org_devices_upgrade:
-      additionalProperties: false
-      description: Upgrade entry for a single site within an organization upgrade job
-      properties:
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Identifier of the site for this upgrade entry
-        upgrade:
-          $ref: '#/components/schemas/upgrade_org_devices_upgrade_info'
-          description: Site-level job details for this upgrade entry
-      type: object
-    upgrade_org_devices_item:
-      additionalProperties: false
-      description: Organization device upgrade job returned by upgrade APIs
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for the organization upgrade job
-        site_upgrades:
-          $ref: '#/components/schemas/upgrade_org_devices_item_site_upgrades'
-          description: Per-site upgrade jobs created by this organization upgrade
-      type: object
-    response_mxedge_upgrades:
-      description: Mist Edge upgrade records returned by list upgrade operations
-      items:
-        $ref: '#/components/schemas/response_mxedge_upgrade'
-      type: array
-    upgrade_devices_targets_scheduled:
-      description: List of device MAC addresses that the cloud scheduled an upgrade for
-      items:
-        type: string
-      type: array
-    upgrade_device_rules:
-      description: "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1st to the 3rd letter\n * `match_role`: Device role must match the property value\n  * `match_role[0:3]`: Device role must match the property value from the 1st to the 3rd letter\n * `match_evpn_role`: Device EVPN topology role must match the property value\n  * `match_evpn_role[0:3]`: Device EVPN topology role must match the property value from the 1st to the 3rd letter"
-      examples:
-      - - match_model: AP43
-          match_name[2:8]: access
-        - match_model: AP45
-      items:
-        $ref: '#/components/schemas/upgrade_device_rule'
-      type: array
-    ssr_versions:
-      description: SSR firmware versions available for upgrade
-      items:
-        $ref: '#/components/schemas/ssr_version'
-      type: array
-      uniqueItems: true
-    upgrade_devices_targets_downloaded:
-      description: List of device MAC addresses that have downloaded the firmware
-      items:
-        type: string
-      type: array
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_mxedge_upgrade:
-      additionalProperties: false
-      description: Mist Edge upgrade details response
-      properties:
-        channel:
-          description: Upgrade channel used to select Mist Edge package versions
-          minLength: 1
-          type: string
-        counts:
-          $ref: '#/components/schemas/mxedge_upgrade_response_counts'
-          description: Per-status counts of Mist Edge targets in this upgrade
-        id:
-          $ref: '#/components/schemas/id'
-          description: Upgrade identifier for this Mist Edge upgrade request
-        status:
-          description: Current status of the Mist Edge upgrade
-          minLength: 1
-          type: string
-        strategy:
-          description: Rollout strategy used for the Mist Edge upgrade
-          minLength: 1
-          type: string
-        versions:
-          additionalProperties: true
-          description: Per-service target versions for this Mist Edge upgrade
-          type: object
-      required:
-      - status
-      - strategy
-      - versions
-      - channel
-      - id
-      - counts
-      type: object
-    upgrade_org_devices_version_firmware_type:
-      description: 'Firmware family this version entry applies to. enum: `ap`, `junos`'
-      enum:
-      - ap
-      - junos
-      type: string
-    response_ssr_upgrade_counts:
-      additionalProperties: false
-      description: Device counts grouped by SSR upgrade status
-      properties:
-        failed:
-          description: Number of SSR devices that failed the upgrade
-          type: integer
-        queued:
-          description: Number of SSR devices queued for upgrade
-          type: integer
-        success:
-          description: Number of SSR devices successfully upgraded
-          type: integer
-        upgrading:
-          description: Number of SSR devices currently upgrading
-          type: integer
-      required:
-      - queued
-      - upgrading
-      - success
-      - failed
-      type: object
-    upgrade_devices_targets_downloading:
-      description: List of device MAC addresses that are currently downloading the firmware
-      items:
-        type: string
-      type: array
-    upgrade_devices_max_failure_percentage:
-      default: 5
-      description: If `strategy`!=`big_bang`. percentage of failures allowed across the entire upgrade
-      maximum: 100
-      minimum: 0
-      type: integer
-    upgrade_devices_plan:
-      description: List of Devices MAC addresses part of the phase
-      items:
-        type: string
-      type: array
-    upgrade_info_status:
-      description: 'enum: `error`, `inprogress`, `scheduled`, `starting`, `success`'
-      enum:
-      - error
-      - inprogress
-      - scheduled
-      - starting
-      - success
-      type: string
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    ssr_upgrade_multi:
-      description: Request to upgrade multiple SSR devices
-      properties:
-        channel:
-          $ref: '#/components/schemas/ssr_upgrade_channel'
-          description: Firmware release channel to use for the SSR upgrade
-        device_ids:
-          $ref: '#/components/schemas/ssr_upgrade_multi_device_ids'
-          description: SSR device identifiers targeted by the upgrade
-        reboot_at:
-          description: Reboot start time in epoch seconds, default is start_time, -1 disables reboot
-          type: integer
-        start_time:
-          description: 128T firmware download start time in epoch seconds, default is now, -1 disables download
-          type: integer
-        strategy:
-          $ref: '#/components/schemas/ssr_upgrade_strategy'
-          description: Upgrade rollout strategy for the targeted SSR devices
-        version:
-          description: 128T firmware version to upgrade (e.g. 5.3.0-93)
-          minLength: 1
-          type: string
-      required:
-      - device_ids
-      type: object
-    response_site_device_upgrades_item:
-      additionalProperties: false
-      description: Site device upgrade job summary
-      properties:
-        counts:
-          $ref: '#/components/schemas/upgrade_site_devices_counts'
-          description: Device counts grouped by upgrade status for this job
-        current_phase:
-          description: Current canary or rrm phase in progress
-          type: integer
-        enable_p2p:
-          description: Whether to allow local AP-to-AP FW upgrade
-          type: boolean
-        force:
-          description: Whether to force upgrade when requested version is same as running version
-          type: boolean
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for the site device upgrade job
-        max_failure_percentage:
-          description: Percentage of failures allowed
-          type: integer
-        max_failures:
-          $ref: '#/components/schemas/upgrade_devices_max_failures'
-          description: Per-phase failure thresholds configured for a canary upgrade
-        reboot_at:
-          description: reboot start time in epoch
-          type: integer
-        start_time:
-          description: Firmware download start time in epoch
-          type: integer
-        status:
-          $ref: '#/components/schemas/upgrade_device_status'
-          description: Current status of the site device upgrade job
-        strategy:
-          $ref: '#/components/schemas/upgrade_device_strategy'
-          description: Device upgrade strategy used by this job
-        target_version:
-          description: Version to upgrade to
-          minLength: 1
-          type: string
-        upgrade_plan:
-          additionalProperties: true
-          description: a dictionary of rrm phase number to devices part of that phase
-          type: object
-      required:
-      - id
-      type: object
-    mxedge_upgrade_version:
-      additionalProperties: false
-      description: Version to upgrade for each service, `current` / `latest` / `default` / specific version (e.g. `2.5.100`).\nIgnored if distro upgrade, `tunterm`, `radsecproxy`, `mxagent`, `mxocproxy`, `mxdas` or `mxnacedge`
-      properties:
-        mxagent:
-          default: current
-          description: Target version for the mxagent service
-          type: string
-        mxdas:
-          default: current
-          description: Target version for the mxdas service
-          type: string
-        mxocproxy:
-          default: current
-          description: Target version for the mxocproxy service
-          type: string
-        radsecproxy:
-          default: current
-          description: Target version for the radsecproxy service
-          type: string
-        tunterm:
-          default: current
-          description: Target version for the tunterm service
-          type: string
-      required:
-      - mxagent
-      - tunterm
-      type: object
-    upgrade_devices_targets:
-      additionalProperties: false
-      description: Read-only device target lists grouped by upgrade status
-      properties:
-        download_requested:
-          $ref: '#/components/schemas/upgrade_devices_targets_download_requested'
-          description: Device MAC addresses for devices requested to download firmware
-        downloaded:
-          $ref: '#/components/schemas/upgrade_devices_targets_downloaded'
-          description: Device MAC addresses for devices that have downloaded firmware
-        downloading:
-          $ref: '#/components/schemas/upgrade_devices_targets_downloading'
-          description: Device MAC addresses for devices currently downloading firmware
-        failed:
-          $ref: '#/components/schemas/upgrade_devices_targets_failed'
-          description: Device MAC addresses for devices that failed to upgrade
-        reboot_in_progress:
-          $ref: '#/components/schemas/upgrade_devices_targets_reboot_in_progress'
-          description: Device MAC addresses for devices currently rebooting
-        rebooted:
-          $ref: '#/components/schemas/upgrade_devices_targets_rebooted'
-          description: Device MAC addresses for devices that rebooted successfully
-        scheduled:
-          $ref: '#/components/schemas/upgrade_devices_targets_scheduled'
-          description: Device MAC addresses for devices scheduled for upgrade by the cloud
-        skipped:
-          $ref: '#/components/schemas/upgrade_devices_targets_skipped'
-          description: Device MAC addresses for devices skipped because the requested version matched the running version
-        total:
-          description: Count of devices part of this upgrade
-          type: integer
-        upgraded:
-          $ref: '#/components/schemas/upgrade_devices_targets_upgraded'
-          description: Device MAC addresses for devices that upgraded successfully
-      readOnly: true
-      type: object
     response_ssr_upgrade:
       additionalProperties: false
       description: SSR firmware upgrade job summary
@@ -1418,279 +1011,143 @@ components:
       - counts
       - device_type
       type: object
-    ssr_upgrade_strategy:
-      default: big_bang
-      description: "enum:\n  * `big_bang`: upgrade all at once\n  * `serial`: one at a time"
-      enum:
-      - big_bang
-      - serial
-      type: string
-    device_upgrade:
-      description: Device firmware upgrade request options
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    upgrade_devices_targets_downloaded:
+      description: List of device MAC addresses that have downloaded the firmware
+      items:
+        type: string
+      type: array
+    device_version_item:
+      additionalProperties: false
+      description: Available firmware version for a specific device model and release tag
       properties:
-        reboot:
-          default: false
-          description: For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
-          type: boolean
-        reboot_at:
-          description: For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
-          type: integer
-        snapshot:
-          default: false
-          description: For Junos devices only. Perform recovery snapshot after device is rebooted
-          type: boolean
-        start_time:
-          description: Firmware download start time in epoch
-          type: integer
+        model:
+          description: Device model (as seen in the device stats)
+          type: string
+        tag:
+          description: Annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build
+          type: string
         version:
-          default: stable
-          description: Specific version / `stable`, default is to use the latest
+          description: Available firmware version for this device model
           type: string
       required:
+      - model
       - version
       type: object
-    upgrade_devices_targets_download_requested:
-      description: List of device MAC addresses that the cloud requested to download firmware
-      items:
-        type: string
-      type: array
-    response_upgrade_id:
+    upgrade_org_devices_item:
       additionalProperties: false
-      description: Response containing an upgrade job identifier
+      description: Organization device upgrade job returned by upgrade APIs
       properties:
-        upgrade_id:
-          description: Unique value identifying the queued upgrade job
-          examples:
-          - 4316c116-0acb-4c43-8f06-6723154e741e
-          format: uuid
-          type: string
-      required:
-      - upgrade_id
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the organization upgrade job
+        site_upgrades:
+          $ref: '#/components/schemas/upgrade_org_devices_item_site_upgrades'
+          description: Per-site upgrade jobs created by this organization upgrade
       type: object
-    mxedge_upgrade_strategy:
-      default: big_bang
-      description: "enum:\n  * `big_bang`: upgrade all at once, no orchestration\n  * `serial`: one at a time'\n  * `canary`: upgrade in phases"
-      enum:
-      - canary
-      - big_bang
-      - serial
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    ssr_upgrade_multi:
+      description: Request to upgrade multiple SSR devices
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    upgrade_device_rrm_node_order:
-      default: fringe_to_center
-      description: 'For APs only and if `strategy`==`rrm`. Used in rrm to determine whether to start upgrade from fringe or center AP’s. enum: `center_to_fringe`, `fringe_to_center`'
-      enum:
-      - center_to_fringe
-      - fringe_to_center
-      type: string
-    response_site_device_upgrade_canary_phases:
-      default:
-      - 1
-      - 10
-      - 50
-      - 100
-      description: phases for canary deployment. Each phase represents percentage of devices that need to be upgraded in that phase.
-      items:
-        type: integer
-      type: array
-    upgrade_org_devices_item_site_upgrades:
-      description: Site-level upgrade jobs created for an organization upgrade
-      items:
-        $ref: '#/components/schemas/upgrade_org_devices_item_site_upgrade'
-      type: array
-    upgrade_devices_targets_rebooted:
-      description: List of device MAC addresses that rebooted successfully
-      items:
-        type: string
-      type: array
-    ssr_upgrade_channel:
-      default: stable
-      description: 'upgrade channel to follow. enum: `alpha`, `beta`, `stable`'
-      enum:
-      - alpha
-      - beta
-      - stable
-      type: string
-    mxedge_upgrade_multi:
-      description: Request to schedule upgrades for one or more Mist Edges
-      properties:
-        allow_downgrades:
-          $ref: '#/components/schemas/mxedge_upgrade_multi_allow_downgrades'
-          description: Per-service downgrade permission settings for this upgrade
-        canary_phases:
-          $ref: '#/components/schemas/upgrade_device_canary_phases'
-          description: Canary phase percentages for phased Mist Edge upgrades
         channel:
-          $ref: '#/components/schemas/mxedge_upgrade_channel'
-          description: Upgrade channel to use for qualified versions
-        distro:
-          description: Linux distribution codename for an optional distro upgrade, such as bullseye or `next` to upgrade to the next distro version. Uses highest qualified versions
-          type: string
-        max_failure_percentage:
-          default: 5
-          description: Failure threshold before we stop the upgrade and mark it as failed
+          $ref: '#/components/schemas/ssr_upgrade_channel'
+          description: Firmware release channel to use for the SSR upgrade
+        device_ids:
+          $ref: '#/components/schemas/ssr_upgrade_multi_device_ids'
+          description: SSR device identifiers targeted by the upgrade
+        reboot_at:
+          description: Reboot start time in epoch seconds, default is start_time, -1 disables reboot
           type: integer
-        mxedge_ids:
-          $ref: '#/components/schemas/mxedge_upgrade_multi_mxedge_ids'
-          description: Mist Edge IDs included in the upgrade request
         start_time:
-          description: Upgrade start time in epoch seconds, default is now
+          description: 128T firmware download start time in epoch seconds, default is now, -1 disables download
           type: integer
         strategy:
-          $ref: '#/components/schemas/mxedge_upgrade_strategy'
-          description: Upgrade rollout strategy for the selected Mist Edges
-        versions:
-          $ref: '#/components/schemas/mxedge_upgrade_version'
-          description: Per-service target versions for the upgrade request
+          $ref: '#/components/schemas/ssr_upgrade_strategy'
+          description: Upgrade rollout strategy for the targeted SSR devices
+        version:
+          description: 128T firmware version to upgrade (e.g. 5.3.0-93)
+          minLength: 1
+          type: string
       required:
-      - mxedge_ids
+      - device_ids
       type: object
-    upgrade_org_devices_models:
-      description: Only devices of these model types will be selected for upgrade
-      items:
-        $ref: '#/components/schemas/strings'
-      type: array
-    upgrade_site_devices_counts:
+    response_mxedge_upgrade:
       additionalProperties: false
-      description: Device counts grouped by status for a site upgrade job
+      description: Mist Edge upgrade details response
       properties:
-        download_requested:
-          description: Count of devices which cloud has requested to download firmware
-          type: integer
-        downloaded:
-          description: Count of ap's which have the firmware downloaded
-          type: integer
-        failed:
-          description: Count of devices which have failed to upgrade
-          type: integer
-        reboot_in_progress:
-          description: Count of devices which are rebooting
-          type: integer
-        rebooted:
-          description: Count of devices which have rebooted successfully
-          type: integer
-        scheduled:
-          description: Count of devices which cloud has scheduled an upgrade for
-          type: integer
-        skipped:
-          description: Count of devices which skipped upgrade since requested version was same as running version. Use force to always upgrade
-          type: integer
-        total:
-          description: Count of devices part of this upgrade
-          type: integer
-        upgraded:
-          description: Count of devices which have upgraded successfully
-          type: integer
-      readOnly: true
+        channel:
+          description: Upgrade channel used to select Mist Edge package versions
+          minLength: 1
+          type: string
+        counts:
+          $ref: '#/components/schemas/mxedge_upgrade_response_counts'
+          description: Per-status counts of Mist Edge targets in this upgrade
+        id:
+          $ref: '#/components/schemas/id'
+          description: Upgrade identifier for this Mist Edge upgrade request
+        status:
+          description: Current status of the Mist Edge upgrade
+          minLength: 1
+          type: string
+        strategy:
+          description: Rollout strategy used for the Mist Edge upgrade
+          minLength: 1
+          type: string
+        versions:
+          additionalProperties: true
+          description: Per-service target versions for this Mist Edge upgrade
+          type: object
+      required:
+      - status
+      - strategy
+      - versions
+      - channel
+      - id
+      - counts
       type: object
-    upgrade_devices_targets_upgraded:
-      description: List of device MAC addresses that upgraded successfully
+    upgrade_device_strategy:
+      default: big_bang
+      description: 'enum: `big_bang` (upgrade all at once), `canary`, `rrm` (APs only), `serial` (one at a time)'
+      enum:
+      - big_bang
+      - canary
+      - rrm
+      - serial
+      type: string
+    upgrade_devices_targets_downloading:
+      description: List of device MAC addresses that are currently downloading the firmware
       items:
         type: string
       type: array
-    ssr_version:
-      additionalProperties: false
-      description: SSR firmware version available for upgrade
-      properties:
-        default:
-          description: Whether this is the default SSR firmware version for its channel
-          readOnly: true
-          type: boolean
-        package:
-          description: Firmware package name for this SSR version
-          readOnly: true
-          type: string
-        tags:
-          $ref: '#/components/schemas/strings'
-          description: Metadata labels associated with this SSR firmware version
-        version:
-          description: Firmware version string available for SSR upgrades
-          readOnly: true
-          type: string
-      required:
-      - package
-      - version
-      type: object
     upgrade_org_devices_upgrade_infos:
       description: Per-site upgrade entries created for an organization device upgrade
       items:
         $ref: '#/components/schemas/upgrade_org_devices_upgrade'
       type: array
-    upgrade_org_devices_upgrade_info:
+    upgrade_devices_targets_scheduled:
+      description: List of device MAC addresses that the cloud scheduled an upgrade for
+      items:
+        type: string
+      type: array
+    response_http403:
       additionalProperties: false
-      description: Site-level upgrade job details within an organization upgrade
+      description: Standard HTTP 403 permission error response
       properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique value identifying the site-level upgrade job
-        start_time:
-          description: Epoch timestamp, in seconds, when the site-level upgrade starts
+        detail:
+          description: Human-readable explanation of the permission error
           examples:
-          - 1717658765
-          type: integer
-        status:
-          $ref: '#/components/schemas/upgrade_device_status'
-          description: Current status of the site-level upgrade job
-        targets:
-          $ref: '#/components/schemas/upgrade_devices_targets'
-          description: Device targets grouped by upgrade state
+          - You do not have permission to perform this action.
+          type: string
       type: object
-    mxedge_upgrade_multi_allow_downgrades:
-      additionalProperties: false
-      description: Whether downgrade is allowed when running version is higher than expected version for each service
-      properties:
-        mxagent:
-          default: false
-          description: Whether downgrades are allowed for the mxagent service
-          type: boolean
-        mxdas:
-          default: false
-          description: Whether downgrades are allowed for the mxdas service
-          type: boolean
-        mxocproxy:
-          default: false
-          description: Whether downgrades are allowed for the mxocproxy service
-          type: boolean
-        radsecproxy:
-          default: false
-          description: Whether downgrades are allowed for the radsecproxy service
-          type: boolean
-        tunterm:
-          default: false
-          description: Whether downgrades are allowed for the tunterm service
-          type: boolean
-      type: object
-    upgrade_device_status:
-      description: 'status upgrade is in. enum: `cancelled`, `completed`, `created`, `downloaded`, `downloading`, `failed`, `upgrading`, `queued`'
-      enum:
-      - cancelled
-      - completed
-      - created
-      - downloaded
-      - downloading
-      - failed
-      - queued
-      - upgrading
-      type: string
+    upgrade_device_models:
+      description: Models which will be selected for upgrade
+      items:
+        type: string
+      type: array
     response_site_device_upgrade:
       additionalProperties: false
       description: Site device upgrade job details
@@ -1750,26 +1207,129 @@ components:
       required:
       - id
       type: object
-    response_ssr_upgrades:
-      description: SSR firmware upgrade jobs returned by list operations
-      items:
-        $ref: '#/components/schemas/response_ssr_upgrade'
-      type: array
-    response_http403:
+    response_ssr_upgrade_counts:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Device counts grouped by SSR upgrade status
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
+        failed:
+          description: Number of SSR devices that failed the upgrade
+          type: integer
+        queued:
+          description: Number of SSR devices queued for upgrade
+          type: integer
+        success:
+          description: Number of SSR devices successfully upgraded
+          type: integer
+        upgrading:
+          description: Number of SSR devices currently upgrading
+          type: integer
+      required:
+      - queued
+      - upgrading
+      - success
+      - failed
+      type: object
+    mxedge_upgrade_multi_allow_downgrades:
+      additionalProperties: false
+      description: Whether downgrade is allowed when running version is higher than expected version for each service
+      properties:
+        mxagent:
+          default: false
+          description: Whether downgrades are allowed for the mxagent service
+          type: boolean
+        mxdas:
+          default: false
+          description: Whether downgrades are allowed for the mxdas service
+          type: boolean
+        mxocproxy:
+          default: false
+          description: Whether downgrades are allowed for the mxocproxy service
+          type: boolean
+        radsecproxy:
+          default: false
+          description: Whether downgrades are allowed for the radsecproxy service
+          type: boolean
+        tunterm:
+          default: false
+          description: Whether downgrades are allowed for the tunterm service
+          type: boolean
       type: object
     upgrade_devices_targets_skipped:
       description: List of device MAC addresses that skipped upgrade because requested version was same as running version. Use force to always upgrade
       items:
         type: string
       type: array
+    device_type:
+      description: 'enum: `ap`, `gateway`, `switch`'
+      enum:
+      - ap
+      - gateway
+      - switch
+      type: string
+    response_device_upgrade:
+      additionalProperties: false
+      description: Single-device upgrade status response
+      properties:
+        status:
+          $ref: '#/components/schemas/upgrade_info_status'
+          description: Current status of the requested device upgrade
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Epoch timestamp when the device upgrade status was reported
+      required:
+      - timestamp
+      - status
+      type: object
+    mxedge_upgrade_channel:
+      default: stable
+      description: 'upgrade channel to follow. enum: `alpha`, `beta`, `stable`'
+      enum:
+      - alpha
+      - beta
+      - stable
+      type: string
+    upgrade_org_devices_version_firmware_type:
+      description: 'Firmware family this version entry applies to. enum: `ap`, `junos`'
+      enum:
+      - ap
+      - junos
+      type: string
+    upgrade_devices_targets:
+      additionalProperties: false
+      description: Read-only device target lists grouped by upgrade status
+      properties:
+        download_requested:
+          $ref: '#/components/schemas/upgrade_devices_targets_download_requested'
+          description: Device MAC addresses for devices requested to download firmware
+        downloaded:
+          $ref: '#/components/schemas/upgrade_devices_targets_downloaded'
+          description: Device MAC addresses for devices that have downloaded firmware
+        downloading:
+          $ref: '#/components/schemas/upgrade_devices_targets_downloading'
+          description: Device MAC addresses for devices currently downloading firmware
+        failed:
+          $ref: '#/components/schemas/upgrade_devices_targets_failed'
+          description: Device MAC addresses for devices that failed to upgrade
+        reboot_in_progress:
+          $ref: '#/components/schemas/upgrade_devices_targets_reboot_in_progress'
+          description: Device MAC addresses for devices currently rebooting
+        rebooted:
+          $ref: '#/components/schemas/upgrade_devices_targets_rebooted'
+          description: Device MAC addresses for devices that rebooted successfully
+        scheduled:
+          $ref: '#/components/schemas/upgrade_devices_targets_scheduled'
+          description: Device MAC addresses for devices scheduled for upgrade by the cloud
+        skipped:
+          $ref: '#/components/schemas/upgrade_devices_targets_skipped'
+          description: Device MAC addresses for devices skipped because the requested version matched the running version
+        total:
+          description: Count of devices part of this upgrade
+          type: integer
+        upgraded:
+          $ref: '#/components/schemas/upgrade_devices_targets_upgraded'
+          description: Device MAC addresses for devices that upgraded successfully
+      readOnly: true
+      type: object
     upgrade_device_canary_phases:
       default:
       - 1
@@ -1779,6 +1339,537 @@ components:
       description: Only if `strategy`==`canary`. Phases for canary deployment. Each phase represents percentage of devices that need to be upgraded in that phase. default is [1, 10, 50, 100]
       items:
         type: integer
+      type: array
+    upgrade_devices_targets_upgraded:
+      description: List of device MAC addresses that upgraded successfully
+      items:
+        type: string
+      type: array
+    upgrade_devices_targets_rebooted:
+      description: List of device MAC addresses that rebooted successfully
+      items:
+        type: string
+      type: array
+    upgrade_device_rrm_mesh_upgrade:
+      default: sequential
+      description: 'For APs only and if `strategy`==`rrm`. Whether to upgrade mesh AP’s parallelly or sequentially at the end of the upgrade. enum: `parallel`, `sequential`'
+      enum:
+      - parallel
+      - sequential
+      type: string
+    upgrade_devices_plans:
+      additionalProperties:
+        $ref: '#/components/schemas/upgrade_devices_plan'
+      description: If `strategy`!=`big_bang`, a dictionary of phase number to devices part of that phase
+      type: object
+    device_version:
+      description: Available firmware versions for device models
+      items:
+        $ref: '#/components/schemas/device_version_item'
+      type: array
+      uniqueItems: true
+    upgrade_site_devices_counts:
+      additionalProperties: false
+      description: Device counts grouped by status for a site upgrade job
+      properties:
+        download_requested:
+          description: Count of devices which cloud has requested to download firmware
+          type: integer
+        downloaded:
+          description: Count of ap's which have the firmware downloaded
+          type: integer
+        failed:
+          description: Count of devices which have failed to upgrade
+          type: integer
+        reboot_in_progress:
+          description: Count of devices which are rebooting
+          type: integer
+        rebooted:
+          description: Count of devices which have rebooted successfully
+          type: integer
+        scheduled:
+          description: Count of devices which cloud has scheduled an upgrade for
+          type: integer
+        skipped:
+          description: Count of devices which skipped upgrade since requested version was same as running version. Use force to always upgrade
+          type: integer
+        total:
+          description: Count of devices part of this upgrade
+          type: integer
+        upgraded:
+          description: Count of devices which have upgraded successfully
+          type: integer
+      readOnly: true
+      type: object
+    upgrade_org_devices_list:
+      description: Organization device upgrade jobs returned by a list response
+      items:
+        $ref: '#/components/schemas/upgrade_org_devices_item'
+      type: array
+    response_site_device_upgrade_canary_phases:
+      default:
+      - 1
+      - 10
+      - 50
+      - 100
+      description: phases for canary deployment. Each phase represents percentage of devices that need to be upgraded in that phase.
+      items:
+        type: integer
+      type: array
+    upgrade_devices_targets_download_requested:
+      description: List of device MAC addresses that the cloud requested to download firmware
+      items:
+        type: string
+      type: array
+    response_upgrade_id:
+      additionalProperties: false
+      description: Response containing an upgrade job identifier
+      properties:
+        upgrade_id:
+          description: Unique value identifying the queued upgrade job
+          examples:
+          - 4316c116-0acb-4c43-8f06-6723154e741e
+          format: uuid
+          type: string
+      required:
+      - upgrade_id
+      type: object
+    ssr_version:
+      additionalProperties: false
+      description: SSR firmware version available for upgrade
+      properties:
+        default:
+          description: Whether this is the default SSR firmware version for its channel
+          readOnly: true
+          type: boolean
+        package:
+          description: Firmware package name for this SSR version
+          readOnly: true
+          type: string
+        tags:
+          $ref: '#/components/schemas/strings'
+          description: Metadata labels associated with this SSR firmware version
+        version:
+          description: Firmware version string available for SSR upgrades
+          readOnly: true
+          type: string
+      required:
+      - package
+      - version
+      type: object
+    response_site_device_upgrades_item:
+      additionalProperties: false
+      description: Site device upgrade job summary
+      properties:
+        counts:
+          $ref: '#/components/schemas/upgrade_site_devices_counts'
+          description: Device counts grouped by upgrade status for this job
+        current_phase:
+          description: Current canary or rrm phase in progress
+          type: integer
+        enable_p2p:
+          description: Whether to allow local AP-to-AP FW upgrade
+          type: boolean
+        force:
+          description: Whether to force upgrade when requested version is same as running version
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the site device upgrade job
+        max_failure_percentage:
+          description: Percentage of failures allowed
+          type: integer
+        max_failures:
+          $ref: '#/components/schemas/upgrade_devices_max_failures'
+          description: Per-phase failure thresholds configured for a canary upgrade
+        reboot_at:
+          description: reboot start time in epoch
+          type: integer
+        start_time:
+          description: Firmware download start time in epoch
+          type: integer
+        status:
+          $ref: '#/components/schemas/upgrade_device_status'
+          description: Current status of the site device upgrade job
+        strategy:
+          $ref: '#/components/schemas/upgrade_device_strategy'
+          description: Device upgrade strategy used by this job
+        target_version:
+          description: Version to upgrade to
+          minLength: 1
+          type: string
+        upgrade_plan:
+          additionalProperties: true
+          description: a dictionary of rrm phase number to devices part of that phase
+          type: object
+      required:
+      - id
+      type: object
+    upgrade_site_devices:
+      description: Site device upgrade request
+      properties:
+        canary_phases:
+          $ref: '#/components/schemas/upgrade_device_canary_phases'
+          description: Only if `strategy`==`canary`. Canary phase percentages for the site upgrade
+        device_ids:
+          $ref: '#/components/schemas/upgrade_site_devices_device_ids'
+          description: Specific device IDs selected for the site upgrade
+        enable_p2p:
+          description: For APs only. Whether to allow local AP-to-AP FW upgrade
+          type: boolean
+        force:
+          default: false
+          description: '`force`==`true` will force upgrade when requested version is same as running version'
+          type: boolean
+        max_failure_percentage:
+          $ref: '#/components/schemas/upgrade_devices_max_failure_percentage'
+          description: If `strategy`!=`big_bang`. Allowed failure percentage across the site upgrade
+        max_failures:
+          $ref: '#/components/schemas/upgrade_devices_max_failures'
+          description: If `strategy`==`canary`. Per-phase failure limits for the site upgrade
+        models:
+          $ref: '#/components/schemas/upgrade_device_models'
+          description: Device models selected for the site upgrade
+        p2p_cluster_size:
+          default: 10
+          description: For APs only and if `enable_p2p`==`true`.
+          examples:
+          - 0
+          minimum: 0
+          type: integer
+        p2p_parallelism:
+          description: For APs only and if `enable_p2p`==`true`. Number of parallel p2p download batches to create
+          type: integer
+        reboot:
+          default: false
+          description: For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
+          type: boolean
+        reboot_at:
+          description: For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
+          examples:
+          - 1624399840
+          type: integer
+        rrm_first_batch_percentage:
+          description: For APs only and if `strategy`==`rrm`. Percentage of APs that need to be present in the first RRM batch
+          examples:
+          - 2
+          type: integer
+        rrm_max_batch_percentage:
+          description: For APs only and if `strategy`==`rrm`. Max percentage of APs that need to be present in each RRM batch
+          examples:
+          - 10
+          type: integer
+        rrm_mesh_upgrade:
+          $ref: '#/components/schemas/upgrade_device_rrm_mesh_upgrade'
+          description: For APs only and if `strategy`==`rrm`. Mesh AP upgrade order for the site upgrade
+        rrm_node_order:
+          $ref: '#/components/schemas/upgrade_device_rrm_node_order'
+          description: For APs only and if `strategy`==`rrm`. AP ordering direction for RRM upgrade batches
+        rrm_slow_ramp:
+          description: For APs only and if `strategy`==`rrm`. True will make rrm batch sizes slowly ramp up
+          type: boolean
+        rules:
+          $ref: '#/components/schemas/upgrade_device_rules'
+          description: Selection rules used to choose devices for this site upgrade
+        snapshot:
+          default: false
+          description: For Junos devices only. Perform recovery snapshot after device is rebooted
+          type: boolean
+        start_time:
+          description: Upgrade start time in epoch seconds, default is now
+          examples:
+          - 1624399840
+          type: integer
+        strategy:
+          $ref: '#/components/schemas/upgrade_device_strategy'
+          description: Upgrade orchestration strategy for selected devices
+        version:
+          description: Specific version / stable, default is to use the latest available version
+          examples:
+          - 3.1.5
+          type: string
+      type: object
+    ssr_upgrade_channel:
+      default: stable
+      description: 'upgrade channel to follow. enum: `alpha`, `beta`, `stable`'
+      enum:
+      - alpha
+      - beta
+      - stable
+      type: string
+    upgrade_device_rule:
+      additionalProperties:
+        type: string
+      description: Device selection rule keyed by match criterion, with string values to match
+      type: object
+    upgrade_devices_plan:
+      description: List of Devices MAC addresses part of the phase
+      items:
+        type: string
+      type: array
+    upgrade_org_devices_upgrade_info:
+      additionalProperties: false
+      description: Site-level upgrade job details within an organization upgrade
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the site-level upgrade job
+        start_time:
+          description: Epoch timestamp, in seconds, when the site-level upgrade starts
+          examples:
+          - 1717658765
+          type: integer
+        status:
+          $ref: '#/components/schemas/upgrade_device_status'
+          description: Current status of the site-level upgrade job
+        targets:
+          $ref: '#/components/schemas/upgrade_devices_targets'
+          description: Device targets grouped by upgrade state
+      type: object
+    ssr_version_channel:
+      default: stable
+      description: 'enum: `stable`, `beta`, `alpha`'
+      enum:
+      - alpha
+      - beta
+      - stable
+      type: string
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    upgrade_org_devices_version_model_version:
+      additionalProperties:
+        type: string
+      description: If `firmware_type`==`junos`, used to select different versions for different models (Overrides `version` for the specified models). Property key is the hadware model (e.g. `EX4400-24MP`), Property value is the firmware version (e.g. `23.4R1.9`)
+      type: object
+    version_string:
+      description: JSI device upgrade target version request
+      properties:
+        version:
+          description: Target software version for the JSI device upgrade
+          type: string
+      type: object
+    upgrade_devices_max_failures:
+      description: If `strategy`==`canary`. Number of failures allowed within each phase. Only applicable for `canary`. Array length should be same as `canary_phases`. Will be used if provided, else `max_failure_percentage` will be used
+      items:
+        type: integer
+      type: array
+    ssr_upgrade_strategy:
+      default: big_bang
+      description: "enum:\n  * `big_bang`: upgrade all at once\n  * `serial`: one at a time"
+      enum:
+      - big_bang
+      - serial
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_site_device_upgrades:
+      description: Site device upgrade jobs returned by list operations
+      items:
+        $ref: '#/components/schemas/response_site_device_upgrades_item'
+      type: array
+    upgrade_org_devices_version:
+      additionalProperties: false
+      description: Target firmware version entry for an organization upgrade request
+      properties:
+        firmware_type:
+          $ref: '#/components/schemas/upgrade_org_devices_version_firmware_type'
+          description: Firmware family this version entry applies to
+        force:
+          default: false
+          description: If `firmware_type`==`ap`, set to `true` if upgrade is needed when target version <= running version
+          type: boolean
+        model_version:
+          $ref: '#/components/schemas/upgrade_org_devices_version_model_version'
+          description: If `firmware_type`==`junos`, model-specific firmware version overrides
+        version:
+          description: Firmware version to deploy for this entry
+          type: string
+      type: object
+    mxedge_upgrade_multi_mxedge_ids:
+      description: List of Mist Edge IDs to upgrade. If not specified, it means all the org Mist Edges.
+      items:
+        format: uuid
+        type: string
+      type: array
+    device_upgrade:
+      description: Device firmware upgrade request options
+      properties:
+        reboot:
+          default: false
+          description: For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
+          type: boolean
+        reboot_at:
+          description: For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
+          type: integer
+        snapshot:
+          default: false
+          description: For Junos devices only. Perform recovery snapshot after device is rebooted
+          type: boolean
+        start_time:
+          description: Firmware download start time in epoch
+          type: integer
+        version:
+          default: stable
+          description: Specific version / `stable`, default is to use the latest
+          type: string
+      required:
+      - version
+      type: object
+    upgrade_device_rules:
+      description: "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1st to the 3rd letter\n * `match_role`: Device role must match the property value\n  * `match_role[0:3]`: Device role must match the property value from the 1st to the 3rd letter\n * `match_evpn_role`: Device EVPN topology role must match the property value\n  * `match_evpn_role[0:3]`: Device EVPN topology role must match the property value from the 1st to the 3rd letter"
+      examples:
+      - - match_model: AP43
+          match_name[2:8]: access
+        - match_model: AP45
+      items:
+        $ref: '#/components/schemas/upgrade_device_rule'
+      type: array
+    upgrade_org_devices_versions:
+      description: Target firmware version entries for an organization upgrade request
+      items:
+        $ref: '#/components/schemas/upgrade_org_devices_version'
+      type: array
+    upgrade_site_devices_device_ids:
+      description: Device IDs selected for a site device upgrade
+      items:
+        format: uuid
+        type: string
+      type: array
+    mxedge_upgrade_multi:
+      description: Request to schedule upgrades for one or more Mist Edges
+      properties:
+        allow_downgrades:
+          $ref: '#/components/schemas/mxedge_upgrade_multi_allow_downgrades'
+          description: Per-service downgrade permission settings for this upgrade
+        canary_phases:
+          $ref: '#/components/schemas/upgrade_device_canary_phases'
+          description: Canary phase percentages for phased Mist Edge upgrades
+        channel:
+          $ref: '#/components/schemas/mxedge_upgrade_channel'
+          description: Upgrade channel to use for qualified versions
+        distro:
+          description: Linux distribution codename for an optional distro upgrade, such as bullseye or `next` to upgrade to the next distro version. Uses highest qualified versions
+          type: string
+        max_failure_percentage:
+          default: 5
+          description: Failure threshold before we stop the upgrade and mark it as failed
+          type: integer
+        mxedge_ids:
+          $ref: '#/components/schemas/mxedge_upgrade_multi_mxedge_ids'
+          description: Mist Edge IDs included in the upgrade request
+        start_time:
+          description: Upgrade start time in epoch seconds, default is now
+          type: integer
+        strategy:
+          $ref: '#/components/schemas/mxedge_upgrade_strategy'
+          description: Upgrade rollout strategy for the selected Mist Edges
+        versions:
+          $ref: '#/components/schemas/mxedge_upgrade_version'
+          description: Per-service target versions for the upgrade request
+      required:
+      - mxedge_ids
+      type: object
+    upgrade_org_devices_download_strategy:
+      default: big_bang
+      description: "enum:\n  * `big_bang`: download all at once, no orchestration\n  * `serial`: one at a time'\n  * `canary`: upgrade in phases"
+      enum:
+      - canary
+      - big_bang
+      - serial
+      type: string
+    upgrade_device_rrm_node_order:
+      default: fringe_to_center
+      description: 'For APs only and if `strategy`==`rrm`. Used in rrm to determine whether to start upgrade from fringe or center AP’s. enum: `center_to_fringe`, `fringe_to_center`'
+      enum:
+      - center_to_fringe
+      - fringe_to_center
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_ssr_upgrade_status:
+      additionalProperties: false
+      description: Detailed status for an SSR firmware upgrade job
+      properties:
+        channel:
+          description: Firmware release channel used for the SSR upgrade
+          minLength: 1
+          type: string
+        device_type:
+          description: Type of devices targeted by the SSR upgrade
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the SSR upgrade job
+        status:
+          description: Current status of the SSR upgrade job
+          minLength: 1
+          type: string
+        targets:
+          $ref: '#/components/schemas/response_ssr_upgrade_status_targets'
+          description: SSR device IDs grouped by upgrade status
+        versions:
+          additionalProperties: true
+          description: SSR firmware versions included in the upgrade job
+          type: object
+      required:
+      - status
+      - versions
+      - channel
+      - id
+      - targets
+      type: object
+    upgrade_org_devices_site_ids:
+      description: Only devices belonging to these sites will be selected for upgrade. Will be ignored if `all_sites`==`true`
+      items:
+        format: uuid
+        type: string
+      type: array
+    ssr_versions:
+      description: SSR firmware versions available for upgrade
+      items:
+        $ref: '#/components/schemas/ssr_version'
+      type: array
+      uniqueItems: true
+    upgrade_devices_targets_reboot_in_progress:
+      description: List of device MAC addresses for devices that are rebooting
+      items:
+        type: string
       type: array
     mxedge_upgrade_response_counts:
       additionalProperties: false
@@ -1802,45 +1893,30 @@ components:
       - success
       - failed
       type: object
-    upgrade_devices_targets_failed:
-      description: List of device MAC addresses that failed to upgrade
-      items:
-        type: string
-      type: array
-    upgrade_org_devices_versions:
-      description: Target firmware version entries for an organization upgrade request
-      items:
-        $ref: '#/components/schemas/upgrade_org_devices_version'
-      type: array
-    version_string:
-      description: JSI device upgrade target version request
-      properties:
-        version:
-          description: Target software version for the JSI device upgrade
-          type: string
-      type: object
-    upgrade_org_devices_site_ids:
-      description: Only devices belonging to these sites will be selected for upgrade. Will be ignored if `all_sites`==`true`
-      items:
-        format: uuid
-        type: string
-      type: array
-    device_version_item:
+    response_upgrade_org_devices:
       additionalProperties: false
-      description: Available firmware version for a specific device model and release tag
+      description: Organization AP upgrade job details
       properties:
-        model:
-          description: Device model (as seen in the device stats)
+        enable_p2p:
+          description: Whether to allow local AP-to-AP FW upgrade
+          type: boolean
+        force:
+          description: Whether to force upgrade when requested version is same as running version
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the organization upgrade job
+        strategy:
+          $ref: '#/components/schemas/upgrade_device_strategy'
+          description: Execution strategy used for the organization upgrade job
+        target_version:
+          description: Firmware version targeted by the organization AP upgrade
+          examples:
+          - 0.14.29411
           type: string
-        tag:
-          description: Annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build
-          type: string
-        version:
-          description: Available firmware version for this device model
-          type: string
-      required:
-      - model
-      - version
+        upgrades:
+          $ref: '#/components/schemas/upgrade_org_devices_upgrade_infos'
+          description: Per-site upgrade jobs created for the organization upgrade
       type: object
     upgrade_org_devices:
       description: Organization-wide device upgrade request
@@ -1938,250 +2014,6 @@ components:
           $ref: '#/components/schemas/upgrade_org_devices_versions'
           description: Target firmware versions for this organization upgrade
       type: object
-    device_version:
-      description: Available firmware versions for device models
-      items:
-        $ref: '#/components/schemas/device_version_item'
-      type: array
-      uniqueItems: true
-    upgrade_org_devices_download_strategy:
-      default: big_bang
-      description: "enum:\n  * `big_bang`: download all at once, no orchestration\n  * `serial`: one at a time'\n  * `canary`: upgrade in phases"
-      enum:
-      - canary
-      - big_bang
-      - serial
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    mxedge_upgrade_channel:
-      default: stable
-      description: 'upgrade channel to follow. enum: `alpha`, `beta`, `stable`'
-      enum:
-      - alpha
-      - beta
-      - stable
-      type: string
-    upgrade_device_rrm_mesh_upgrade:
-      default: sequential
-      description: 'For APs only and if `strategy`==`rrm`. Whether to upgrade mesh AP’s parallelly or sequentially at the end of the upgrade. enum: `parallel`, `sequential`'
-      enum:
-      - parallel
-      - sequential
-      type: string
-    response_site_device_upgrades:
-      description: Site device upgrade jobs returned by list operations
-      items:
-        $ref: '#/components/schemas/response_site_device_upgrades_item'
-      type: array
-    device_type_default_ap:
-      default: ap
-      description: 'enum: `ap`, `gateway`, `switch`'
-      enum:
-      - ap
-      - gateway
-      - switch
-      type: string
-    upgrade_org_devices_item_site_upgrade:
-      additionalProperties: false
-      description: Site upgrade mapping returned for an organization upgrade
-      properties:
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Identifier of the site that received this upgrade job
-        upgrade_id:
-          description: Identifier of the site-level upgrade job
-          examples:
-          - ebbdbd0b-1bcf-4e55-8a6a-3416049a52b1
-          format: uuid
-          type: string
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    ssr_upgrade_multi_device_ids:
-      description: List of 128T device IDs to upgrade
-      items:
-        format: uuid
-        type: string
-      type: array
-    upgrade_org_devices_version:
-      additionalProperties: false
-      description: Target firmware version entry for an organization upgrade request
-      properties:
-        firmware_type:
-          $ref: '#/components/schemas/upgrade_org_devices_version_firmware_type'
-          description: Firmware family this version entry applies to
-        force:
-          default: false
-          description: If `firmware_type`==`ap`, set to `true` if upgrade is needed when target version <= running version
-          type: boolean
-        model_version:
-          $ref: '#/components/schemas/upgrade_org_devices_version_model_version'
-          description: If `firmware_type`==`junos`, model-specific firmware version overrides
-        version:
-          description: Firmware version to deploy for this entry
-          type: string
-      type: object
-    upgrade_devices_plans:
-      additionalProperties:
-        $ref: '#/components/schemas/upgrade_devices_plan'
-      description: If `strategy`!=`big_bang`, a dictionary of phase number to devices part of that phase
-      type: object
-    upgrade_org_devices_version_model_version:
-      additionalProperties:
-        type: string
-      description: If `firmware_type`==`junos`, used to select different versions for different models (Overrides `version` for the specified models). Property key is the hadware model (e.g. `EX4400-24MP`), Property value is the firmware version (e.g. `23.4R1.9`)
-      type: object
-    device_type:
-      description: 'enum: `ap`, `gateway`, `switch`'
-      enum:
-      - ap
-      - gateway
-      - switch
-      type: string
-    mxedge_upgrade_multi_mxedge_ids:
-      description: List of Mist Edge IDs to upgrade. If not specified, it means all the org Mist Edges.
-      items:
-        format: uuid
-        type: string
-      type: array
-    upgrade_device_models:
-      description: Models which will be selected for upgrade
-      items:
-        type: string
-      type: array
-    upgrade_device_strategy:
-      default: big_bang
-      description: 'enum: `big_bang` (upgrade all at once), `canary`, `rrm` (APs only), `serial` (one at a time)'
-      enum:
-      - big_bang
-      - canary
-      - rrm
-      - serial
-      type: string
-    upgrade_devices_targets_reboot_in_progress:
-      description: List of device MAC addresses for devices that are rebooting
-      items:
-        type: string
-      type: array
-    upgrade_device_rule:
-      additionalProperties:
-        type: string
-      description: Device selection rule keyed by match criterion, with string values to match
-      type: object
-    upgrade_site_devices:
-      description: Site device upgrade request
-      properties:
-        canary_phases:
-          $ref: '#/components/schemas/upgrade_device_canary_phases'
-          description: Only if `strategy`==`canary`. Canary phase percentages for the site upgrade
-        device_ids:
-          $ref: '#/components/schemas/upgrade_site_devices_device_ids'
-          description: Specific device IDs selected for the site upgrade
-        enable_p2p:
-          description: For APs only. Whether to allow local AP-to-AP FW upgrade
-          type: boolean
-        force:
-          default: false
-          description: '`force`==`true` will force upgrade when requested version is same as running version'
-          type: boolean
-        max_failure_percentage:
-          $ref: '#/components/schemas/upgrade_devices_max_failure_percentage'
-          description: If `strategy`!=`big_bang`. Allowed failure percentage across the site upgrade
-        max_failures:
-          $ref: '#/components/schemas/upgrade_devices_max_failures'
-          description: If `strategy`==`canary`. Per-phase failure limits for the site upgrade
-        models:
-          $ref: '#/components/schemas/upgrade_device_models'
-          description: Device models selected for the site upgrade
-        p2p_cluster_size:
-          default: 10
-          description: For APs only and if `enable_p2p`==`true`.
-          examples:
-          - 0
-          minimum: 0
-          type: integer
-        p2p_parallelism:
-          description: For APs only and if `enable_p2p`==`true`. Number of parallel p2p download batches to create
-          type: integer
-        reboot:
-          default: false
-          description: For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
-          type: boolean
-        reboot_at:
-          description: For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
-          examples:
-          - 1624399840
-          type: integer
-        rrm_first_batch_percentage:
-          description: For APs only and if `strategy`==`rrm`. Percentage of APs that need to be present in the first RRM batch
-          examples:
-          - 2
-          type: integer
-        rrm_max_batch_percentage:
-          description: For APs only and if `strategy`==`rrm`. Max percentage of APs that need to be present in each RRM batch
-          examples:
-          - 10
-          type: integer
-        rrm_mesh_upgrade:
-          $ref: '#/components/schemas/upgrade_device_rrm_mesh_upgrade'
-          description: For APs only and if `strategy`==`rrm`. Mesh AP upgrade order for the site upgrade
-        rrm_node_order:
-          $ref: '#/components/schemas/upgrade_device_rrm_node_order'
-          description: For APs only and if `strategy`==`rrm`. AP ordering direction for RRM upgrade batches
-        rrm_slow_ramp:
-          description: For APs only and if `strategy`==`rrm`. True will make rrm batch sizes slowly ramp up
-          type: boolean
-        rules:
-          $ref: '#/components/schemas/upgrade_device_rules'
-          description: Selection rules used to choose devices for this site upgrade
-        snapshot:
-          default: false
-          description: For Junos devices only. Perform recovery snapshot after device is rebooted
-          type: boolean
-        start_time:
-          description: Upgrade start time in epoch seconds, default is now
-          examples:
-          - 1624399840
-          type: integer
-        strategy:
-          $ref: '#/components/schemas/upgrade_device_strategy'
-          description: Upgrade orchestration strategy for selected devices
-        version:
-          description: Specific version / stable, default is to use the latest available version
-          examples:
-          - 3.1.5
-          type: string
-      type: object
-    response_device_upgrade:
-      additionalProperties: false
-      description: Single-device upgrade status response
-      properties:
-        status:
-          $ref: '#/components/schemas/upgrade_info_status'
-          description: Current status of the requested device upgrade
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Epoch timestamp when the device upgrade status was reported
-      required:
-      - timestamp
-      - status
-      type: object
-    upgrade_org_devices_list:
-      description: Organization device upgrade jobs returned by a list response
-      items:
-        $ref: '#/components/schemas/upgrade_org_devices_item'
-      type: array
     response_ssr_upgrade_status_targets:
       additionalProperties: false
       description: SSR device IDs grouped by upgrade status
@@ -2204,13 +2036,465 @@ components:
       - success
       - failed
       type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    upgrade_devices_max_failure_percentage:
+      default: 5
+      description: If `strategy`!=`big_bang`. percentage of failures allowed across the entire upgrade
+      maximum: 100
+      minimum: 0
+      type: integer
+    upgrade_org_devices_item_site_upgrade:
+      additionalProperties: false
+      description: Site upgrade mapping returned for an organization upgrade
+      properties:
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Identifier of the site that received this upgrade job
+        upgrade_id:
+          description: Identifier of the site-level upgrade job
+          examples:
+          - ebbdbd0b-1bcf-4e55-8a6a-3416049a52b1
+          format: uuid
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    mxedge_upgrade_strategy:
+      default: big_bang
+      description: "enum:\n  * `big_bang`: upgrade all at once, no orchestration\n  * `serial`: one at a time'\n  * `canary`: upgrade in phases"
+      enum:
+      - canary
+      - big_bang
+      - serial
+      type: string
+    upgrade_info_status:
+      description: 'enum: `error`, `inprogress`, `scheduled`, `starting`, `success`'
+      enum:
+      - error
+      - inprogress
+      - scheduled
+      - starting
+      - success
+      type: string
+    upgrade_org_devices_models:
+      description: Only devices of these model types will be selected for upgrade
+      items:
+        $ref: '#/components/schemas/strings'
+      type: array
+    response_mxedge_upgrades:
+      description: Mist Edge upgrade records returned by list upgrade operations
+      items:
+        $ref: '#/components/schemas/response_mxedge_upgrade'
+      type: array
+    upgrade_device_status:
+      description: 'status upgrade is in. enum: `cancelled`, `completed`, `created`, `downloaded`, `downloading`, `failed`, `upgrading`, `queued`'
+      enum:
+      - cancelled
+      - completed
+      - created
+      - downloaded
+      - downloading
+      - failed
+      - queued
+      - upgrading
+      type: string
+    mxedge_upgrade_version:
+      additionalProperties: false
+      description: Version to upgrade for each service, `current` / `latest` / `default` / specific version (e.g. `2.5.100`).\nIgnored if distro upgrade, `tunterm`, `radsecproxy`, `mxagent`, `mxocproxy`, `mxdas` or `mxnacedge`
+      properties:
+        mxagent:
+          default: current
+          description: Target version for the mxagent service
+          type: string
+        mxdas:
+          default: current
+          description: Target version for the mxdas service
+          type: string
+        mxocproxy:
+          default: current
+          description: Target version for the mxocproxy service
+          type: string
+        radsecproxy:
+          default: current
+          description: Target version for the radsecproxy service
+          type: string
+        tunterm:
+          default: current
+          description: Target version for the tunterm service
+          type: string
+      required:
+      - mxagent
+      - tunterm
+      type: object
+    device_type_default_ap:
+      default: ap
+      description: 'enum: `ap`, `gateway`, `switch`'
+      enum:
+      - ap
+      - gateway
+      - switch
+      type: string
+    ssr_upgrade_multi_device_ids:
+      description: List of 128T device IDs to upgrade
+      items:
+        format: uuid
+        type: string
+      type: array
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    upgrade_id:
+      in: path
+      name: upgrade_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    device_mac:
+      in: path
+      name: device_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    ssr_version_channel:
+      description: 'SSR release channel used to filter available versions. enum: `alpha`, `beta`, `stable`'
+      in: query
+      name: channel
+      schema:
+        $ref: '#/components/schemas/ssr_version_channel'
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    UpgradeId:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeIdExample'
+          schema:
+            $ref: '#/components/schemas/response_upgrade_id'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeIdExample'
+          schema:
+            $ref: '#/components/schemas/response_upgrade_id'
+      description: OK
+    MxEdgeUpgrade:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_mxedge_upgrade'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_mxedge_upgrade'
+      description: Example response
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    OrgDeviceUpgrade:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgDeviceUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_upgrade_org_devices'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgDeviceUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_upgrade_org_devices'
+      description: OK
+    SsrUpgradesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradesArrayExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrades'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradesArrayExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrades'
+      description: Example response
+    UpgradeSiteDevicesList:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeSiteDevicesListExample'
+          schema:
+            $ref: '#/components/schemas/response_site_device_upgrades'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeSiteDevicesListExample'
+          schema:
+            $ref: '#/components/schemas/response_site_device_upgrades'
+      description: Example response
+    SiteDeviceUpgrade:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SiteDeviceUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_site_device_upgrade'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SiteDeviceUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_site_device_upgrade'
+      description: OK
+    DeviceVersion:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceVersionExample'
+          schema:
+            $ref: '#/components/schemas/device_version'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceVersionExample'
+          schema:
+            $ref: '#/components/schemas/device_version'
+      description: OK
+    SsrVersions:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrVersionsExample'
+          schema:
+            $ref: '#/components/schemas/ssr_versions'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrVersionsExample'
+          schema:
+            $ref: '#/components/schemas/ssr_versions'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    SsrUpgrade:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrade'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradeExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrade'
+      description: Example response
+    MxEdgeUpgradesArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_mxedge_upgrades'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_mxedge_upgrades'
+      description: Example response
+    SsrUpgradeStatus:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradeStatusExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrade_status'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsrUpgradeStatusExample'
+          schema:
+            $ref: '#/components/schemas/response_ssr_upgrade_status'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    UpgradeDevice:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeDeviceExample'
+          schema:
+            $ref: '#/components/schemas/response_device_upgrade'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UpgradeDeviceExample'
+          schema:
+            $ref: '#/components/schemas/response_device_upgrade'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OK:
+      description: OK
+    OrgDeviceUpgradeList:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgDeviceUpgradeListExample'
+          schema:
+            $ref: '#/components/schemas/upgrade_org_devices_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgDeviceUpgradeListExample'
+          schema:
+            $ref: '#/components/schemas/upgrade_org_devices_list'
+      description: OK
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    UpgradeDeviceExample:
+      value:
+        status: inprogress
+        timestamp: 1428949501
     OrgDeviceUpgradeListExample:
       value:
       - id: 466f6eca-6276-4993-bfeb-53cbbbba6f88
         site_upgrades:
         - site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
           upgrade_id: 174bda0-06a3-40ee-b918-d9cbde303690
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    UpgradeIdExample:
+      value:
+        upgrade_id: 4316c116-0acb-4c43-8f06-6723154e741e
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    SsrUpgradeExample:
+      value:
+        channel: stable
+        counts:
+          failed: 0
+          queued: 1
+          success: 0
+          upgrading: 1
+        device_type: gateway
+        id: ceef2c8a-e2e6-447a-8b27-cb4f3ec1adae
+        status: upgrading
+        strategy: serial
+        versions: {}
     SsrUpgradeStatusExample:
       value:
         channel: stable
@@ -2224,22 +2508,23 @@ components:
           upgrading:
           - 8e525f1d-4178-4ae1-a988-2b0176855e55
         versions: {}
-    SsrUpgradesArrayExample:
+    UpgradeSiteDevicesListExample:
       value:
-      - channel: stable
-        counts:
+      - counts:
+          download_requested: 0
+          downloaded: 0
           failed: 0
-          queued: 1
-          success: 0
-          upgrading: 1
-        device_type: gateway
-        id: ceef2c8a-e2e6-447a-8b27-cb4f3ec1adae
-        status: upgrading
-        strategy: serial
-        versions: {}
-    UpgradeIdExample:
-      value:
-        upgrade_id: 4316c116-0acb-4c43-8f06-6723154e741e
+          reboot_in_progress: 0
+          rebooted: 0
+          skipped: 0
+          total: 0
+        enable_p2p: true
+        force: true
+        id: 472f6eca-6276-4993-bfeb-53cbbbba6f28
+        start_time: 0
+        status: created
+        strategy: big_bang
+        target_version: string
     SiteDeviceUpgradeExample:
       value:
         canary_phases:
@@ -2275,30 +2560,19 @@ components:
           - 30783a619182
           '2':
           - a8378280da5e
-    UpgradeDeviceExample:
+    SsrUpgradesArrayExample:
       value:
-        status: inprogress
-        timestamp: 1428949501
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    UpgradeSiteDevicesListExample:
-      value:
-      - counts:
-          download_requested: 0
-          downloaded: 0
+      - channel: stable
+        counts:
           failed: 0
-          reboot_in_progress: 0
-          rebooted: 0
-          skipped: 0
-          total: 0
-        enable_p2p: true
-        force: true
-        id: 472f6eca-6276-4993-bfeb-53cbbbba6f28
-        start_time: 0
-        status: created
-        strategy: big_bang
-        target_version: string
+          queued: 1
+          success: 0
+          upgrading: 1
+        device_type: gateway
+        id: ceef2c8a-e2e6-447a-8b27-cb4f3ec1adae
+        status: upgrading
+        strategy: serial
+        versions: {}
     DeviceVersionExample:
       value:
       - model: AP41
@@ -2306,14 +2580,6 @@ components:
         version: v0.1.543
       - model: AP21
         version: v0.1.545
-    SsrVersionsExample:
-      value:
-      - default: true
-        package: SSR
-        version: 5.3.1-17
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     OrgDeviceUpgradeExample:
       value:
         enable_p2p: true
@@ -2336,280 +2602,14 @@ components:
               upgraded:
               - 5c5b3550bd2e
               - 003e7316ff9e
-    HTTP400Example:
+    HTTP403Example:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    SsrUpgradeExample:
+        detail: You do not have permission to perform this action.
+    SsrVersionsExample:
       value:
-        channel: stable
-        counts:
-          failed: 0
-          queued: 1
-          success: 0
-          upgrading: 1
-        device_type: gateway
-        id: ceef2c8a-e2e6-447a-8b27-cb4f3ec1adae
-        status: upgrading
-        strategy: serial
-        versions: {}
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-  responses:
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    UpgradeSiteDevicesList:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeSiteDevicesListExample'
-          schema:
-            $ref: '#/components/schemas/response_site_device_upgrades'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeSiteDevicesListExample'
-          schema:
-            $ref: '#/components/schemas/response_site_device_upgrades'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OrgDeviceUpgradeList:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgDeviceUpgradeListExample'
-          schema:
-            $ref: '#/components/schemas/upgrade_org_devices_list'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgDeviceUpgradeListExample'
-          schema:
-            $ref: '#/components/schemas/upgrade_org_devices_list'
-      description: OK
-    SsrUpgradesArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradesArrayExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrades'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradesArrayExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrades'
-      description: Example response
-    MxEdgeUpgrade:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_mxedge_upgrade'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_mxedge_upgrade'
-      description: Example response
-    UpgradeDevice:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeDeviceExample'
-          schema:
-            $ref: '#/components/schemas/response_device_upgrade'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeDeviceExample'
-          schema:
-            $ref: '#/components/schemas/response_device_upgrade'
-      description: OK
-    UpgradeId:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeIdExample'
-          schema:
-            $ref: '#/components/schemas/response_upgrade_id'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UpgradeIdExample'
-          schema:
-            $ref: '#/components/schemas/response_upgrade_id'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    DeviceVersion:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/DeviceVersionExample'
-          schema:
-            $ref: '#/components/schemas/device_version'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/DeviceVersionExample'
-          schema:
-            $ref: '#/components/schemas/device_version'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    SsrVersions:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrVersionsExample'
-          schema:
-            $ref: '#/components/schemas/ssr_versions'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrVersionsExample'
-          schema:
-            $ref: '#/components/schemas/ssr_versions'
-      description: OK
-    SsrUpgrade:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrade'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrade'
-      description: Example response
-    OrgDeviceUpgrade:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgDeviceUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_upgrade_org_devices'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgDeviceUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_upgrade_org_devices'
-      description: OK
-    SiteDeviceUpgrade:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SiteDeviceUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_site_device_upgrade'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SiteDeviceUpgradeExample'
-          schema:
-            $ref: '#/components/schemas/response_site_device_upgrade'
-      description: OK
-    OK:
-      description: OK
-    SsrUpgradeStatus:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradeStatusExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrade_status'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsrUpgradeStatusExample'
-          schema:
-            $ref: '#/components/schemas/response_ssr_upgrade_status'
-      description: OK
-    MxEdgeUpgradesArray:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_mxedge_upgrades'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_mxedge_upgrades'
-      description: Example response
+      - default: true
+        package: SSR
+        version: 5.3.1-17
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

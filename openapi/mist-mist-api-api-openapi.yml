@@ -1,0 +1,4324 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: tmunzer@juniper.net
+    name: Thomas Munzer
+  description: '> Version: **2606.1.1**
+
+    >
+
+    > Date: **July 10, 2026**
+
+    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
+
+
+    ---
+
+    ## Additional Documentation
+
+    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
+
+    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
+
+    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
+
+
+    ## Helpful Resources
+
+    * [API Sandbox and Exercises](https://api-class.mist.com/)
+
+    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
+
+    * [Python Script Examples](https://github.com/tmunzer/mist_library)
+
+    * [API Demo Apps](https://apps.mist-lab.fr/)
+
+    * [Juniper Blog](https://blogs.juniper.net/)
+
+
+    ## Mist Web Browser Extension:
+
+    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
+
+    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
+
+
+    ---'
+  license:
+    name: MIT
+    url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
+  title: Mist API
+  version: 2606.1.1
+  x-logo:
+    altText: Juniper-MistAI
+    backgroundColor: '#FFFFFF'
+    url: https://www.mist.com/wp-content/uploads/logo.png
+servers:
+- description: Mist Global 01
+  url: https://api.mist.com
+- description: Mist Global 02
+  url: https://api.gc1.mist.com
+- description: Mist Global 03
+  url: https://api.ac2.mist.com
+- description: Mist Global 04
+  url: https://api.gc2.mist.com
+- description: Mist Global 05
+  url: https://api.gc4.mist.com
+- description: Mist EMEA 01
+  url: https://api.eu.mist.com
+- description: Mist EMEA 02
+  url: https://api.gc3.mist.com
+- description: Mist EMEA 03
+  url: https://api.ac6.mist.com
+- description: Mist EMEA 04
+  url: https://api.gc6.mist.com
+- description: Mist APAC 01
+  url: https://api.ac5.mist.com
+- description: Mist APAC 02
+  url: https://api.gc5.mist.com
+- description: Mist APAC 03
+  url: https://api.gc7.mist.com
+security:
+- apiToken: []
+- csrfToken: []
+tags:
+- name: Mist API
+paths: {}
+webhooks:
+  alarms:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - aps:
+                    - string
+                    bssids:
+                    - string
+                    count: 0
+                    event_id: a7a26ff2-e851-45b6-9634-d595f45458b7
+                    for_site: true
+                    id: 489f6eca-6276-4993-bfeb-c3cbbbba1f08
+                    last_seen: 0
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    ssids:
+                    - string
+                    timestamp: 0
+                    type: string
+                    update: true
+                  topic: alarms
+            schema:
+              $ref: '#/components/schemas/webhook_alarms'
+        description: 'Webhook sample for `alarm` topic
+
+
+
+          **N.B.**: Fields like `aps`, `bssids`, `ssids` are event specific.
+
+          They are relevant to this event type ( rogue-ap-detected). For a different event type, different fields may be sent.
+
+          These don''t contain all affected entities and are representative samples of entities (capped at 10).
+
+          For marvis action related events, we expose `details` to include more event specific details.
+
+
+
+          Events specific fields for other alarm event type can be found with API [List Alarm Definitions](/#operations/listAlarmDefinitions), under \"fields\" array of /alarm_defs response object.'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  asset_raw_rssi:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    beam: 8
+                    device_id: 00000000-0000-0000-1000-ac2316eca70b
+                    ibeacon_major: 2
+                    ibeacon_minor: 2121
+                    ibeacon_uuid: ac950d7b-af31-42d2-be7c-e15639fab2cd
+                    is_asset: true
+                    mac: ed2cc53f2770
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    rssi: -79
+                    service_packets:
+                    - service_data: 010441060606fe3d35700601cecbd902512f000001
+                      service_uuid: UUID
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                    timestamp: 1661300746
+                  - ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    beam: 7
+                    device_id: 00000000-0000-0000-1000-ac2316eca70b
+                    is_asset: true
+                    mac: ed2cc53f2771
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    mfg_company_id: 243
+                    mfg_data: '00000000000000000000000000'
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    rssi: -74
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                    timestamp: 1661300746
+                  topic: asset-raw-rssi
+            schema:
+              $ref: '#/components/schemas/webhook_asset_raw_rssi'
+        description: "Webhook sample for `asset-raw-rssi` topic.\n\n\nThis webhook topic provides raw data from packets emitted by named and filtered assets.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  audits:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - admin_name: admin_name8
+                    device_id: 00000380-0000-0000-0000-000000000000
+                    id: 0000122a-0000-0000-0000-000000000000
+                    message: message0
+                    org_id: 00001302-0000-0000-0000-000000000000
+                    site_id: 00000290-0000-0000-0000-000000000000
+                    src_ip: src_ip6
+                    timestamp: 157.68
+                  topic: audits
+            schema:
+              $ref: '#/components/schemas/webhook_audits'
+        description: Webhook sample for `audit` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  client_info:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - hostname: service.company.net
+                    ip: 21.0.128.151
+                    mac: 6ebaa47a3fd4
+                    org_id: 0c160b7f-1027-4cd1-923b-744534c4b070
+                    site_id: 6e77a2ea-d579-471c-9056-5ff5b4ed70ed
+                    timestamp: 1703003296
+                  topic: client-info
+            schema:
+              $ref: '#/components/schemas/webhook_client_info'
+        description: Webhook sample for `client-info` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  client_join:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: string
+                    ap_name: string
+                    band: string
+                    bssid: string
+                    connect: 0
+                    connect_float: 0
+                    mac: string
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    rssi: 0
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    site_name: string
+                    ssid: string
+                    timestamp: 0
+                    version: 0
+                    wlan_id: 5028e92b-fc59-4056-91d1-ea4b4ca1617a
+                  topic: client-join
+            schema:
+              $ref: '#/components/schemas/webhook_client_join'
+        description: Webhook sample for `client-join` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  client_latency:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - avg_auth: 0.17170219
+                    avg_dhcp: 0.017828934
+                    avg_dns: 0.024532124
+                    max_auth: 0.18170219
+                    max_dhcp: 0.027828934
+                    max_dns: 0.029532124
+                    min_auth: 0.16050219
+                    min_dhcp: 0.015828934
+                    min_dns: 0.022532124
+                    org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1696401600
+                  topic: client-latency
+            schema:
+              $ref: '#/components/schemas/webhook_client_latency'
+        description: Webhook sample for `client-latency` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  client_sessions:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: string
+                    ap_name: string
+                    band: string
+                    bssid: string
+                    client_family: string
+                    client_manufacture: string
+                    client_model: string
+                    client_os: string
+                    connect: 0
+                    connect_float: 0
+                    disconnect: 0
+                    disconnect_float: 0
+                    duration: 0
+                    mac: string
+                    next_ap: string
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    rssi: 0
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    site_name: string
+                    ssid: string
+                    termination_reason: 0
+                    timestamp: 0
+                    version: 0
+                    wlan_id: 5028e92b-fc59-4056-91d1-ea4b4ca1617a
+                  topic: client-sessions
+            schema:
+              $ref: '#/components/schemas/webhook_client_sessions'
+        description: Webhook sample for `client-sessions` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  device_events:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: string
+                    ap_name: string
+                    audit_id: 78c04fa6-cfb4-46a0-9aa5-3681ba4f3897
+                    device_name: string
+                    device_type: ap
+                    ev_type: notice
+                    mac: string
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    reason: string
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    site_name: string
+                    text: string
+                    timestamp: 0
+                    type: string
+                  topic: device-events
+            schema:
+              $ref: '#/components/schemas/webhook_device_events'
+        description: Webhook sample for `device-events` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  device_updowns:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: string
+                    ap_name: string
+                    for_site: true
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    site_name: string
+                    timestamp: 0
+                    type: string
+                  topic: device-updowns
+            schema:
+              $ref: '#/components/schemas/webhook_device_updowns'
+        description: Webhook sample for `device-updowns` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  discovered_raw_rssi:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap_loc:
+                    - 0
+                    beam: 0
+                    device_id: 3bafab7b-4400-4bcf-8e6e-09f954699940
+                    ibeacon_major: 1
+                    ibeacon_minor: 1
+                    ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
+                    is_asset: true
+                    mac: string
+                    map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+                    mfg_company_id: string
+                    mfg_data: string
+                    org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                    rssi: 0
+                    service_packets:
+                    - service_data: string
+                      service_uuid: 7138cc00-c611-4dec-a05e-5c4b1cae13c0
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    timestamp: 0
+                  topic: discovered-raw-rssi
+            schema:
+              $ref: '#/components/schemas/webhook_discovered_raw_rssi'
+        description: Webhook sample for `discovered-raw-rssi` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  guest_authorizations:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: 5c5b350e55c8
+                    auth_method: passphrase
+                    authorized_expiring_time: 1677076639
+                    authorized_time: 1677076519
+                    carrier: docomo
+                    client: ac2316eca70a
+                    company: MIST
+                    email: abcd@abcd.com
+                    field1: field1 value
+                    field2: field2 value
+                    field3: field3 value
+                    field4: field4 value
+                    mobile: +0123456789
+                    name: Dr Strange
+                    org_id: 1688605f-916a-47a1-8c68-f19618300a08
+                    site_id: ec3b5624-73f1-4ed3-b3fd-5ba3ee40368a
+                    sms_gateway: Telstra
+                    sponsor_email: sponsor@gmail.com
+                    ssid: Portal Auth
+                    wlan_id: 7681be9a-044a-4622-90cf-3accde5ad853
+                  topic: guest-authorizations
+            schema:
+              $ref: '#/components/schemas/webhook_guest_authorizations'
+        description: Webhook sample for `guest-authorizations` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - battery_voltage: 0
+                    eddystone_uid_instance: string
+                    eddystone_uid_namespace: string
+                    eddystone_url_url: string
+                    ibeacon_major: 1
+                    ibeacon_minor: 1
+                    ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
+                    id: 487f6eca-6276-4993-bfeb-e3cbbbba3f08
+                    mac: string
+                    map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+                    mfg_company_id: 0
+                    mfg_data: string
+                    name: string
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    timestamp: 0
+                    type: string
+                    x: 0
+                    y: 0
+                  topic: location
+            schema:
+              $ref: '#/components/schemas/webhook_location'
+        description: Webhook sample for `location` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location_asset:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - battery_voltage: 3370
+                    eddystone_uid_instance: 5c5b35000001
+                    eddystone_uid_namespace: 2818e3868dec25629ede
+                    eddystone_url_url: https://www.abc.com
+                    ibeacon_major: 13
+                    ibeacon_minor: 138
+                    ibeacon_uuid: f3f17139-704a-f03a-2786-0400279e37c3
+                    mac: 7fc2936fd243
+                    map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+                    mfg_company_id: 935
+                    mfg_data: 648520a1020000
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1461220784
+                    type: asset
+                    x: 13.5
+                    y: 3.2
+                  topic: location-asset
+            schema:
+              $ref: '#/components/schemas/webhook_location_asset'
+        description: Webhook sample for `location-asset` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location_centrak:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - mac: 5684dae9ac8b
+                    map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1461220784
+                    type: wifi
+                    wifi_beacon_extended_info:
+                    - frame_ctrl: 776
+                      payload: '............'
+                      seq_ctrl: 772
+                    x: 13.5
+                    y: 3.2
+                  topic: location-centrak
+            schema:
+              $ref: '#/components/schemas/webhook_location_centrak'
+        description: Webhook sample for `location-centrak` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location_client:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - mac: 5684dae9ac8b
+                    map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1461220784
+                    type: wifi
+                    wifi_beacon_extended_info:
+                    - frame_ctrl: 776
+                      payload: '............'
+                      seq_ctrl: 772
+                    x: 13.5
+                    y: 3.2
+                  topic: location-client
+            schema:
+              $ref: '#/components/schemas/webhook_location_client'
+        description: Webhook sample for `location-client` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location_sdk:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - id: de87bf9d-183f-e383-cc68-6ba43947d403
+                    map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+                    name: optional
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1461220784
+                    type: sdk
+                    x: 13.5
+                    y: 3.2
+                  topic: location-sdk
+            schema:
+              $ref: '#/components/schemas/webhook_location_sdk'
+        description: Webhook sample for `location-sdk` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  location_unclient:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - mac: 5684dae9ac8b
+                    map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    timestamp: 1461220784
+                    type: wifi
+                    wifi_beacon_extended_info:
+                    - frame_ctrl: 776
+                      payload: '............'
+                      seq_ctrl: 772
+                    x: 13.5
+                    y: 3.2
+                  topic: location-unclient
+            schema:
+              $ref: '#/components/schemas/webhook_location_unclient'
+        description: Webhook sample for `location-unclient` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  minis_application:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - device_mac: 003e7316fd96
+                    ip: 172.217.22.195
+                    latency: 74
+                    org_id: 8aa21779-1178-4357-b3e0-42c02b93b870
+                    probe_name: connectivitycheck.gstatic.com
+                    probe_type: application
+                    site_id: 2bf12442-1558-41bd-849e-738d6d4aa1a3
+                    src_ip: 192.168.1.136
+                    success: false
+                    test_type: curl
+                    timestamp: 1775641319
+                    vlan: 1
+                  topic: minis-application
+            schema:
+              $ref: '#/components/schemas/webhook_minis_application'
+        description: Webhook sample for `minis-application` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  minis_reachability:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - avg_latency: 12.5
+                    device_mac: 7cb68d8f0440
+                    loss_percentage: 0
+                    max_latency: 15.2
+                    min_latency: 10.1
+                    org_id: 203d3d02-dbc0-4c1b-9f41-76896a3330f4
+                    probe_name: google ping
+                    probe_target: google.com
+                    probe_type: reachability
+                    protocol: icmp
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    test_type: ping
+                    timestamp: 1547235620.89
+                    vlan: 12
+                  topic: minis-reachability
+            schema:
+              $ref: '#/components/schemas/webhook_minis_reachability'
+        description: Webhook sample for `minis-reachability` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  mxedge_events:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - audit_id: 8912e5cb-8ddd-41f7-be5f-476a7abbf658
+                    component: null
+                    mxedge_id: 00000000-0000-0000-1000-020000230522
+                    mxedge_name: demo123
+                    org_id: 203d3d02-dbc0-4c1b-9f41-76896a3330f4
+                    timestamp: 1763546876.209649
+                    type: ME_CONFIG_CHANGED_BY_USER
+                  - audit_id: 48efa5bf-d290-4e93-80ca-4dbf72f4187a
+                    component: null
+                    mxedge_id: 00000000-0000-0000-1000-020000a5fca1
+                    mxedge_name: test123
+                    org_id: 203d3d02-dbc0-4c1b-9f41-76896a3330f4
+                    timestamp: 1763546876.417778
+                    type: ME_CONFIG_CHANGED_BY_USER
+                  topic: mxedge-events
+            schema:
+              $ref: '#/components/schemas/webhook_mxedge_events'
+        description: Webhook sample for `mxedge-events` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  nac_accounting:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: 5c5b355005be
+                    auth_type: eap-tls
+                    bssid: 5c5b35546bb4
+                    client_ip: 172.16.87.4
+                    client_type: wireless
+                    mac: 6e795836d5f9
+                    nas_vendor: juniper-mist
+                    org_id: 625aba64-fe72-4b14-8985-cbf31ec3d78a
+                    rx_pkts: 9523
+                    site_id: ec9d1e85-af24-43f9-8d65-d620580e8631
+                    ssid: Test-CMR SSID
+                    timestamp: 1547235620.89
+                    tx_pkts: 5233
+                    type: NAC_ACCOUNTING_STOP
+                    username: hi
+                  topic: nac-accounting
+            schema:
+              $ref: '#/components/schemas/webhook_nac_accounting'
+        description: Webhook sample for `nac-accounting` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  nac_events:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap: 5c5b35513227
+                    auth_type: eap-teap
+                    bssid: 5c5b355fafcc
+                    dryrun_nacrule_id: 32f27e7d-ff26-4a9b-b3d1-ff9bcb264012
+                    dryrun_nacrule_matched: true
+                    idp_id: 912ef72e-2239-4996-b81e-469e87a27cd6
+                    idp_role:
+                    - itsuperusers
+                    - vip
+                    mac: ac3eb179e535
+                    nacrule_id: 32f27e7d-ff26-4a9b-b3d1-ff9bcb264c62
+                    nacrule_matched: true
+                    nas_vendor: juniper-mist
+                    org_id: 27547ac2-d114-4e04-beb1-f3f1e6e81ec6
+                    random_mac: 'true'
+                    resp_attrs:
+                    - Tunnel-Type=VLAN
+                    - Tunnel-Medium-Type=IEEE-802
+                    - Tunnel-Private-Group-Id=750
+                    - User-Name=anonymous
+                    site_id: 441a1214-6928-442a-8e92-e1d34b8ec6a6
+                    ssid: '##mist_nac'
+                    timestamp: 1691512031.358188
+                    type: NAC_CLIENT_PERMIT
+                    username: user@deaflyz.net
+                    vlan: '750'
+                  topic: nac-events
+            schema:
+              $ref: '#/components/schemas/webhook_nac_events'
+        description: Webhook sample for `nac-events` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  occupancy_alerts:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - alert_events:
+                    - current_occupancy: 0
+                      map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+                      occupancy_limit: 0
+                      org_id: a40f5d1f-d889-42e9-94ea-b9b33585fc6b
+                      timestamp: 0
+                      type: COMPLIANCE-VIOLATION
+                      zone_id: 4495020a-236f-46e0-9453-e3f9cc6476f4
+                      zone_name: string
+                    for_site: true
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    site_name: string
+                  topic: occupancy-alerts
+            schema:
+              $ref: '#/components/schemas/webhook_occupancy_alerts'
+        description: Webhook sample for `occupancy-alerts` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  ping:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - id: 487f6eca-6276-4993-bfeb-f3cbbbba4f08
+                    name: string
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    timestamp: 0
+                  topic: ping
+            schema:
+              $ref: '#/components/schemas/webhook_ping'
+        description: Webhook sample for `ping` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  rssizone:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - mac: 500291xxxxxx
+                    map_id: f5d26c7f-1670-4921-xxxx-xxxxxxxxxxxx
+                    rssizone_id: e38f8e76-40db-4144-xxxx-xxxxxxxxxxxx
+                    site_id: f5fcbee5-fbca-45b3-xxxx-xxxxxxxxxxxx
+                    timestamp: 1694158990.986472
+                    trigger: enter
+                    type: wifi
+                  topic: rssizone
+            schema:
+              $ref: '#/components/schemas/webhook_rssizone'
+        description: Webhook sample for `rssizone` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  sdkclient_scan_data:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - connection_ap: 5c5b352f587e
+                    connection_band: '2.4'
+                    connection_bssid: 5c5b352b51b4
+                    connection_channel: 11
+                    connection_rssi: -87
+                    last_seen: 1592333828
+                    mac: 70ef0071535f
+                    scan_data:
+                    - ap: 5c5b352f587e
+                      band: '2.4'
+                      bssid: 5c5b352b51b4
+                      channel: 11
+                      rssi: -87
+                      ssid: mist-wifi
+                      timestamp: 1592333828
+                    - ap: 5c5b352f587e
+                      band: '5'
+                      bssid: 5c5b352b51b8
+                      channel: 36
+                      rssi: -75
+                      ssid: mist-wifi
+                      timestamp: 1592333828
+                    site_id: 93986f10-773b-42be-9438-8d3e6d127f1a
+                  topic: sdkclient-scan-data
+            schema:
+              $ref: '#/components/schemas/webhook_sdkclient_scan_data'
+        description: Webhook sample for `sdkclient-scan-data` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  site_sle:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+                    site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+                    sle:
+                      ap-availability: 0.6
+                      successful-connect: 0.7
+                      time-to-connect: 0.9
+                    timestamp: 1694620800
+                  topic: site-sle
+            schema:
+              $ref: '#/components/schemas/webhook_site_sle'
+        description: Webhook sample for `site-sle` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  wifi_conn_raw:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap_id: ac-23-16-ec-a7-0b
+                    ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    client_id: 28-f0-76-2d-22-1e
+                    connected_site: false
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    packets:
+                    - band: 5GHz
+                      rssi: -92
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                  - ap_id: ac-23-16-ec-a7-0b
+                    ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    client_id: 38-f9-d3-99-08-6e
+                    connected_site: false
+                    extended_info_list:
+                    - frame_ctrl: 776
+                      payload: 010441060606fe3d35700601cecbd902512f000001
+                      sequence_ctrl: 8432
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    packets:
+                    - band: 5GHz
+                      rssi: -94
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                  topic: wifi-conn-raw
+            schema:
+              $ref: '#/components/schemas/webhook_wifi_conn_raw'
+        description: "Webhook sample for `wifi-conn-raw` topic.\n\n\nThis webhook topic provides raw data from packets emitted by connected devices.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  wifi_unconn_raw:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - ap_id: ac-23-16-ec-a7-0b
+                    ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    client_id: 28-f0-76-2d-22-1e
+                    connected_site: false
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    packets:
+                    - band: 5GHz
+                      rssi: -92
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                  - ap_id: ac-23-16-ec-a7-0b
+                    ap_loc:
+                    - 36.03303862386182
+                    - 43.57022468463291
+                    - 2.75
+                    client_id: 38-f9-d3-99-08-6e
+                    connected_site: false
+                    map_id: bd42f0c3-2e6a-4f8a-ac2d-d34e268c1418
+                    org_id: 9c3e516c-397d-11e6-ae35-0242ac110008
+                    packets:
+                    - band: 5GHz
+                      rssi: -94
+                    site_id: 27ea2f07-6fe6-4eab-be1b-b8e3ce083d67
+                  topic: wifi-unconn-raw
+            schema:
+              $ref: '#/components/schemas/webhook_wifi_unconn_raw'
+        description: "Webhook sample for `wifi-unconn-raw` topic.\n\n\nThis webhook topic provides raw data from packets emitted by unconnected devices.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+  zone:
+    post:
+      parameters:
+      - in: header
+        name: X-Mist-Signature-v2
+        schema:
+          type: string
+      - in: header
+        name: X-Mist-Signature
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example:
+                value:
+                  events:
+                  - id: 487f6eca-6276-4993-bfeb-d3cbbbba2f08
+                    map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+                    name: string
+                    site_id: 72771e6a-6f5e-4de4-a5b9-1266c4197811
+                    timestamp: 0
+                    trigger: enter
+                    type: wifi
+                    zone_id: d38f8e76-40db-4144-8cbb-1266c4197811
+                  topic: zone
+            schema:
+              $ref: '#/components/schemas/webhook_zone'
+        description: Webhook sample for `zone` topic
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully
+      tags:
+      - Mist API
+components:
+  schemas:
+    webhook_location_centrak:
+      additionalProperties: false
+      description: Sample of the `location-centrak` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_centrak_events'
+          description: CenTrak location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_centrak_topic'
+          description: Webhook topic name for CenTrak location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_nac_events:
+      additionalProperties: false
+      description: Sample of the `nac-events` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/nac_client_events'
+          description: NAC authentication events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_nac_events_topic'
+          description: Webhook topic name for NAC event deliveries
+      type: object
+    webhook_location_topic:
+      description: 'Webhook topic name for generic location deliveries. enum: `location`'
+      enum:
+      - location
+      type: string
+    nac_client_events:
+      description: List of NAC authentication events
+      items:
+        $ref: '#/components/schemas/nac_client_event'
+      type: array
+    webhook_location_asset_topic:
+      description: 'Webhook topic name for asset location deliveries. enum: `location-asset`'
+      enum:
+      - location-asset
+      type: string
+    random_mac:
+      description: 'Whether the client is using randomized MAC address or not. enum: `true`, `false`'
+      enum:
+      - 'true'
+      - 'false'
+      type: string
+    webhook_rssizone_events:
+      description: RSSI zone transition events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_rssizone_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_minis_application:
+      additionalProperties: false
+      description: Sample of the `minis-application` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_minis_application_events'
+          description: Minis application test events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_minis_application_topic'
+          description: Webhook topic name for Minis application test deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_wifi_conn_raw_events:
+      description: Connected Wi-Fi raw packet events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_wifi_conn_raw_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    webhook_audits_topic:
+      description: 'Webhook topic name for audit event deliveries. enum: `audits`'
+      enum:
+      - audits
+      type: string
+    webhook_sdkclient_scan_data_event_scan_data_item:
+      additionalProperties: false
+      description: Single BSSID observation from an SDK client's background Wi-Fi scan
+      properties:
+        ap:
+          description: MAC address of the AP associated with the BSSID scanned
+          type: string
+        band:
+          $ref: '#/components/schemas/scan_data_item_band'
+          description: Radio band on which the SDK client scanned the BSSID
+        bssid:
+          description: Scanned BSSID found during the SDK client's background Wi-Fi scan
+          type: string
+        channel:
+          description: Radio channel found in the SDK client's background scan
+          type: integer
+        rssi:
+          description: Signal strength measured by the SDK client for the scanned BSSID
+          type: number
+        ssid:
+          description: Network SSID containing the BSSID scanned by the SDK client
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the SDK client scan observation was recorded, in epoch seconds
+      required:
+      - ap
+      - bssid
+      - band
+      - channel
+      - rssi
+      - ssid
+      - timestamp
+      type: object
+    webhook_minis_reachability_events:
+      description: Marvis Minis reachability test events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_minis_reachability_event'
+      type: array
+    nac_event_nacrule_id:
+      description: NAC Policy Rule ID, if matched
+      examples:
+      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264c62
+      format: uuid
+      readOnly: true
+      type: string
+    webhook_client_latency_topic:
+      description: 'Webhook topic name for client latency deliveries. enum: `client-latency`'
+      enum:
+      - client-latency
+      type: string
+    device_events:
+      description: List of device event payloads
+      items:
+        $ref: '#/components/schemas/device_event'
+      type: array
+      uniqueItems: true
+    webhook_site_sle:
+      additionalProperties: false
+      description: Sample of the `site-sle` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_site_sle_events'
+          description: Site SLE score events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_site_sle_topic'
+          description: Webhook topic name for site SLE score deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_location_sdk_events:
+      description: SDK client location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_sdk_event'
+      type: array
+    webhook_device_updowns:
+      additionalProperties: false
+      description: Sample of the `device-updowns` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_device_updowns_events'
+          description: Device up/down events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_device_updowns_topic'
+          description: Webhook topic name for device up/down deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_alarm_event_ssids:
+      description: Representative wireless SSID samples included for an alarm webhook event
+      items:
+        type: string
+      readOnly: true
+      type: array
+    webhook_client_info_event:
+      additionalProperties: false
+      description: Client identity and addressing details delivered by a `client-info` webhook
+      properties:
+        hostname:
+          description: Client hostname reported in the event
+          examples:
+          - service.company.net
+          type: string
+        ip:
+          description: Client IP address reported in the event
+          type: string
+        mac:
+          description: Client MAC address reported in the event
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the client information event
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the client information event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the client information event was generated, in epoch seconds
+      type: object
+    nac_client_event_usermac_labels:
+      description: Labels derived from usermac entry
+      examples:
+      - - bldg5
+        - printer
+      items:
+        type: string
+      type: array
+    service_packets:
+      description: List of service data packets heard from the asset/ beacon
+      items:
+        $ref: '#/components/schemas/service_packet'
+      type: array
+    nac_event_dryrun_nacrule_id:
+      description: NAC Policy Dry Run Rule ID, if present and matched
+      examples:
+      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264012
+      format: uuid
+      readOnly: true
+      type: string
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    webhook_discovered_raw_rssi:
+      additionalProperties: false
+      description: Sample of the `discovered-raw-rssi` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_discovered_raw_rssi_events'
+          description: Discovered raw RSSI event records included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_discovered_raw_rssi_topic'
+          description: Webhook topic name for discovered raw RSSI deliveries
+      required:
+      - topic
+      type: object
+    webhook_nac_accounting_events:
+      description: NAC accounting events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_nac_accounting_event'
+      type: array
+    webhook_alarms_topic:
+      description: 'Webhook topic name for alarm event deliveries. enum: `alarms`'
+      enum:
+      - alarms
+      type: string
+    webhook_zone_topic:
+      description: 'Webhook topic name for zone transition deliveries. enum: `zone`'
+      enum:
+      - zone
+      type: string
+    webhook_location_unclient:
+      additionalProperties: false
+      description: Sample of the `location-unclient` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_unclient_events'
+          description: Unconnected client location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_unclient_topic'
+          description: Webhook topic name for unconnected client location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_occupancy_alerts_topic:
+      description: 'Webhook topic name for occupancy alert deliveries. enum: `occupancy-alerts`'
+      enum:
+      - occupancy-alerts
+      type: string
+    webhook_location_centrak_event_type:
+      description: 'Location object type for CenTrak Wi-Fi beacon events. enum: `wifi`'
+      enum:
+      - wifi
+      type: string
+    wifi_beacon_extended_info_items:
+      additionalProperties: false
+      description: Extended Wi-Fi beacon packet metadata with frame and sequence control fields
+      properties:
+        frame_ctrl:
+          description: Frame control field of 802.11 header
+          type: integer
+        payload:
+          description: Extended Info Payload associated with frame
+          type: string
+        seq_ctrl:
+          description: Sequence control field of 802.11 header
+          type: integer
+      type: object
+    webhook_alarm_event:
+      additionalProperties: false
+      description: Alarm event delivered inside an `alarms` webhook payload
+      properties:
+        aps:
+          $ref: '#/components/schemas/webhook_alarm_event_aps'
+          description: Representative AP MAC addresses related to this alarm event
+        bssids:
+          $ref: '#/components/schemas/webhook_alarm_event_bssids'
+          description: Representative BSSIDs related to this alarm event
+        count:
+          description: If present, number of events of this type that occurred in the current interval; defaults to 1
+          readOnly: true
+          type: integer
+        event_id:
+          description: Unique identifier for this alarm webhook event
+          format: uuid
+          readOnly: true
+          type: string
+        for_site:
+          description: Whether this alarm event is scoped to a site rather than only to the organization
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the alarm associated with this event
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Time when the most recent incident in the alarm window was seen, in epoch seconds
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node associated with this alarm event when applicable
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with this alarm event
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with this alarm event
+        ssids:
+          $ref: '#/components/schemas/webhook_alarm_event_ssids'
+          description: Representative wireless SSIDs related to this alarm event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when this alarm event was raised, in epoch seconds
+        type:
+          description: Alarm type key for this event
+          readOnly: true
+          type: string
+        update:
+          description: Whether this payload updates an alarm event that was sent earlier; defaults to false
+          readOnly: true
+          type: boolean
+      required:
+      - id
+      - org_id
+      - site_id
+      - timestamp
+      - type
+      type: object
+    webhook_client_latency:
+      additionalProperties: false
+      description: Sample of the `client-latency` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_client_latency_events'
+          description: Client latency summary events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_client_latency_topic'
+          description: Webhook topic name for client latency deliveries
+      type: object
+    webhook_asset_raw_rssi_event_ap_loc:
+      description: optional, coordinates (if any) of reporting AP (updated once in 60s per client)
+      items:
+        type: number
+      type: array
+    webhook_wifi_conn_raw_event_extended_info_list:
+      description: optional, list of specific telemetry packets emited by certain wifi tags (Eg. Centrak)
+      items:
+        $ref: '#/components/schemas/webhook_wifi_conn_raw_event_extended_info'
+      type: array
+    webhook_minis_reachability:
+      additionalProperties: false
+      description: Sample of the `minis-reachability` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_minis_reachability_events'
+          description: Minis reachability test events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_minis_reachability_topic'
+          description: Webhook topic name for Minis reachability test deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_client_sessions_events:
+      description: Client session events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_client_sessions_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_discovered_raw_rssi_event_ap_loc:
+      description: coordinates (if any) of reporting AP (updated once in 60s per client)
+      items:
+        type: number
+      type: array
+    webhook_location_unclient_topic:
+      description: 'Webhook topic name for unconnected client location deliveries. enum: `location-unclient`'
+      enum:
+      - location-unclient
+      type: string
+    webhook_device_events_topic:
+      description: 'Webhook topic name for device event deliveries. enum: `device-events`'
+      enum:
+      - device-events
+      type: string
+    nac_client_event_idp_role:
+      description: Identity provider roles or groups returned for a NAC client event
+      examples:
+      - - itsuperusers
+        - vip
+      items:
+        type: string
+      type: array
+    webhook_site_sle_event:
+      additionalProperties: false
+      description: Site-level Wi-Fi SLE score snapshot
+      properties:
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the site SLE score event
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the SLE score event
+        sle:
+          $ref: '#/components/schemas/webhook_site_sle_event_sle'
+          description: Service-level experience scores reported for the site
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the site SLE scores were reported, in epoch seconds
+      type: object
+    webhook_rssizone:
+      additionalProperties: false
+      description: Sample of the `rssizone` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_rssizone_events'
+          description: RSSI zone events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_rssizone_topic'
+          description: Webhook topic name for RSSI zone event deliveries
+      required:
+      - events
+      - topic
+      type: object
+    ibeacon_minor:
+      description: Minor number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    webhook_sdkclient_scan_data_events:
+      description: SDK client scan data events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_sdkclient_scan_data_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    ibeacon_major:
+      description: Major number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    webhook_location_sdk:
+      additionalProperties: false
+      description: Sample of the `location-sdk` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_sdk_events'
+          description: SDK client location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_sdk_topic'
+          description: Webhook topic name for SDK client location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    service_packet:
+      additionalProperties: false
+      description: Service data packet observed from an asset or beacon
+      properties:
+        service_data:
+          description: ata from service data
+          type: string
+        service_uuid:
+          description: UUID from service data
+          type: string
+      type: object
+    webhook_nac_accounting_topic:
+      description: 'Webhook topic name for NAC accounting deliveries. enum: `nac-accounting`'
+      enum:
+      - nac-accounting
+      type: string
+    webhook_guest_authorizations:
+      additionalProperties: false
+      description: Sample of the `guest-authorizations` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_guest_authorizations_events'
+          description: Guest authorization events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_guest_authorizations_topic'
+          description: Webhook topic name for guest authorization deliveries
+      type: object
+    webhook_asset_raw_rssi_event_service_packet:
+      additionalProperties: false
+      description: BLE service data decoded from an asset raw RSSI packet
+      properties:
+        service_data:
+          description: optional, data from service data
+          type:
+          - string
+          - 'null'
+        service_uuid:
+          description: optional, UUID from service data
+          type:
+          - string
+          - 'null'
+      type: object
+    log_event:
+      additionalProperties: false
+      description: Audit log event recorded for an organization or site
+      properties:
+        admin_id:
+          description: Admin user identifier associated with the log event
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        admin_name:
+          description: Name of the admin that performs the action
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        after:
+          additionalProperties: true
+          description: field values after the change
+          readOnly: true
+          type: object
+        before:
+          additionalProperties: true
+          description: field values prior to the change
+          readOnly: true
+          type: object
+        device_id:
+          description: Device identifier associated with the log event
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        for_site:
+          description: Whether this log event is scoped to a site
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the log event
+        message:
+          description: Human-readable log message describing the event
+          readOnly: true
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the log event
+        site_id:
+          description: Site associated with the log event, if any
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        src_ip:
+          description: sender source IP address
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the log event occurred
+      required:
+      - message
+      - org_id
+      - timestamp
+      type: object
+    webhook_zone_events:
+      description: Zone transition events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_zone_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    ibeacon_uuid:
+      description: iBeacon UUID value, or null when no iBeacon UUID is configured
+      examples:
+      - f3f17139-704a-f03a-2786-0400279e37c3
+      format: uuid
+      type:
+      - string
+      - 'null'
+    webhook_zone_event_trigger:
+      description: 'Zone transition direction, either enter or exit. enum: `enter`, `exit`'
+      enum:
+      - enter
+      - exit
+      type: string
+    device_event:
+      additionalProperties: false
+      description: Device event payload returned by search and webhook APIs
+      properties:
+        ap:
+          deprecated: true
+          description: Deprecated AP MAC address field; use `mac` instead
+          type: string
+        ap_name:
+          deprecated: true
+          description: Deprecated AP name field; use `device_name` instead
+          type: string
+        apfw:
+          description: AP firmware version associated with the device event
+          type: string
+        audit_id:
+          $ref: '#/components/schemas/id'
+          description: Audit log identifier associated with the device event
+        bandwidth:
+          description: Channel bandwidth associated with a radio event, in MHz
+          type: integer
+        channel:
+          description: RF channel associated with the device event
+          type: integer
+        chassis_mac:
+          description: Chassis MAC address associated with the device event
+          type: string
+        count:
+          description: Event count reported in the device event payload
+          type: integer
+        device_name:
+          description: Name of the device associated with the event
+          type: string
+        device_type:
+          $ref: '#/components/schemas/device_type'
+          description: Device type associated with the event
+        ev_type:
+          $ref: '#/components/schemas/webhook_device_events_event_ev_type'
+          description: Advisory severity for the device event
+        ext_ip:
+          description: External IP address reported for the device event
+          type: string
+        mac:
+          description: Device MAC address associated with the event
+          type: string
+        model:
+          description: Device model associated with the event
+          type: string
+        node:
+          description: Cluster node identifier associated with the device event
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization identifier associated with the device event
+        port_id:
+          description: Port identifier associated with the device event
+          type: string
+        power:
+          description: Transmit power associated with a radio event
+          type: integer
+        pre_bandwidth:
+          description: Previous channel bandwidth before an RRM change, in MHz
+          type: integer
+        pre_channel:
+          description: Previous RF channel before an RRM change
+          type: integer
+        pre_power:
+          description: Previous transmit power before an RRM change
+          type: integer
+        pre_usage:
+          description: Previous radio usage band before an RRM change
+          type: integer
+        reason:
+          description: Optional reason text reported for the device event
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site identifier associated with the device event
+        site_name:
+          description: Name of the site associated with the event
+          type: string
+        text:
+          description: Optional human-readable text for the device event
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the device event occurred
+        type:
+          description: Device event type key
+          type: string
+        usage:
+          description: Current radio usage band for an RRM event
+          type: integer
+        version:
+          description: Firmware or software version associated with the device event
+          type: string
+      required:
+      - org_id
+      - timestamp
+      - type
+      type: object
+    webhook_wifi_conn_raw_event_extended_info:
+      additionalProperties: false
+      description: Extended telemetry details decoded from a connected Wi-Fi packet
+      properties:
+        frame_ctrl:
+          description: IEEE 802.11 frame control value from the telemetry packet
+          type: integer
+        payload:
+          description: Raw telemetry payload carried by the connected Wi-Fi packet
+          type: string
+        sequence_ctrl:
+          description: IEEE 802.11 sequence control value from the telemetry packet
+          type: integer
+      type: object
+    device_type:
+      description: 'enum: `ap`, `gateway`, `switch`'
+      enum:
+      - ap
+      - gateway
+      - switch
+      type: string
+    nac_event_idp_id:
+      description: If IDP is used, the id of the IDP configuration used
+      examples:
+      - 912ef72e-2239-4996-b81e-469e87a27cd6
+      format: uuid
+      readOnly: true
+      type: string
+    webhook_client_sessions_event:
+      additionalProperties: false
+      description: Wireless client session event delivered when a client roams or disconnects
+      properties:
+        ap:
+          description: MAC address of the AP the client roamed or disconnected from
+          type: string
+        ap_name:
+          description: user-friendly name of the AP the client roamed or disconnected from.
+          type: string
+        band:
+          description: 5GHz or 2.4GHz band
+          type: string
+        bssid:
+          description: WLAN radio BSSID that the client was associated with
+          type: string
+        client_family:
+          description: Device family E.g. "Mac", "iPhone", "Apple watch"
+          type: string
+        client_manufacture:
+          description: Device manufacturer E.g. "Apple"
+          type: string
+        client_model:
+          description: Device model E.g. "8+", "XS"
+          type: string
+        client_os:
+          description: Device operating system E.g. "Mojave", "Windows 10", "Linux"
+          type: string
+        connect:
+          description: Time when the client connected, in epoch seconds
+          type: integer
+        connect_float:
+          description: Client connection timestamp with millisecond precision
+          type: number
+        disconnect:
+          description: Time when the client disconnected, in epoch seconds
+          type: integer
+        disconnect_float:
+          description: Client disconnect timestamp with millisecond precision
+          type: number
+        duration:
+          description: Length of the roamed or completed client session indicated by the `termination_reason` value
+          type: integer
+        mac:
+          description: Client MAC address for the roaming or disconnected session
+          type: string
+        next_ap:
+          description: the AP the client has roamed to.
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the client session event
+        rssi:
+          description: Latest average RSSI before the user disconnects
+          type: number
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the client session event
+        site_name:
+          description: Site name associated with the client session event
+          type: string
+        ssid:
+          description: WLAN SSID for the client session
+          type: string
+        termination_reason:
+          description: 1 disassociate - when the client disassociates. 2 inactive - when the client is timeout. 3 roamed - when the client is roamed between APs
+          type: integer
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the client session event was generated, in epoch seconds
+        version:
+          description: schema version of this message
+          type: number
+        wlan_id:
+          description: Unique identifier of the WLAN for the client session
+          format: uuid
+          type: string
+      required:
+      - ap
+      - ap_name
+      - band
+      - bssid
+      - client_family
+      - client_manufacture
+      - client_model
+      - client_os
+      - connect
+      - connect_float
+      - disconnect
+      - disconnect_float
+      - duration
+      - mac
+      - next_ap
+      - org_id
+      - rssi
+      - site_id
+      - site_name
+      - ssid
+      - termination_reason
+      - timestamp
+      - version
+      - wlan_id
+      type: object
+    webhook_occupancy_alert_type:
+      description: 'Occupancy compliance state reported for the zone. enum: `COMPLIANCE-OK`, `COMPLIANCE-VIOLATION`'
+      enum:
+      - COMPLIANCE-OK
+      - COMPLIANCE-VIOLATION
+      type: string
+    webhook_occupancy_alerts_event_alert_events_items:
+      additionalProperties: false
+      description: Occupancy compliance alert for a single zone
+      properties:
+        current_occupancy:
+          description: Current number of occupants detected in the zone
+          type: integer
+        map_id:
+          description: Map associated with the occupancy zone
+          format: uuid
+          type: string
+        occupancy_limit:
+          description: Configured occupancy limit for the zone
+          type: integer
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the occupancy alert
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the occupancy alert was generated, in epoch seconds
+        type:
+          $ref: '#/components/schemas/webhook_occupancy_alert_type'
+          description: Occupancy compliance state reported for the zone
+        zone_id:
+          description: Zone identifier associated with the occupancy alert
+          format: uuid
+          type: string
+        zone_name:
+          description: Zone name associated with the occupancy alert
+          type: string
+      required:
+      - current_occupancy
+      - map_id
+      - occupancy_limit
+      - org_id
+      - timestamp
+      - type
+      - zone_id
+      - zone_name
+      type: object
+    webhook_location_client:
+      additionalProperties: false
+      description: Sample of the `location-client` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_client_events'
+          description: Connected client location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_client_topic'
+          description: Webhook topic name for connected client location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_client_sessions_topic:
+      description: 'Webhook topic name for client session deliveries. enum: `client-sessions`'
+      enum:
+      - client-sessions
+      type: string
+    webhook_asset_raw_rssi_event:
+      additionalProperties: false
+      description: Raw RSSI sample reported for an asset or beacon packet
+      properties:
+        ap_loc:
+          $ref: '#/components/schemas/webhook_asset_raw_rssi_event_ap_loc'
+          description: Location coordinates of the reporting AP when available, updated about once per minute per client
+        beam:
+          description: antenna index, clock-wise starting from the LED
+          maximum: 9
+          minimum: 1
+          type: integer
+        device_id:
+          $ref: '#/components/schemas/id'
+          description: Identifier of the AP or device that reported the raw RSSI sample
+        ibeacon_major:
+          $ref: '#/components/schemas/ibeacon_major'
+          description: iBeacon major value decoded from the packet when present
+        ibeacon_minor:
+          $ref: '#/components/schemas/ibeacon_minor'
+          description: iBeacon minor value decoded from the packet when present
+        ibeacon_uuid:
+          $ref: '#/components/schemas/ibeacon_uuid'
+          description: iBeacon UUID decoded from the packet when present
+        is_asset:
+          description: Whether the advertising MAC address is recognized as an asset
+          type: boolean
+        mac:
+          description: Client MAC address for the asset or beacon that emitted the packet
+          type: string
+        map_id:
+          $ref: '#/components/schemas/id'
+          description: Map associated with the reporting AP when location context is available
+        mfg_company_id:
+          description: optional, BLE manufacturing company ID
+          type:
+          - integer
+          - 'null'
+        mfg_data:
+          description: optional, BLE manufacturing data in hex byte-string format (ie “112233AABBCC”)
+          type:
+          - string
+          - 'null'
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the raw RSSI sample
+        rssi:
+          description: Received signal strength of the packet at the reporting AP, in dBm
+          type: integer
+        service_packets:
+          $ref: '#/components/schemas/webhook_asset_raw_rssi_event_service_packets'
+          description: BLE service data packets decoded from the advertised payload
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the raw RSSI sample
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the raw RSSI sample was observed, in epoch seconds
+      type: object
+    webhook_sdkclient_scan_data_event_scan_data:
+      description: Background Wi-Fi scan observations reported by an SDK client
+      items:
+        $ref: '#/components/schemas/webhook_sdkclient_scan_data_event_scan_data_item'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    nac_auth_type:
+      description: 'enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`'
+      enum:
+      - cert
+      - device-auth
+      - eap-teap
+      - eap-tls
+      - eap-ttls
+      - idp
+      - mab
+      - eap-peap
+      examples:
+      - eap-tls
+      type: string
+    event_severity:
+      description: 'Severity level for an event. enum: `normal`, `critical`, `high`, `warning`'
+      enum:
+      - normal
+      - critical
+      - high
+      - warning
+      type: string
+    webhook_zone:
+      additionalProperties: false
+      description: Sample of the `zone` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_zone_events'
+          description: Zone transition events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_zone_topic'
+          description: Webhook topic name for zone transition deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_device_updowns_events:
+      description: Device up/down events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_device_updowns_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_alarm_event_aps:
+      description: Representative AP MAC address samples included for an alarm webhook event
+      items:
+        type: string
+      readOnly: true
+      type: array
+    webhook_discovered_raw_rssi_topic:
+      description: 'Webhook topic name for discovered raw RSSI deliveries. enum: `discovered-raw-rssi`'
+      enum:
+      - discovered-raw-rssi
+      type: string
+    nac_client_event:
+      additionalProperties: false
+      description: NAC authentication event for a wired or wireless client
+      properties:
+        ap:
+          description: Access point MAC address for the client session
+          examples:
+          - 5c5b35513227
+          type: string
+        auth_type:
+          $ref: '#/components/schemas/nac_auth_type'
+          description: Authentication method used for the NAC event
+        bssid:
+          description: Wireless BSSID used for the client session
+          examples:
+          - 5c5b355fafcc
+          type: string
+        client_type:
+          $ref: '#/components/schemas/nac_access_type'
+          description: Access type for the NAC client event
+        device_mac:
+          $ref: '#/components/schemas/nac_device_mac'
+          description: Network device MAC address for the AP or switch handling the client session
+        dryrun_nacrule_id:
+          $ref: '#/components/schemas/nac_event_dryrun_nacrule_id'
+          description: Dry-run NAC rule ID that matched the event, when present
+        dryrun_nacrule_matched:
+          $ref: '#/components/schemas/nac_event_dryrun_nacrule_matched'
+          description: Whether a dry-run NAC rule matched the event
+        idp_id:
+          $ref: '#/components/schemas/nac_event_idp_id'
+          description: Identity provider configuration ID used for the event
+        idp_role:
+          $ref: '#/components/schemas/nac_client_event_idp_role'
+          description: Roles or groups returned by the identity provider
+        idp_username:
+          $ref: '#/components/schemas/nac_event_idp_username'
+          description: Username presented to the identity provider
+        mac:
+          $ref: '#/components/schemas/nac_client_mac'
+          description: Client MAC address for the NAC event
+        mxedge_id:
+          description: Mist Edge ID used to connect to cloud
+          type: string
+        nacrule_id:
+          $ref: '#/components/schemas/nac_event_nacrule_id'
+          description: NAC rule ID that matched the event
+        nacrule_matched:
+          $ref: '#/components/schemas/nac_event_nacrule_matched'
+          description: Whether a NAC rule matched the event
+        nas_vendor:
+          $ref: '#/components/schemas/nac_event_nas_vendor'
+          description: Vendor of the network access server
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Identifier of the org where the NAC event occurred
+        port_id:
+          $ref: '#/components/schemas/nac_event_port_id'
+          description: Switch port identifier where the NAC event occurred
+        port_type:
+          $ref: '#/components/schemas/nac_access_type'
+          description: Access type of the port where the NAC event occurred
+        random_mac:
+          $ref: '#/components/schemas/random_mac'
+          description: Whether the client used a randomized MAC address
+        resp_attrs:
+          $ref: '#/components/schemas/resp_attrs'
+          description: RADIUS response attributes returned by NAC to the NAS
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Identifier of the site where the NAC event occurred
+        ssid:
+          $ref: '#/components/schemas/nac_event_ssid'
+          description: Wireless network SSID used for the NAC session
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the NAC event occurred
+        type:
+          $ref: '#/components/schemas/nac_event_type'
+          description: NAC event type code
+        usermac_label:
+          $ref: '#/components/schemas/nac_client_event_usermac_labels'
+          description: Labels derived from the usermac entry matched by the client
+        username:
+          $ref: '#/components/schemas/nac_event_username'
+          description: Client-presented username for the NAC event
+        vlan:
+          $ref: '#/components/schemas/nac_event_vlan'
+          description: Network VLAN name or ID returned for the NAC client
+        vlan_source:
+          description: Source of the assigned VLAN, for example `nactag` or `usermac`
+          examples:
+          - nactag
+          type: string
+      type: object
+    webhook_location_centrak_events:
+      description: CenTrak location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_centrak_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_alarms:
+      additionalProperties: false
+      description: 'Sample of the `alarms` webhook payload.
+
+
+        **N.B.**: Fields like `aps`, `bssids`, `ssids` are event specific. They are relevant to this event type ( rogue-ap-detected). For a different event type, different fields may be sent. These don’t contain all affected entities and are representative samples of entities (capped at 10). For marvis action related events, we expose `details` to include more event specific details.
+
+
+        Events specific fields for other alarm event type can be found with API [List Alarm Definitions#](/#operations/listAlarmDefinitions), under "fields" array of /alarm_defs response object.'
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_alarms_events'
+          description: Alarm events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_alarms_topic'
+          description: Webhook topic name for alarm event deliveries
+      required:
+      - events
+      - topic
+      type: object
+    log_events:
+      description: Audit log events returned by a log query
+      items:
+        $ref: '#/components/schemas/log_event'
+      type: array
+      uniqueItems: true
+    webhook_occupancy_alerts_event_alert_events:
+      description: List of occupancy alerts for non-compliance zones within the site detected around the same time
+      items:
+        $ref: '#/components/schemas/webhook_occupancy_alerts_event_alert_events_items'
+      minItems: 1
+      readOnly: true
+      type: array
+      uniqueItems: true
+    webhook_rssizone_event:
+      additionalProperties: false
+      description: RSSI zone transition event for a Wi-Fi, SDK, or asset client
+      properties:
+        mac:
+          description: Client MAC address associated with the RSSI zone event
+          type: string
+        map_id:
+          description: Map associated with the RSSI zone event
+          format: uuid
+          type: string
+        rssizone_id:
+          description: RSSI zone identifier associated with the event
+          format: uuid
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the RSSI zone event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the RSSI zone transition was reported, in epoch seconds
+        trigger:
+          $ref: '#/components/schemas/webhook_zone_event_trigger'
+          description: Whether the client entered or exited the RSSI zone
+        type:
+          $ref: '#/components/schemas/webhook_zone_event_type'
+          description: Client type reported for the RSSI zone event
+      required:
+      - mac
+      - map_id
+      - rssizone_id
+      - site_id
+      - timestamp
+      - trigger
+      - type
+      type: object
+    nac_event_vlan:
+      description: vlan that assigned to the client
+      readOnly: true
+      type: string
+    webhook_wifi_conn_raw_event:
+      additionalProperties: false
+      description: Raw packet observation for a connected Wi-Fi client
+      properties:
+        ap_id:
+          description: AP MAC address that reported the connected client packet
+          type: string
+        ap_loc:
+          $ref: '#/components/schemas/webhook_wifi_conn_raw_event_ap_loc'
+          description: Location coordinates of the reporting AP when available, updated about once per minute per client
+        client_id:
+          description: Client MAC address that emitted the connected Wi-Fi packet
+          type: string
+        connected_site:
+          description: Whether the client is connected to the reporting site
+          type: boolean
+        extended_info_list:
+          $ref: '#/components/schemas/webhook_wifi_conn_raw_event_extended_info_list'
+          description: Extended telemetry packets decoded from the connected Wi-Fi client payload
+        map_id:
+          $ref: '#/components/schemas/id'
+          description: Map associated with the reporting AP when location context is available
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the connected Wi-Fi raw event
+        packets:
+          $ref: '#/components/schemas/webhook_wifi_conn_raw_event_packets'
+          description: RSSI packet observations reported for the connected Wi-Fi client
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the connected Wi-Fi raw event
+      type: object
+    webhook_minis_application_events:
+      description: Marvis Minis application test events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_minis_application_event'
+      type: array
+    webhook_mxedge_event_topic:
+      description: 'Webhook topic name for Mist Edge event deliveries. enum: `mxedge-events`'
+      enum:
+      - mxedge-events
+      type: string
+    nac_event_nacrule_matched:
+      description: NAC Policy Rule Matched
+      readOnly: true
+      type: boolean
+    webhook_occupancy_alerts_events:
+      description: Occupancy alert batches included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_occupancy_alerts_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_occupancy_alerts_event:
+      additionalProperties: false
+      description: Site-level occupancy alert batch containing one or more zone alerts
+      properties:
+        alert_events:
+          $ref: '#/components/schemas/webhook_occupancy_alerts_event_alert_events'
+          description: Occupancy zone alerts detected for this site around the same time
+        for_site:
+          description: Whether this occupancy alert batch is scoped to a site rather than only to the organization
+          readOnly: true
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the occupancy alert batch
+        site_name:
+          description: Site name associated with the occupancy alert batch
+          readOnly: true
+          type: string
+      required:
+      - site_id
+      - site_name
+      type: object
+    webhook_ping_events:
+      description: Ping events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_ping_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_wifi_unconn_raw_topic:
+      description: 'Webhook topic name for unconnected Wi-Fi raw packet deliveries. enum: `wifi-unconn-raw`'
+      enum:
+      - wifi-unconn-raw
+      type: string
+    webhook_ping_topic:
+      description: 'Webhook topic name for ping deliveries. enum: `ping`'
+      enum:
+      - ping
+      type: string
+    synthetictest_config_custom_probe_type:
+      default: icmp
+      description: 'enum: `application`, `curl`, `icmp`, `reachability`, `tcp`'
+      enum:
+      - application
+      - curl
+      - icmp
+      - reachability
+      - tcp
+      type: string
+    webhook_location_event:
+      additionalProperties: false
+      description: Generic location update with map coordinates and optional BLE or Wi-Fi metadata
+      properties:
+        battery_voltage:
+          description: Battery voltage value reported by the located entity
+          type: integer
+        eddystone_uid_instance:
+          description: Eddystone UID instance value advertised by the located entity
+          type: string
+        eddystone_uid_namespace:
+          description: Eddystone UID namespace value advertised by the located entity
+          type: string
+        eddystone_url_url:
+          description: Eddystone URL advertised by the located entity
+          type: string
+        ibeacon_major:
+          $ref: '#/components/schemas/ibeacon_major'
+          description: iBeacon major value advertised by the located entity when present
+        ibeacon_minor:
+          $ref: '#/components/schemas/ibeacon_minor'
+          description: iBeacon minor value advertised by the located entity when present
+        ibeacon_uuid:
+          $ref: '#/components/schemas/ibeacon_uuid'
+          description: iBeacon UUID advertised by the located entity when present
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the located entity in this event
+        mac:
+          description: Located entity MAC address for this location event
+          type: string
+        map_id:
+          description: Identifier of the map where the location was calculated
+          format: uuid
+          type: string
+        mfg_company_id:
+          description: Optional, BLE manufacturing company ID
+          type: integer
+        mfg_data:
+          description: Optional, BLE manufacturing data in hex byte-string format (ie "112233AABBCC")
+          type: string
+        name:
+          description: Client or asset display name, when available
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the location event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the location was calculated, in epoch seconds
+        type:
+          description: Location object type for this event
+          type: string
+        wifi_beacon_extended_info:
+          $ref: '#/components/schemas/wifi_beacon_extended_info'
+          description: Extended Wi-Fi beacon metadata included with this location event
+        x:
+          description: Horizontal map coordinate of the located entity, in meters
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the located entity, in meters
+          format: double
+          type: number
+      required:
+      - id
+      - map_id
+      - site_id
+      - timestamp
+      - type
+      - x
+      - y
+      type: object
+    nac_event_type:
+      description: Event type, e.g. NAC_CLIENT_PERMIT. Use the [List NAC Events Definitions](/#operations/listNacEventsDefinitions) endpoint to get the full list of available values.
+      examples:
+      - NAC_CLIENT_PERMIT
+      readOnly: true
+      type: string
+    mxedge_event_sys_info:
+      additionalProperties: false
+      description: System resource details for a Mist Edge event
+      properties:
+        resource:
+          description: System resource referenced by the event
+          type: string
+        severity:
+          $ref: '#/components/schemas/event_severity'
+          description: Event severity for the system resource condition
+      type: object
+    webhook_mxedge_events:
+      additionalProperties: false
+      description: Sample of the `mxedge-events` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/mxedge_events'
+          description: Mist Edge events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_mxedge_event_topic'
+          description: Webhook topic name for Mist Edge event deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_device_events:
+      additionalProperties: false
+      description: Sample of the `device-events` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/device_events'
+          description: Device events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_device_events_topic'
+          description: Webhook topic name for device event deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_location_client_event:
+      additionalProperties: false
+      description: Connected Wi-Fi client location update with map coordinates
+      properties:
+        mac:
+          description: Connected client MAC address used as the location identifier
+          examples:
+          - 5684dae9ac8b
+          type: string
+        map_id:
+          description: Map where the connected client location was calculated
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the connected client location event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the connected client location was calculated, in epoch seconds
+        type:
+          default: wifi
+          description: Location object type for the connected client event; defaults to `wifi`
+          type: string
+        wifi_beacon_extended_info:
+          $ref: '#/components/schemas/wifi_beacon_extended_info'
+          description: Extended Wi-Fi beacon metadata included with this connected client location event
+        x:
+          description: Horizontal map coordinate of the connected client, in meters
+          examples:
+          - 13.5
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the connected client, in meters
+          examples:
+          - 3.2
+          format: double
+          type: number
+      type: object
+    rx_pkts:
+      description: Amount of packets received since connection
+      examples:
+      - 57770567
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    nac_access_type:
+      description: 'Type of network access. enum: `wireless`, `wired`, `vty`'
+      enum:
+      - wireless
+      - wired
+      - vty
+      examples:
+      - wireless
+      type: string
+    webhook_device_updowns_topic:
+      description: 'Webhook topic name for device up/down deliveries. enum: `device-updowns`'
+      enum:
+      - device-updowns
+      type: string
+    webhook_client_join_topic:
+      description: 'Webhook topic name for client join deliveries. enum: `client-join`'
+      enum:
+      - client-join
+      type: string
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    webhook_asset_raw_rssi_event_service_packets:
+      description: BLE service data packets decoded from an asset raw RSSI event
+      items:
+        $ref: '#/components/schemas/webhook_asset_raw_rssi_event_service_packet'
+      type: array
+    webhook_nac_events_topic:
+      description: 'Webhook topic name for NAC event deliveries. enum: `nac-events`'
+      enum:
+      - nac-events
+      type: string
+    webhook_asset_raw_rssi_topic:
+      description: 'Webhook topic name for asset raw RSSI deliveries. enum: `asset-raw-rssi`'
+      enum:
+      - asset-raw-rssi
+      type: string
+    webhook_location_client_topic:
+      description: 'Webhook topic name for connected client location deliveries. enum: `location-client`'
+      enum:
+      - location-client
+      type: string
+    webhook_location_events:
+      description: Location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_guest_authorizations_topic:
+      description: 'Webhook topic name for guest authorization deliveries. enum: `guest-authorizations`'
+      enum:
+      - guest-authorizations
+      type: string
+    ha_cluster_node_enum:
+      description: 'HA cluster node selector. enum: `node0`, `node1`'
+      enum:
+      - node0
+      - node1
+      type: string
+    webhook_wifi_unconn_raw_events:
+      description: Unconnected Wi-Fi raw packet events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_wifi_unconn_raw_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    mxedge_events:
+      description: Mist Edge event records
+      items:
+        $ref: '#/components/schemas/mxedge_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_wifi_conn_raw_event_packets:
+      description: RSSI packet observations for a connected Wi-Fi raw event
+      items:
+        $ref: '#/components/schemas/webhook_wifi_conn_raw_event_packet'
+      type: array
+    webhook_sdkclient_scan_data:
+      additionalProperties: false
+      description: Sample of the `sdkclient-scan-data` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_sdkclient_scan_data_events'
+          description: SDK client scan data events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_sdkclient_scan_data_topic'
+          description: Webhook topic name for SDK client scan data deliveries
+      required:
+      - topic
+      - events
+      type: object
+    nac_event_nas_vendor:
+      description: Vendor name of the NAS
+      examples:
+      - juniper-mist
+      readOnly: true
+      type: string
+    webhook_client_info:
+      additionalProperties: false
+      description: Sample of the `client-info` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_client_info_events'
+          description: Client information events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_client_info_topic'
+          description: Webhook topic name for client information deliveries
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    nac_event_dryrun_nacrule_matched:
+      description: '`true` if dryrun rule present and matched with priority, `false` if not matched or not present'
+      readOnly: true
+      type: boolean
+    webhook_location_unclient_events:
+      description: Unconnected client location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_unclient_event'
+      type: array
+    webhook_client_latency_event:
+      additionalProperties: false
+      description: Site-level client latency metrics for authentication, DHCP, and DNS operations
+      properties:
+        avg_auth:
+          description: Average authentication latency observed during the reporting interval
+          examples:
+          - 0.17170219
+          type: number
+        avg_dhcp:
+          description: Average DHCP latency observed during the reporting interval
+          examples:
+          - 0.017828934
+          type: number
+        avg_dns:
+          description: Average DNS latency observed during the reporting interval
+          examples:
+          - 0.024532124
+          type: number
+        max_auth:
+          description: Maximum authentication latency observed during the reporting interval
+          examples:
+          - 0.18170219
+          type: number
+        max_dhcp:
+          description: Maximum DHCP latency observed during the reporting interval
+          examples:
+          - 0.027828934
+          type: number
+        max_dns:
+          description: Maximum DNS latency observed during the reporting interval
+          examples:
+          - 0.022532124
+          type: number
+        min_auth:
+          description: Minimum authentication latency observed during the reporting interval
+          examples:
+          - 0.16050219
+          type: number
+        min_dhcp:
+          description: Minimum DHCP latency observed during the reporting interval
+          examples:
+          - 0.015828934
+          type: number
+        min_dns:
+          description: Minimum DNS latency observed during the reporting interval
+          examples:
+          - 0.029532124
+          type: number
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the client latency metrics
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the client latency metrics
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the client latency metrics were reported, in epoch seconds
+      type: object
+    webhook_minis_reachability_topic:
+      description: 'Webhook topic name for Minis reachability test deliveries. enum: `minis-reachability`'
+      enum:
+      - minis-reachability
+      type: string
+    webhook_occupancy_alerts:
+      additionalProperties: false
+      description: Sample of the `occupancy-alerts` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_occupancy_alerts_events'
+          description: Occupancy alert batches included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_occupancy_alerts_topic'
+          description: Webhook topic name for occupancy alert deliveries
+      required:
+      - events
+      - topic
+      type: object
+    wifi_beacon_extended_info:
+      description: Optional, list of extended beacon info packets heard from the client, frame and sequence control included with the payload
+      items:
+        $ref: '#/components/schemas/wifi_beacon_extended_info_items'
+      type: array
+    webhook_zone_event_type:
+      description: 'Type of client. enum: `asset` (BLE Tag), `sdk`, `wifi`'
+      enum:
+      - asset
+      - sdk
+      - wifi
+      type: string
+    webhook_client_info_events:
+      description: Client information events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_client_info_event'
+      type: array
+    webhook_location_sdk_event:
+      additionalProperties: false
+      description: SDK client location update with map coordinates
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the SDK client for this location event
+        map_id:
+          description: Map where the SDK client location was calculated
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type: string
+        name:
+          description: Display name of the SDK client when available
+          examples:
+          - optional
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the SDK client location event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the SDK client location was calculated, in epoch seconds
+        type:
+          default: sdk
+          description: Location object type for the SDK client event; defaults to `sdk`
+          type: string
+        x:
+          description: Horizontal map coordinate of the SDK client, in meters
+          examples:
+          - 13.5
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the SDK client, in meters
+          examples:
+          - 3.2
+          format: double
+          type: number
+      type: object
+    webhook_wifi_unconn_raw_event_ap_loc:
+      description: optional, coordinates (if any) of reporting AP (updated once in 60s per client)
+      items:
+        type: number
+      type: array
+    webhook_location_asset_event:
+      additionalProperties: false
+      description: Asset location update with map coordinates and optional BLE beacon metadata
+      properties:
+        battery_voltage:
+          description: Battery voltage value reported by the asset tag
+          examples:
+          - 3370
+          type: integer
+        eddystone_uid_instance:
+          description: Eddystone UID instance value advertised by the asset tag
+          examples:
+          - 5c5b35000001
+          type: string
+        eddystone_uid_namespace:
+          description: Eddystone UID namespace value advertised by the asset tag
+          examples:
+          - 2818e3868dec25629ede
+          type: string
+        eddystone_url_url:
+          description: Eddystone URL advertised by the asset tag
+          examples:
+          - https://www.abc.com
+          type: string
+        ibeacon_major:
+          $ref: '#/components/schemas/ibeacon_major'
+          description: iBeacon major value advertised by the asset tag when present
+        ibeacon_minor:
+          $ref: '#/components/schemas/ibeacon_minor'
+          description: iBeacon minor value advertised by the asset tag when present
+        ibeacon_uuid:
+          $ref: '#/components/schemas/ibeacon_uuid'
+          description: iBeacon UUID advertised by the asset tag when present
+        mac:
+          description: Asset MAC address used as the location identifier
+          examples:
+          - 7fc2936fd243
+          type: string
+        map_id:
+          description: Map where the asset location was calculated
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type: string
+        mfg_company_id:
+          description: Optional, BLE manufacturing company ID
+          examples:
+          - 935
+          type: integer
+        mfg_data:
+          description: 'Optional, BLE manufacturing data in hex byte-string format (ie: "112233AABBCC")'
+          examples:
+          - 648520a1020000
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the asset location event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the asset location was calculated, in epoch seconds
+        type:
+          default: asset
+          description: Location object type for the asset event; defaults to `asset`
+          type: string
+        x:
+          description: Horizontal map coordinate of the asset position, in meters
+          examples:
+          - 13.5
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the asset position, in meters
+          examples:
+          - 3.2
+          format: double
+          type: number
+      type: object
+    webhook_asset_raw_rssi:
+      additionalProperties: false
+      description: "Sample of the `asset-raw-rssi` webhook payload.\n\n\nThis webhook topic provides raw data from packets emitted by named and filtered assets.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_asset_raw_rssi_events'
+          description: Raw RSSI event records included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_asset_raw_rssi_topic'
+          description: Webhook topic name for asset raw RSSI deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_wifi_conn_raw_topic:
+      description: 'Webhook topic name for connected Wi-Fi raw packet deliveries. enum: `wifi-conn-raw`'
+      enum:
+      - wifi-conn-raw
+      type: string
+    webhook_location_sdk_topic:
+      description: 'Webhook topic name for SDK client location deliveries. enum: `location-sdk`'
+      enum:
+      - location-sdk
+      type: string
+    webhook_wifi_unconn_raw_event_packet:
+      additionalProperties: false
+      description: RSSI observation for an unconnected Wi-Fi client packet
+      properties:
+        band:
+          description: Radio band on which the unconnected Wi-Fi packet was observed
+          type: string
+        rssi:
+          description: Received signal strength of the unconnected Wi-Fi packet at the reporting AP, in dBm
+          type: integer
+      type: object
+    webhook_site_sle_event_sle:
+      additionalProperties: false
+      description: Wi-Fi SLE scores reported by a site SLE webhook event
+      properties:
+        ap-availability:
+          description: Wireless AP availability SLE score for the site
+          examples:
+          - 0.6
+          type: number
+        successful-connect:
+          description: Connection success SLE score for the site
+          examples:
+          - 0.7
+          type: number
+        time-to-connect:
+          description: Client connection-time SLE score for the site
+          examples:
+          - 0.9
+          type: number
+      type: object
+    nac_device_mac:
+      description: MAC address of the AP or switch the client is connected to
+      examples:
+      - 60c78d8c7f6f
+      readOnly: true
+      type: string
+    webhook_minis_reachability_event:
+      additionalProperties: false
+      description: Marvis Minis reachability synthetic test result
+      properties:
+        avg_latency:
+          description: Average latency in milliseconds
+          format: double
+          type: number
+        device_mac:
+          description: MAC address of the device performing the test
+          examples:
+          - 7cb68d8f0440
+          type: string
+        loss_percentage:
+          description: Percentage of packets lost during the reachability test
+          format: double
+          type: number
+        max_latency:
+          description: Maximum latency in milliseconds
+          format: double
+          type: number
+        min_latency:
+          description: Minimum latency in milliseconds
+          format: double
+          type: number
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the Minis reachability test result
+        probe_name:
+          description: Name of the probe
+          examples:
+          - google ping
+          type: string
+        probe_target:
+          description: Target host or IP for the probe
+          examples:
+          - google.com
+          type: string
+        probe_type:
+          description: Probe category used for the Minis reachability test
+          examples:
+          - reachability
+          type: string
+        protocol:
+          description: Network protocol used for the reachability test
+          examples:
+          - icmp
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the Minis reachability test result
+        test_type:
+          description: Type of test performed
+          examples:
+          - ping
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the Minis reachability test result was reported, in epoch seconds
+        vlan:
+          description: Network VLAN ID used for the reachability test
+          examples:
+          - 12
+          type: integer
+      type: object
+    webhook_wifi_conn_raw:
+      additionalProperties: false
+      description: "Sample of the `wifi-conn-raw` webhook payload.\n\n\nThis webhook topic provides raw data from packets emitted by connected devices.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_wifi_conn_raw_events'
+          description: Connected Wi-Fi raw packet events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_wifi_conn_raw_topic'
+          description: Webhook topic name for connected Wi-Fi raw packet deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_location_asset_events:
+      description: Asset location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_asset_event'
+      type: array
+    webhook_minis_application_event:
+      additionalProperties: false
+      description: Marvis Minis application synthetic test result
+      properties:
+        device_mac:
+          description: MAC address of the device
+          type: string
+        ip:
+          description: Destination IP address used for the application test
+          type: string
+        latency:
+          description: Application test latency measured in milliseconds
+          type: integer
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the Minis application test result
+        probe_name:
+          description: Name of the probe
+          examples:
+          - connectivitycheck.gstatic.com
+          type: string
+        probe_type:
+          description: Probe category used for the Minis application test
+          examples:
+          - application
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the Minis application test result
+        src_ip:
+          description: Source IP address of the test
+          type: string
+        success:
+          description: Whether the test was successful
+          type: boolean
+        test_type:
+          $ref: '#/components/schemas/synthetictest_config_custom_probe_type'
+          description: Synthetic test type used for the Minis application result
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the Minis application test result was reported, in epoch seconds
+        vlan:
+          description: Network VLAN ID used for the application test
+          examples:
+          - 12
+          type: integer
+      type: object
+    nac_event_port_id:
+      description: Port ID where the NAC client event occurred
+      examples:
+      - ge-0/0/17.0
+      readOnly: true
+      type: string
+    webhook_location_unclient_event:
+      additionalProperties: false
+      description: Unconnected Wi-Fi client location update with map coordinates
+      properties:
+        mac:
+          description: Unconnected client MAC address used as the location identifier
+          examples:
+          - 5684dae9ac8b
+          type: string
+        map_id:
+          description: Map where the unconnected client location was calculated
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the unconnected client location event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the unconnected client location was calculated, in epoch seconds
+        type:
+          default: wifi
+          description: Location object type for the unconnected client event; defaults to `wifi`
+          type: string
+        wifi_beacon_extended_info:
+          $ref: '#/components/schemas/wifi_beacon_extended_info'
+          description: Extended Wi-Fi beacon metadata included with this unconnected client location event
+        x:
+          description: Horizontal map coordinate of the unconnected client, in meters
+          examples:
+          - 13.5
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the unconnected client, in meters
+          examples:
+          - 3.2
+          format: double
+          type: number
+      type: object
+    webhook_asset_raw_rssi_events:
+      description: Asset raw RSSI events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_asset_raw_rssi_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    nac_event_username:
+      description: username assigned to the client
+      readOnly: true
+      type: string
+    webhook_alarm_event_bssids:
+      description: Representative BSSID samples included for an alarm webhook event
+      items:
+        type: string
+      readOnly: true
+      type: array
+    webhook_nac_accounting_event:
+      additionalProperties: false
+      description: NAC accounting event for a client session with traffic counters
+      properties:
+        ap:
+          description: MAC address of the AP the client roamed or disconnected from
+          examples:
+          - 5c5b355005be
+          type: string
+        auth_type:
+          $ref: '#/components/schemas/nac_auth_type'
+          description: Authentication method used for the NAC accounting session
+        bssid:
+          description: Wireless BSSID used for the NAC accounting session
+          examples:
+          - 5c5b35546bb4
+          type: string
+        client_ip:
+          description: Client IP address observed for the NAC accounting session
+          examples:
+          - 172.16.87.4
+          type: string
+        client_type:
+          description: Client type E.g. "wired", "wireless", "vty"
+          examples:
+          - wireless
+          type: string
+        mac:
+          description: Client MAC address for the NAC accounting session
+          examples:
+          - 6e795836d5f9
+          type: string
+        nas_vendor:
+          description: NAS Device vendor name E.g. "Juniper", "Cisco"
+          examples:
+          - juniper-mist
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the NAC accounting event
+        rx_pkts:
+          $ref: '#/components/schemas/rx_pkts'
+          description: Number of packets received during the NAC accounting session
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the NAC accounting event
+        ssid:
+          description: Wireless SSID used for the NAC accounting session
+          examples:
+          - Test-CMR SSID
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the NAC accounting event was reported, in epoch seconds
+        tx_pkts:
+          $ref: '#/components/schemas/tx_pkts'
+          description: Number of packets sent during the NAC accounting session
+        type:
+          description: NAC accounting event type, such as `ACCOUNTING_START`, `ACCOUNTING_UPDATE`, or `ACCOUNTING_STOP`
+          examples:
+          - NAC_ACCOUNTING_STOP
+          type: string
+        username:
+          description: Client-presented username for NAC authentication
+          examples:
+          - hi
+          type: string
+      type: object
+    mxedge_event:
+      additionalProperties: false
+      description: Event reported for a Mist Edge appliance or service
+      properties:
+        audit_id:
+          $ref: '#/components/schemas/id'
+          description: Audit log identifier associated with this event, when available
+        component:
+          description: Mist Edge component that reported the event, such as a power supply or fan
+          examples:
+          - PS1
+          - Fan1
+          type:
+          - string
+          - 'null'
+        device_id:
+          description: Identifier of the device associated with the event, when available
+          format: uuid
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        device_type:
+          description: Device type associated with the event
+          type: string
+        from_version:
+          description: Service version before an upgrade-related event
+          type: string
+        mac:
+          description: Mist Edge MAC address associated with the event
+          type: string
+        mxcluster_id:
+          description: Mist Edge cluster identifier associated with the event
+          examples:
+          - 2815c917-58e7-472f-a190-bfd44fb58d05
+          type: string
+        mxedge_id:
+          description: Mist Edge identifier associated with the event
+          examples:
+          - 00000000-0000-0000-1000-020000dc585c
+          type: string
+        mxedge_name:
+          description: Display name of the Mist Edge associated with the event
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Identifier of the org where the event occurred
+        package:
+          description: Software package associated with the event
+          type: string
+        service:
+          description: Mist Edge service associated with the event
+          examples:
+          - tunterm
+          type: string
+        severity:
+          $ref: '#/components/schemas/event_severity'
+          description: Event severity level reported for this Mist Edge event
+        sys_info.usage:
+          $ref: '#/components/schemas/mxedge_event_sys_info'
+          description: System resource usage details associated with the event
+        text:
+          description: Human-readable message describing the Mist Edge event
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the Mist Edge event occurred
+        to_version:
+          description: Service version after an upgrade-related event
+          type: string
+        type:
+          description: Mist Edge event type code
+          examples:
+          - ME_SERVICE_STOPPED
+          type: string
+      type: object
+    webhook_location:
+      additionalProperties: false
+      description: Sample of the `location` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_events'
+          description: Location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_topic'
+          description: Webhook topic name for generic location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_location_centrak_topic:
+      description: 'Webhook topic name for CenTrak location deliveries. enum: `location-centrak`'
+      enum:
+      - location-centrak
+      type: string
+    webhook_discovered_raw_rssi_events:
+      description: Discovered BLE raw RSSI events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_discovered_raw_rssi_event'
+      type: array
+    resp_attrs:
+      description: List of RADIUS AVP returned by the Authentication Server
+      examples:
+      - - Tunnel-Type=VLAN
+        - Tunnel-Medium-Type=IEEE-802
+        - Tunnel-Private-Group-Id=750
+        - User-Name=anonymous
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    nac_client_mac:
+      description: Client MAC address observed in the NAC event
+      examples:
+      - ac3eb179e535
+      readOnly: true
+      type: string
+    webhook_wifi_conn_raw_event_packet:
+      additionalProperties: false
+      description: RSSI observation for a connected Wi-Fi client packet
+      properties:
+        band:
+          description: Radio band on which the connected Wi-Fi packet was observed
+          type: string
+        rssi:
+          description: Received signal strength of the connected Wi-Fi packet at the reporting AP, in dBm
+          type: integer
+      type: object
+    webhook_wifi_conn_raw_event_ap_loc:
+      description: optional, coordinates (if any) of reporting AP (updated once in 60s per client)
+      items:
+        type: number
+      type: array
+    webhook_sdkclient_scan_data_topic:
+      description: 'Webhook topic name for SDK client scan data deliveries. enum: `sdkclient-scan-data`'
+      enum:
+      - sdkclient-scan-data
+      type: string
+    webhook_client_join_event:
+      additionalProperties: false
+      description: Wireless client association event delivered when a client joins a WLAN
+      properties:
+        ap:
+          description: MAC address of the AP the client connected to
+          type: string
+        ap_name:
+          description: user-friendly name of the AP the client connected to.
+          type: string
+        band:
+          description: 5GHz or 2.4GHz band
+          type: string
+        bssid:
+          description: WLAN radio BSSID that the client associated with
+          type: string
+        connect:
+          description: Time when the client connected, in epoch seconds
+          type: integer
+        connect_float:
+          description: Client connection timestamp with millisecond precision
+          type: number
+        mac:
+          description: Client MAC address that joined the WLAN
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the client join event
+        rssi:
+          description: Signal strength when the client associated, in dBm
+          type: number
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the client join event
+        site_name:
+          description: Site name associated with the client join event
+          type: string
+        ssid:
+          description: WLAN SSID that the client joined
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the client join event was generated, in epoch seconds
+        version:
+          description: schema version of this message
+          type: number
+        wlan_id:
+          description: Unique identifier of the WLAN the client joined
+          format: uuid
+          type: string
+      required:
+      - ap
+      - ap_name
+      - band
+      - bssid
+      - connect
+      - connect_float
+      - mac
+      - org_id
+      - rssi
+      - site_id
+      - site_name
+      - ssid
+      - timestamp
+      - version
+      - wlan_id
+      type: object
+    webhook_site_sle_topic:
+      description: 'Webhook topic name for site SLE score deliveries. enum: `site-sle`'
+      enum:
+      - site-sle
+      type: string
+    webhook_discovered_raw_rssi_event:
+      additionalProperties: false
+      description: Raw RSSI sample reported for a passive BLE device packet
+      properties:
+        ap_loc:
+          $ref: '#/components/schemas/webhook_discovered_raw_rssi_event_ap_loc'
+          description: Location coordinates of the reporting AP when available, updated about once per minute per client
+        beam:
+          description: Antenna index, from 1-8, clock-wise starting from the LED
+          type: integer
+        device_id:
+          description: Identifier of the AP that reported the raw RSSI sample
+          format: uuid
+          type: string
+        ibeacon_major:
+          $ref: '#/components/schemas/ibeacon_major'
+          description: iBeacon major value decoded from the packet when present
+        ibeacon_minor:
+          $ref: '#/components/schemas/ibeacon_minor'
+          description: iBeacon minor value decoded from the packet when present
+        ibeacon_uuid:
+          $ref: '#/components/schemas/ibeacon_uuid'
+          description: iBeacon UUID decoded from the packet when present
+        is_asset:
+          description: Whether the advertising MAC address is recognized as an asset
+          type: boolean
+        mac:
+          description: Client MAC address for the passive BLE device or beacon that emitted the packet
+          type: string
+        map_id:
+          description: Map associated with the reporting AP when location context is available
+          format: uuid
+          type: string
+        mfg_company_id:
+          description: BLE manufacturing company ID
+          type: string
+        mfg_data:
+          description: 'BLE manufacturing data in hex byte-string format (ie: "112233AABBCC")'
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the raw RSSI sample
+        rssi:
+          description: Received signal strength of the packet at the reporting AP, in dBm
+          type: number
+        service_packets:
+          $ref: '#/components/schemas/service_packets'
+          description: BLE service data packets decoded from the advertised payload
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the raw RSSI sample
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the raw RSSI sample was observed, in epoch seconds
+      required:
+      - beam
+      - device_id
+      - mac
+      - map_id
+      - org_id
+      - rssi
+      - site_id
+      type: object
+    webhook_wifi_unconn_raw_event_packets:
+      description: RSSI packet observations for an unconnected Wi-Fi raw event
+      items:
+        $ref: '#/components/schemas/webhook_wifi_unconn_raw_event_packet'
+      type: array
+    tx_pkts:
+      description: Amount of packets sent since connection
+      examples:
+      - 812204062
+      format: int64
+      readOnly: true
+      type:
+      - integer
+      - 'null'
+    webhook_ping_event:
+      additionalProperties: false
+      description: Ping webhook event generated to verify webhook delivery
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the webhook ping event
+        name:
+          description: Display name associated with the webhook ping event
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the webhook ping event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the webhook ping event was generated, in epoch seconds
+      required:
+      - id
+      - name
+      - site_id
+      - timestamp
+      type: object
+    webhook_guest_authorizations_events:
+      description: Guest authorization events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_guest_authorizations_event'
+      type: array
+    webhook_nac_accounting:
+      additionalProperties: false
+      description: Sample of the `nac-accounting` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_nac_accounting_events'
+          description: NAC accounting events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_nac_accounting_topic'
+          description: Webhook topic name for NAC accounting deliveries
+      type: object
+    webhook_device_updowns_event:
+      additionalProperties: false
+      description: Device availability event delivered when a monitored AP changes up/down state
+      properties:
+        ap:
+          description: MAC address for the AP whose availability changed
+          readOnly: true
+          type: string
+        ap_name:
+          description: AP name for the device whose availability changed
+          readOnly: true
+          type: string
+        for_site:
+          description: Whether this device up/down event is scoped to a site rather than only to the organization
+          readOnly: true
+          type: boolean
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the device up/down event
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the device up/down event
+        site_name:
+          description: Site name associated with the device up/down event
+          readOnly: true
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the device availability event occurred, in epoch seconds
+        type:
+          description: Reported up/down event type for the device
+          readOnly: true
+          type: string
+      required:
+      - ap
+      - ap_name
+      - org_id
+      - site_id
+      - site_name
+      - timestamp
+      - type
+      type: object
+    webhook_guest_authorizations_event:
+      additionalProperties: false
+      description: Guest portal authorization event with registration and WLAN context
+      properties:
+        ap:
+          description: MAC address of the AP handling the guest authorization
+          examples:
+          - 5c5b350e55c8
+          type: string
+        auth_method:
+          description: Guest portal authentication method used for this authorization event
+          examples:
+          - passphrase
+          type: string
+        authorized_expiring_time:
+          description: Unix timestamp when the guest authorization expires
+          examples:
+          - 1677076639
+          type: integer
+        authorized_time:
+          description: Unix timestamp when the guest authorization was granted
+          examples:
+          - 1677076519
+          type: integer
+        carrier:
+          description: Mobile carrier used when authentication relies on a cellular provider
+          examples:
+          - docomo
+          type: string
+        client:
+          description: MAC address of the guest client device
+          examples:
+          - ac2316eca70a
+          type: string
+        company:
+          description: Guest company name provided during registration
+          examples:
+          - MIST
+          type: string
+        email:
+          description: Guest email address provided during registration
+          examples:
+          - abcd@abcd.com
+          type: string
+        field1:
+          description: Value submitted for custom guest field 1
+          examples:
+          - field1 value
+          type: string
+        field2:
+          description: Value submitted for custom guest field 2
+          examples:
+          - field2 value
+          type: string
+        field3:
+          description: Value submitted for custom guest field 3
+          examples:
+          - field3 value
+          type: string
+        field4:
+          description: Value submitted for custom guest field 4
+          examples:
+          - field4 value
+          type: string
+        mobile:
+          description: Guest mobile phone number provided during registration
+          examples:
+          - +0123456789
+          type: string
+        name:
+          description: Full name provided by the guest during registration
+          examples:
+          - Dr Strange
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the guest authorization event
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the guest authorization event
+        sms_gateway:
+          description: SMS provider used for text-message authentication
+          examples:
+          - Telstra
+          type: string
+        sponsor_email:
+          description: Sponsor email address associated with the guest authorization
+          examples:
+          - sponsor@gmail.com
+          type: string
+        ssid:
+          description: WLAN SSID on which the guest was authorized
+          examples:
+          - Portal Auth
+          type: string
+        wlan_id:
+          description: WLAN identifier on which the guest was authorized
+          examples:
+          - 7681be9a-044a-4622-90cf-3accde5ad853
+          type: string
+      type: object
+    webhook_location_centrak_event:
+      additionalProperties: false
+      description: CenTrak location update with map coordinates and Wi-Fi beacon metadata
+      properties:
+        mac:
+          description: Device MAC address used as the CenTrak location identifier
+          type: string
+        map_id:
+          description: Identifier of the map where the CenTrak location was calculated
+          type: string
+        mfg_company_id:
+          description: Optional, BLE manufacturing company ID
+          type: integer
+        mfg_data:
+          description: Optional, BLE manufacturing data in hex byte-string format (i.e. "112233AABBCC")
+          type: string
+        site_id:
+          description: Site associated with the CenTrak location event
+          format: uuid
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the CenTrak location was calculated, in epoch seconds
+        type:
+          $ref: '#/components/schemas/webhook_location_centrak_event_type'
+          description: Location object type for the CenTrak event
+        wifi_beacon_extended_info:
+          $ref: '#/components/schemas/wifi_beacon_extended_info'
+          description: Extended Wi-Fi beacon metadata included with this CenTrak location event
+        x:
+          description: Horizontal map coordinate of the CenTrak device, in meters
+          format: double
+          type: number
+        y:
+          description: Vertical map coordinate of the CenTrak device, in meters
+          format: double
+          type: number
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    webhook_location_asset:
+      additionalProperties: false
+      description: Sample of the `location_asset` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_location_asset_events'
+          description: Asset location events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_location_asset_topic'
+          description: Webhook topic name for asset location deliveries
+      required:
+      - events
+      - topic
+      type: object
+    nac_event_idp_username:
+      description: If IDP is used, the username presented to the Identity Provider
+      examples:
+      - user@deaflyz.net
+      readOnly: true
+      type: string
+    webhook_wifi_unconn_raw_event:
+      additionalProperties: false
+      description: Raw packet observation for an unconnected Wi-Fi client
+      properties:
+        ap_id:
+          description: AP MAC address that reported the unconnected client packet
+          type: string
+        ap_loc:
+          $ref: '#/components/schemas/webhook_wifi_unconn_raw_event_ap_loc'
+          description: Location coordinates of the reporting AP when available, updated about once per minute per client
+        client_id:
+          description: Client MAC address that emitted the unconnected Wi-Fi packet
+          type: string
+        connected_site:
+          description: Whether the observed client is connected to the reporting site
+          type: boolean
+        map_id:
+          $ref: '#/components/schemas/id'
+          description: Map associated with the reporting AP when location context is available
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the unconnected Wi-Fi raw event
+        packets:
+          $ref: '#/components/schemas/webhook_wifi_unconn_raw_event_packets'
+          description: RSSI packet observations reported for the unconnected Wi-Fi client
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the unconnected Wi-Fi raw event
+      type: object
+    webhook_ping:
+      additionalProperties: false
+      description: Sample of the `ping` webhook payload.\n\nThe `ping` webhook can be manually sent with the following API calls:\n- for a Site level webhook with the [Ping Site Webhook](/#operations/pingOrgWebhook) endpoint\n- for an Org level webhook with the [Ping Org Webhook](/#operations/pingOrgWebhook) endpoint
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_ping_events'
+          description: Ping events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_ping_topic'
+          description: Webhook topic name for ping deliveries
+      required:
+      - events
+      - topic
+      type: object
+    nac_event_ssid:
+      description: SSIDs the client was connecting to
+      examples:
+      - MyCorp-NAC
+      readOnly: true
+      type: string
+    webhook_client_latency_events:
+      description: Client latency summary events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_client_latency_event'
+      type: array
+    webhook_client_sessions:
+      additionalProperties: false
+      description: Sample of the `client-sessions` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_client_sessions_events'
+          description: Client session events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_client_sessions_topic'
+          description: Webhook topic name for client session deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_site_sle_events:
+      description: Site SLE score events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_site_sle_event'
+      type: array
+    webhook_minis_application_topic:
+      description: 'Webhook topic name for Minis application test deliveries. enum: `minis-application`'
+      enum:
+      - minis-application
+      type: string
+    webhook_location_client_events:
+      description: Connected client location events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_location_client_event'
+      type: array
+    webhook_audits:
+      additionalProperties: false
+      description: Sample of the `audits` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/log_events'
+          description: Audit log events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_audits_topic'
+          description: Webhook topic name for audit event deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_wifi_unconn_raw:
+      additionalProperties: false
+      description: "Sample of the `wifi-unconn-raw` webhook payload.\n\n\nThis webhook topic provides raw data from packets emitted by unconnected devices.\n\n\nRaw data webhooks are a special subset of webhooks that provide insight into raw data packets emitted by a client,\nidentified by their advertising MAC address (assets, discovered ble, connected wifi, unconnected wifi).  \nThe data that client raw data webhooks encompasses are reporting AP information, RSSI Data, and any special packets/telemetry\npackets that the client may emit.\n\nNote that client raw webhooks are the raw data coming from the client and do not contain the X,Y location data of the client.\nIn order to get the location data for a client please see our location webhooks. \nClients can be identified uniquely across these client raw data topics and location webhook topic using MAC address as the Unique identifier (client identifier)."
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_wifi_unconn_raw_events'
+          description: Unconnected Wi-Fi raw packet events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_wifi_unconn_raw_topic'
+          description: Webhook topic name for unconnected Wi-Fi raw packet deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_rssizone_topic:
+      description: 'Webhook topic name for RSSI zone event deliveries. enum: `rssizone`'
+      enum:
+      - rssizone
+      type: string
+    webhook_device_events_event_ev_type:
+      description: '(optional) event advisory. enum: `notice`, `warn`'
+      enum:
+      - notice
+      - warn
+      type: string
+    webhook_client_join:
+      additionalProperties: false
+      description: Sample of the `client-join` webhook payload.
+      properties:
+        events:
+          $ref: '#/components/schemas/webhook_client_join_events'
+          description: Client join events included in this webhook delivery
+        topic:
+          $ref: '#/components/schemas/webhook_client_join_topic'
+          description: Webhook topic name for client join deliveries
+      required:
+      - events
+      - topic
+      type: object
+    webhook_alarms_events:
+      description: Alarm events included in this webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_alarm_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    webhook_client_info_topic:
+      description: 'Webhook topic name for client information deliveries. enum: `client-info`'
+      enum:
+      - client-info
+      type: string
+    webhook_sdkclient_scan_data_event:
+      additionalProperties: false
+      description: SDK client connection state and background Wi-Fi scan observations
+      properties:
+        connection_ap:
+          description: MAC address of the AP the client is connected to
+          type: string
+        connection_band:
+          description: 5GHz or 2.4GHz band, of the BSSID the client is connected to
+          type: string
+        connection_bssid:
+          description: Connected AP BSSID for the SDK client
+          type: string
+        connection_channel:
+          description: Channel of the band the client is connected to
+          type: integer
+        connection_rssi:
+          description: RSSI of the client’s connection to the AP/BSSID
+          type: number
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Time when the SDK client scan data was last observed, in epoch seconds
+        mac:
+          description: SDK client MAC address
+          type: string
+        scan_data:
+          $ref: '#/components/schemas/webhook_sdkclient_scan_data_event_scan_data'
+          description: Background Wi-Fi scan observations reported by the SDK client
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the SDK client scan data event
+      required:
+      - connection_ap
+      - connection_band
+      - connection_channel
+      - connection_bssid
+      - mac
+      - connection_rssi
+      - site_id
+      type: object
+    webhook_zone_event:
+      additionalProperties: false
+      description: Zone enter or exit event for a Wi-Fi client, SDK client, or asset
+      properties:
+        asset_id:
+          description: Only if `type`==`asset`. UUID of named asset
+          format: uuid
+          type: string
+        id:
+          description: Only if `type`==`sdk`. UUID of the SDK Client
+          format: uuid
+          type: string
+        mac:
+          description: Client or asset MAC address associated with the zone event
+          type: string
+        map_id:
+          description: Map associated with the zone event
+          format: uuid
+          type: string
+        name:
+          description: Display name of the client or asset, when available
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the zone event
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the zone transition was reported, in epoch seconds
+        trigger:
+          $ref: '#/components/schemas/webhook_zone_event_trigger'
+          description: Whether the client or asset entered or exited the zone
+        type:
+          $ref: '#/components/schemas/webhook_zone_event_type'
+          description: Client or asset type reported for the zone event
+        zone_id:
+          description: Zone identifier associated with the event
+          format: uuid
+          type: string
+      required:
+      - map_id
+      - site_id
+      - timestamp
+      - trigger
+      - type
+      - zone_id
+      type: object
+    scan_data_item_band:
+      description: '5GHz or 2.4GHz band, associated with the BSSID scanned. enum: `2.4`, `5`'
+      enum:
+      - '2.4'
+      - '5'
+      minLength: 1
+      type: string
+    webhook_client_join_events:
+      description: Client join events included in a webhook delivery
+      items:
+        $ref: '#/components/schemas/webhook_client_join_event'
+      minItems: 1
+      type: array
+      uniqueItems: true
+  securitySchemes:
+    apiToken:
+      description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
+      in: header
+      name: Authorization
+      type: apiKey
+    csrfToken:
+      description: 'Session-based authentication for browser or login/password flows. After a successful [Login](/#operations/login) request, Mist returns a `csrftoken` cookie. Send that value in the `X-CSRFToken` header on later API requests that use the login session.
+
+
+        **Format**:
+
+        ```
+
+        X-CSRFToken: vwvBuq9qkqaKh7lu8tNc0gkvBfEaLAmx
+
+        ```
+
+
+        For automation, API Token authentication is preferred.'
+      in: header
+      name: X-CSRFToken
+      type: apiKey

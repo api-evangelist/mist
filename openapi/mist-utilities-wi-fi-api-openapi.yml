@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Utilities Wi-Fi API
+  title: Mist Utilities Wi-Fi API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -491,77 +491,7 @@ paths:
       tags:
       - Utilities Wi-Fi
 components:
-  parameters:
-    rogue_bssid:
-      in: path
-      name: rogue_bssid
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    client_mac:
-      in: path
-      name: client_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   schemas:
-    utils_rrm_optimize_macs:
-      description: AP MAC addresses to target for optimization. Neighboring APs may also change; omitted or empty targets all APs
-      items:
-        examples:
-        - 5c5b35000001
-        type: string
-      type: array
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -572,18 +502,106 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    utils_reset_radio_config:
-      description: Request to reset AP radio settings to RRM-managed values
+    mac_addresses:
+      description: Request containing one or more MAC addresses
+      properties:
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
+      required:
+      - macs
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    utils_reset_radio_config_bands:
+      description: Radio bands to reset, such as `24`, `5`, or `6`
+      items:
+        type: string
+      type: array
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
+    utils_rrm_optimize:
+      description: Request to optimize RRM for selected AP radio bands
       properties:
         bands:
-          $ref: '#/components/schemas/utils_reset_radio_config_bands'
-          description: Radio bands to reset to RRM management
-        force:
+          $ref: '#/components/schemas/utils_rrm_optimize_bands'
+          description: Radio bands to include in the RRM optimization
+        macs:
+          $ref: '#/components/schemas/utils_rrm_optimize_macs'
+          description: AP MAC addresses to target for optimization; omitted or empty targets all APs
+        txpower_only:
           default: false
-          description: Whether to reset radios that are currently disabled; default `false` honors radios intentionally disabled by the user
+          description: When true, adjust only transmit power so clients are not disconnected
           type: boolean
       required:
       - bands
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    test_twilio:
+      description: Request body for validating Twilio SMS gateway credentials
+      properties:
+        from:
+          description: One of the numbers you have in your Twilio account
+          examples:
+          - '+185051234567'
+          type: string
+        to:
+          description: Phone number of the recipient of SMS
+          examples:
+          - '+19999999999'
+          type: string
+        twilio_auth_token:
+          description: Twilio Auth Token used to send the test SMS
+          examples:
+          - 2135be04736a1a0a314bce432d61721a
+          type: string
+        twilio_sid:
+          description: Twilio account SID used to send the test SMS
+          examples:
+          - REDACTED_TWILIO_ACCOUNT_SID
+          type: string
+      required:
+      - twilio_sid
+      - twilio_auth_token
+      - from
+      - to
+      type: object
+    utils_rrm_optimize_macs:
+      description: AP MAC addresses to target for optimization. Neighboring APs may also change; omitted or empty targets all APs
+      items:
+        examples:
+        - 5c5b35000001
+        type: string
+      type: array
+    utils_zeroize_fips:
+      description: Request body for confirming FIPS AP zeroize operations
+      properties:
+        password:
+          description: Confirmation password for the FIPS zeroize operation
+          format: password
+          type: string
+      required:
+      - password
       type: object
     test_sms_global:
       description: Request body for validating SMSGlobal SMS gateway credentials
@@ -614,107 +632,6 @@ components:
       - smsglobal_api_secret
       - to
       type: object
-    utils_rrm_optimize:
-      description: Request to optimize RRM for selected AP radio bands
-      properties:
-        bands:
-          $ref: '#/components/schemas/utils_rrm_optimize_bands'
-          description: Radio bands to include in the RRM optimization
-        macs:
-          $ref: '#/components/schemas/utils_rrm_optimize_macs'
-          description: AP MAC addresses to target for optimization; omitted or empty targets all APs
-        txpower_only:
-          default: false
-          description: When true, adjust only transmit power so clients are not disconnected
-          type: boolean
-      required:
-      - bands
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    test_twilio:
-      description: Request body for validating Twilio SMS gateway credentials
-      properties:
-        from:
-          description: One of the numbers you have in your Twilio account
-          examples:
-          - '+185051234567'
-          type: string
-        to:
-          description: Phone number of the recipient of SMS
-          examples:
-          - '+19999999999'
-          type: string
-        twilio_auth_token:
-          description: Twilio Auth Token used to send the test SMS
-          examples:
-          - 2135be04736a1a0a314bce432d61721a
-          type: string
-        twilio_sid:
-          description: Twilio account SID used to send the test SMS
-          examples:
-          - REDACTED_TWILIO_ACCOUNT_SID
-          type: string
-      required:
-      - twilio_sid
-      - twilio_auth_token
-      - from
-      - to
-      type: object
-    mac_addresses:
-      description: Request containing one or more MAC addresses
-      properties:
-        macs:
-          $ref: '#/components/schemas/mac_addresses_macs'
-          description: List of MAC addresses included in the request
-      required:
-      - macs
-      type: object
-    utils_rrm_optimize_bands:
-      description: Radio bands to include in the RRM optimization
-      items:
-        type: string
-      type: array
-    mac_addresses_macs:
-      description: Unique MAC addresses included in a request
-      examples:
-      - - 683b679ac024
-      items:
-        type: string
-      minItems: 1
-      type: array
-      uniqueItems: true
-    utils_zeroize_fips:
-      description: Request body for confirming FIPS AP zeroize operations
-      properties:
-        password:
-          description: Confirmation password for the FIPS zeroize operation
-          format: password
-          type: string
-      required:
-      - password
-      type: object
-    utils_reset_radio_config_bands:
-      description: Radio bands to reset, such as `24`, `5`, or `6`
-      items:
-        type: string
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     test_telstra:
       description: Request body for validating Telstra SMS gateway credentials
       properties:
@@ -739,63 +656,90 @@ components:
       - telstra_client_secret
       - to
       type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    utils_reset_radio_config:
+      description: Request to reset AP radio settings to RRM-managed values
+      properties:
+        bands:
+          $ref: '#/components/schemas/utils_reset_radio_config_bands'
+          description: Radio bands to reset to RRM management
+        force:
+          default: false
+          description: Whether to reset radios that are currently disabled; default `false` honors radios intentionally disabled by the user
+          type: boolean
+      required:
+      - bands
+      type: object
+    utils_rrm_optimize_bands:
+      description: Radio bands to include in the RRM optimization
+      items:
+        type: string
+      type: array
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    rogue_bssid:
+      in: path
+      name: rogue_bssid
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    client_mac:
+      in: path
+      name: client_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
   responses:
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    OK:
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP401:
       content:
         application/json:
@@ -811,16 +755,72 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

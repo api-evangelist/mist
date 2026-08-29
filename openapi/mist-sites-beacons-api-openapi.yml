@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Beacons API
+  title: Mist Sites Beacons API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -233,11 +233,6 @@ paths:
       - Sites Beacons
 components:
   schemas:
-    beacons:
-      description: List of beacon configuration records
-      items:
-        $ref: '#/components/schemas/beacon'
-      type: array
     beacon:
       description: Beacon configuration and placement data
       properties:
@@ -306,13 +301,30 @@ components:
           format: double
           type: number
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    beacons:
+      description: List of beacon configuration records
+      items:
+        $ref: '#/components/schemas/beacon'
+      type: array
+    ibeacon_minor:
+      description: Minor number for iBeacon
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
     org_id:
       description: Unique identifier of a Mist organization
       examples:
@@ -320,6 +332,46 @@ components:
       format: uuid
       readOnly: true
       type: string
+    ibeacon_major:
+      description: Major number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    ibeacon_uuid:
+      description: iBeacon UUID value, or null when no iBeacon UUID is configured
+      examples:
+      - f3f17139-704a-f03a-2786-0400279e37c3
+      format: uuid
+      type:
+      - string
+      - 'null'
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -340,40 +392,20 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    ibeacon_minor:
-      description: Minor number for iBeacon
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     beacon_type:
       default: eddystone-uid
       description: 'enum: `eddystone-uid`, `eddystone-url`, `ibeacon`'
@@ -382,146 +414,29 @@ components:
       - eddystone-url
       - ibeacon
       type: string
-    ibeacon_uuid:
-      description: iBeacon UUID value, or null when no iBeacon UUID is configured
-      examples:
-      - f3f17139-704a-f03a-2786-0400279e37c3
-      format: uuid
-      type:
-      - string
-      - 'null'
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    created_time:
+      description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    ibeacon_major:
-      description: Major number for iBeacon
-      examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-  responses:
-    BeaconsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/BeaconsArrayExample'
-          schema:
-            $ref: '#/components/schemas/beacons'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/BeaconsArrayExample'
-          schema:
-            $ref: '#/components/schemas/beacons'
-      description: OK
-    OK:
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    Beacon:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/BeaconExample'
-          schema:
-            $ref: '#/components/schemas/beacon'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/BeaconExample'
-          schema:
-            $ref: '#/components/schemas/beacon'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
     beacon_id:
       in: path
       name: beacon_id
@@ -539,47 +454,112 @@ components:
         default: 100
         minimum: 0
         type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+  responses:
+    BeaconsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/BeaconsArrayExample'
+          schema:
+            $ref: '#/components/schemas/beacons'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/BeaconsArrayExample'
+          schema:
+            $ref: '#/components/schemas/beacons'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    Beacon:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/BeaconExample'
+          schema:
+            $ref: '#/components/schemas/beacon'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/BeaconExample'
+          schema:
+            $ref: '#/components/schemas/beacon'
+      description: OK
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   examples:
-    HTTP403Example:
+    HTTP400Example:
       value:
-        detail: You do not have permission to perform this action.
-    BeaconsArrayExample:
-      value:
-      - created_time: 0
-        eddystone_instance: string
-        eddystone_namespace: string
-        eddystone_url: string
-        ibeacon_major: 1
-        ibeacon_minor: 1
-        ibeacon_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        mac: string
-        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        power: 0
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        type: eddystone-uid
-        x: 0
-        y: 0
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     BeaconExample:
       value:
         created_time: 0
@@ -600,15 +580,35 @@ components:
         type: eddystone-uid
         x: 0
         y: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+    BeaconsArrayExample:
+      value:
+      - created_time: 0
+        eddystone_instance: string
+        eddystone_namespace: string
+        eddystone_url: string
+        ibeacon_major: 1
+        ibeacon_minor: 1
+        ibeacon_uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        mac: string
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        power: 0
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        type: eddystone-uid
+        x: 0
+        y: 0
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

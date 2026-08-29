@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs SDK Templates API
+  title: Mist Orgs SDK Templates API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -200,6 +200,38 @@ paths:
       - Orgs SDK Templates
 components:
   schemas:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    sdktemplates:
+      description: SDK visual customization templates returned by list operations
+      items:
+        $ref: '#/components/schemas/sdktemplate'
+      type: array
     sdktemplate:
       description: Visual customization template for the mobile SDK experience
       properties:
@@ -246,20 +278,19 @@ components:
       required:
       - name
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
       readOnly: true
-      type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -280,36 +311,13 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
       readOnly: true
-      type: number
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    sdktemplates:
-      description: SDK visual customization templates returned by list operations
-      items:
-        $ref: '#/components/schemas/sdktemplate'
-      type: array
+      type: string
     site_id:
       description: Unique identifier of a Mist site
       examples:
@@ -317,41 +325,27 @@ components:
       format: uuid
       readOnly: true
       type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    created_time:
+      description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-  parameters:
-    sdktemplate_id:
-      in: path
-      name: sdktemplate_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   responses:
-    OK:
-      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -367,6 +361,17 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    OK:
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP403:
       content:
         application/json:
@@ -397,30 +402,6 @@ components:
           schema:
             $ref: '#/components/schemas/sdktemplate'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    SdktemplatesArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SdktemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/sdktemplates'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SdktemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/sdktemplates'
-      description: Example response
     HTTP429:
       content:
         application/json:
@@ -436,22 +417,37 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
+    SdktemplatesArray:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/SdktemplatesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
+            $ref: '#/components/schemas/sdktemplates'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/SdktemplatesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
+            $ref: '#/components/schemas/sdktemplates'
+      description: Example response
   examples:
+    SdktemplatesArrayExample:
+      value:
+      - bg_image: https://p.imgci.com/db/PICTURES/CMS/227700/227791.4.jpg
+        btn_flr_bgcolor: '#282828'
+        default: true
+        header_txt: Mist
+        name: default
+        search_txtcolor: '#282828'
+        welcome_msg: Welcome to Mist
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     SdktemplateExample:
       value:
         bg_image: https://p.imgci.com/db/PICTURES/CMS/227700/227791.4.jpg
@@ -464,24 +460,28 @@ components:
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    SdktemplatesArrayExample:
-      value:
-      - bg_image: https://p.imgci.com/db/PICTURES/CMS/227700/227791.4.jpg
-        btn_flr_bgcolor: '#282828'
-        default: true
-        header_txt: Mist
-        name: default
-        search_txtcolor: '#282828'
-        welcome_msg: Welcome to Mist
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    sdktemplate_id:
+      in: path
+      name: sdktemplate_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

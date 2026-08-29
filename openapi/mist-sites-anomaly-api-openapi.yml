@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Anomaly API
+  title: Mist Sites Anomaly API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -156,60 +156,42 @@ paths:
       tags:
       - Sites Anomaly
 components:
+  parameters:
+    metric:
+      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
+      in: path
+      name: metric
+      required: true
+      schema:
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    device_mac:
+      in: path
+      name: device_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    client_mac:
+      in: path
+      name: client_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
   schemas:
-    anomaly:
-      additionalProperties: false
-      description: SLE anomaly data point with baseline, deviation, and contributing events
-      properties:
-        events:
-          $ref: '#/components/schemas/anomaly_events'
-          description: Event names contributing to this anomaly
-        since:
-          description: Timestamp when the anomalous period began
-          readOnly: true
-          type: number
-        sle_baseline:
-          description: Expected SLE value used as the anomaly baseline
-          readOnly: true
-          type: number
-        sle_deviation:
-          description: Difference between the observed SLE value and the baseline
-          readOnly: true
-          type: number
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Time when this anomaly data point was recorded, in epoch seconds
-      required:
-      - timestamp
-      - sle_baseline
-      - sle_deviation
-      - events
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -230,12 +212,6 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    response_anomaly_search_results:
-      description: Anomaly records returned by a search response
-      items:
-        $ref: '#/components/schemas/anomaly'
-      type: array
-      uniqueItems: true
     anomaly_events:
       description: Event names associated with an anomaly record
       items:
@@ -243,6 +219,17 @@ components:
         type: string
       readOnly: true
       type: array
+    response_anomaly_search_results:
+      description: Anomaly records returned by a search response
+      items:
+        $ref: '#/components/schemas/anomaly'
+      type: array
+      uniqueItems: true
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
     response_anomaly_search:
       additionalProperties: false
       description: Paginated anomaly search response
@@ -290,42 +277,70 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-  parameters:
-    client_mac:
-      in: path
-      name: client_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    device_mac:
-      in: path
-      name: device_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    metric:
-      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
-      in: path
-      name: metric
-      required: true
-      schema:
-        type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    anomaly:
+      additionalProperties: false
+      description: SLE anomaly data point with baseline, deviation, and contributing events
+      properties:
+        events:
+          $ref: '#/components/schemas/anomaly_events'
+          description: Event names contributing to this anomaly
+        since:
+          description: Timestamp when the anomalous period began
+          readOnly: true
+          type: number
+        sle_baseline:
+          description: Expected SLE value used as the anomaly baseline
+          readOnly: true
+          type: number
+        sle_deviation:
+          description: Difference between the observed SLE value and the baseline
+          readOnly: true
+          type: number
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when this anomaly data point was recorded, in epoch seconds
+      required:
+      - timestamp
+      - sle_baseline
+      - sle_deviation
+      - events
+      type: object
   responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP400:
       content:
         application/json:
@@ -341,21 +356,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     AnomalyMetrics:
       content:
         application/json:
@@ -374,6 +374,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http404'
       description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -389,31 +404,16 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

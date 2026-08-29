@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Sites Rfdiags API
+  title: Mist Sites Rfdiags API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -257,230 +257,7 @@ paths:
       tags:
       - Sites Rfdiags
 components:
-  responses:
-    OK:
-      description: OK
-    File:
-      content:
-        application/json:
-          schema:
-            contentMediaType: application/octet-stream
-            description: File
-            type: string
-        application/vnd.api+json:
-          schema:
-            contentMediaType: application/octet-stream
-            description: File
-            type: string
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    Rfdiag:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RfdiagExample'
-          schema:
-            $ref: '#/components/schemas/rf_diag_info'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RfdiagExample'
-          schema:
-            $ref: '#/components/schemas/rf_diag_info'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    RfdiagsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RfdiagsArrayExample'
-          schema:
-            $ref: '#/components/schemas/rf_diag_info_list'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RfdiagsArrayExample'
-          schema:
-            $ref: '#/components/schemas/rf_diag_info_list'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-  parameters:
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    rfdiag_id:
-      in: path
-      name: rfdiag_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
   schemas:
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    rf_diag:
-      description: RF diagnostic recording request
-      properties:
-        duration:
-          default: 180
-          description: Recording length, in seconds; maximum and default are 180
-          maximum: 180
-          type: integer
-        mac:
-          description: If `type`==`client` or `asset`, MAC address of the device being recorded
-          type: string
-        name:
-          description: Recording name; the SDK client name is a good default for SDK-client recordings
-          type: string
-        sdkclient_id:
-          description: If `type`==`sdkclient`, SDK client identifier for this recording
-          format: uuid
-          type: string
-        type:
-          $ref: '#/components/schemas/rf_client_type'
-          description: Target device category for the RF diagnostic recording
-      required:
-      - name
-      - type
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -491,13 +268,6 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    rf_client_type:
-      description: 'enum: `asset`, `client`, `sdkclient`'
-      enum:
-      - asset
-      - client
-      - sdkclient
-      type: string
     response_http400:
       additionalProperties: false
       description: Standard HTTP 400 bad request error response
@@ -585,17 +355,13 @@ components:
       - frame_count
       - ready
       type: object
-    rf_diag_info_list:
-      description: List response containing RF diagnostic recording entry arrays
-      items:
-        $ref: '#/components/schemas/rf_diag_info'
-      type: array
-    rf_diag_info:
-      description: RF diagnostic recording response entries
-      items:
-        $ref: '#/components/schemas/rf_diag_info_item'
-      type: array
-      uniqueItems: true
+    rf_client_type:
+      description: 'enum: `asset`, `client`, `sdkclient`'
+      enum:
+      - asset
+      - client
+      - sdkclient
+      type: string
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -604,16 +370,241 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    rf_diag_info:
+      description: RF diagnostic recording response entries
+      items:
+        $ref: '#/components/schemas/rf_diag_info_item'
+      type: array
+      uniqueItems: true
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    rf_diag_info_list:
+      description: List response containing RF diagnostic recording entry arrays
+      items:
+        $ref: '#/components/schemas/rf_diag_info'
+      type: array
+    rf_diag:
+      description: RF diagnostic recording request
+      properties:
+        duration:
+          default: 180
+          description: Recording length, in seconds; maximum and default are 180
+          maximum: 180
+          type: integer
+        mac:
+          description: If `type`==`client` or `asset`, MAC address of the device being recorded
+          type: string
+        name:
+          description: Recording name; the SDK client name is a good default for SDK-client recordings
+          type: string
+        sdkclient_id:
+          description: If `type`==`sdkclient`, SDK client identifier for this recording
+          format: uuid
+          type: string
+        type:
+          $ref: '#/components/schemas/rf_client_type'
+          description: Target device category for the RF diagnostic recording
+      required:
+      - name
+      - type
+      type: object
+  responses:
+    RfdiagsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagsArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagsArrayExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info_list'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    OK:
+      description: OK
+    Rfdiag:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RfdiagExample'
+          schema:
+            $ref: '#/components/schemas/rf_diag_info'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    File:
+      content:
+        application/json:
+          schema:
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
+        application/vnd.api+json:
+          schema:
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
+      description: OK
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    rfdiag_id:
+      in: path
+      name: rfdiag_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
   examples:
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     RfdiagsArrayExample:
       value:
       - - asset_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
@@ -635,6 +626,15 @@ components:
           start_time: 0
           type: sdkclient
           url: string
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.

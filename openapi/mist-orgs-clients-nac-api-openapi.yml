@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   contact:
     email: tmunzer@juniper.net
@@ -47,7 +47,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist Admins Orgs Clients - NAC API
+  title: Mist Orgs Clients - NAC API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -632,68 +632,36 @@ paths:
       - Orgs Clients - NAC
 components:
   schemas:
-    nac_nacrule_name:
-      description: Name of the NAC Rules used to authenticate the client for the specified duration
-      examples:
-      - - Wireless Cert Auth
+    nac_client_events:
+      description: List of NAC authentication events
       items:
-        type: string
-      readOnly: true
+        $ref: '#/components/schemas/nac_client_event'
       type: array
-    last_cert_expiry:
-      description: When certificate based authentication is used, the expiration date from the latest certificate used
-      examples:
-      - 1746711240
-      type: number
-    nac_cert_cn:
-      description: When certificate based authentication is used, the CN from the certificates used for the specified duration
-      examples:
-      - - john@mycorp.net
-      items:
-        type: string
-      readOnly: true
-      type: array
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    nac_nacrule_id:
-      description: IDs of the NAC Rules used to authenticate the client for the specified duration
-      examples:
-      - - 603b62db-d839-4152-9f7f-f2578443de8d
-      items:
-        type: string
-      readOnly: true
-      type: array
-    last_cert_cn:
-      description: When certificate based authentication is used, the CN from the latest certificate used
-      examples:
-      - john@mycorp.net
-      type: string
-    nac_client_coa:
-      additionalProperties: false
-      description: Change of Authorization request for a NAC client
-      properties:
-        coa_type:
-          $ref: '#/components/schemas/nac_coa_type'
-          description: Change of Authorization command to send to the NAC client
-      type: object
-    nac_access_type:
-      description: 'Type of network access. enum: `wireless`, `wired`, `vty`'
+    random_mac:
+      description: 'Whether the client is using randomized MAC address or not. enum: `true`, `false`'
       enum:
-      - wireless
-      - wired
-      - vty
-      examples:
-      - wireless
+      - 'true'
+      - 'false'
       type: string
-    nac_client_username:
-      description: List of usernames that have been assigned to the client
-      items:
-        type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
       readOnly: true
-      type: array
+      type: string
+    last_nacrule_id:
+      description: ID of the latest NAC Rule used to authenticate the client
+      examples:
+      - 603b62db-d839-4152-9f7f-f2578443de8d
+      type: string
+    nac_event_nacrule_id:
+      description: NAC Policy Rule ID, if matched
+      examples:
+      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264c62
+      format: uuid
+      readOnly: true
+      type: string
     nac_nas_vendor:
       description: Vendor name of the NAS for the specified duration
       examples:
@@ -702,136 +670,53 @@ components:
         type: string
       readOnly: true
       type: array
-    nac_ssid:
-      description: SSIDs the client was connected to for the specified duration
+    response_client_nac_search_results:
+      description: NAC client records returned by a search response
+      items:
+        $ref: '#/components/schemas/client_nac'
+      type: array
+    last_username:
+      description: If dot1x authentication, the username used during the latest authentication. Otherwise, the MAC address of the client
       examples:
-      - - MyCorp-NAC
+      - john@mycorp.net
+      type: string
+    nac_client_event_usermac_labels:
+      description: Labels derived from usermac entry
+      examples:
+      - - bldg5
+        - printer
       items:
         type: string
       type: array
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    nac_client_mac:
-      description: Client MAC address observed in the NAC event
+    nac_event_dryrun_nacrule_id:
+      description: NAC Policy Dry Run Rule ID, if present and matched
       examples:
-      - ac3eb179e535
+      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264012
+      format: uuid
       readOnly: true
       type: string
-    nac_port_id:
-      description: Port-ids the client was connected to for the specified duration
-      examples:
-      - - ge-0/0/17.0
+    strings:
+      description: Unique string values returned or accepted by this schema
       items:
         type: string
-      readOnly: true
       type: array
-    nac_coa_type:
-      default: reauth
-      description: 'CoA type to send. enum: `reauth`, `disconnect`'
-      enum:
-      - reauth
-      - disconnect
+      uniqueItems: true
+    last_ap:
+      description: Latest AP where the client is/was connected to
+      examples:
+      - a83a79a947ee
       type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
     last_cert_serial:
       description: When certificate based authentication is used, the Serial from the latest certificate used
       examples:
       - 2c63510123456789
       type: string
-    org_nac_clients_count_distinct:
-      default: type
-      description: 'enum: `ap`, `auth_type`, `device_mac`, `edr_managed`, `edr_provider`, `edr_status`, `family`, `hostname`, `idp_id`, `mfg`, `mdm_compliance`, `mdm_managed`, `mdm_provider`, `model`, `mxedge_id`, `nacrule_matched`, `nacrule_name`, `nacrule_id`, `nas_ip`, `nas_vendor`, `os`, `site_id`, `ssid`, `status`, `type`, `usermac_label`, `username`, `vlan`'
-      enum:
-      - ap
-      - auth_type
-      - device_mac
-      - edr_managed
-      - edr_provider
-      - edr_status
-      - family
-      - hostname
-      - idp_id
-      - mfg
-      - mdm_compliance
-      - mdm_managed
-      - mdm_provider
-      - model
-      - mxedge_id
-      - nacrule_matched
-      - nacrule_name
-      - nacrule_id
-      - nas_ip
-      - nas_vendor
-      - os
-      - site_id
-      - ssid
-      - status
-      - type
-      - usermac_label
-      - username
-      - vlan
-      type: string
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    nac_event_port_id:
-      description: Port ID where the NAC client event occurred
-      examples:
-      - ge-0/0/17.0
-      readOnly: true
-      type: string
-    nac_client_last_status:
-      description: 'Latest Authentication status of the client. enum: `denied`, `permitted`, `session_started`, `session_stopped`'
-      enum:
-      - permitted
-      - session_started
-      - session_stopped
-      - denied
-      examples:
-      - permitted
-      type: string
-    nac_event_nacrule_matched:
-      description: NAC Policy Rule Matched
-      readOnly: true
-      type: boolean
-    nac_cert_issuer:
-      description: When certificate based authentication is used, the Issuer from the certificates used for the specified duration
-      examples:
-      - - /C=US/ST=CA/CN=MyCorp
-      items:
-        type: string
-      readOnly: true
-      type: array
-    nac_event_type:
-      description: Event type, e.g. NAC_CLIENT_PERMIT. Use the [List NAC Events Definitions](/#operations/listNacEventsDefinitions) endpoint to get the full list of available values.
-      examples:
-      - NAC_CLIENT_PERMIT
-      readOnly: true
-      type: string
-    nac_cert_subject:
-      description: When certificate based authentication is used, the Subject from the certificates used for the specified duration
-      examples:
-      - - /C=US/O=MyCorp/CN=john@mycorp.net/emailAddress=john@mycorp.net
-      items:
-        type: string
-      readOnly: true
-      type: array
-    nac_client_events:
-      description: List of NAC authentication events
-      items:
-        $ref: '#/components/schemas/nac_client_event'
-      type: array
     edr_status:
       description: 'EDR Status of the NAC client. enum: `sentinelone_healthy`, `sentinelone_infected`, `crowdstrike_low`, `crowdstrike_medium`, `crowdstrike_high`, `crowdstrike_critical`, `crowdstrike_informational`'
       enum:
@@ -843,37 +728,111 @@ components:
       - crowdstrike_critical
       - crowdstrike_informational
       type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    resp_attrs:
-      description: List of RADIUS AVP returned by the Authentication Server
+    nac_client_ip:
+      description: The known IP addresses used by the client for the specified duration
       examples:
-      - - Tunnel-Type=VLAN
-        - Tunnel-Medium-Type=IEEE-802
-        - Tunnel-Private-Group-Id=750
-        - User-Name=anonymous
+      - - 10.100.0.157
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_ssid:
+      description: SSIDs the client was connected to for the specified duration
+      examples:
+      - - MyCorp-NAC
       items:
         type: string
       type: array
-      uniqueItems: true
+    nac_cert_subject:
+      description: When certificate based authentication is used, the Subject from the certificates used for the specified duration
+      examples:
+      - - /C=US/O=MyCorp/CN=john@mycorp.net/emailAddress=john@mycorp.net
+      items:
+        type: string
+      readOnly: true
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    nac_client_event_idp_role:
+      description: Identity provider roles or groups returned for a NAC client event
+      examples:
+      - - itsuperusers
+        - vip
+      items:
+        type: string
+      type: array
+    last_port_id:
+      description: If Wired authentication, the latest Port-id the client was connected to
+      examples:
+      - ge-0/0/17.0
+      type: string
+    org_nac_client_events_count_distinct:
+      description: 'enum: `ap`, `auth_type`, `dryrun_nacrule_id`, `mac`, `nacrule_id`, `nas_vendor`, `ssid`, `type`, `username`, `vlan`'
+      enum:
+      - ap
+      - auth_type
+      - dryrun_nacrule_id
+      - mac
+      - nacrule_id
+      - nas_vendor
+      - ssid
+      - type
+      - username
+      - vlan
+      type: string
+    nac_event_idp_id:
+      description: If IDP is used, the id of the IDP configuration used
+      examples:
+      - 912ef72e-2239-4996-b81e-469e87a27cd6
+      format: uuid
+      readOnly: true
+      type: string
+    device_type:
+      description: 'enum: `ap`, `gateway`, `switch`'
+      enum:
+      - ap
+      - gateway
+      - switch
+      type: string
+    response_client_nac_search:
+      additionalProperties: false
+      description: Paginated NAC client search response
+      properties:
+        end:
+          description: Search window end timestamp for NAC clients, in epoch seconds
+          examples:
+          - 1513362753
+          type: integer
+        limit:
+          description: Maximum number of NAC client results requested
+          examples:
+          - 3
+          type: integer
+        next:
+          description: URL for the next page of NAC client results
+          type: string
+        results:
+          $ref: '#/components/schemas/response_client_nac_search_results'
+          description: NAC client records returned for this page
+        start:
+          description: Search window start timestamp for NAC clients, in epoch seconds
+          examples:
+          - 1513276353
+          type: integer
+        total:
+          description: Number of NAC client records matching the search
+          examples:
+          - 2
+          type: integer
+      type: object
     nac_auth_type:
       description: 'enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`'
       enum:
@@ -887,133 +846,6 @@ components:
       - eap-peap
       examples:
       - eap-tls
-      type: string
-    nac_device_mac:
-      description: MAC address of the AP or switch the client is connected to
-      examples:
-      - 60c78d8c7f6f
-      readOnly: true
-      type: string
-    response_client_nac_search_results:
-      description: NAC client records returned by a search response
-      items:
-        $ref: '#/components/schemas/client_nac'
-      type: array
-    last_client_ip:
-      description: The last known IP address for the client
-      examples:
-      - 10.100.0.157
-      type: string
-    nac_event_username:
-      description: username assigned to the client
-      readOnly: true
-      type: string
-    nac_client_ip:
-      description: The known IP addresses used by the client for the specified duration
-      examples:
-      - - 10.100.0.157
-      items:
-        type: string
-      readOnly: true
-      type: array
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    nac_client_ap:
-      description: AP MAC addresses observed for the NAC client during the selected time range
-      examples:
-      - - 5c5b35bf16bb
-        - d4dc090041b4
-      items:
-        type: string
-      readOnly: true
-      type: array
-    nac_client_event_usermac_labels:
-      description: Labels derived from usermac entry
-      examples:
-      - - bldg5
-        - printer
-      items:
-        type: string
-      type: array
-    random_mac:
-      description: 'Whether the client is using randomized MAC address or not. enum: `true`, `false`'
-      enum:
-      - 'true'
-      - 'false'
-      type: string
-    nac_event_dryrun_nacrule_id:
-      description: NAC Policy Dry Run Rule ID, if present and matched
-      examples:
-      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264012
-      format: uuid
-      readOnly: true
-      type: string
-    last_ssid:
-      description: If Wireless authentication, the latest SSID the client was connected to
-      examples:
-      - MyCorp-NAC
-      type: string
-    last_cert_issuer:
-      description: When certificate based authentication is used, the Issuer from the latest certificate used
-      examples:
-      - /C=US/ST=CA/CN=MyCorp
-      type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    nac_client_event_idp_role:
-      description: Identity provider roles or groups returned for a NAC client event
-      examples:
-      - - itsuperusers
-        - vip
-      items:
-        type: string
-      type: array
-    nac_event_nacrule_id:
-      description: NAC Policy Rule ID, if matched
-      examples:
-      - 32f27e7d-ff26-4a9b-b3d1-ff9bcb264c62
-      format: uuid
-      readOnly: true
-      type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    last_username:
-      description: If dot1x authentication, the username used during the latest authentication. Otherwise, the MAC address of the client
-      examples:
-      - john@mycorp.net
-      type: string
-    last_nacrule_id:
-      description: ID of the latest NAC Rule used to authenticate the client
-      examples:
-      - 603b62db-d839-4152-9f7f-f2578443de8d
       type: string
     nac_client_event:
       additionalProperties: false
@@ -1110,6 +942,363 @@ components:
           - nactag
           type: string
       type: object
+    nac_port_id:
+      description: Port-ids the client was connected to for the specified duration
+      examples:
+      - - ge-0/0/17.0
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_client_vlan:
+      description: List of vlans that have been assigned to the client
+      items:
+        type: string
+      readOnly: true
+      type: array
+    last_nas_vendor:
+      description: Vendor name of the NAS for the latest authentication
+      examples:
+      - juniper-mist
+      type: string
+    nac_event_vlan:
+      description: vlan that assigned to the client
+      readOnly: true
+      type: string
+    nac_event_nacrule_matched:
+      description: NAC Policy Rule Matched
+      readOnly: true
+      type: boolean
+    response_events_nac_client_search:
+      additionalProperties: false
+      description: Paginated response for NAC client event search results
+      properties:
+        end:
+          description: Epoch timestamp for the end of the NAC client event search window
+          examples:
+          - 1513176951
+          type: integer
+        limit:
+          description: Maximum number of NAC client event records returned in this page
+          examples:
+          - 10
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of NAC client event records
+          type: string
+        results:
+          $ref: '#/components/schemas/nac_client_events'
+          description: NAC client event records matching the search filters
+        start:
+          description: Epoch timestamp for the start of the NAC client event search window
+          examples:
+          - 1512572151
+          type: integer
+        total:
+          description: Number of NAC client event records matching the search filters across all pages
+          examples:
+          - 1
+          type: integer
+      type: object
+    nac_event_type:
+      description: Event type, e.g. NAC_CLIENT_PERMIT. Use the [List NAC Events Definitions](/#operations/listNacEventsDefinitions) endpoint to get the full list of available values.
+      examples:
+      - NAC_CLIENT_PERMIT
+      readOnly: true
+      type: string
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    nac_client_coa_response:
+      additionalProperties: false
+      description: Response returned after sending a NAC client CoA command
+      properties:
+        device_mac:
+          description: Target AP or switch MAC address for the CoA command
+          type: string
+        device_type:
+          $ref: '#/components/schemas/device_type'
+          description: Type of network device that received the CoA command
+      type: object
+    last_vlan:
+      description: Latest VLAN ID assigned to the client
+      examples:
+      - 10
+      type: integer
+    last_nacrule_name:
+      description: Name of the latest NAC Rule used to authenticate the client
+      examples:
+      - Wireless Cert Auth
+      type: string
+    nac_access_type:
+      description: 'Type of network access. enum: `wireless`, `wired`, `vty`'
+      enum:
+      - wireless
+      - wired
+      - vty
+      examples:
+      - wireless
+      type: string
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    nac_event_nas_vendor:
+      description: Vendor name of the NAS
+      examples:
+      - juniper-mist
+      readOnly: true
+      type: string
+    nac_client_ap:
+      description: AP MAC addresses observed for the NAC client during the selected time range
+      examples:
+      - - 5c5b35bf16bb
+        - d4dc090041b4
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_event_dryrun_nacrule_matched:
+      description: '`true` if dryrun rule present and matched with priority, `false` if not matched or not present'
+      readOnly: true
+      type: boolean
+    last_cert_expiry:
+      description: When certificate based authentication is used, the expiration date from the latest certificate used
+      examples:
+      - 1746711240
+      type: number
+    nac_nacrule_id:
+      description: IDs of the NAC Rules used to authenticate the client for the specified duration
+      examples:
+      - - 603b62db-d839-4152-9f7f-f2578443de8d
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_client_coa:
+      additionalProperties: false
+      description: Change of Authorization request for a NAC client
+      properties:
+        coa_type:
+          $ref: '#/components/schemas/nac_coa_type'
+          description: Change of Authorization command to send to the NAC client
+      type: object
+    nac_device_mac:
+      description: MAC address of the AP or switch the client is connected to
+      examples:
+      - 60c78d8c7f6f
+      readOnly: true
+      type: string
+    last_client_ip:
+      description: The last known IP address for the client
+      examples:
+      - 10.100.0.157
+      type: string
+    org_nac_clients_count_distinct:
+      default: type
+      description: 'enum: `ap`, `auth_type`, `device_mac`, `edr_managed`, `edr_provider`, `edr_status`, `family`, `hostname`, `idp_id`, `mfg`, `mdm_compliance`, `mdm_managed`, `mdm_provider`, `model`, `mxedge_id`, `nacrule_matched`, `nacrule_name`, `nacrule_id`, `nas_ip`, `nas_vendor`, `os`, `site_id`, `ssid`, `status`, `type`, `usermac_label`, `username`, `vlan`'
+      enum:
+      - ap
+      - auth_type
+      - device_mac
+      - edr_managed
+      - edr_provider
+      - edr_status
+      - family
+      - hostname
+      - idp_id
+      - mfg
+      - mdm_compliance
+      - mdm_managed
+      - mdm_provider
+      - model
+      - mxedge_id
+      - nacrule_matched
+      - nacrule_name
+      - nacrule_id
+      - nas_ip
+      - nas_vendor
+      - os
+      - site_id
+      - ssid
+      - status
+      - type
+      - usermac_label
+      - username
+      - vlan
+      type: string
+    nac_event_port_id:
+      description: Port ID where the NAC client event occurred
+      examples:
+      - ge-0/0/17.0
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    last_cert_cn:
+      description: When certificate based authentication is used, the CN from the latest certificate used
+      examples:
+      - john@mycorp.net
+      type: string
+    nac_client_username:
+      description: List of usernames that have been assigned to the client
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_event_username:
+      description: username assigned to the client
+      readOnly: true
+      type: string
+    last_cert_issuer:
+      description: When certificate based authentication is used, the Issuer from the latest certificate used
+      examples:
+      - /C=US/ST=CA/CN=MyCorp
+      type: string
+    nac_cert_issuer:
+      description: When certificate based authentication is used, the Issuer from the certificates used for the specified duration
+      examples:
+      - - /C=US/ST=CA/CN=MyCorp
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_coa_type:
+      default: reauth
+      description: 'CoA type to send. enum: `reauth`, `disconnect`'
+      enum:
+      - reauth
+      - disconnect
+      type: string
+    resp_attrs:
+      description: List of RADIUS AVP returned by the Authentication Server
+      examples:
+      - - Tunnel-Type=VLAN
+        - Tunnel-Medium-Type=IEEE-802
+        - Tunnel-Private-Group-Id=750
+        - User-Name=anonymous
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    nac_client_mac:
+      description: Client MAC address observed in the NAC event
+      examples:
+      - ac3eb179e535
+      readOnly: true
+      type: string
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    last_ssid:
+      description: If Wireless authentication, the latest SSID the client was connected to
+      examples:
+      - MyCorp-NAC
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    nac_event_idp_username:
+      description: If IDP is used, the username presented to the Identity Provider
+      examples:
+      - user@deaflyz.net
+      readOnly: true
+      type: string
+    nac_cert_serial:
+      description: When certificate based authentication is used, the Serial from the certificates used for the specified duration
+      examples:
+      - - 2c63510123456789
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_event_ssid:
+      description: SSIDs the client was connecting to
+      examples:
+      - MyCorp-NAC
+      readOnly: true
+      type: string
+    last_cert_subject:
+      description: When certificate based authentication is used, the Subject from the latest certificate used
+      examples:
+      - /C=US/O=MyCorp/CN=john@mycorp.net/emailAddress=john@mycorp.net
+      type: string
     client_nac:
       additionalProperties: false
       description: NAC client authentication and access state
@@ -1253,243 +1442,39 @@ components:
           $ref: '#/components/schemas/nac_client_vlan'
           description: Network VLANs associated with the NAC client during authentication
       type: object
-    nac_event_ssid:
-      description: SSIDs the client was connecting to
-      examples:
-      - MyCorp-NAC
-      readOnly: true
-      type: string
-    last_cert_subject:
-      description: When certificate based authentication is used, the Subject from the latest certificate used
-      examples:
-      - /C=US/O=MyCorp/CN=john@mycorp.net/emailAddress=john@mycorp.net
-      type: string
-    response_count:
-      additionalProperties: false
-      description: Distinct count response for time-bounded search results
-      properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
-    nac_client_vlan:
-      description: List of vlans that have been assigned to the client
-      items:
-        type: string
-      readOnly: true
-      type: array
-    org_nac_client_events_count_distinct:
-      description: 'enum: `ap`, `auth_type`, `dryrun_nacrule_id`, `mac`, `nacrule_id`, `nas_vendor`, `ssid`, `type`, `username`, `vlan`'
-      enum:
-      - ap
-      - auth_type
-      - dryrun_nacrule_id
-      - mac
-      - nacrule_id
-      - nas_vendor
-      - ssid
-      - type
-      - username
-      - vlan
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    nac_event_dryrun_nacrule_matched:
-      description: '`true` if dryrun rule present and matched with priority, `false` if not matched or not present'
-      readOnly: true
-      type: boolean
     edr_provider:
       description: 'EDR provider associated with the NAC client. enum: `crowdstrike`, `sentinelone`'
       enum:
       - crowdstrike
       - sentinelone
       type: string
-    last_port_id:
-      description: If Wired authentication, the latest Port-id the client was connected to
+    nac_nacrule_name:
+      description: Name of the NAC Rules used to authenticate the client for the specified duration
       examples:
-      - ge-0/0/17.0
-      type: string
-    last_nacrule_name:
-      description: Name of the latest NAC Rule used to authenticate the client
-      examples:
-      - Wireless Cert Auth
-      type: string
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    last_vlan:
-      description: Latest VLAN ID assigned to the client
-      examples:
-      - 10
-      type: integer
-    response_events_nac_client_search:
-      additionalProperties: false
-      description: Paginated response for NAC client event search results
-      properties:
-        end:
-          description: Epoch timestamp for the end of the NAC client event search window
-          examples:
-          - 1513176951
-          type: integer
-        limit:
-          description: Maximum number of NAC client event records returned in this page
-          examples:
-          - 10
-          type: integer
-        next:
-          description: Pagination cursor or URL for retrieving the next page of NAC client event records
-          type: string
-        results:
-          $ref: '#/components/schemas/nac_client_events'
-          description: NAC client event records matching the search filters
-        start:
-          description: Epoch timestamp for the start of the NAC client event search window
-          examples:
-          - 1512572151
-          type: integer
-        total:
-          description: Number of NAC client event records matching the search filters across all pages
-          examples:
-          - 1
-          type: integer
-      type: object
-    nac_event_vlan:
-      description: vlan that assigned to the client
-      readOnly: true
-      type: string
-    nac_event_idp_id:
-      description: If IDP is used, the id of the IDP configuration used
-      examples:
-      - 912ef72e-2239-4996-b81e-469e87a27cd6
-      format: uuid
-      readOnly: true
-      type: string
-    nac_event_nas_vendor:
-      description: Vendor name of the NAS
-      examples:
-      - juniper-mist
-      readOnly: true
-      type: string
-    nac_event_idp_username:
-      description: If IDP is used, the username presented to the Identity Provider
-      examples:
-      - user@deaflyz.net
-      readOnly: true
-      type: string
-    nac_cert_serial:
-      description: When certificate based authentication is used, the Serial from the certificates used for the specified duration
-      examples:
-      - - 2c63510123456789
+      - - Wireless Cert Auth
       items:
         type: string
       readOnly: true
       type: array
-    device_type:
-      description: 'enum: `ap`, `gateway`, `switch`'
+    nac_cert_cn:
+      description: When certificate based authentication is used, the CN from the certificates used for the specified duration
+      examples:
+      - - john@mycorp.net
+      items:
+        type: string
+      readOnly: true
+      type: array
+    nac_client_last_status:
+      description: 'Latest Authentication status of the client. enum: `denied`, `permitted`, `session_started`, `session_stopped`'
       enum:
-      - ap
-      - gateway
-      - switch
-      type: string
-    last_nas_vendor:
-      description: Vendor name of the NAS for the latest authentication
+      - permitted
+      - session_started
+      - session_stopped
+      - denied
       examples:
-      - juniper-mist
+      - permitted
       type: string
-    nac_client_coa_response:
-      additionalProperties: false
-      description: Response returned after sending a NAC client CoA command
-      properties:
-        device_mac:
-          description: Target AP or switch MAC address for the CoA command
-          type: string
-        device_type:
-          $ref: '#/components/schemas/device_type'
-          description: Type of network device that received the CoA command
-      type: object
-    last_ap:
-      description: Latest AP where the client is/was connected to
-      examples:
-      - a83a79a947ee
-      type: string
-    response_client_nac_search:
-      additionalProperties: false
-      description: Paginated NAC client search response
-      properties:
-        end:
-          description: Search window end timestamp for NAC clients, in epoch seconds
-          examples:
-          - 1513362753
-          type: integer
-        limit:
-          description: Maximum number of NAC client results requested
-          examples:
-          - 3
-          type: integer
-        next:
-          description: URL for the next page of NAC client results
-          type: string
-        results:
-          $ref: '#/components/schemas/response_client_nac_search_results'
-          description: NAC client records returned for this page
-        start:
-          description: Search window start timestamp for NAC clients, in epoch seconds
-          examples:
-          - 1513276353
-          type: integer
-        total:
-          description: Number of NAC client records matching the search
-          examples:
-          - 2
-          type: integer
-      type: object
   responses:
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     ClientNacSearch:
       content:
         application/json:
@@ -1505,15 +1490,36 @@ components:
           schema:
             $ref: '#/components/schemas/response_client_nac_search'
       description: Example response
-    HTTP404:
+    EventsNacClientSearch:
       content:
         application/json:
+          examples:
+            NAC-client_events:
+              $ref: '#/components/examples/EventsNacClientSearchNACclientevents'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_events_nac_client_search'
         application/vnd.api+json:
+          examples:
+            NAC-client_events:
+              $ref: '#/components/examples/EventsNacClientSearchNACclientevents'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/response_events_nac_client_search'
+      description: NAC Client Events
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     Count:
       content:
         application/json:
@@ -1538,21 +1544,6 @@ components:
           schema:
             $ref: '#/components/schemas/nac_client_coa_response'
       description: Example response
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401:
       content:
         application/json:
@@ -1583,26 +1574,56 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    EventsNacClientSearch:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
       content:
         application/json:
           examples:
-            NAC-client_events:
-              $ref: '#/components/examples/EventsNacClientSearchNACclientevents'
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/response_events_nac_client_search'
+            $ref: '#/components/schemas/response_http429'
         application/vnd.api+json:
           examples:
-            NAC-client_events:
-              $ref: '#/components/examples/EventsNacClientSearchNACclientevents'
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
           schema:
-            $ref: '#/components/schemas/response_events_nac_client_search'
-      description: NAC Client Events
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   parameters:
     end:
       description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
       name: end
+      schema:
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
       schema:
         type: string
     sort_wcid:
@@ -1623,15 +1644,14 @@ components:
         - 0000000000ab
         pattern: ^[0-9a-fA-F]{12}$
         type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
       schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+        default: 100
+        minimum: 0
+        type: integer
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
       in: query
@@ -1641,27 +1661,26 @@ components:
         examples:
         - 10m
         type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
     EventsNacClientSearchNACclientevents:
       value:
         end: 1513176951
@@ -1695,19 +1714,6 @@ components:
           vlan: '750'
         start: 1512572151
         total: 1
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
     ClientNacSearchExample:
       value:
         end: 1513362753
@@ -1765,12 +1771,6 @@ components:
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
