@@ -11,8 +11,61 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 27
+edge_count: 81
 edges:
+- tag: MSPs SSO
+  spec_file: mist-msps-sso-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: createMspSso, getMspSamlMetadata, downloadMspSamlMetadata; schemas sso_idp_sign_algo, sso_ldap_type,
+    sso_oauth_type
+  reason: Configuration of SAML/OAuth/LDAP single sign-on identity providers and related admin deletion
+    — federation and identity management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: MSPs SSO Roles
+  spec_file: mist-msps-sso-roles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.9
+  evidence: createMspSsoRole, updateMspSsoRole; schemas sso_role_msp_privileges, privilege_msp_scope
+  reason: Definition of SSO roles and their privileges/scopes for administrators — role-based access control,
+    squarely identity and access management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: MSPs Admins
+  spec_file: mist-msps-admins-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.85
+  evidence: listMspAdmins, revokeMspAdmin, inviteMspAdmin; schemas admin_privileges, admin_privilege_role
+  reason: Administrator account invitation, privilege/role assignment and revocation for the cloud platform
+    — plainly identity and access management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Devices - Wired - Virtual Chassis
+  spec_file: mist-sites-devices-wired-virtual-chassis-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.85
+  evidence: createSiteVirtualChassis / updateSiteVirtualChassisMember / changeSiteSwitchVcPortMode, schemas
+    'virtual_chassis_config_member', 'stats_switch_module_stat'
+  reason: Operations create and configure switch virtual-chassis membership and VC ports on network devices
+    — configuration of network (compute/network) infrastructure, i.e. IT Infrastructure Management. No
+    business-domain reading fits.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites EVPN Topologies
+  spec_file: mist-sites-evpn-topologies-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.85
+  evidence: createSiteEvpnTopology, updateSiteEvpnTopology; schemas 'evpn_topology_switch_configs', 'evpn_topology_switch_uplinks'
+  reason: CRUD over EVPN fabric topologies and switch uplink/downlink configuration — design and management
+    of network infrastructure.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs SSO Roles
   spec_file: mist-orgs-sso-roles-api-openapi.yml
   capability_id: BC-620.20
@@ -22,6 +75,61 @@ edges:
   evidence: createOrgSsoRole; schemas sso_role_org_privileges, privilege_org_role, admin_privilege_views
   reason: Operations manage SSO role definitions and admin privileges/scopes for an org — role-based access
     administration and federation, i.e. Identity & Access Management, not a telecom business capability.
+- tag: Orgs Gateway Templates
+  spec_file: mist-orgs-gateway-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: createOrgGatewayTemplate; schemas gateway_port_config_wan_networks, tunnel_config_local_subnets,
+    gateway_ip_configs
+  reason: Templates defining WAN gateway port, tunnel and routing configuration — network infrastructure
+    configuration management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs IDP Profiles
+  spec_file: mist-orgs-idp-profiles-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.8
+  evidence: createOrgIdpProfile; schemas idp_profile_matching_attack_name, idp_profile_matching_severity,
+    idp_profile_action
+  reason: IDP here is intrusion detection/prevention profiles matching attack names and severities with
+    actions — threat detection and response configuration, not identity provider.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs MxEdges
+  spec_file: mist-orgs-mxedges-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: POST /api/v1/orgs/{org_id}/mxedges/claim claimOrgMxEdge; POST .../mxedges/assign assignOrgMxEdgeToSite;
+    GET .../mxedges/versions getOrgMxEdgeUpgradeInfo
+  reason: Lifecycle of Mist Edge network appliances — claim, assign to site, event search, firmware upgrade
+    info — is squarely compute/network infrastructure management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Network Templates
+  spec_file: mist-orgs-network-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: createOrgNetworkTemplate; schemas switch_port_usage_duplex, switch_bgp_config_neighbor, remote_syslog_server,
+    acl_policy_action
+  reason: CRUD over switch/routing configuration templates (port usage, BGP, syslog, ACLs) is network
+    infrastructure configuration management — IT Infrastructure Management (compute, storage, network).
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Networks
+  spec_file: mist-orgs-networks-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: createOrgNetwork; schemas vlan_id_with_variable, network_internet_access_destination_nat,
+    network_vpn_access_static_nat
+  reason: Defines VLANs, NAT, internet and VPN access for networks — direct network infrastructure configuration,
+    mapping to IT Infrastructure Management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs SSO
   spec_file: mist-orgs-sso-api-openapi.yml
   capability_id: BC-620.20
@@ -32,6 +140,67 @@ edges:
     'sso_nameid_format', 'sso_oauth_type', 'sso_ldap_ca_certs'
   reason: Configuration of SAML/OAuth/LDAP single sign-on and administrator identity federation for the
     platform — squarely federation and access administration under Identity & Access Management.
+- tag: Orgs VPNs
+  spec_file: mist-orgs-vpns-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: POST /api/v1/orgs/{org_id}/vpns createOrgVpn; schemas vpn_path_selection_strategy, vpn_path_bfd_profile
+  reason: Configuration of VPN overlays and path selection for WAN networking is network infrastructure
+    management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs WxTunnels
+  spec_file: mist-orgs-wxtunnels-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: POST /api/v1/orgs/{org_id}/wxtunnels createOrgWxTunnel; wxlan_tunnel_ipsec, wxlan_tunnel_dmvpn
+  reason: IPsec/DMVPN tunnel definitions and peers are network infrastructure configuration.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Devices - Wireless
+  spec_file: mist-sites-devices-wireless-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: listSiteDeviceRadioChannels, setSiteDeviceIotPort, enableSiteDeviceZigbeeJoin; schemas 'ap_channel_band5_channels',
+    'device_iot_config'
+  reason: Surface configures wireless access-point radio channels and IoT/Zigbee ports — network infrastructure
+    configuration within IT Infrastructure Management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites MxEdges
+  spec_file: mist-sites-mxedges-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.8
+  evidence: listSiteMxEdges, updateSiteMxEdge, uploadSiteMxEdgeSupportFiles — schemas 'mxedge_tunterm_switch_config_vlan_ids',
+    'mxedge_oob_ip_config_dns'
+  reason: Lifecycle and configuration of Mist Edge network appliances (tunnel termination, VLANs, OOB
+    management IP) at a site — clearly network/compute infrastructure management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs RF Templates
+  spec_file: mist-orgs-rf-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.78
+  evidence: createOrgRfTemplate; schemas rftemplate_radio_band24, radio_band_channels, radio_band_antenna_mode
+  reason: Radio-frequency templates configure wireless radio bands, channels and antenna modes on access
+    points — wireless network infrastructure configuration.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Gateway Templates
+  spec_file: mist-sites-gateway-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.78
+  evidence: listSiteGatewayTemplatesDerived; schemas 'gateway_port_usage', 'gateway_ip_configs', 'tunnel_config_local_subnets'
+  reason: Returns derived WAN gateway configuration templates (ports, IP configs, tunnels) — network infrastructure
+    configuration management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites Skyatp
   spec_file: mist-sites-skyatp-api-openapi.yml
   capability_id: BC-620.30
@@ -41,6 +210,89 @@ edges:
   evidence: searchSiteSkyatpEvents, countSiteSkyatpEvents; schema events_skyatp
   reason: Sky Advanced Threat Prevention event search and counts are threat detection telemetry, squarely
     Threat Detection & Response within Cybersecurity Management.
+- tag: Utilities LAN
+  spec_file: mist-utilities-lan-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.78
+  evidence: cableTestFromSwitch, clearBpduErrorsFromPortsOnSwitch, upgradeSiteDevicesBios, pollSiteSwitchStats
+  reason: Switch-level diagnostic and maintenance actions (cable test, clear MACs/dot1x, BIOS/FPGA upgrade,
+    restore backup version) are IT operations activities on LAN infrastructure.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Utilities WAN
+  spec_file: mist-utilities-wan-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.78
+  evidence: clearSiteSsrBgpRoutes, showSiteGatewayOspfNeighbors, testSiteSsrDnsResolution, servicePingFromSsr
+  reason: Routing/WAN diagnostic and clear commands against SSR/SRX gateways — network operations troubleshooting
+    utilities.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Admins
+  spec_file: mist-orgs-admins-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: 'POST /api/v1/orgs/{org_id}/invites  inviteOrgAdmin; DELETE .../admins/{admin_id}  revokeOrgAdmin;
+    schemas: admin_privilege_role, admin_privileges'
+  reason: Inviting, updating and revoking administrator accounts with privilege roles and scopes across
+    orgs and sites is identity and access administration (joiner-mover-leaver for platform admins).
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Inventory
+  spec_file: mist-orgs-inventory-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.75
+  evidence: addOrgInventory; updateOrgInventoryAssignment; replaceOrgDevices; createOrgGatewayHaCluster
+  reason: Manages the estate of network devices — adding, assigning to sites, replacing, clustering. This
+    is IT infrastructure/asset stewardship, closest fit IT Infrastructure Management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs WLAN Templates
+  spec_file: mist-orgs-wlan-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.75
+  evidence: POST /api/v1/orgs/{org_id}/templates createOrgTemplate; template_applies_site_ids, template_exceptions_sitegroup_ids
+  reason: Org-level configuration templates applied to sites/site-groups for wireless network deployment
+    — network infrastructure configuration management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Networks
+  spec_file: mist-sites-networks-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.75
+  evidence: listSiteNetworksDerived — schemas 'vlan_id_with_variable', 'network_internet_access_destination_nat',
+    'network_vpn_access_static_nat'
+  reason: Definition of logical networks (VLANs, NAT, VPN access, multicast) applied at a site — core
+    network infrastructure configuration.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites RF Templates
+  spec_file: mist-sites-rf-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.75
+  evidence: listSiteRfTemplatesDerived — schemas 'rftemplate_radio_band5', 'radio_band_channels', 'radio_band_antenna_mode'
+  reason: Radio-frequency configuration templates (bands, channels, antenna mode) for wireless access
+    points at a site — wireless network infrastructure configuration.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Stats - Devices
+  spec_file: mist-sites-stats-devices-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.75
+  evidence: getSiteGatewayMetrics, getSiteSwitchesMetrics; schemas stats_devices, stats_ap_radio_config,
+    stats_switch_port_poe_mode
+  reason: Health and performance metrics for APs, switches and gateways — monitoring of network infrastructure
+    as part of IT operations.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Utilities Common
   spec_file: mist-utilities-common-api-openapi.yml
   capability_id: BC-600.40
@@ -51,6 +303,27 @@ edges:
   reason: Operational troubleshooting and remediation commands executed against live network devices (restart,
     ping, traceroute, port bounce, clear MAC table, reprovision) — classic day-to-day network/IT operations
     management on managed enterprise infrastructure.
+- tag: Utilities PCAPs
+  spec_file: mist-utilities-pcaps-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.75
+  evidence: startOrgPacketCapture, stopSitePacketCapture, getSiteCapturingStatus
+  reason: Starting/stopping/listing packet captures on network infrastructure is network monitoring and
+    troubleshooting, i.e. IT operations; not a business capability.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs AP Templates
+  spec_file: mist-orgs-ap-templates-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.72
+  evidence: 'POST /api/v1/orgs/{org_id}/aptemplates  createOrgAptemplate; schemas: ap_port_config, radius_auth_server,
+    radsec_servers, ap_port_config_dynamic_vlan'
+  reason: Templates that define access-point port, VLAN and RADIUS configuration are network infrastructure
+    configuration management for wireless devices, i.e. IT infrastructure (network) management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs NAC Portals
   spec_file: mist-orgs-nac-portals-api-openapi.yml
   capability_id: BC-620.20
@@ -62,6 +335,90 @@ edges:
   reason: Configuration of network-access-control portals with SSO/SAML federation, EAP and guest authentication
     — authentication and federation for network access, i.e. Identity & Access Management rather than
     any subscriber-facing telecom capability.
+- tag: Sites Devices - Wired
+  spec_file: mist-sites-devices-wired-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.72
+  evidence: PUT /api/v1/sites/{site_id}/devices/{device_id}/local_port_config updateSiteLocalSwitchPortConfig;
+    schemas junos_local_port_config, switch_port_local_usage_dot1x
+  reason: Switch port level configuration (speed, duplex, dot1x, storm control) is squarely network infrastructure
+    configuration management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Events
+  spec_file: mist-sites-events-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.72
+  evidence: countSiteSystemEvents, searchSiteSystemEvents, listSiteRoamingEvents; schema 'device_event'
+  reason: Read-only querying of device/system events for a network site is operational monitoring of the
+    IT estate (IT Operations Management). Not business event processing; 'Events' here are device telemetry
+    records.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Insights
+  spec_file: mist-sites-insights-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.72
+  evidence: getSiteInsightMetricsForAP / ForClient / ForGateway / ForSwitch; schema 'insight_metrics_results'
+  reason: Retrieval of performance metrics for APs, switches, gateways and clients is monitoring of running
+    IT/network operations (IT Operations Management), not business analytics.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites WxTunnels
+  spec_file: mist-sites-wxtunnels-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.72
+  evidence: createSiteWxTunnel, updateSiteWxTunnel; schemas wxlan_tunnel_ipsec, wxlan_tunnel_dmvpn, wxlan_tunnel_peers
+  reason: CRUD over wireless data tunnels with IPsec/DMVPN peers — configuration of network transport
+    infrastructure at a site.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Utilities Upgrade
+  spec_file: mist-utilities-upgrade-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.72
+  evidence: upgradeOrgDevices, cancelOrgDeviceUpgrade, listOrgAvailableDeviceVersions, upgradeOrgMxEdges
+  reason: Firmware/version upgrade orchestration across network devices and edges — infrastructure maintenance
+    executed as IT operations. Could arguably be infrastructure management, hence not higher confidence.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Utilities Wi-Fi
+  spec_file: mist-utilities-wi-fi-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.72
+  evidence: disconnectSiteMultipleClients, reauthSiteDot1xWirelessClient, optimizeSiteRrm, deauthSiteWirelessClientsConnectedToARogue
+  reason: Wireless operational actions (client disconnect/unauthorize, 802.1X re-auth, RRM optimisation,
+    rogue deauth) are IT/network operations. The 802.1X re-auth ops are device-session actions, not enterprise
+    identity management, so IAM is not the right read.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Installer
+  spec_file: mist-installer-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: claimInstallerDevices, provisionInstallerDevices, startInstallerLocateDevice, createInstallerVirtualChassis
+  reason: Installer-scoped endpoints for claiming, provisioning, locating and stacking network devices
+    at sites — deployment and management of network infrastructure assets, an IT infrastructure management
+    capability.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: MSPs Inventory
+  spec_file: mist-msps-inventory-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: GET /api/v1/msps/{msp_id}/inventory/{device_mac} getMspInventoryByMac; schema response_msp_inventory_device
+  reason: Lookup of network device inventory by MAC across the MSP's orgs — IT infrastructure asset/inventory
+    management for network hardware, not merchandise inventory.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs Advanced Anti Malware Profiles
   spec_file: mist-orgs-advanced-anti-malware-profiles-api-openapi.yml
   capability_id: BC-620.30
@@ -81,6 +438,60 @@ edges:
   reason: Acknowledging and searching device alarms across APs, switches and gateways is fault/event monitoring
     of an enterprise network — IT Operations monitoring. Telecom Network Fault Management was considered
     but Mist's estate is enterprise Wi-Fi/LAN/WAN, not carrier access/core.
+- tag: Orgs Clients - Marvis
+  spec_file: mist-orgs-clients-marvis-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: getOrgMarvisClientInsights, searchOrgMarvisClientEvents, schema marvis_client_event
+  reason: Search/count of network client events and insights from the Marvis assistant is network operations
+    monitoring and troubleshooting, i.e. day-to-day IT operations monitoring — not customer-facing 'client'
+    management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Clients - NAC
+  spec_file: mist-orgs-clients-nac-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /api/v1/orgs/{org_id}/nac_clients/{client_mac}/coa sendOrgNacClientCoA; schemas nac_client_last_status,
+    nac_event_username, last_nacrule_name
+  reason: Network Access Control client authentication events, NAC rules and RADIUS change-of-authorization
+    are access control enforcement for network identities, fitting Identity & Access Management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Clients - Wan
+  spec_file: mist-orgs-clients-wan-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: countOrgWanClients, searchOrgWanClientEvents; schemas stats_wan_clients, stats_wan_client_ip
+  reason: Counting and searching WAN network client statistics and events is network operations monitoring
+    within IT operations management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Clients - Wired
+  spec_file: mist-orgs-clients-wired-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: GET /api/v1/orgs/{org_id}/wired_clients/search searchOrgWiredClients; schemas wired_client_response_vlan,
+    dhcp_client_option
+  reason: Wired network client visibility (VLAN, IP, DHCP options) is network monitoring/operations, not
+    customer data management.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Clients - Wireless
+  spec_file: mist-orgs-clients-wireless-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: searchOrgWirelessClientSessions, countOrgWirelessClientEvents; schemas client_wireless_ssid,
+    dot11_proto
+  reason: Wireless client session and event analytics (SSID, 802.11 protocol) is Wi-Fi network operations
+    monitoring under IT operations management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs Device Profiles
   spec_file: mist-orgs-device-profiles-api-openapi.yml
   capability_id: BC-600.50
@@ -114,6 +525,16 @@ edges:
   reason: Lifecycle management (list, update, delete, reboot) and event search for third-party network
     devices tracked in the org — administration of network infrastructure assets. Cross-Industry IT infrastructure
     management.
+- tag: Orgs Devices - SSR
+  spec_file: mist-orgs-devices-ssr-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: getOrgSsrRegistrationCommands, exportOrgSsrIdTokens; schema response_router_ssr_register_cmd
+  reason: Registration commands and ID token export for SSR/128T routers is onboarding and management
+    of network infrastructure devices.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs EVPN Topologies
   spec_file: mist-orgs-evpn-topologies-api-openapi.yml
   capability_id: BC-600.50
@@ -147,6 +568,16 @@ edges:
     mxtunnel_protocol
   reason: Definition and lifecycle of tunnel configurations (IPsec, VLAN, routing, cluster bindings) applied
     to network elements — network element configuration management.
+- tag: Orgs NAC IDP
+  spec_file: mist-orgs-nac-idp-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /api/v1/orgs/{org_id}/mist_nac/test_idp validateOrgIdpCredential; schema 'username_password'
+  reason: Validating identity-provider credentials used by network access control is identity and access
+    management. Single test endpoint, hence moderate confidence.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs NAC Rules
   spec_file: mist-orgs-nac-rules-api-openapi.yml
   capability_id: BC-620.20
@@ -167,6 +598,17 @@ edges:
   reason: SCEP certificate-authority settings plus issuance and revocation of client certificates used
     to authenticate devices onto the network — credential/certificate lifecycle within Identity & Access
     Management.
+- tag: Orgs Stats - BGP Peers
+  spec_file: mist-orgs-stats-bgp-peers-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: GET /api/v1/orgs/{org_id}/stats/bgp_peers/search  searchOrgBgpStats; schemas bgp_stats, bgp_stats_state,
+    bgp_as
+  reason: Read-only telemetry on BGP peering state of managed network gear — day-to-day network operations
+    monitoring, i.e. IT Operations Management. Not a business-domain capability.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs Stats - Devices
   spec_file: mist-orgs-stats-devices-api-openapi.yml
   capability_id: BC-600.40
@@ -205,6 +647,26 @@ edges:
   evidence: searchOrgSwOrGwPorts; schemas stats_switch_port, port_stp_state, stats_switch_port_poe_mode
   reason: Switch/gateway port-level counters and state (tx/rx bps, STP, PoE) — device-level performance
     monitoring of network infrastructure, a technical IT operations surface.
+- tag: Orgs Stats - Tunnels
+  spec_file: mist-orgs-stats-tunnels-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: searchOrgTunnelsStats; schemas stats_mxtunnel_state, stats_mxtunnel_session, tunnel_type
+  reason: State and throughput statistics of network tunnels — WAN/overlay network monitoring under IT
+    operations.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs Stats - VPN Peers
+  spec_file: mist-orgs-stats-vpn-peers-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: countOrgPeerPathStats / searchOrgPeerPathStats; schemas vpn_peer_stat, vpn_peer_stat_search_results
+  reason: VPN peer-path statistics for the managed WAN — network monitoring within IT Operations Management,
+    not security or a business capability.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Orgs Wlans
   spec_file: mist-orgs-wlans-api-openapi.yml
   capability_id: BC-2600.20
@@ -216,6 +678,26 @@ edges:
   reason: CRUD over WLAN/SSID definitions including RADIUS auth/accounting servers, VLANs, QoS and captive-portal
     assets — configuration of radio access network elements. Best fits Network Configuration Management;
     enterprise-vs-carrier scope keeps confidence short of 0.8.
+- tag: Orgs WxRules
+  spec_file: mist-orgs-wxrules-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: POST /api/v1/orgs/{org_id}/wxrules createOrgWxRule; wxlan_rule_blocked_apps, wxlan_rule_dst_deny_wxtags
+  reason: Network traffic policy rules (allow/deny/blocked apps) configured on the wireless infrastructure;
+    network infrastructure/policy configuration.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Orgs WxTags
+  spec_file: mist-orgs-wxtags-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: GET /api/v1/orgs/{org_id}/wxtags/apps getOrgApplicationList; wxlan_tag_spec_subnets, wxlan_tag_vlan_id
+  reason: Tags defining subnets, VLANs and application matches used in network policy — network infrastructure
+    configuration objects.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites AP Templates
   spec_file: mist-sites-ap-templates-api-openapi.yml
   capability_id: BC-2600.20
@@ -248,6 +730,28 @@ edges:
   reason: Inventory listing, import/export, event search and configuration history for network devices
     at a site — management of network infrastructure estate and its configuration, a cross-industry IT
     infrastructure capability for this enterprise networking platform.
+- tag: Sites Devices - WAN Cluster
+  spec_file: mist-sites-devices-wan-cluster-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: POST /api/v1/sites/{site_id}/devices/{device_id}/ha createSiteDeviceHaCluster; schemas gateway_cluster,
+    gateway_cluster_node
+  reason: Creating and deleting high-availability gateway clusters is configuration of network infrastructure
+    topology.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Maps - Auto-placement
+  spec_file: mist-sites-maps-auto-placement-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: runSiteApAutoplacement, startSiteApAutoOrientation, acceptSiteApLocalizationData — schema
+    'response_autoplacement_device'
+  reason: Automated placement and orientation of access point devices on site maps; this is configuration/deployment
+    of wireless network infrastructure, i.e. IT Infrastructure Management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites Network Templates
   spec_file: mist-sites-network-templates-api-openapi.yml
   capability_id: BC-2600.20
@@ -258,6 +762,28 @@ edges:
     switch_radius_config_auth_server_selection, junos_port_config, sw_routing_policies
   reason: Retrieves the derived network configuration template applied to a site (switch port, RADIUS,
     SNMP, routing settings) — standardised network element configuration definition and enforcement.
+- tag: Sites RRM
+  spec_file: mist-sites-rrm-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: getSiteCurrentChannelPlanning, getSiteChannelScores, listSiteCurrentRrmNeighbors — schema
+    'rrm_band_metric_naps_by_power'
+  reason: 'Radio Resource Management: channel planning, channel scores and RF neighbour data for wireless
+    APs at a site — optimisation of network infrastructure. Could alternatively be read as IT operations
+    monitoring, hence 0.7.'
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Stats - BGP Peers
+  spec_file: mist-sites-stats-bgp-peers-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: countSiteBgpStats / searchSiteBgpStats; schemas bgp_stats, bgp_stats_state, bgp_as
+  reason: Read-only telemetry on BGP routing peers of network devices — day-to-day IT network operations
+    monitoring, not a business capability of the buyer's industry.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites Stats - Clients Wireless
   spec_file: mist-sites-stats-clients-wireless-api-openapi.yml
   capability_id: BC-2600.30
@@ -269,6 +795,37 @@ edges:
   reason: Read-only counters and KPIs (throughput, rates, retries, RSSI, 802.11 protocol) for wireless
     clients on the network — continuous capture and analysis of network performance counters. Enterprise
     WLAN rather than carrier RAN, so confidence tempered.
+- tag: Sites Stats - Discovered Switches
+  spec_file: mist-sites-stats-discovered-switches-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: listSiteDiscoveredSwitchesMetrics, searchSiteDiscoveredSwitches; schemas discovered_switch,
+    dswitches_metrics_poe_compliance
+  reason: Discovery and metric reporting for switches on the network — IT operations monitoring of network
+    infrastructure.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Stats - MxEdges
+  spec_file: mist-sites-stats-mxedges-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: listSiteMxEdgesStats; schemas stats_mxedge_cpu_stat, stats_mxedge_port_stats, stats_mxedge_lag_stat
+  reason: CPU, port and service statistics for Mist Edge appliances — infrastructure telemetry consumed
+    for IT operations monitoring.
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: Sites Stats - Ospf
+  spec_file: mist-sites-stats-ospf-api-openapi.yml
+  capability_id: BC-600.40
+  capability_id_l1: BC-600
+  capability_name: IT Operations Management
+  confidence: 0.7
+  evidence: countSiteOspfStats / searchSiteOspfStats; schemas ospf_peer_stats_search_result
+  reason: OSPF routing peer statistics — purely network routing telemetry, i.e. IT operations monitoring
+    of network infrastructure.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites Stats - Ports
   spec_file: mist-sites-stats-ports-api-openapi.yml
   capability_id: BC-2600.30
@@ -279,6 +836,17 @@ edges:
     port_stp_state, port_auth_state
   reason: Per-port counters and states (bytes, bps, packets, STP and auth state) on switches and gateways
     — capture and analysis of network performance counters for operational monitoring.
+- tag: Sites VPNs
+  spec_file: mist-sites-vpns-api-openapi.yml
+  capability_id: BC-600.50
+  capability_id_l1: BC-600
+  capability_name: IT Infrastructure Management
+  confidence: 0.7
+  evidence: GET /api/v1/sites/{site_id}/vpns/derived  listSiteVpnsDerived; schemas vpn_path, vpn_path_selection_strategy,
+    vpn_path_bfd_profile
+  reason: Exposes VPN and VPN path configuration for a site's WAN — management of network infrastructure
+    components, i.e. IT Infrastructure Management (network).
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Sites Wlans
   spec_file: mist-sites-wlans-api-openapi.yml
   capability_id: BC-600.50
