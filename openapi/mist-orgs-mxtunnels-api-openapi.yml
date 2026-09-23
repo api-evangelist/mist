@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -224,56 +193,63 @@ paths:
       tags:
       - Orgs MxTunnels
 components:
+  examples:
+    MxtunnelExample:
+      value:
+        cluster_ids:
+        - string
+        created_time: 0
+        for_site: true
+        hello_interval: 60
+        hello_retries: 7
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        ipsec:
+          dns_servers:
+          - string
+          enabled: true
+          extra_routes:
+          - dest: string
+            next_hop: 192.168.0.1
+          split_tunnel: true
+          use_mxedge: true
+        modified_time: 0
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        vlan_ids:
+        - 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    MxtunnelsArrayExample:
+      value:
+      - hello_interval: 60
+        hello_retries: 3
+        ipsec:
+          dns_servers:
+          - 172.16.0.8
+          enabled: true
+          extra_routes:
+          - dest: 172.16.0.0/12
+            next_hop: 172.16.0.1
+          split_tunnel: true
+        mxcluster_ids:
+        - 572586b7-f97b-a22b-526c-8b97a3f609c4
+        name: HQ
+        protocol: udp
+        vlan_ids:
+        - 3
+        - 4
+        - 5
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    mxtunnels:
-      description: List of Mist Tunnel configurations
-      items:
-        $ref: '#/components/schemas/mxtunnel'
-      type: array
-    time_of_day:
-      default: any
-      description: '`any` / HH:MM (24-hour format)'
-      examples:
-      - '12:00'
-      type: string
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
     mxtunnel_ipsec_dns_servers:
       description: Name server addresses advertised for IPsec tunnel clients
       items:
@@ -281,6 +257,36 @@ components:
       type:
       - array
       - 'null'
+    mxtunnel_ipsec:
+      additionalProperties: false
+      description: IPsec settings for a Mist Tunnel
+      properties:
+        dns_servers:
+          $ref: '#/components/schemas/mxtunnel_ipsec_dns_servers'
+          description: Name server addresses advertised for IPsec tunnel clients
+        dns_suffix:
+          $ref: '#/components/schemas/strings'
+          description: Search suffixes advertised for IPsec tunnel clients
+        enabled:
+          description: Whether IPsec support is enabled for this Mist Tunnel
+          type: boolean
+        extra_routes:
+          $ref: '#/components/schemas/mxtunnel_ipsec_extra_routes'
+          description: Additional routes advertised for the IPsec tunnel
+        split_tunnel:
+          description: Whether split tunneling is enabled for IPsec clients
+          type: boolean
+        use_mxedge:
+          description: Whether IPsec termination uses Mist Edge
+          type: boolean
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     mxtunnel_protocol:
       default: udp
       description: 'Encapsulation protocol used for Mist Tunnel traffic. enum: `ip`, `udp`'
@@ -288,23 +294,37 @@ components:
       - ip
       - udp
       type: string
-    mxtunnel_vlan_ids:
-      description: List of VLAN IDs carried by this Mist Tunnel
+    mxtunnel_anchor_mxtunnel_ids:
+      description: List of anchor mxtunnels used for forming edge to edge tunnels
       items:
-        type: integer
+        examples:
+        - 1e970fec-0a7a-4d73-a472-3ef3b6a456aa
+        format: uuid
+        type: string
       type: array
-    mxtunnel_ipsec_extra_route:
-      additionalProperties: false
-      description: Extra route advertised for an IPsec tunnel
-      properties:
-        dest:
-          description: Route destination CIDR for the IPsec extra route
-          type: string
-        next_hop:
-          description: Route next-hop IPv4 address for the IPsec extra route
-          format: ipv4
-          type: string
-      type: object
+    day_of_week:
+      description: 'enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`'
+      enum:
+      - any
+      - fri
+      - mon
+      - sat
+      - sun
+      - thu
+      - tue
+      - wed
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    time_of_day:
+      default: any
+      description: '`any` / HH:MM (24-hour format)'
+      examples:
+      - '12:00'
+      type: string
     auto_preemption:
       additionalProperties: false
       description: Schedule to preempt AP tunnels that are not connected to their preferred peer
@@ -319,30 +339,6 @@ components:
         time_of_day:
           $ref: '#/components/schemas/time_of_day'
           description: Scheduled time of day for auto preemption
-      type: object
-    mxtunnel_mxcluster_ids:
-      description: Mist Edge cluster IDs that host this Mist Tunnel
-      items:
-        format: uuid
-        type: string
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
       type: object
     mxtunnel:
       description: Mist Tunnel configuration for tunneling AP user VLANs to Mist Edge clusters
@@ -412,6 +408,23 @@ components:
           $ref: '#/components/schemas/mxtunnel_vlan_ids'
           description: List of VLAN IDs carried by this Mist Tunnel
       type: object
+    mxtunnel_ipsec_extra_route:
+      additionalProperties: false
+      description: Extra route advertised for an IPsec tunnel
+      properties:
+        dest:
+          description: Route destination CIDR for the IPsec extra route
+          type: string
+        next_hop:
+          description: Route next-hop IPv4 address for the IPsec extra route
+          format: ipv4
+          type: string
+      type: object
+    mxtunnel_ipsec_extra_routes:
+      description: Additional routes advertised for IPsec tunnel clients
+      items:
+        $ref: '#/components/schemas/mxtunnel_ipsec_extra_route'
+      type: array
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -422,17 +435,54 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    mxtunnel_mxcluster_ids:
+      description: Mist Edge cluster IDs that host this Mist Tunnel
+      items:
+        format: uuid
+        type: string
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     id:
       description: Unique ID of the object instance in the Mist Organization
       examples:
       - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
       format: uuid
       readOnly: true
       type: string
@@ -441,54 +491,29 @@ components:
       format: double
       readOnly: true
       type: number
-    mxtunnel_anchor_mxtunnel_ids:
-      description: List of anchor mxtunnels used for forming edge to edge tunnels
+    strings:
+      description: Unique string values returned or accepted by this schema
       items:
-        examples:
-        - 1e970fec-0a7a-4d73-a472-3ef3b6a456aa
-        format: uuid
         type: string
       type: array
-    mxtunnel_ipsec:
-      additionalProperties: false
-      description: IPsec settings for a Mist Tunnel
-      properties:
-        dns_servers:
-          $ref: '#/components/schemas/mxtunnel_ipsec_dns_servers'
-          description: Name server addresses advertised for IPsec tunnel clients
-        dns_suffix:
-          $ref: '#/components/schemas/strings'
-          description: Search suffixes advertised for IPsec tunnel clients
-        enabled:
-          description: Whether IPsec support is enabled for this Mist Tunnel
-          type: boolean
-        extra_routes:
-          $ref: '#/components/schemas/mxtunnel_ipsec_extra_routes'
-          description: Additional routes advertised for the IPsec tunnel
-        split_tunnel:
-          description: Whether split tunneling is enabled for IPsec clients
-          type: boolean
-        use_mxedge:
-          description: Whether IPsec termination uses Mist Edge
-          type: boolean
-      type: object
-    day_of_week:
-      description: 'enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`'
-      enum:
-      - any
-      - fri
-      - mon
-      - sat
-      - sun
-      - thu
-      - tue
-      - wed
-      type: string
-    mxtunnel_ipsec_extra_routes:
-      description: Additional routes advertised for IPsec tunnel clients
+      uniqueItems: true
+    mxtunnel_vlan_ids:
+      description: List of VLAN IDs carried by this Mist Tunnel
       items:
-        $ref: '#/components/schemas/mxtunnel_ipsec_extra_route'
+        type: integer
       type: array
+    mxtunnels:
+      description: List of Mist Tunnel configurations
+      items:
+        $ref: '#/components/schemas/mxtunnel'
+      type: array
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
   parameters:
     page:
       description: Select the page number to return when using page-based pagination; starts at `1`
@@ -525,6 +550,8 @@ components:
         minimum: 0
         type: integer
   responses:
+    OK:
+      description: OK
     HTTP401:
       content:
         application/json:
@@ -540,6 +567,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -555,47 +591,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    OK:
-      description: OK
-    MxtunnelsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MxtunnelsArrayExample'
-          schema:
-            $ref: '#/components/schemas/mxtunnels'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MxtunnelsArrayExample'
-          schema:
-            $ref: '#/components/schemas/mxtunnels'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     Mxtunnel:
       content:
         application/json:
@@ -626,62 +621,36 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-  examples:
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    MxtunnelsArrayExample:
-      value:
-      - hello_interval: 60
-        hello_retries: 3
-        ipsec:
-          dns_servers:
-          - 172.16.0.8
-          enabled: true
-          extra_routes:
-          - dest: 172.16.0.0/12
-            next_hop: 172.16.0.1
-          split_tunnel: true
-        mxcluster_ids:
-        - 572586b7-f97b-a22b-526c-8b97a3f609c4
-        name: HQ
-        protocol: udp
-        vlan_ids:
-        - 3
-        - 4
-        - 5
-    MxtunnelExample:
-      value:
-        cluster_ids:
-        - string
-        created_time: 0
-        for_site: true
-        hello_interval: 60
-        hello_retries: 7
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        ipsec:
-          dns_servers:
-          - string
-          enabled: true
-          extra_routes:
-          - dest: string
-            next_hop: 192.168.0.1
-          split_tunnel: true
-          use_mxedge: true
-        modified_time: 0
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        vlan_ids:
-        - 0
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
+    MxtunnelsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxtunnelsArrayExample'
+          schema:
+            $ref: '#/components/schemas/mxtunnels'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MxtunnelsArrayExample'
+          schema:
+            $ref: '#/components/schemas/mxtunnels'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

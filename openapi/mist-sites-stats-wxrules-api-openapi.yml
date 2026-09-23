@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -109,6 +78,19 @@ paths:
       - Sites Stats - WxRules
 components:
   schemas:
+    stats_wxrule_usage_properties:
+      additionalProperties: false
+      description: Usage counters for one WxLAN rule destination tag
+      properties:
+        num_flows:
+          description: Number of flows counted for this WxLAN rule and destination tag
+          type: integer
+      type: object
+    stats_wxrules:
+      description: WxLAN rule usage statistics returned by the request
+      items:
+        $ref: '#/components/schemas/stats_wxrule'
+      type: array
     stats_wxrule_dst_allow_wxtags:
       description: Destination WxLAN tag identifiers explicitly allowed by a WxLAN rule
       examples:
@@ -118,24 +100,6 @@ components:
         format: uuid
         type: string
       type: array
-    stats_wxrule_client_mac:
-      description: Wireless client MAC addresses matching a WxLAN rule
-      examples:
-      - - 3bbbf819bb6f
-        - bd96cbc4910f
-      items:
-        type: string
-      type: array
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     stats_wxrule:
       additionalProperties: false
       description: WxLAN rule usage statistics for a site
@@ -189,21 +153,11 @@ components:
       - usage
       - action
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    stats_wxrule_src_wxtags:
-      description: Source WxLAN tag identifiers matched by a WxLAN rule
+    stats_wxrule_dst_wxtags:
+      description: Destination WxLAN tag identifiers matched by a WxLAN rule
       examples:
-      - - 8bfc2490-d726-3587-038d-cb2e71bd2330
-        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+      - - d4134466-eec0-3756-6765-381c728a6037
+        - 1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3
       items:
         format: uuid
         type: string
@@ -216,19 +170,11 @@ components:
       examples:
       - allow
       type: string
-    stats_wxrule_usage_properties:
-      additionalProperties: false
-      description: Usage counters for one WxLAN rule destination tag
-      properties:
-        num_flows:
-          description: Number of flows counted for this WxLAN rule and destination tag
-          type: integer
-      type: object
-    stats_wxrule_dst_wxtags:
-      description: Destination WxLAN tag identifiers matched by a WxLAN rule
+    stats_wxrule_src_wxtags:
+      description: Source WxLAN tag identifiers matched by a WxLAN rule
       examples:
-      - - d4134466-eec0-3756-6765-381c728a6037
-        - 1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3
+      - - 8bfc2490-d726-3587-038d-cb2e71bd2330
+        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
       items:
         format: uuid
         type: string
@@ -241,6 +187,16 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -251,14 +207,14 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http429:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
+          description: Human-readable explanation of the permission error
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - You do not have permission to perform this action.
           type: string
       type: object
     stats_wxrule_dst_deny_wxtags:
@@ -270,21 +226,62 @@ components:
         format: uuid
         type: string
       type: array
-    stats_wxrules:
-      description: WxLAN rule usage statistics returned by the request
+    stats_wxrule_client_mac:
+      description: Wireless client MAC addresses matching a WxLAN rule
+      examples:
+      - - 3bbbf819bb6f
+        - bd96cbc4910f
       items:
-        $ref: '#/components/schemas/stats_wxrule'
-      type: array
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
         type: string
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    WxruleStatsArrayExample:
+      value:
+      - action: allow
+        client_mac:
+        - 3bbbf819bb6f
+        - bd96cbc4910f
+        dst_allow_wxtags:
+        - fff34466-eec0-3756-6765-381c728a6037
+        - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        dst_deny_wxtags:
+        - aaa34466-eec0-3756-6765-381c728a6037
+        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        dst_wxtags:
+        - d4134466-eec0-3756-6765-381c728a6037
+        - 1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3
+        name: Guest
+        order: 1
+        src_wxtags:
+        - 8bfc2490-d726-3587-038d-cb2e71bd2330
+        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
+        usage:
+          1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3:
+            num_flows: 60
+          d4134466-eec0-3756-6765-381c728a6037:
+            num_flows: 60
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
     HTTP401:
       content:
@@ -301,6 +298,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -331,30 +337,6 @@ components:
           schema:
             $ref: '#/components/schemas/stats_wxrules'
       description: WxRule Stats
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -370,44 +352,31 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-  examples:
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    WxruleStatsArrayExample:
-      value:
-      - action: allow
-        client_mac:
-        - 3bbbf819bb6f
-        - bd96cbc4910f
-        dst_allow_wxtags:
-        - fff34466-eec0-3756-6765-381c728a6037
-        - eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3
-        dst_deny_wxtags:
-        - aaa34466-eec0-3756-6765-381c728a6037
-        - bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3
-        dst_wxtags:
-        - d4134466-eec0-3756-6765-381c728a6037
-        - 1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3
-        name: Guest
-        order: 1
-        src_wxtags:
-        - 8bfc2490-d726-3587-038d-cb2e71bd2330
-        - 3aa8e73f-9f46-d827-8d6a-567bb7e67fc9
-        usage:
-          1a42c7b0-d1d0-5a30-f349-e35fa43dc3b3:
-            num_flows: 60
-          d4134466-eec0-3756-6765-381c728a6037:
-            num_flows: 60
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

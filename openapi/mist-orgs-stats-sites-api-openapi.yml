@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -111,24 +80,183 @@ paths:
       tags:
       - Orgs Stats - Sites
 components:
-  schemas:
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    SitesArrayStatsExample:
+      value:
+      - address: 1601 S De Anza Blvd, Cupertino, CA 95014, USA
+        alarmtemplate_id: null
+        analyticEnabled: true
+        aptemplate_id: null
+        country_code: US
+        created_time: 1472591606
+        engagementEnabled: true
+        gatewaytemplate_id: e571f2a2-d748-4ad4-bd6c-895467957c21
+        id: 83bc290a-b76d-47fa-a294-d34e47f30f7f
+        lat: 37.295553
+        latlng:
+          lat: 37.295553
+          lng: -122.033007
+        lng: -122.033007
+        modified_time: 1728057857
+        msp_id: a9af4951-a1de-4520-b398-c95a58947349
+        name: Live-Demo
+        networktemplate_id: 964cb213-deb2-469d-8c1e-a5f8661c6886
+        notes: This site is used for demonstration purposes.
+        num_ap: 17
+        num_ap_connected: 14
+        num_clients: 14
+        num_devices: 26
+        num_devices_connected: 22
+        num_gateway: 1
+        num_gateway_connected: 1
+        num_switch: 8
+        num_switch_connected: 7
+        org_id: b9814b40-ac4b-4424-86a8-b787eb68b86a
+        rftemplate_id: 2c134c07-3c57-46b3-a53b-8aea92ed7234
+        secpolicy_id: null
+        sitegroup_ids:
+        - 5644a432-eea9-4a2f-a30a-ddaf4dbc79cf
+        - 5fc0f305-f626-49db-8869-10b87f201bba
+        - 882796ef-190b-405e-98ef-cb487140cf64
+        sitetemplate_id: null
+        timezone: America/Los_Angeles
+        tzoffset: 960
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+  responses:
+    SitesArrayStats:
+      content:
+        application/json:
           examples:
-          - You do not have permission to perform this action.
+            Example:
+              $ref: '#/components/examples/SitesArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_sites'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SitesArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_sites'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+  schemas:
+    stats_sites:
+      description: Site statistics records returned by a stats response
+      items:
+        $ref: '#/components/schemas/stats_site'
+      type: array
+    lat_lng:
+      additionalProperties: false
+      description: Geographic latitude and longitude coordinate pair
+      properties:
+        lat:
+          description: Geographic latitude in decimal degrees
+          examples:
+          - 37.295833
+          format: double
+          type: number
+        lng:
+          description: Geographic longitude in decimal degrees
+          examples:
+          - -122.032946
+          format: double
+          type: number
+      required:
+      - lat
+      - lng
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
     response_http400:
       additionalProperties: false
       description: Standard HTTP 400 bad request error response
@@ -283,46 +411,6 @@ components:
       - timezone
       - tzoffset
       type: object
-    lat_lng:
-      additionalProperties: false
-      description: Geographic latitude and longitude coordinate pair
-      properties:
-        lat:
-          description: Geographic latitude in decimal degrees
-          examples:
-          - 37.295833
-          format: double
-          type: number
-        lng:
-          description: Geographic longitude in decimal degrees
-          examples:
-          - -122.032946
-          format: double
-          type: number
-      required:
-      - lat
-      - lng
-      type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    msp_id:
-      description: Managed service provider identifier
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      readOnly: true
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -333,6 +421,41 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    site_stats_sitegroup_ids:
+      description: Site group identifiers associated with a site statistics record
+      items:
+        format: uuid
+        type: string
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    msp_id:
+      description: Managed service provider identifier
+      examples:
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
+      format: uuid
+      readOnly: true
+      type: string
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -343,82 +466,13 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
       format: uuid
       readOnly: true
       type: string
-    site_stats_sitegroup_ids:
-      description: Site group identifiers associated with a site statistics record
-      items:
-        format: uuid
-        type: string
-      type: array
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    stats_sites:
-      description: Site statistics records returned by a stats response
-      items:
-        $ref: '#/components/schemas/stats_site'
-      type: array
-  examples:
-    SitesArrayStatsExample:
-      value:
-      - address: 1601 S De Anza Blvd, Cupertino, CA 95014, USA
-        alarmtemplate_id: null
-        analyticEnabled: true
-        aptemplate_id: null
-        country_code: US
-        created_time: 1472591606
-        engagementEnabled: true
-        gatewaytemplate_id: e571f2a2-d748-4ad4-bd6c-895467957c21
-        id: 83bc290a-b76d-47fa-a294-d34e47f30f7f
-        lat: 37.295553
-        latlng:
-          lat: 37.295553
-          lng: -122.033007
-        lng: -122.033007
-        modified_time: 1728057857
-        msp_id: a9af4951-a1de-4520-b398-c95a58947349
-        name: Live-Demo
-        networktemplate_id: 964cb213-deb2-469d-8c1e-a5f8661c6886
-        notes: This site is used for demonstration purposes.
-        num_ap: 17
-        num_ap_connected: 14
-        num_clients: 14
-        num_devices: 26
-        num_devices_connected: 22
-        num_gateway: 1
-        num_gateway_connected: 1
-        num_switch: 8
-        num_switch_connected: 7
-        org_id: b9814b40-ac4b-4424-86a8-b787eb68b86a
-        rftemplate_id: 2c134c07-3c57-46b3-a53b-8aea92ed7234
-        secpolicy_id: null
-        sitegroup_ids:
-        - 5644a432-eea9-4a2f-a30a-ddaf4dbc79cf
-        - 5fc0f305-f626-49db-8869-10b87f201bba
-        - 882796ef-190b-405e-98ef-cb487140cf64
-        sitetemplate_id: null
-        timezone: America/Los_Angeles
-        tzoffset: 960
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
   parameters:
     page:
       description: Select the page number to return when using page-based pagination; starts at `1`
@@ -445,91 +499,6 @@ components:
         default: 100
         minimum: 0
         type: integer
-  responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    SitesArrayStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SitesArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_sites'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SitesArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_sites'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

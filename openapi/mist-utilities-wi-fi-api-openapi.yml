@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -492,98 +461,28 @@ paths:
       - Utilities Wi-Fi
 components:
   schemas:
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
+    test_telstra:
+      description: Request body for validating Telstra SMS gateway credentials
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
+        telstra_client_id:
+          description: Telstra client identifier used to send the test SMS
           examples:
-          - You do not have permission to perform this action.
+          - '123456'
           type: string
-      type: object
-    mac_addresses:
-      description: Request containing one or more MAC addresses
-      properties:
-        macs:
-          $ref: '#/components/schemas/mac_addresses_macs'
-          description: List of MAC addresses included in the request
-      required:
-      - macs
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
+        telstra_client_secret:
+          description: Telstra client secret used to send the test SMS
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    utils_reset_radio_config_bands:
-      description: Radio bands to reset, such as `24`, `5`, or `6`
-      items:
-        type: string
-      type: array
-    mac_addresses_macs:
-      description: Unique MAC addresses included in a request
-      examples:
-      - - 683b679ac024
-      items:
-        type: string
-      minItems: 1
-      type: array
-      uniqueItems: true
-    utils_rrm_optimize:
-      description: Request to optimize RRM for selected AP radio bands
-      properties:
-        bands:
-          $ref: '#/components/schemas/utils_rrm_optimize_bands'
-          description: Radio bands to include in the RRM optimization
-        macs:
-          $ref: '#/components/schemas/utils_rrm_optimize_macs'
-          description: AP MAC addresses to target for optimization; omitted or empty targets all APs
-        txpower_only:
-          default: false
-          description: When true, adjust only transmit power so clients are not disconnected
-          type: boolean
-      required:
-      - bands
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    test_twilio:
-      description: Request body for validating Twilio SMS gateway credentials
-      properties:
-        from:
-          description: One of the numbers you have in your Twilio account
-          examples:
-          - '+185051234567'
+          - abcdef
+          format: password
           type: string
         to:
-          description: Phone number of the recipient of SMS
+          description: Phone number of the recipient of SMS with country code
           examples:
-          - '+19999999999'
-          type: string
-        twilio_auth_token:
-          description: Twilio Auth Token used to send the test SMS
-          examples:
-          - 2135be04736a1a0a314bce432d61721a
-          type: string
-        twilio_sid:
-          description: Twilio account SID used to send the test SMS
-          examples:
-          - REDACTED_TWILIO_ACCOUNT_SID
+          - '+911122334455'
           type: string
       required:
-      - twilio_sid
-      - twilio_auth_token
-      - from
+      - telstra_client_id
+      - telstra_client_secret
       - to
       type: object
     utils_rrm_optimize_macs:
@@ -632,30 +531,41 @@ components:
       - smsglobal_api_secret
       - to
       type: object
-    test_telstra:
-      description: Request body for validating Telstra SMS gateway credentials
+    utils_reset_radio_config_bands:
+      description: Radio bands to reset, such as `24`, `5`, or `6`
+      items:
+        type: string
+      type: array
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
+    utils_rrm_optimize:
+      description: Request to optimize RRM for selected AP radio bands
       properties:
-        telstra_client_id:
-          description: Telstra client identifier used to send the test SMS
-          examples:
-          - '123456'
-          type: string
-        telstra_client_secret:
-          description: Telstra client secret used to send the test SMS
-          examples:
-          - abcdef
-          format: password
-          type: string
-        to:
-          description: Phone number of the recipient of SMS with country code
-          examples:
-          - '+911122334455'
-          type: string
+        bands:
+          $ref: '#/components/schemas/utils_rrm_optimize_bands'
+          description: Radio bands to include in the RRM optimization
+        macs:
+          $ref: '#/components/schemas/utils_rrm_optimize_macs'
+          description: AP MAC addresses to target for optimization; omitted or empty targets all APs
+        txpower_only:
+          default: false
+          description: When true, adjust only transmit power so clients are not disconnected
+          type: boolean
       required:
-      - telstra_client_id
-      - telstra_client_secret
-      - to
+      - bands
       type: object
+    utils_rrm_optimize_bands:
+      description: Radio bands to include in the RRM optimization
+      items:
+        type: string
+      type: array
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -663,6 +573,54 @@ components:
         id:
           description: Missing resource identifier, when the API includes one
           type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    mac_addresses:
+      description: Request containing one or more MAC addresses
+      properties:
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
+      required:
+      - macs
+      type: object
+    test_twilio:
+      description: Request body for validating Twilio SMS gateway credentials
+      properties:
+        from:
+          description: One of the numbers you have in your Twilio account
+          examples:
+          - '+185051234567'
+          type: string
+        to:
+          description: Phone number of the recipient of SMS
+          examples:
+          - '+19999999999'
+          type: string
+        twilio_auth_token:
+          description: Twilio Auth Token used to send the test SMS
+          examples:
+          - 2135be04736a1a0a314bce432d61721a
+          type: string
+        twilio_sid:
+          description: Twilio account SID used to send the test SMS
+          examples:
+          - REDACTED_TWILIO_ACCOUNT_SID
+          type: string
+      required:
+      - twilio_sid
+      - twilio_auth_token
+      - from
+      - to
       type: object
     response_http401:
       additionalProperties: false
@@ -674,16 +632,22 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http429:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
+          description: Human-readable explanation of the permission error
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - You do not have permission to perform this action.
           type: string
       type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
     utils_reset_radio_config:
       description: Request to reset AP radio settings to RRM-managed values
       properties:
@@ -697,30 +661,30 @@ components:
       required:
       - bands
       type: object
-    utils_rrm_optimize_bands:
-      description: Radio bands to include in the RRM optimization
-      items:
-        type: string
-      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
     rogue_bssid:
       in: path
       name: rogue_bssid
@@ -739,7 +703,27 @@ components:
         - 0000000000ab
         pattern: ^[0-9a-fA-F]{12}$
         type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
+    OK:
+      description: OK
     HTTP401:
       content:
         application/json:
@@ -755,6 +739,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -770,32 +763,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    OK:
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -811,19 +778,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-  examples:
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

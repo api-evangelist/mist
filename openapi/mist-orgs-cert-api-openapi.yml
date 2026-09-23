@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -205,14 +174,30 @@ paths:
       - Orgs Cert
 components:
   schemas:
-    response_http403:
+    org_ssl_proxy_cert:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: SSL proxy certificate returned for the organization
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
+        cert:
+          description: PEM-encoded SSL proxy certificate for the organization
           examples:
-          - You do not have permission to perform this action.
+          - '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
+          type: string
+      type: object
+    days_number:
+      description: Request body specifying CRL truncation retention in days
+      properties:
+        days:
+          default: 30
+          description: Number of most recent days of CRL entries to retain after truncation
+          type: integer
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     response_http400:
@@ -223,6 +208,26 @@ components:
           description: Human-readable explanation of the bad request error
           examples:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
       type: object
     response_certificate:
@@ -241,32 +246,6 @@ components:
       required:
       - cert
       type: object
-    days_number:
-      description: Request body specifying CRL truncation retention in days
-      properties:
-        days:
-          default: 30
-          description: Number of most recent days of CRL entries to retain after truncation
-          type: integer
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -277,49 +256,30 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    org_ssl_proxy_cert:
-      additionalProperties: false
-      description: SSL proxy certificate returned for the organization
-      properties:
-        cert:
-          description: PEM-encoded SSL proxy certificate for the organization
-          examples:
-          - '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
-          type: string
-      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OrgSslProxyCertExample:
+      value:
+        cert: '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
+    CertificateExample:
+      value:
+        cert: '-----BEGIN CERTIFICATE-----
+
+          MIIowDQYJKoZIhvcNAQELBQE
+
+          -----END CERTIFICATE-----'
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    OK:
-      description: OK
     OrgSslProxyCert:
       content:
         application/json:
@@ -335,30 +295,23 @@ components:
           schema:
             $ref: '#/components/schemas/org_ssl_proxy_cert'
       description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
+    OK:
+      description: OK
+    HTTP401:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
+            $ref: '#/components/schemas/response_http401'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     Certificate:
       content:
         application/json:
@@ -374,6 +327,30 @@ components:
           schema:
             $ref: '#/components/schemas/response_certificate'
       description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     HTTP429:
       content:
         application/json:
@@ -389,29 +366,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-  examples:
-    OrgSslProxyCertExample:
-      value:
-        cert: '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    CertificateExample:
-      value:
-        cert: '-----BEGIN CERTIFICATE-----
-
-          MIIowDQYJKoZIhvcNAQELBQE
-
-          -----END CERTIFICATE-----'
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   parameters:
     org_id:
       in: path

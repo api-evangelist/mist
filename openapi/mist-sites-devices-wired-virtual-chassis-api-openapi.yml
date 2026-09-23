@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -91,7 +60,6 @@ paths:
     - $ref: '#/components/parameters/device_id'
     post:
       description: 'Change VCP port mode
-
 
 
         Some switch model allows changing VCP port behaviors, e.g. - use them as regular network ports - change vcp protocol Note, this command will reboot the switch'
@@ -171,7 +139,23 @@ paths:
       tags:
       - Sites Devices - Wired - Virtual Chassis
     post:
-      description: "For models (e.g. EX3400 and up) having dedicated VC ports, it is easier to form a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new VC and update the inventory.  \nIn case that the user would like to choose the dedicated switch as a VC master or for EX2300-C-12P and EX2300-C-12T which doesn't have dedicated VC ports, below are procedures to automate the VC creation:\n1. Power on the switch that is chosen as the VC master first, and then powering on the other member switches.\n2. Claim or adopt all these switches under the same organization's Inventory\n3. Assign these switches into the same Site\n4. Wait for all the switches to be connected to Mist\n5. Invoke vc command on the switch chosen to be the VC master. For EX2300-C-12P, VC ports will be created automatically.\n6. Connect the cables to the VC ports for these switches\n7. Wait for the VC to be formed. The Org's inventory will be updated for the new VC."
+      description: 'For models (e.g. EX3400 and up) having dedicated VC ports, it is easier to form a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new VC and update the inventory.
+
+        In case that the user would like to choose the dedicated switch as a VC master or for EX2300-C-12P and EX2300-C-12T which doesn''t have dedicated VC ports, below are procedures to automate the VC creation:
+
+        1. Power on the switch that is chosen as the VC master first, and then powering on the other member switches.
+
+        2. Claim or adopt all these switches under the same organization''s Inventory
+
+        3. Assign these switches into the same Site
+
+        4. Wait for all the switches to be connected to Mist
+
+        5. Invoke vc command on the switch chosen to be the VC master. For EX2300-C-12P, VC ports will be created automatically.
+
+        6. Connect the cables to the VC ports for these switches
+
+        7. Wait for the VC to be formed. The Org''s inventory will be updated for the new VC.'
       operationId: createSiteVirtualChassis
       requestBody:
         content:
@@ -235,7 +219,97 @@ paths:
       tags:
       - Sites Devices - Wired - Virtual Chassis
     put:
-      description: "The VC creation and adding member switch API will update the device' s virtual chassis config which is applied after VC is formed to create JUNOS pre-provisioned virtual chassis configuration.\n\n**Note:** Update Device's VC config can achieve similar purpose by directly modifying current virtual_chassis config. However, it cannot fulfill requests to enabling vc_ports on new members that are yet to belong to current VC.\n\n\n## Change to use preprovisioned VC\nTo switch the VC to use preprovisioned VC, enable preprovisioned in virtual_chassis config. Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config.\n\nIn this config, fpc0 has to be the same as the mac of device_id. Use renumber if you want to replace fpc0 which involves device_id change.\n\n**Notice:** to configure preprovisioned VC, every member of the VC must be in the inventory.\n\n## Add new members\nFor models (e.g. EX4300 and up) having dedicated VC ports, it is easier to add new member switches into a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new members and update the inventory.\n\nFor EX2300 VC, adding new members requires to follow the procedures below:\n1. Powering on the new member switches and ensuring cables are not connected to any VC ports.\n2. Claim or adopt all new member switches under the VC's organization Inventory\n3. Assign all new member switches to the same Site as the VC\n4. Invoke vc command to add switches to the VC.\n5. Connect the cables to the VC ports for these switches\n6. After a while, the Org's Inventory shows that new switches has been added into the VC.\n\n## Removing member switch\nTo remove a member switch from the VC, following the procedures below:\n\n1. Ensuring the VC is connected to the cloud first\n2. Unplug the cable from the VC port of the switch\n3. Waiting for the VC state (vc_state) of this switch is changed to not-present\n4. Invoke update_vc with remove to remove this switch from the VC\n5. The Org's Inventory shows the switch is removed.\n\nPlease notice that member ID 0 (fpc0) cannot be removed. When a VC has two switches left, unplugging the cable may result in the situation that fpc0 becomes a line card (LC). When this situation is happening, please re-plug in the cable, wait for both switches becoming present (show virtual-chassis) and then removing the cable again.\n\n## Renumber a member switch\nWhen a member switch doesn' t work properly and needed to be replaced, the renumber API could be used. The following two types of renumber are supported:\n\n1. Replace a non-fpc0 member switch\n2. Replace fpc0. When fpc0 is replaced, PAPI device config and JUNOS config will be both updated.\n\nFor renumber to work, the following procedures are needed: \n1. Ensuring the VC is connected to the cloud and the state of the member switch to be replaced must be non present. \n2. Adding the new member switch to the VC \n3. Waiting for the VC state (vc_state) of this VC to be updated to API server \n4. Invoke vc with renumber to replace\\ the new member switch from fpc X to\n\n## Perprovision VC members\nBy specifying \"preprovision\" op, you can convert the current VC to pre-provisioned mode, update VC members as well as specify vc_ports when adding new members for device models without dedicated vc ports. Use renumber for fpc0 replacement which involves device_id change.\n\nNote: \n1. vc_ports is used for adding new members and not needed if \n  * the device model has dedicated vc ports, or \n  * no new member is added \n2. New VC members to be added should exist in the same Site as the VC"
+      description: 'The VC creation and adding member switch API will update the device'' s virtual chassis config which is applied after VC is formed to create JUNOS pre-provisioned virtual chassis configuration.
+
+
+        **Note:** Update Device''s VC config can achieve similar purpose by directly modifying current virtual_chassis config. However, it cannot fulfill requests to enabling vc_ports on new members that are yet to belong to current VC.
+
+
+        ## Change to use preprovisioned VC
+
+        To switch the VC to use preprovisioned VC, enable preprovisioned in virtual_chassis config. Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config.
+
+
+        In this config, fpc0 has to be the same as the mac of device_id. Use renumber if you want to replace fpc0 which involves device_id change.
+
+
+        **Notice:** to configure preprovisioned VC, every member of the VC must be in the inventory.
+
+
+        ## Add new members
+
+        For models (e.g. EX4300 and up) having dedicated VC ports, it is easier to add new member switches into a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new members and update the inventory.
+
+
+        For EX2300 VC, adding new members requires to follow the procedures below:
+
+        1. Powering on the new member switches and ensuring cables are not connected to any VC ports.
+
+        2. Claim or adopt all new member switches under the VC''s organization Inventory
+
+        3. Assign all new member switches to the same Site as the VC
+
+        4. Invoke vc command to add switches to the VC.
+
+        5. Connect the cables to the VC ports for these switches
+
+        6. After a while, the Org''s Inventory shows that new switches has been added into the VC.
+
+
+        ## Removing member switch
+
+        To remove a member switch from the VC, following the procedures below:
+
+
+        1. Ensuring the VC is connected to the cloud first
+
+        2. Unplug the cable from the VC port of the switch
+
+        3. Waiting for the VC state (vc_state) of this switch is changed to not-present
+
+        4. Invoke update_vc with remove to remove this switch from the VC
+
+        5. The Org''s Inventory shows the switch is removed.
+
+
+        Please notice that member ID 0 (fpc0) cannot be removed. When a VC has two switches left, unplugging the cable may result in the situation that fpc0 becomes a line card (LC). When this situation is happening, please re-plug in the cable, wait for both switches becoming present (show virtual-chassis) and then removing the cable again.
+
+
+        ## Renumber a member switch
+
+        When a member switch doesn'' t work properly and needed to be replaced, the renumber API could be used. The following two types of renumber are supported:
+
+
+        1. Replace a non-fpc0 member switch
+
+        2. Replace fpc0. When fpc0 is replaced, PAPI device config and JUNOS config will be both updated.
+
+
+        For renumber to work, the following procedures are needed:
+
+        1. Ensuring the VC is connected to the cloud and the state of the member switch to be replaced must be non present.
+
+        2. Adding the new member switch to the VC
+
+        3. Waiting for the VC state (vc_state) of this VC to be updated to API server
+
+        4. Invoke vc with renumber to replace\ the new member switch from fpc X to
+
+
+        ## Perprovision VC members
+
+        By specifying "preprovision" op, you can convert the current VC to pre-provisioned mode, update VC members as well as specify vc_ports when adding new members for device models without dedicated vc ports. Use renumber for fpc0 replacement which involves device_id change.
+
+
+        Note:
+
+        1. vc_ports is used for adding new members and not needed if
+
+        * the device model has dedicated vc ports, or
+
+        * no new member is added
+
+        2. New VC members to be added should exist in the same Site as the VC'
       operationId: updateSiteVirtualChassisMember
       requestBody:
         content:
@@ -318,7 +392,22 @@ paths:
     - $ref: '#/components/parameters/site_id'
     - $ref: '#/components/parameters/device_id'
     post:
-      description: "Converts an FPC0-based VC to a Virtualmac VC, removing the limitation where the device ID must change whenever FPC0 is renumbered or removed.\n\n\nHTTP400 Error possible reasons:\n  - The device is not an OC device\n  - Virtualmac VC is disabled in the Org Knob settings\n  - The VC is already a Virtualmac VC\n  - The VC is currently disconnected\n  - The device is standalone\n  - A new FPC0 exists with its own device config, causing ambiguity."
+      description: 'Converts an FPC0-based VC to a Virtualmac VC, removing the limitation where the device ID must change whenever FPC0 is renumbered or removed.
+
+
+        HTTP400 Error possible reasons:
+
+        - The device is not an OC device
+
+        - Virtualmac VC is disabled in the Org Knob settings
+
+        - The VC is already a Virtualmac VC
+
+        - The VC is currently disconnected
+
+        - The device is standalone
+
+        - A new FPC0 exists with its own device config, causing ambiguity.'
       operationId: convertSiteVirtualChassisToVirtualMac
       responses:
         '200':
@@ -387,28 +476,11 @@ paths:
       - Sites Devices - Wired - Virtual Chassis
 components:
   schemas:
-    virtual_chassis_member_update_vc_role:
-      description: 'Required if `op`==`add` or `op`==`preprovision`. enum: `backup`, `linecard`, `master`'
-      enum:
-      - backup
-      - linecard
-      - master
-      type: string
-    virtual_chassis_update_members:
-      description: Member updates for a Virtual Chassis operation
+    virtual_chassis_member_update_vc_ports:
+      description: Required if `op`==`add` or `op`==`preprovision`
       items:
-        $ref: '#/components/schemas/virtual_chassis_member_update'
+        type: string
       type: array
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     module_stat_item_fans:
       description: Cooling fan status records for a device module
       items:
@@ -425,23 +497,13 @@ components:
       required:
       - usage
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
+    virtual_chassis_port_operation:
+      description: 'Action to perform on the specified Virtual Chassis ports. enum: `delete`, `set`'
+      enum:
+      - delete
+      - set
+      minLength: 1
       type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
     module_stat_item_pics_item_port_groups_item:
       additionalProperties: false
       description: Port group summary for a PIC
@@ -453,58 +515,34 @@ components:
           description: Port media or interface type for this PIC port group
           type: string
       type: object
-    virtual_chassis_member_update:
-      additionalProperties: false
-      description: Member update for a Virtual Chassis add, remove, or preprovision operation
-      properties:
-        mac:
-          description: Required if `op`==`add` or `op`==`preprovision`; MAC address of the member to add or preprovision
-          type: string
-        member:
-          description: Required if `op`==`remove`; member ID to remove from the Virtual Chassis
-          type: integer
-        member_id:
-          description: Required if `op`==`preprovision`. Optional if `op`==`add`; target member ID for the Virtual Chassis member
-          type: integer
-        vc_ports:
-          $ref: '#/components/schemas/virtual_chassis_member_update_vc_ports'
-          description: Required if `op`==`add` or `op`==`preprovision`; port names to use as Virtual Chassis ports
-        vc_role:
-          $ref: '#/components/schemas/virtual_chassis_member_update_vc_role'
-          description: Required if `op`==`add` or `op`==`preprovision`; role of the member in the Virtual Chassis
-      type: object
-    vc_port:
-      description: Request to change the Virtual Chassis port mode on a switch
-      properties:
-        mode:
-          $ref: '#/components/schemas/vc_port_mode'
-          description: Virtual Chassis port mode to apply
-      type: object
-    virtual_chassis_port_operation:
-      description: 'Action to perform on the specified Virtual Chassis ports. enum: `delete`, `set`'
+    vc_port_mode:
+      description: 'enum: `network`, `vcp-higig`, `vcp-hgoe`'
       enum:
-      - delete
-      - set
-      minLength: 1
+      - network
+      - vcp-higig
+      - vcp-hgoe
       type: string
-    module_stat_item_poe:
-      additionalProperties: false
-      description: Power over Ethernet telemetry for a device module
-      properties:
-        max_power:
-          description: Total PoE power budget available to the module, in watts
-          examples:
-          - 250
-          type: number
-        power_draw:
-          description: Current PoE power draw on the module, in watts
-          examples:
-          - 120.3
-          type: number
-        status:
-          description: Operational status of PoE on the module
-          type: string
-      type: object
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    cpu_stat_load_avg:
+      description: Load averages for the last 1, 5, and 15 minutes
+      items:
+        type: number
+      type: array
+    virtual_chassis_config_member_vc_role:
+      description: 'enum: `backup`, `linecard`, `master`'
+      enum:
+      - backup
+      - linecard
+      - master
+      type: string
     module_stat_item_vc_links_item:
       additionalProperties: false
       description: Virtual chassis link endpoint for a device module
@@ -525,225 +563,11 @@ components:
           - vcp-255/1/0
           type: string
       type: object
-    virtual_chassis_update:
-      description: Virtual Chassis member update request
-      properties:
-        member:
-          description: Only if `op`==`renumber`; existing member ID to renumber
-          type: integer
-        members:
-          $ref: '#/components/schemas/virtual_chassis_update_members'
-          description: Member updates for add, remove, or preprovision operations
-        new-member:
-          description: Only if `op`==`renumber`; new member ID to assign
-          type: integer
-        op:
-          $ref: '#/components/schemas/virtual_chassis_update_op'
-          description: Action to perform on the Virtual Chassis
-        remove_inventory:
-          default: false
-          description: Only if `op`==`preprovision`. When removing members from a pre-provisioned VC, set to `true` to delete the inventory records for removed members (e.g. for RMA). Members being removed must be in "not-present" state.
-          type: boolean
-      type: object
-    virtual_chassis_config_members:
-      description: Virtual Chassis member configurations
+    module_stat_item_pics_item_port_groups:
+      description: Port group summaries for a PIC
       items:
-        $ref: '#/components/schemas/virtual_chassis_config_member'
+        $ref: '#/components/schemas/module_stat_item_pics_item_port_groups_item'
       type: array
-    virtual_chassis_member_update_vc_ports:
-      description: Required if `op`==`add` or `op`==`preprovision`
-      items:
-        type: string
-      type: array
-    module_stat_item_pics:
-      description: Physical Interface Card summaries for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_pics_item'
-      type: array
-    module_stat_item_fans_items:
-      additionalProperties: false
-      description: Cooling fan telemetry for a device module
-      properties:
-        airflow:
-          description: Direction of airflow reported for the fan
-          examples:
-          - out
-          type: string
-        name:
-          description: Fan label reported by the device
-          examples:
-          - Fan 0
-          type: string
-        rpm:
-          description: Current fan speed in revolutions per minute
-          type: integer
-        status:
-          description: Operational status reported for the fan
-          examples:
-          - ok
-          type: string
-      type: object
-    cpu_stat:
-      additionalProperties: false
-      description: CPU utilization breakdown for a device
-      properties:
-        idle:
-          description: Percentage of CPU time that is idle
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        interrupt:
-          description: Percentage of CPU time being used by interrupts
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        load_avg:
-          $ref: '#/components/schemas/cpu_stat_load_avg'
-          description: Load averages for the last 1, 5, and 15 minutes
-        system:
-          description: Percentage of CPU time being used by system processes
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        usage:
-          description: Overall CPU usage percentage
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        user:
-          description: Percentage of CPU time being used by user processes
-          readOnly: true
-          type:
-          - number
-          - 'null'
-      type: object
-    module_stat_item_errors_items:
-      additionalProperties: false
-      description: Error condition reported for a device module
-      properties:
-        feature:
-          description: Affected feature associated with this module error condition
-          examples:
-          - Mist-Management
-          type: string
-        minimum_version:
-          description: Minimum software version associated with this module error
-          examples:
-          - 128T-6.0.0-1
-          type: string
-        reason:
-          description: Human-readable reason for the module error condition
-          type: string
-        since:
-          description: Epoch timestamp when the module error condition began
-          examples:
-          - 1657497600
-          type: integer
-        type:
-          description: Module error type code reported by the device
-          examples:
-          - FW_UPGRADE_REQUIRED_BY_FEATURE
-          type: string
-      required:
-      - since
-      - type
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    module_stat_item_pics_item:
-      additionalProperties: false
-      description: Physical Interface Card summary for a device module
-      properties:
-        index:
-          description: PIC index within the device module
-          type: integer
-        model_number:
-          description: Model number reported for the PIC
-          type: string
-        port_groups:
-          $ref: '#/components/schemas/module_stat_item_pics_item_port_groups'
-          description: Port groups provided by this PIC
-      type: object
-    last_seen:
-      description: Timestamp indicating when the entity was last seen
-      examples:
-      - 1470417522
-      format: double
-      readOnly: true
-      type:
-      - number
-      - 'null'
-    module_stat_item_temperatures_item:
-      additionalProperties: false
-      description: Temperature sensor reading for a device module
-      properties:
-        celsius:
-          description: Temperature reading for the sensor, in degrees Celsius
-          examples:
-          - 45
-          type: number
-        name:
-          description: Temperature sensor label reported by the device
-          examples:
-          - CPU
-          type: string
-        status:
-          description: Operational status reported for the temperature sensor
-          examples:
-          - ok
-          type: string
-      type: object
-    stats_switch_module_stat:
-      description: Hardware module statistics reported by a switch
-      items:
-        $ref: '#/components/schemas/stats_switch_module_stat_item'
-      minItems: 1
-      type: array
-      uniqueItems: true
-    virtual_chassis_config_member:
-      additionalProperties: false
-      description: Virtual Chassis member configuration
-      properties:
-        locating:
-          description: Whether this Virtual Chassis member is currently in locate mode
-          readOnly: true
-          type: boolean
-        mac:
-          description: Member MAC address; for FPC0 this matches the device MAC address
-          type: string
-        member_id:
-          description: Member ID used for a pre-provisioned Virtual Chassis
-          type: integer
-        vc_ports:
-          $ref: '#/components/schemas/strings'
-          description: Port names to use as Virtual Chassis ports on this member
-        vc_role:
-          $ref: '#/components/schemas/virtual_chassis_config_member_vc_role'
-          description: Role of this member in the Virtual Chassis
-      required:
-      - mac
-      - vc_role
-      type: object
-    cpu_stat_load_avg:
-      description: Load averages for the last 1, 5, and 15 minutes
-      items:
-        type: number
-      type: array
-    virtual_chassis_config_member_vc_role:
-      description: 'enum: `backup`, `linecard`, `master`'
-      enum:
-      - backup
-      - linecard
-      - master
-      type: string
     stats_switch_module_stat_item:
       additionalProperties: false
       description: Hardware module status and firmware inventory for a switch
@@ -926,59 +750,6 @@ components:
           - string
           - 'null'
       type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    module_stat_item_errors:
-      description: Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.
-      items:
-        $ref: '#/components/schemas/module_stat_item_errors_items'
-      type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    config_vc_port_member:
-      additionalProperties: false
-      description: Virtual Chassis member and port list for a VC port operation
-      properties:
-        member:
-          description: Virtual Chassis member ID whose VC ports are being configured
-          type: number
-        vc_ports:
-          $ref: '#/components/schemas/strings'
-          description: Port names to configure as Virtual Chassis ports on the member
-      required:
-      - member
-      type: object
     site_id:
       description: Unique identifier of a Mist site
       examples:
@@ -986,40 +757,87 @@ components:
       format: uuid
       readOnly: true
       type: string
-    vc_port_mode:
-      description: 'enum: `network`, `vcp-higig`, `vcp-hgoe`'
-      enum:
-      - network
-      - vcp-higig
-      - vcp-hgoe
-      type: string
-    module_stat_item_psus:
-      description: Power supply status records for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_psus_item'
-      type: array
-      uniqueItems: true
-    module_stat_item_psus_item:
+    module_stat_item_fans_items:
       additionalProperties: false
-      description: Power supply status for a device module
+      description: Cooling fan telemetry for a device module
       properties:
-        name:
-          description: Power supply label reported by the device
+        airflow:
+          description: Direction of airflow reported for the fan
           examples:
-          - Power Supply 0
+          - out
           type: string
+        name:
+          description: Fan label reported by the device
+          examples:
+          - Fan 0
+          type: string
+        rpm:
+          description: Current fan speed in revolutions per minute
+          type: integer
         status:
-          description: Operational status reported for the power supply
+          description: Operational status reported for the fan
           examples:
           - ok
           type: string
       type: object
-    module_stat_item_vc_links:
-      description: Virtual chassis link records for a device module
+    virtual_chassis_config:
+      description: Virtual Chassis creation or configuration request
+      properties:
+        locating:
+          description: Whether the Virtual Chassis is currently in locate mode
+          readOnly: true
+          type: boolean
+        members:
+          $ref: '#/components/schemas/virtual_chassis_config_members'
+          description: Virtual Chassis members and their expected roles and VC ports
+        preprovisioned:
+          default: false
+          description: Whether to create the Virtual Chassis in pre-provisioned mode
+          type: boolean
+      type: object
+    module_stat_item_pics_item:
+      additionalProperties: false
+      description: Physical Interface Card summary for a device module
+      properties:
+        index:
+          description: PIC index within the device module
+          type: integer
+        model_number:
+          description: Model number reported for the PIC
+          type: string
+        port_groups:
+          $ref: '#/components/schemas/module_stat_item_pics_item_port_groups'
+          description: Port groups provided by this PIC
+      type: object
+    virtual_chassis_config_member:
+      additionalProperties: false
+      description: Virtual Chassis member configuration
+      properties:
+        locating:
+          description: Whether this Virtual Chassis member is currently in locate mode
+          readOnly: true
+          type: boolean
+        mac:
+          description: Member MAC address; for FPC0 this matches the device MAC address
+          type: string
+        member_id:
+          description: Member ID used for a pre-provisioned Virtual Chassis
+          type: integer
+        vc_ports:
+          $ref: '#/components/schemas/strings'
+          description: Port names to use as Virtual Chassis ports on this member
+        vc_role:
+          $ref: '#/components/schemas/virtual_chassis_config_member_vc_role'
+          description: Role of this member in the Virtual Chassis
+      required:
+      - mac
+      - vc_role
+      type: object
+    virtual_chassis_config_members:
+      description: Virtual Chassis member configurations
       items:
-        $ref: '#/components/schemas/module_stat_item_vc_links_item'
+        $ref: '#/components/schemas/virtual_chassis_config_member'
       type: array
-      uniqueItems: true
     response_virtual_chassis_config:
       additionalProperties: false
       description: Combined virtual chassis status, topology, and member statistics
@@ -1072,20 +890,36 @@ components:
           readOnly: true
           type: string
       type: object
-    virtual_chassis_config:
-      description: Virtual Chassis creation or configuration request
+    module_stat_item_errors_items:
+      additionalProperties: false
+      description: Error condition reported for a device module
       properties:
-        locating:
-          description: Whether the Virtual Chassis is currently in locate mode
-          readOnly: true
-          type: boolean
-        members:
-          $ref: '#/components/schemas/virtual_chassis_config_members'
-          description: Virtual Chassis members and their expected roles and VC ports
-        preprovisioned:
-          default: false
-          description: Whether to create the Virtual Chassis in pre-provisioned mode
-          type: boolean
+        feature:
+          description: Affected feature associated with this module error condition
+          examples:
+          - Mist-Management
+          type: string
+        minimum_version:
+          description: Minimum software version associated with this module error
+          examples:
+          - 128T-6.0.0-1
+          type: string
+        reason:
+          description: Human-readable reason for the module error condition
+          type: string
+        since:
+          description: Epoch timestamp when the module error condition began
+          examples:
+          - 1657497600
+          type: integer
+        type:
+          description: Module error type code reported by the device
+          examples:
+          - FW_UPGRADE_REQUIRED_BY_FEATURE
+          type: string
+      required:
+      - since
+      - type
       type: object
     module_stat_item_temperatures:
       description: Temperature sensor readings for a device module
@@ -1093,6 +927,52 @@ components:
         $ref: '#/components/schemas/module_stat_item_temperatures_item'
       type: array
       uniqueItems: true
+    virtual_chassis_member_update_vc_role:
+      description: 'Required if `op`==`add` or `op`==`preprovision`. enum: `backup`, `linecard`, `master`'
+      enum:
+      - backup
+      - linecard
+      - master
+      type: string
+    virtual_chassis_update_members:
+      description: Member updates for a Virtual Chassis operation
+      items:
+        $ref: '#/components/schemas/virtual_chassis_member_update'
+      type: array
+    module_stat_item_psus_item:
+      additionalProperties: false
+      description: Power supply status for a device module
+      properties:
+        name:
+          description: Power supply label reported by the device
+          examples:
+          - Power Supply 0
+          type: string
+        status:
+          description: Operational status reported for the power supply
+          examples:
+          - ok
+          type: string
+      type: object
+    module_stat_item_pics:
+      description: Physical Interface Card summaries for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_pics_item'
+      type: array
+    virtual_chassis_port_members:
+      description: Virtual Chassis member port selections for a port operation
+      items:
+        $ref: '#/components/schemas/config_vc_port_member'
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     virtual_chassis_update_op:
       description: 'enum: `add`, `preprovision`, `remove`, `renumber`'
       enum:
@@ -1101,6 +981,42 @@ components:
       - remove
       - renumber
       type: string
+    module_stat_item_psus:
+      description: Power supply status records for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_psus_item'
+      type: array
+      uniqueItems: true
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     virtual_chassis_port:
       description: Request to set or delete Virtual Chassis ports on members
       properties:
@@ -1114,136 +1030,194 @@ components:
       - op
       - members
       type: object
-    module_stat_item_pics_item_port_groups:
-      description: Port group summaries for a PIC
+    module_stat_item_vc_links:
+      description: Virtual chassis link records for a device module
       items:
-        $ref: '#/components/schemas/module_stat_item_pics_item_port_groups_item'
-      type: array
-    virtual_chassis_port_members:
-      description: Virtual Chassis member port selections for a port operation
-      items:
-        $ref: '#/components/schemas/config_vc_port_member'
+        $ref: '#/components/schemas/module_stat_item_vc_links_item'
       type: array
       uniqueItems: true
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
+    module_stat_item_temperatures_item:
+      additionalProperties: false
+      description: Temperature sensor reading for a device module
+      properties:
+        celsius:
+          description: Temperature reading for the sensor, in degrees Celsius
+          examples:
+          - 45
+          type: number
+        name:
+          description: Temperature sensor label reported by the device
+          examples:
+          - CPU
+          type: string
+        status:
+          description: Operational status reported for the temperature sensor
+          examples:
+          - ok
+          type: string
+      type: object
+    module_stat_item_errors:
+      description: Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.
+      items:
+        $ref: '#/components/schemas/module_stat_item_errors_items'
+      type: array
+    virtual_chassis_update:
+      description: Virtual Chassis member update request
+      properties:
+        member:
+          description: Only if `op`==`renumber`; existing member ID to renumber
+          type: integer
+        members:
+          $ref: '#/components/schemas/virtual_chassis_update_members'
+          description: Member updates for add, remove, or preprovision operations
+        new-member:
+          description: Only if `op`==`renumber`; new member ID to assign
+          type: integer
+        op:
+          $ref: '#/components/schemas/virtual_chassis_update_op'
+          description: Action to perform on the Virtual Chassis
+        remove_inventory:
+          default: false
+          description: Only if `op`==`preprovision`. When removing members from a pre-provisioned VC, set to `true` to delete the inventory records for removed members (e.g. for RMA). Members being removed must be in "not-present" state.
+          type: boolean
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    cpu_stat:
+      additionalProperties: false
+      description: CPU utilization breakdown for a device
+      properties:
+        idle:
+          description: Percentage of CPU time that is idle
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        interrupt:
+          description: Percentage of CPU time being used by interrupts
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        load_avg:
+          $ref: '#/components/schemas/cpu_stat_load_avg'
+          description: Load averages for the last 1, 5, and 15 minutes
+        system:
+          description: Percentage of CPU time being used by system processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        usage:
+          description: Overall CPU usage percentage
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        user:
+          description: Percentage of CPU time being used by user processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
         type: string
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-  responses:
-    HTTP401:
-      content:
-        application/json:
+      type: array
+      uniqueItems: true
+    virtual_chassis_member_update:
+      additionalProperties: false
+      description: Member update for a Virtual Chassis add, remove, or preprovision operation
+      properties:
+        mac:
+          description: Required if `op`==`add` or `op`==`preprovision`; MAC address of the member to add or preprovision
+          type: string
+        member:
+          description: Required if `op`==`remove`; member ID to remove from the Virtual Chassis
+          type: integer
+        member_id:
+          description: Required if `op`==`preprovision`. Optional if `op`==`add`; target member ID for the Virtual Chassis member
+          type: integer
+        vc_ports:
+          $ref: '#/components/schemas/virtual_chassis_member_update_vc_ports'
+          description: Required if `op`==`add` or `op`==`preprovision`; port names to use as Virtual Chassis ports
+        vc_role:
+          $ref: '#/components/schemas/virtual_chassis_member_update_vc_role'
+          description: Required if `op`==`add` or `op`==`preprovision`; role of the member in the Virtual Chassis
+      type: object
+    module_stat_item_poe:
+      additionalProperties: false
+      description: Power over Ethernet telemetry for a device module
+      properties:
+        max_power:
+          description: Total PoE power budget available to the module, in watts
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
+          - 250
+          type: number
+        power_draw:
+          description: Current PoE power draw on the module, in watts
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP400:
-      content:
-        application/json:
+          - 120.3
+          type: number
+        status:
+          description: Operational status of PoE on the module
+          type: string
+      type: object
+    config_vc_port_member:
+      additionalProperties: false
+      description: Virtual Chassis member and port list for a VC port operation
+      properties:
+        member:
+          description: Virtual Chassis member ID whose VC ports are being configured
+          type: number
+        vc_ports:
+          $ref: '#/components/schemas/strings'
+          description: Port names to configure as Virtual Chassis ports on the member
+      required:
+      - member
+      type: object
+    stats_switch_module_stat:
+      description: Hardware module statistics reported by a switch
+      items:
+        $ref: '#/components/schemas/stats_switch_module_stat_item'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    OK:
-      description: OK
-    VirtualChassis:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VirtualChassisExample'
-          schema:
-            $ref: '#/components/schemas/response_virtual_chassis_config'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VirtualChassisExample'
-          schema:
-            $ref: '#/components/schemas/response_virtual_chassis_config'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    vc_port:
+      description: Request to change the Virtual Chassis port mode on a switch
+      properties:
+        mode:
+          $ref: '#/components/schemas/vc_port_mode'
+          description: Virtual Chassis port mode to apply
+      type: object
   examples:
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
     VirtualChassisExample:
       value:
         config_type: nonprovisioned
@@ -1386,6 +1360,121 @@ components:
         status: connected
         type: switch
         vc_mac: 52d9107af289
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  responses:
+    OK:
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    VirtualChassis:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VirtualChassisExample'
+          schema:
+            $ref: '#/components/schemas/response_virtual_chassis_config'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VirtualChassisExample'
+          schema:
+            $ref: '#/components/schemas/response_virtual_chassis_config'
+      description: Example response
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+  parameters:
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

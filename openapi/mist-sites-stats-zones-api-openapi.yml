@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -192,35 +161,110 @@ paths:
       - Sites Stats - Zones
 components:
   schemas:
-    zone_vertices_m:
-      description: Vertices used to define a zone boundary, expressed in meters
-      examples:
-      - - x: 24.1983341951072
-          y: 60.198314985369144
-        - x: 24.21486311190714
-          y: 57.22310996138056
-        - x: 27.685935639893827
-          y: 57.23963887818049
-        - x: 27.73552239029364
-          y: 60.198314985369144
-      items:
-        $ref: '#/components/schemas/zone_vertex_m'
-      type: array
+    stats_zone_discovered_assets_waits:
+      additionalProperties: false
+      description: Discovered asset wait time right now
+      properties:
+        avg:
+          description: Average wait time in seconds
+          examples:
+          - 0
+          type: number
+        max:
+          description: Longest wait time in seconds
+          examples:
+          - 0
+          type: number
+        min:
+          description: Shortest wait time in seconds
+          examples:
+          - 0
+          type: number
+        p95:
+          description: 95th percentile of all the wait time(s)
+          examples:
+          - 0
+          type: number
+      type: object
     stats_zones:
       description: Zone statistics records returned by a stats response
       items:
         $ref: '#/components/schemas/stats_zone'
       type: array
-    response_http403:
+    stats_zone_details_sdkclients:
+      description: List of SDK Clients currently in the zone and when they entered
+      items:
+        examples:
+        - 7e2b463d-c91c-ff7d-f3c0-6eccc6949ff8
+        type: string
+      type: array
+    zone_vertices:
+      description: Vertices used to define an area. It’s assumed that the last point connects to the first point and forms an closed area
+      examples:
+      - - x: 732
+          y: 1821
+        - x: 732.5
+          y: 1731
+        - x: 837.5
+          y: 1731.5
+        - x: 839
+          y: 1821
+      items:
+        $ref: '#/components/schemas/zone_vertex'
+      type: array
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    stats_zone_details_assets:
+      description: List of ble assets currently in the zone and when they entered
+      items:
+        examples:
+        - df8dff06ae90
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    zone_vertex_m:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Zone polygon vertex expressed in meters
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
+        x:
+          description: Horizontal coordinate of the zone vertex, in meters
+          format: double
+          type: number
+        y:
+          description: Vertical coordinate of the zone vertex, in meters
+          format: double
+          type: number
+      required:
+      - x
+      - y
       type: object
+      uniqueItems: true
+    zone_vertex:
+      additionalProperties: false
+      description: Zone polygon vertex expressed in map pixels
+      properties:
+        x:
+          description: Horizontal pixel coordinate of the zone vertex
+          format: double
+          type: number
+        y:
+          description: Vertical pixel coordinate of the zone vertex
+          format: double
+          type: number
+      required:
+      - x
+      - y
+      type: object
+      uniqueItems: true
     stats_zone_sdkclients_waits:
       additionalProperties: false
       description: SDK client wait time right now
@@ -246,38 +290,21 @@ components:
           - 0
           type: number
       type: object
-    stats_zone_assets_waits:
+    stats_zone_details_clients:
+      description: List of clients currently in the zone and when they entered
+      items:
+        examples:
+        - 5684dae9ac8b
+        type: string
+      type: array
+    response_http404:
       additionalProperties: false
-      description: BLE asset wait time right now
+      description: Standard HTTP 404 not found error response
       properties:
-        avg:
-          description: Average wait time in seconds
-          examples:
-          - 0
-          type: number
-        max:
-          description: Longest wait time in seconds
-          examples:
-          - 0
-          type: number
-        min:
-          description: Shortest wait time in seconds
-          examples:
-          - 0
-          type: number
-        p95:
-          description: 95th percentile of all the wait time(s)
-          examples:
-          - 0
-          type: number
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
     response_http400:
       additionalProperties: false
       description: Standard HTTP 400 bad request error response
@@ -288,37 +315,36 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    zone_vertex:
+    stats_zone_details_client_waits:
       additionalProperties: false
-      description: Zone polygon vertex expressed in map pixels
+      description: Client wait time right now
       properties:
-        x:
-          description: Horizontal pixel coordinate of the zone vertex
-          format: double
-          type: number
-        y:
-          description: Vertical pixel coordinate of the zone vertex
-          format: double
-          type: number
+        avg:
+          description: Average wait time in seconds
+          examples:
+          - 1200
+          type: integer
+        max:
+          description: Longest wait time in seconds
+          examples:
+          - 3610
+          type: integer
+        min:
+          description: Shortest wait time in seconds
+          examples:
+          - 600
+          type: integer
+        p95:
+          description: 95th percentile of all the wait time(s)
+          examples:
+          - 2800
+          type: integer
       required:
-      - x
-      - y
+      - avg
+      - max
+      - min
+      - p95
       type: object
-      uniqueItems: true
-    stats_zone_details_sdkclients:
-      description: List of SDK Clients currently in the zone and when they entered
-      items:
-        examples:
-        - 7e2b463d-c91c-ff7d-f3c0-6eccc6949ff8
-        type: string
-      type: array
-    stats_zone_details_clients:
-      description: List of clients currently in the zone and when they entered
-      items:
-        examples:
-        - 5684dae9ac8b
-        type: string
-      type: array
     stats_zone_clients_waits:
       additionalProperties: false
       description: Client wait time right now
@@ -344,14 +370,77 @@ components:
           - 2800
           type: number
       type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    stats_zone_discovered_assets_waits:
+    response_http401:
       additionalProperties: false
-      description: Discovered asset wait time right now
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    stats_zone_details:
+      additionalProperties: false
+      description: Detailed zone statistics and occupants for a site map zone
+      properties:
+        assets:
+          $ref: '#/components/schemas/stats_zone_details_assets'
+          description: BLE asset identifiers currently in the zone
+        client_waits:
+          $ref: '#/components/schemas/stats_zone_details_client_waits'
+          description: Wi-Fi client wait-time summary for the zone
+        clients:
+          $ref: '#/components/schemas/stats_zone_details_clients'
+          description: Wi-Fi client MAC addresses currently in the zone
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the zone
+        map_id:
+          description: Map identifier for the zone
+          examples:
+          - 63eda950-c6da-11e4-a628-60f81dd250cc
+          format: uuid
+          type: string
+        name:
+          description: Display name of the zone
+          examples:
+          - Board Room
+          type: string
+        num_clients:
+          description: Number of Wi-Fi clients currently counted in the zone
+          examples:
+          - 80
+          type: integer
+        num_sdkclients:
+          description: Number of SDK clients currently counted in the zone
+          examples:
+          - 0
+          type: integer
+        sdkclients:
+          $ref: '#/components/schemas/stats_zone_details_sdkclients'
+          description: SDK client identifiers currently in the zone
+      required:
+      - client_waits
+      - id
+      - map_id
+      - name
+      - num_clients
+      - num_sdkclients
+      type: object
+    stats_zone_unconnected_clients_waits:
+      additionalProperties: false
+      description: Unconnected Wi-Fi client wait time right now
       properties:
         avg:
           description: Average wait time in seconds
@@ -451,116 +540,47 @@ components:
       - name
       - devices
       type: object
-    stats_zone_details:
+    stats_rssi_zones:
+      description: RSSI-based zone statistics returned by the request
+      items:
+        $ref: '#/components/schemas/stats_rssi_zone'
+      type: array
+    stats_rssi_zones_device:
       additionalProperties: false
-      description: Detailed zone statistics and occupants for a site map zone
+      description: AP device and RSSI threshold used by an RSSI zone
       properties:
-        assets:
-          $ref: '#/components/schemas/stats_zone_details_assets'
-          description: BLE asset identifiers currently in the zone
-        client_waits:
-          $ref: '#/components/schemas/stats_zone_details_client_waits'
-          description: Wi-Fi client wait-time summary for the zone
-        clients:
-          $ref: '#/components/schemas/stats_zone_details_clients'
-          description: Wi-Fi client MAC addresses currently in the zone
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the zone
-        map_id:
-          description: Map identifier for the zone
-          examples:
-          - 63eda950-c6da-11e4-a628-60f81dd250cc
+        device_id:
+          description: Identifier of the AP device used by this RSSI zone
           format: uuid
           type: string
-        name:
-          description: Display name of the zone
-          examples:
-          - Board Room
-          type: string
-        num_clients:
-          description: Number of Wi-Fi clients currently counted in the zone
-          examples:
-          - 80
+        rssi:
+          description: Minimum RSSI threshold for considering a device inside the zone
           type: integer
-        num_sdkclients:
-          description: Number of SDK clients currently counted in the zone
-          examples:
-          - 0
-          type: integer
-        sdkclients:
-          $ref: '#/components/schemas/stats_zone_details_sdkclients'
-          description: SDK client identifiers currently in the zone
-      required:
-      - client_waits
-      - id
-      - map_id
-      - name
-      - num_clients
-      - num_sdkclients
       type: object
-    response_http404:
+    stats_zone_assets_waits:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    stats_zone_details_client_waits:
-      additionalProperties: false
-      description: Client wait time right now
+      description: BLE asset wait time right now
       properties:
         avg:
           description: Average wait time in seconds
           examples:
-          - 1200
-          type: integer
+          - 0
+          type: number
         max:
           description: Longest wait time in seconds
           examples:
-          - 3610
-          type: integer
+          - 0
+          type: number
         min:
           description: Shortest wait time in seconds
           examples:
-          - 600
-          type: integer
+          - 0
+          type: number
         p95:
           description: 95th percentile of all the wait time(s)
           examples:
-          - 2800
-          type: integer
-      required:
-      - avg
-      - max
-      - min
-      - p95
-      type: object
-    stats_rssi_zones_devices:
-      description: AP devices and RSSI thresholds that define an RSSI zone
-      items:
-        $ref: '#/components/schemas/stats_rssi_zones_device'
-      type: array
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
+          - 0
+          type: number
       type: object
     id:
       description: Unique ID of the object instance in the Mist Organization
@@ -569,13 +589,20 @@ components:
       format: uuid
       readOnly: true
       type: string
-    site_id:
-      description: Unique identifier of a Mist site
+    zone_vertices_m:
+      description: Vertices used to define a zone boundary, expressed in meters
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
+      - - x: 24.1983341951072
+          y: 60.198314985369144
+        - x: 24.21486311190714
+          y: 57.22310996138056
+        - x: 27.685935639893827
+          y: 57.23963887818049
+        - x: 27.73552239029364
+          y: 60.198314985369144
+      items:
+        $ref: '#/components/schemas/zone_vertex_m'
+      type: array
     created_time:
       description: When the object has been created, in epoch
       format: double
@@ -667,115 +694,77 @@ components:
       - map_id
       - name
       type: object
-    zone_vertices:
-      description: Vertices used to define an area. It’s assumed that the last point connects to the first point and forms an closed area
-      examples:
-      - - x: 732
-          y: 1821
-        - x: 732.5
-          y: 1731
-        - x: 837.5
-          y: 1731.5
-        - x: 839
-          y: 1821
+    stats_rssi_zones_devices:
+      description: AP devices and RSSI thresholds that define an RSSI zone
       items:
-        $ref: '#/components/schemas/zone_vertex'
+        $ref: '#/components/schemas/stats_rssi_zones_device'
       type: array
-    stats_zone_details_assets:
-      description: List of ble assets currently in the zone and when they entered
-      items:
-        examples:
-        - df8dff06ae90
-        type: string
-      type: array
-    stats_rssi_zones:
-      description: RSSI-based zone statistics returned by the request
-      items:
-        $ref: '#/components/schemas/stats_rssi_zone'
-      type: array
-    zone_vertex_m:
+    response_http429:
       additionalProperties: false
-      description: Zone polygon vertex expressed in meters
+      description: Standard HTTP 429 rate limit error response
       properties:
-        x:
-          description: Horizontal coordinate of the zone vertex, in meters
-          format: double
-          type: number
-        y:
-          description: Vertical coordinate of the zone vertex, in meters
-          format: double
-          type: number
-      required:
-      - x
-      - y
-      type: object
-      uniqueItems: true
-    stats_zone_unconnected_clients_waits:
-      additionalProperties: false
-      description: Unconnected Wi-Fi client wait time right now
-      properties:
-        avg:
-          description: Average wait time in seconds
+        detail:
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 0
-          type: number
-        max:
-          description: Longest wait time in seconds
-          examples:
-          - 0
-          type: number
-        min:
-          description: Shortest wait time in seconds
-          examples:
-          - 0
-          type: number
-        p95:
-          description: 95th percentile of all the wait time(s)
-          examples:
-          - 0
-          type: number
-      type: object
-    stats_rssi_zones_device:
-      additionalProperties: false
-      description: AP device and RSSI threshold used by an RSSI zone
-      properties:
-        device_id:
-          description: Identifier of the AP device used by this RSSI zone
-          format: uuid
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-        rssi:
-          description: Minimum RSSI threshold for considering a device inside the zone
-          type: integer
       type: object
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    zone_id:
-      in: path
-      name: zone_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
   examples:
-    ZoneStatsArraywithoutmapidqueryparam:
+    HTTP429Example:
       value:
-      - created_time: 1616625211
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    ZoneStatsExample:
+      value:
+        assets:
+        - df8dff06ae90
+        client_waits:
+          avg: 1200
+          max: 3610
+          min: 600
+          p95: 2800
+        clients:
+        - 5684dae9ac8b
+        id: 8ac84899-32db-6327-334c-9b6d58544cfe
+        map_id: 63eda950-c6da-11e4-a628-60f81dd250cc
+        name: Board Room
+        num_clients: 80
+        num_sdkclients: 0
+        sdkclients:
+        - 7e2b463d-c91c-ff7d-f3c0-6eccc6949ff8
+    ZoneStatsArrayExample1:
+      value:
+      - assets_wait:
+          avg: 0
+          max: 0
+          min: 0
+          p95: 0
+        clients_wait:
+          avg: 1200
+          max: 3610
+          min: 600
+          p95: 2800
+        created_time: 1616625211
         id: 123470c7-5d9d-424a-8475-8b344c621234
         map_id: 123449d4-d12f-4feb-b40f-5be0e2ae1234
         modified_time: 1616625211
         name: Zone A
+        num_assets: 0
+        num_clients: 80
+        num_sdkclients: 10
         occupancy_limit: 4
         org_id: 1234c1a0-6ef6-11e6-8bbf-02e208b21234
+        sdkclients_wait:
+          avg: 1200
+          max: 3610
+          min: 600
+          p95: 2800
         site_id: 123448e6-6ef6-11e6-8bbf-02e208b21234
         vertices:
         - x: 732
@@ -836,39 +825,15 @@ components:
           max: 68342
           min: 6649
           p95: 68342
-    HTTP400Example:
+    ZoneStatsArraywithoutmapidqueryparam:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    ZoneStatsArrayExample1:
-      value:
-      - assets_wait:
-          avg: 0
-          max: 0
-          min: 0
-          p95: 0
-        clients_wait:
-          avg: 1200
-          max: 3610
-          min: 600
-          p95: 2800
-        created_time: 1616625211
+      - created_time: 1616625211
         id: 123470c7-5d9d-424a-8475-8b344c621234
         map_id: 123449d4-d12f-4feb-b40f-5be0e2ae1234
         modified_time: 1616625211
         name: Zone A
-        num_assets: 0
-        num_clients: 80
-        num_sdkclients: 10
         occupancy_limit: 4
         org_id: 1234c1a0-6ef6-11e6-8bbf-02e208b21234
-        sdkclients_wait:
-          avg: 1200
-          max: 3610
-          min: 600
-          p95: 2800
         site_id: 123448e6-6ef6-11e6-8bbf-02e208b21234
         vertices:
         - x: 732
@@ -888,61 +853,35 @@ components:
           y: 57.23963887818049
         - x: 27.73552239029364
           y: 60.198314985369144
-    ZoneStatsExample:
-      value:
-        assets:
-        - df8dff06ae90
-        client_waits:
-          avg: 1200
-          max: 3610
-          min: 600
-          p95: 2800
-        clients:
-        - 5684dae9ac8b
-        id: 8ac84899-32db-6327-334c-9b6d58544cfe
-        map_id: 63eda950-c6da-11e4-a628-60f81dd250cc
-        name: Board Room
-        num_clients: 80
-        num_sdkclients: 0
-        sdkclients:
-        - 7e2b463d-c91c-ff7d-f3c0-6eccc6949ff8
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    zone_id:
+      in: path
+      name: zone_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     ZoneStats:
       content:
         application/json:
@@ -958,6 +897,21 @@ components:
           schema:
             $ref: '#/components/schemas/stats_zone_details'
       description: Zone Stats
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP404:
       content:
         application/json:
@@ -967,36 +921,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http404'
       description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     RssiZoneStatsArray:
       content:
         application/json:
@@ -1012,6 +936,21 @@ components:
           schema:
             $ref: '#/components/schemas/stats_rssi_zones'
       description: Example response
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     ZoneStatsArray:
       content:
         application/json:
@@ -1031,6 +970,36 @@ components:
           schema:
             $ref: '#/components/schemas/stats_zones'
       description: Example response
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -9,41 +9,10 @@ info:
 
     > Date: **July 10, 2026**
 
-    <div class="notification"> NOTE:<br>Some important API changes will be introduced. Please make sure to read the <a href="https://www.juniper.net/documentation/us/en/software/mist/api/http/guides/important-api-changes">announcements</a> </div>
 
+    NOTE:
 
-    ---
-
-    ## Additional Documentation
-
-    * [Mist Automation Guide](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/index.html)
-
-    * [Mist Location SDK](https://www.juniper.net/documentation/us/en/software/mist/location-services/topics/concept/mist-how-get-mist-sdk.html)
-
-    * [Mist Product Updates](https://www.juniper.net/documentation/us/en/software/mist/product-updates/)
-
-
-    ## Helpful Resources
-
-    * [API Sandbox and Exercises](https://api-class.mist.com/)
-
-    * [Postman Collection, Runners and Webhook Samples](https://www.postman.com/juniper-mist/workspace/mist-systems-s-public-workspace)
-
-    * [Python Script Examples](https://github.com/tmunzer/mist_library)
-
-    * [API Demo Apps](https://apps.mist-lab.fr/)
-
-    * [Juniper Blog](https://blogs.juniper.net/)
-
-
-    ## Mist Web Browser Extension:
-
-    * Google Chrome, Microsoft Edge and other Chromium-based browser: [Chrome Web Store](https://chromewebstore.google.com/detail/mist-extension/ejhpdcljeamillfhdihkkmoakanpbplh)
-
-    * Firefox: [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/mist-extension/)
-
-
-    ---'
+    Some important API changes will be introduced.'
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
@@ -82,7 +51,7 @@ security:
 - apiToken: []
 - csrfToken: []
 tags:
-- description: "In a typical enterprise, a separate group of people, Installers, are responsible for install new devices. May it be a new installation (e.g. new stores), a replacement installation (e.g. replacing Cisco APs with Mist APs), or addition (e.g. adding new APs for better coverage). Instead of granting them Admin/Write privilege, it's more desirable to grant them minimum privileges to do the initial provisioning so they cannot read sensible information (e.g. PSK of a WLAN), or change configs of running APs.\nAt a high level, Installer APs try to achieve the following:\n1. identifying a device by MAC (that\\u2019\\ \ns what they see)\n2. they can only touch configurations of the devices they\\u2019\\\nre installing\n3. allow the following configurations: \n  * name * site assignment \n  * device profile assignment \n  * map and location (x/y) assignment \n  * claim (if not already in the inventory) \n  * replace existing device with the device being installed\n\n**Grace Period**\n\nGrace period provides a dynamic way to limit what devices / sites installer can work on. Generally installers work on recent deployments - bringing up new sites, add newly claimed devices to new / existing sites. They make mistakes, too, and may need to further tweak some of the parameters. Default grace period is 7 days and can be set from 1 day to 365 days."
+- description: In a typical enterprise, a separate group of people, Installers, are responsible for install new devices.
   name: Installer
 paths:
   /api/v1/installer/orgs/{org_id}/alarmtemplates:
@@ -236,7 +205,10 @@ paths:
       tags:
       - Installer
     put:
-      description: "Provision or replace an installer-managed device. \n\nIf replacing_mac is in the request payload, other attributes are ignored, we attempt to replace existing device (with MAC address `replacing_mac`) with the inventory device being configured. The replacement device must be in the inventory but not assigned, and the replacing_mac device must be assigned to a site, and satisfy grace period requirements. The Device replaced will become unassigned."
+      description: 'Provision or replace an installer-managed device.
+
+
+        If replacing_mac is in the request payload, other attributes are ignored, we attempt to replace existing device (with MAC address `replacing_mac`) with the inventory device being configured. The replacement device must be in the inventory but not assigned, and the replacing_mac device must be assigned to a site, and satisfy grace period requirements. The Device replaced will become unassigned.'
       operationId: provisionInstallerDevices
       requestBody:
         content:
@@ -276,7 +248,7 @@ paths:
     - $ref: '#/components/parameters/org_id'
     - $ref: '#/components/parameters/device_mac'
     post:
-      description: Start locating an installer-managed device by blinking its LED. The locate state persists until [Stop Locating Installer Device](/#operations/stopInstallerLocateDevice) is called.
+      description: Start locating an installer-managed device by blinking its LED. The locate state persists until Stop Locating Installer Device is called.
       operationId: startInstallerLocateDevice
       responses:
         '200':
@@ -482,7 +454,93 @@ paths:
       tags:
       - Installer
     put:
-      description: "The VC creation and adding member switch API will update the device’ s virtual chassis config which is applied after VC is formed to create JUNOS pre-provisioned virtual chassis configuration.\n\n## Change to use preprovisioned VC\nTo switch the VC to use preprovisioned VC, enable preprovisioned in virtual_chassis config. Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config.\n\nIn this config, fpc0 has to be the same as the mac of device_id. Use renumber if you want to replace fpc0 which involves device_id change.\n\nNotice: to configure preprovisioned VC, every member of the VC must be in the inventory.\n\n## Add new members\nFor models (e.g. EX4300 and up) having dedicated VC ports, it is easier to add new member switches into a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new members and update the inventory.\n\nFor EX2300 VC, adding new members requires to follow the procedures below:\n1. Powering on the new member switches and ensuring cables are not connected to any VC ports.\n2. Claim or adopt all new member switches under the VC’s organization Inventory\n3. Assign all new member switches to the same Site as the VC\n4. Invoke vc command to add switches to the VC.\n5. Connect the cables to the VC ports for these switches\n6. After a while, the Org’s Inventory shows this new switches has been added into the VC.\n\n## Removing member switch\nTo remove a member switch from the VC, following the procedures below:\n\n1. Ensuring the VC is connected to the cloud first\n2. Unplug the cable from the VC port of the switch\n3. Waiting for the VC state (vc_state) of this switch is changed to not-present\n4. Invoke update_vc with remove to remove this switch from the VC\n5. The Org’s Inventory shows the switch is removed.\n\nPlease notice that member ID 0 (fpc0) cannot be removed. When a VC has two switches left, unplugging the cable may result in the situation that fpc0 becomes a line card (LC). When this situation is happening, please re-plug in the cable, wait for both switches becoming present (show virtual-chassis) and then removing the cable again.\n\n## Renumber a member switch\nWhen a member switch doesn't' work properly and needed to be replaced, the renumber API could be used. The following two types of renumber are supported:\n\n1. Replace a non-fpc0 member switch\n2. Replace fpc0. When fpc0 is replaced, PAPI device config and JUNOS config will be both updated.\n\nFor renumber to work, the following procedures are needed: \n1. Ensuring the VC is connected to the cloud and the state of the member switch to be replaced must be non present. \n2. Adding the new member switch to the VC \n3. Waiting for the VC state (vc_state) of this VC to be updated to API server \n4. Invoke vc with renumber to replace the new member switch from fpc X to\n\n## Perprovision VC members\nBy specifying \"preprovision\" op, you can convert the current VC to pre-provisioned mode, update VC members as well as specify vc_ports when adding new members for device models without dedicated vc ports. Use renumber for fpc0 replacement which involves device_id change.\n\nNote: \n1. vc_ports is used for adding new members and not needed if * the device model has dedicated vc ports, or * no new member is added \n2. New VC members to be added should exist in the same Site as the VC\n\nUpdate Device’s VC config can achieve similar purpose by directly modifying current virtual_chassis config. However, it cannot fulfill requests to enabling vc_ports on new members that are yet to belong to current VC."
+      description: 'The VC creation and adding member switch API will update the device’ s virtual chassis config which is applied after VC is formed to create JUNOS pre-provisioned virtual chassis configuration.
+
+
+        ## Change to use preprovisioned VC
+
+        To switch the VC to use preprovisioned VC, enable preprovisioned in virtual_chassis config. Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config.
+
+
+        In this config, fpc0 has to be the same as the mac of device_id. Use renumber if you want to replace fpc0 which involves device_id change.
+
+
+        Notice: to configure preprovisioned VC, every member of the VC must be in the inventory.
+
+
+        ## Add new members
+
+        For models (e.g. EX4300 and up) having dedicated VC ports, it is easier to add new member switches into a VC by just connecting cables with the dedicated VC ports. Cloud will detect the new members and update the inventory.
+
+
+        For EX2300 VC, adding new members requires to follow the procedures below:
+
+        1. Powering on the new member switches and ensuring cables are not connected to any VC ports.
+
+        2. Claim or adopt all new member switches under the VC’s organization Inventory
+
+        3. Assign all new member switches to the same Site as the VC
+
+        4. Invoke vc command to add switches to the VC.
+
+        5. Connect the cables to the VC ports for these switches
+
+        6. After a while, the Org’s Inventory shows this new switches has been added into the VC.
+
+
+        ## Removing member switch
+
+        To remove a member switch from the VC, following the procedures below:
+
+
+        1. Ensuring the VC is connected to the cloud first
+
+        2. Unplug the cable from the VC port of the switch
+
+        3. Waiting for the VC state (vc_state) of this switch is changed to not-present
+
+        4. Invoke update_vc with remove to remove this switch from the VC
+
+        5. The Org’s Inventory shows the switch is removed.
+
+
+        Please notice that member ID 0 (fpc0) cannot be removed. When a VC has two switches left, unplugging the cable may result in the situation that fpc0 becomes a line card (LC). When this situation is happening, please re-plug in the cable, wait for both switches becoming present (show virtual-chassis) and then removing the cable again.
+
+
+        ## Renumber a member switch
+
+        When a member switch doesn''t'' work properly and needed to be replaced, the renumber API could be used. The following two types of renumber are supported:
+
+
+        1. Replace a non-fpc0 member switch
+
+        2. Replace fpc0. When fpc0 is replaced, PAPI device config and JUNOS config will be both updated.
+
+
+        For renumber to work, the following procedures are needed:
+
+        1. Ensuring the VC is connected to the cloud and the state of the member switch to be replaced must be non present.
+
+        2. Adding the new member switch to the VC
+
+        3. Waiting for the VC state (vc_state) of this VC to be updated to API server
+
+        4. Invoke vc with renumber to replace the new member switch from fpc X to
+
+
+        ## Perprovision VC members
+
+        By specifying "preprovision" op, you can convert the current VC to pre-provisioned mode, update VC members as well as specify vc_ports when adding new members for device models without dedicated vc ports. Use renumber for fpc0 replacement which involves device_id change.
+
+
+        Note:
+
+        1. vc_ports is used for adding new members and not needed if * the device model has dedicated vc ports, or * no new member is added
+
+        2. New VC members to be added should exist in the same Site as the VC
+
+
+        Update Device’s VC config can achieve similar purpose by directly modifying current virtual_chassis config. However, it cannot fulfill requests to enabling vc_ports on new members that are yet to belong to current VC.'
       operationId: updateInstallerVirtualChassisMember
       requestBody:
         content:
@@ -856,90 +914,159 @@ paths:
       - Installer
 components:
   schemas:
-    virtual_chassis_member_update_vc_role:
-      description: 'Required if `op`==`add` or `op`==`preprovision`. enum: `backup`, `linecard`, `master`'
+    map_site_import_file:
+      additionalProperties: false
+      description: Multipart payload for importing map files at site scope
+      properties:
+        auto_deviceprofile_assignment:
+          description: Whether to auto assign device to deviceprofile by name
+          examples:
+          - true
+          type: boolean
+        csv:
+          contentMediaType: application/octet-stream
+          description: Optional AP name-mapping CSV file
+          type: string
+        file:
+          contentMediaType: application/octet-stream
+          description: Ekahau or iBwave floorplan file to import
+          type: string
+        json:
+          $ref: '#/components/schemas/map_import_json'
+          description: Import options for the site map file
+      type: object
+    cpu_stat_load_avg:
+      description: Load averages for the last 1, 5, and 15 minutes
+      items:
+        type: number
+      type: array
+    map_node_position:
+      additionalProperties: false
+      description: Position of a map path node
+      properties:
+        x:
+          description: Horizontal coordinate of the map node
+          examples:
+          - 746
+          format: double
+          type: number
+        y:
+          description: Vertical coordinate of the map node
+          examples:
+          - 104
+          format: double
+          type: number
+      required:
+      - x
+      - y
+      type: object
+    virtual_chassis_config_member_vc_role:
+      description: 'enum: `backup`, `linecard`, `master`'
       enum:
       - backup
       - linecard
       - master
       type: string
-    map_type:
-      default: image
-      description: 'Map type, such as `image` or `google`. enum: `google`, `image`'
-      enum:
-      - google
-      - image
-      examples:
-      - image
-      type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    virtual_chassis_member_update:
+    latlng_br:
       additionalProperties: false
-      description: Member update for a Virtual Chassis add, remove, or preprovision operation
+      description: When `type`==`google`, latitude and longitude of the bottom-right corner
       properties:
-        mac:
-          description: Required if `op`==`add` or `op`==`preprovision`; MAC address of the member to add or preprovision
+        lat:
+          description: Bottom-right latitude for the Google map bounds
           type: string
-        member:
-          description: Required if `op`==`remove`; member ID to remove from the Virtual Chassis
-          type: integer
-        member_id:
-          description: Required if `op`==`preprovision`. Optional if `op`==`add`; target member ID for the Virtual Chassis member
-          type: integer
-        vc_ports:
-          $ref: '#/components/schemas/virtual_chassis_member_update_vc_ports'
-          description: Required if `op`==`add` or `op`==`preprovision`; port names to use as Virtual Chassis ports
-        vc_role:
-          $ref: '#/components/schemas/virtual_chassis_member_update_vc_role'
-          description: Required if `op`==`add` or `op`==`preprovision`; role of the member in the Virtual Chassis
-      type: object
-    module_stat_item_poe:
-      additionalProperties: false
-      description: Power over Ethernet telemetry for a device module
-      properties:
-        max_power:
-          description: Total PoE power budget available to the module, in watts
-          examples:
-          - 250
-          type: number
-        power_draw:
-          description: Current PoE power draw on the module, in watts
-          examples:
-          - 120.3
-          type: number
-        status:
-          description: Operational status of PoE on the module
+        lng:
+          description: Bottom-right longitude for the Google map bounds
           type: string
       type: object
-    maps:
-      description: Maps or floorplans returned by the API
+    map_node:
+      additionalProperties: false
+      description: Node in a map path graph
+      properties:
+        edges:
+          additionalProperties:
+            type: string
+          description: Adjacent node IDs and path weights for this map node
+          examples:
+          - N1: '1'
+          type: object
+        name:
+          description: Map node identifier or display name
+          examples:
+          - N1
+          type: string
+        position:
+          $ref: '#/components/schemas/map_node_position'
+          description: Coordinates of this map node
+      required:
+      - name
+      type: object
+    map_wayfinding_path:
+      additionalProperties: false
+      description: JSON blob for wayfinding (using Dijkstra’s algorithm)
+      properties:
+        coordinate:
+          description: Wayfinding path coordinate space
+          examples:
+          - actual
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_wayfinding_path_nodes'
+          description: Path nodes used for wayfinding routes
+      type: object
+    latlng_tl:
+      additionalProperties: false
+      description: When `type`==`google`, latitude and longitude of the top-left corner
+      properties:
+        lat:
+          description: Top-left latitude for the Google map bounds
+          type: string
+        lng:
+          description: Top-left longitude for the Google map bounds
+          type: string
+      type: object
+    module_stat_item_temperatures:
+      description: Temperature sensor readings for a device module
       items:
-        $ref: '#/components/schemas/map'
+        $ref: '#/components/schemas/module_stat_item_temperatures_item'
       type: array
-    module_stat_item_vc_links_item:
+      uniqueItems: true
+    module_stat_item_pics:
+      description: Physical Interface Card summaries for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_pics_item'
+      type: array
+    response_http404:
       additionalProperties: false
-      description: Virtual chassis link endpoint for a device module
+      description: Standard HTTP 404 not found error response
       properties:
-        neighbor_module_idx:
-          description: Index of the neighboring module connected through this virtual chassis link
-          examples:
-          - 1
-          type: integer
-        neighbor_port_id:
-          description: Port identifier on the neighboring module for this virtual chassis link
-          examples:
-          - vcp-255/1/0
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
-        port_id:
-          description: Local port identifier for this virtual chassis link
+      type: object
+    module_stat_item_psus:
+      description: Power supply status records for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_psus_item'
+      type: array
+      uniqueItems: true
+    module_stat_item_temperatures_item:
+      additionalProperties: false
+      description: Temperature sensor reading for a device module
+      properties:
+        celsius:
+          description: Temperature reading for the sensor, in degrees Celsius
           examples:
-          - vcp-255/1/0
+          - 45
+          type: number
+        name:
+          description: Temperature sensor label reported by the device
+          examples:
+          - CPU
+          type: string
+        status:
+          description: Operational status reported for the temperature sensor
+          examples:
+          - ok
           type: string
       type: object
     virtual_chassis_update:
@@ -962,38 +1089,11 @@ components:
           description: Only if `op`==`preprovision`. When removing members from a pre-provisioned VC, set to `true` to delete the inventory records for removed members (e.g. for RMA). Members being removed must be in "not-present" state.
           type: boolean
       type: object
-    response_map_import_summary:
-      additionalProperties: false
-      description: Counts summarizing assignments made during the map import
-      properties:
-        num_ap_assigned:
-          description: Number of AP placements assigned during the map import
-          type: integer
-        num_inv_assigned:
-          description: Number of inventory records assigned to the site during the map import
-          type: integer
-        num_map_assigned:
-          description: Number of map floorplans assigned during the map import
-          type: integer
-      required:
-      - num_ap_assigned
-      - num_map_assigned
-      - num_inv_assigned
-      type: object
-    claim_codes:
-      description: List of Claim Codes
-      examples:
-      - - 6JG8E-PTFV2-A9Z2N
-        - DVH4V-SNMSZ-PDXBR
+    map_wayfinding_path_nodes:
+      description: Map nodes included in a wayfinding path
       items:
-        description: Claim code
-        type: string
-      type: array
-      uniqueItems: true
-    installer_sites:
-      description: Sites available to installer workflows
-      items:
-        $ref: '#/components/schemas/installer_site'
+        $ref: '#/components/schemas/map_node'
+      minItems: 0
       type: array
     strings:
       description: Unique string values returned or accepted by this schema
@@ -1001,6 +1101,222 @@ components:
         type: string
       type: array
       uniqueItems: true
+    response_inventory_duplicated:
+      description: Claim codes already present in organization inventory
+      items:
+        examples:
+        - DVH4V-SNMSZ-PDXBR
+        type: string
+      type: array
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    map_wayfinding_micello:
+      additionalProperties: false
+      description: Micello wayfinding integration settings
+      properties:
+        account_key:
+          description: Micello account key used for wayfinding
+          examples:
+          - adasdf
+          type: string
+        default_level_id:
+          description: Default Micello floor or level identifier for wayfinding
+          examples:
+          - 5
+          type: integer
+        map_id:
+          description: Micello map identifier used for wayfinding
+          examples:
+          - c660f81dd250c
+          type: string
+      type: object
+    module_stat_item_fans:
+      description: Cooling fan status records for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_fans_items'
+      type: array
+      uniqueItems: true
+    memory_stat:
+      additionalProperties: false
+      description: Memory utilization statistics for a device; in a virtual chassis, this reports the master Routing Engine
+      properties:
+        usage:
+          description: Current memory utilization percentage for the device or master Routing Engine
+          type: number
+      required:
+      - usage
+      type: object
+    installers_item:
+      additionalProperties: false
+      description: Installer access entry with scope and role details
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the installer access entry
+        name:
+          description: Display name of the installer access entry
+          examples:
+          - 'Entry #1'
+          type: string
+      type: object
+    installer_site:
+      description: Site definition available to installer workflows
+      properties:
+        address:
+          description: Street or postal address for the installer site
+          examples:
+          - 1601 S. Deanza Blvd., Cupertino, CA, 95014
+          type: string
+        country_code:
+          description: ISO country code for the installer site
+          examples:
+          - US
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the installer site
+        latlng:
+          $ref: '#/components/schemas/lat_lng'
+          description: Geographic coordinates of the installer site
+        name:
+          description: Display name of the installer site
+          examples:
+          - Mist Office
+          type: string
+        rftemplate_name:
+          description: RF template name applied to the installer site
+          examples:
+          - rftemplate1
+          type: string
+        sitegroup_names:
+          $ref: '#/components/schemas/installer_site_sitegroup_names'
+          description: Names of site groups associated with the installer site
+        timezone:
+          description: Time zone configured for the installer site
+          examples:
+          - America/Los_Angeles
+          type: string
+      required:
+      - address
+      - country_code
+      - latlng
+      - name
+      type: object
+    virtual_chassis_config:
+      description: Virtual Chassis creation or configuration request
+      properties:
+        locating:
+          description: Whether the Virtual Chassis is currently in locate mode
+          readOnly: true
+          type: boolean
+        members:
+          $ref: '#/components/schemas/virtual_chassis_config_members'
+          description: Virtual Chassis members and their expected roles and VC ports
+        preprovisioned:
+          default: false
+          description: Whether to create the Virtual Chassis in pre-provisioned mode
+          type: boolean
+      type: object
+    response_map_import_ap:
+      additionalProperties: false
+      description: AP placement result from a map import
+      properties:
+        action:
+          $ref: '#/components/schemas/response_map_import_ap_action'
+          description: Import action applied to this AP
+        floorplan_id:
+          description: Floorplan identifier where the AP placement was imported
+          format: uuid
+          type: string
+        height:
+          description: Mounting height for the AP on the imported floorplan
+          format: double
+          type: number
+        mac:
+          description: AP MAC address matched from the import file
+          type: string
+        map_id:
+          description: Map identifier associated with the imported AP placement
+          format: uuid
+          type: string
+        orientation:
+          description: AP orientation in degrees on the imported floorplan
+          type: integer
+        reason:
+          description: Explanation of why the AP import action was not completed, when provided
+          type: string
+      required:
+      - mac
+      - action
+      - map_id
+      - floorplan_id
+      - orientation
+      type: object
+    module_stat_item_pics_item:
+      additionalProperties: false
+      description: Physical Interface Card summary for a device module
+      properties:
+        index:
+          description: PIC index within the device module
+          type: integer
+        model_number:
+          description: Model number reported for the PIC
+          type: string
+        port_groups:
+          $ref: '#/components/schemas/module_stat_item_pics_item_port_groups'
+          description: Port groups provided by this PIC
+      type: object
+    map_geofence_vertices:
+      description: List of vertices defining the geofence
+      items:
+        $ref: '#/components/schemas/map_geofence_vertice'
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    map_geofence_vertice:
+      additionalProperties: false
+      description: Vertex coordinate for a map geofence polygon
+      properties:
+        X:
+          description: Geofence vertex X coordinate in map units
+          examples:
+          - 700
+          type: number
+        Y:
+          description: Geofence vertex Y coordinate in map units
+          examples:
+          - 100
+          type: number
+      type: object
+    installer_device_ble_stat:
+      additionalProperties: false
+      description: BLE statistics for the device
+      properties:
+        major:
+          description: iBeacon major value reported by the device
+          examples:
+          - 12345
+          type: integer
+        minors:
+          description: iBeacon minor values reported by the device
+          items:
+            type: integer
+          type: array
+        uuid:
+          description: iBeacon UUID advertised by the device
+          examples:
+          - ada72f8f-1643-e5c6-94db-f2a5636f1a64
+          format: uuid
+          type: string
+      type: object
     map:
       description: Map or floorplan metadata for a site or organization
       properties:
@@ -1135,18 +1451,119 @@ components:
           format: double
           type: number
       type: object
-    map_wayfinding_path:
+    response_map_import_summary:
       additionalProperties: false
-      description: JSON blob for wayfinding (using Dijkstra’s algorithm)
+      description: Counts summarizing assignments made during the map import
       properties:
-        coordinate:
-          description: Wayfinding path coordinate space
+        num_ap_assigned:
+          description: Number of AP placements assigned during the map import
+          type: integer
+        num_inv_assigned:
+          description: Number of inventory records assigned to the site during the map import
+          type: integer
+        num_map_assigned:
+          description: Number of map floorplans assigned during the map import
+          type: integer
+      required:
+      - num_ap_assigned
+      - num_map_assigned
+      - num_inv_assigned
+      type: object
+    response_inventory_inventory_duplicated:
+      description: Detailed inventory records already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_inventory_inventory_duplicated_items'
+      type: array
+      uniqueItems: true
+    virtual_chassis_update_op:
+      description: 'enum: `add`, `preprovision`, `remove`, `renumber`'
+      enum:
+      - add
+      - preprovision
+      - remove
+      - renumber
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-          - actual
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
-        nodes:
-          $ref: '#/components/schemas/map_wayfinding_path_nodes'
-          description: Path nodes used for wayfinding routes
+      type: object
+    maps:
+      description: Maps or floorplans returned by the API
+      items:
+        $ref: '#/components/schemas/map'
+      type: array
+    installers:
+      description: Installer access entries returned by list responses
+      items:
+        $ref: '#/components/schemas/installers_item'
+      type: array
+    module_stat_item_vc_links:
+      description: Virtual chassis link records for a device module
+      items:
+        $ref: '#/components/schemas/module_stat_item_vc_links_item'
+      type: array
+      uniqueItems: true
+    map_wall_path_nodes:
+      description: Map nodes included in a wall path
+      items:
+        $ref: '#/components/schemas/map_node'
+      minItems: 0
+      type: array
+    map_wayfinding:
+      additionalProperties: false
+      description: Properties related to wayfinding
+      properties:
+        micello:
+          $ref: '#/components/schemas/map_wayfinding_micello'
+          description: External Micello wayfinding integration settings for this map
+        snap_to_path:
+          description: Whether wayfinding should snap routes to configured paths
+          type: boolean
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    virtual_chassis_member_update_vc_ports:
+      description: Required if `op`==`add` or `op`==`preprovision`
+      items:
+        type: string
+      type: array
+    map_geofence:
+      additionalProperties: false
+      description: Geofence drawn on a map
+      properties:
+        name:
+          description: Display name for the map geofence
+          examples:
+          - example
+          type: string
+        vertices:
+          $ref: '#/components/schemas/map_geofence_vertices'
+          description: Polygon points that define the geofence boundary
+      type: object
+    module_stat_item_pics_item_port_groups_item:
+      additionalProperties: false
+      description: Port group summary for a PIC
+      properties:
+        count:
+          description: Number of ports in this PIC port group
+          type: integer
+        type:
+          description: Port media or interface type for this PIC port group
+          type: string
       type: object
     last_seen:
       description: Timestamp indicating when the entity was last seen
@@ -1157,28 +1574,498 @@ components:
       type:
       - number
       - 'null'
-    response_inventory:
+    module_stat_item_vc_links_item:
       additionalProperties: false
-      description: Result of adding device claim codes to organization inventory
+      description: Virtual chassis link endpoint for a device module
       properties:
-        added:
-          $ref: '#/components/schemas/response_inventory_added'
-          description: Claim codes accepted into organization inventory
-        duplicated:
-          $ref: '#/components/schemas/response_inventory_duplicated'
-          description: Claim codes already present in organization inventory
-        error:
-          $ref: '#/components/schemas/response_inventory_error'
-          description: Claim codes rejected by the inventory add operation
-        inventory_added:
-          $ref: '#/components/schemas/response_inventory_inventory_added'
-          description: Detailed inventory records added by the claim operation
-        inventory_duplicated:
-          $ref: '#/components/schemas/response_inventory_inventory_duplicated'
-          description: Detailed inventory records already present during the claim operation
-        reason:
+        neighbor_module_idx:
+          description: Index of the neighboring module connected through this virtual chassis link
+          examples:
+          - 1
+          type: integer
+        neighbor_port_id:
+          description: Port identifier on the neighboring module for this virtual chassis link
+          examples:
+          - vcp-255/1/0
+          type: string
+        port_id:
+          description: Local port identifier for this virtual chassis link
+          examples:
+          - vcp-255/1/0
+          type: string
+      type: object
+    map_sitesurvey_path:
+      description: Site survey path definitions for a map
+      items:
+        $ref: '#/components/schemas/map_sitesurvey_path_items'
+      minItems: 0
+      type: array
+    response_inventory_added:
+      description: Claim codes accepted into organization inventory
+      items:
+        examples:
+        - 6JG8E-PTFV2-A9Z2N
+        type: string
+      type: array
+    map_view:
+      description: 'if `type`==`google`. enum: `hybrid`, `roadmap`, `satellite`, `terrain`'
+      enum:
+      - hybrid
+      - roadmap
+      - satellite
+      - terrain
+      type:
+      - string
+      - 'null'
+    module_stat_item_pics_item_port_groups:
+      description: Port group summaries for a PIC
+      items:
+        $ref: '#/components/schemas/module_stat_item_pics_item_port_groups_item'
+      type: array
+    virtual_chassis_config_member:
+      additionalProperties: false
+      description: Virtual Chassis member configuration
+      properties:
+        locating:
+          description: Whether this Virtual Chassis member is currently in locate mode
+          readOnly: true
+          type: boolean
+        mac:
+          description: Member MAC address; for FPC0 this matches the device MAC address
+          type: string
+        member_id:
+          description: Member ID used for a pre-provisioned Virtual Chassis
+          type: integer
+        vc_ports:
           $ref: '#/components/schemas/strings'
-          description: Error reasons for claim codes that could not be added
+          description: Port names to use as Virtual Chassis ports on this member
+        vc_role:
+          $ref: '#/components/schemas/virtual_chassis_config_member_vc_role'
+          description: Role of this member in the Virtual Chassis
+      required:
+      - mac
+      - vc_role
+      type: object
+    response_inventory_inventory_duplicated_items:
+      additionalProperties: false
+      description: Inventory device already present during the claim operation
+      properties:
+        mac:
+          description: Device MAC address for the duplicate inventory item
+          examples:
+          - 5c5b35000012
+          type: string
+        magic:
+          description: Activation code or claim code associated with the duplicate inventory item
+          examples:
+          - DVH4VSNMSZPDXBR
+          type: string
+        model:
+          description: Device model for the duplicate inventory item
+          examples:
+          - AP41
+          type: string
+        serial:
+          description: Device serial number for the duplicate inventory item
+          examples:
+          - FXLH2015150027
+          type: string
+        type:
+          description: Device type for the duplicate inventory item
+          examples:
+          - ap
+          type: string
+      required:
+      - mac
+      - magic
+      - model
+      - serial
+      - type
+      type: object
+    map_wall_path:
+      additionalProperties: false
+      description: JSON blob for wall definition (same format as wayfinding_path)
+      properties:
+        coordinate:
+          description: Wall path coordinate space
+          examples:
+          - actual
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_wall_path_nodes'
+          description: Path nodes that define the wall geometry
+      type: object
+    response_virtual_chassis_config:
+      additionalProperties: false
+      description: Combined virtual chassis status, topology, and member statistics
+      properties:
+        config_type:
+          description: Provisioning mode of the virtual chassis configuration
+          readOnly: true
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique value identifying the virtual chassis device record
+        locating:
+          description: Whether locate mode is active for the virtual chassis device
+          readOnly: true
+          type: boolean
+        mac:
+          description: Device MAC address for the virtual chassis device record
+          type: string
+        members:
+          $ref: '#/components/schemas/stats_switch_module_stat'
+          description: Virtual chassis member module statistics and topology details
+        model:
+          description: Switch model for the virtual chassis device record
+          readOnly: true
+          type: string
+        num_routing_engines:
+          description: Number of routing engines in the virtual chassis
+          examples:
+          - 1
+          type: integer
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization identifier for the virtual chassis device
+        serial:
+          description: Device serial number reported for the virtual chassis
+          readOnly: true
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Identifier of the site containing the virtual chassis
+        status:
+          description: Connection status of the virtual chassis device
+          readOnly: true
+          type: string
+        type:
+          description: Device type for the virtual chassis record
+          type: string
+        vc_mac:
+          description: Virtual Chassis MAC address used to identify the VC device
+          readOnly: true
+          type: string
+      type: object
+    installer_site_sitegroup_names:
+      description: Site group names associated with an installer site
+      examples:
+      - - sg1
+        - sg2
+      items:
+        type: string
+      type: array
+    module_stat_item_psus_item:
+      additionalProperties: false
+      description: Power supply status for a device module
+      properties:
+        name:
+          description: Power supply label reported by the device
+          examples:
+          - Power Supply 0
+          type: string
+        status:
+          description: Operational status reported for the power supply
+          examples:
+          - ok
+          type: string
+      type: object
+    map_sitesurvey_path_items:
+      additionalProperties: false
+      description: Site survey path definition on a map
+      properties:
+        coordinate:
+          description: Site survey path coordinate space
+          examples:
+          - actual
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the site survey path
+        name:
+          description: Display name of the site survey path
+          examples:
+          - Default
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_sitesurvey_path_items_nodes'
+          description: Path nodes included in the site survey path
+      type: object
+    response_inventory_inventory_added:
+      description: Detailed inventory records added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_inventory_inventory_added_items'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    installer_sites:
+      description: Sites available to installer workflows
+      items:
+        $ref: '#/components/schemas/installer_site'
+      type: array
+    module_stat_item_errors:
+      description: Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.
+      items:
+        $ref: '#/components/schemas/module_stat_item_errors_items'
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_map_import_floorplan:
+      additionalProperties: false
+      description: Floorplan result from a map import
+      properties:
+        action:
+          description: Import action applied to this floorplan
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Floorplan identifier returned by the import
+        map_id:
+          description: Map identifier associated with the imported floorplan
+          format: uuid
+          type: string
+        name:
+          description: Floorplan name imported from the map file
+          type: string
+        reason:
+          description: Explanation of why the floorplan import action was not completed, when provided
+          type: string
+      required:
+      - id
+      - name
+      - action
+      - map_id
+      type: object
+    cpu_stat:
+      additionalProperties: false
+      description: CPU utilization breakdown for a device
+      properties:
+        idle:
+          description: Percentage of CPU time that is idle
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        interrupt:
+          description: Percentage of CPU time being used by interrupts
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        load_avg:
+          $ref: '#/components/schemas/cpu_stat_load_avg'
+          description: Load averages for the last 1, 5, and 15 minutes
+        system:
+          description: Percentage of CPU time being used by system processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        usage:
+          description: Overall CPU usage percentage
+          readOnly: true
+          type:
+          - number
+          - 'null'
+        user:
+          description: Percentage of CPU time being used by user processes
+          readOnly: true
+          type:
+          - number
+          - 'null'
+      type: object
+    map_sitesurvey_path_items_nodes:
+      description: Map nodes included in a site survey path
+      items:
+        $ref: '#/components/schemas/map_node'
+      minItems: 0
+      type: array
+    virtual_chassis_member_update:
+      additionalProperties: false
+      description: Member update for a Virtual Chassis add, remove, or preprovision operation
+      properties:
+        mac:
+          description: Required if `op`==`add` or `op`==`preprovision`; MAC address of the member to add or preprovision
+          type: string
+        member:
+          description: Required if `op`==`remove`; member ID to remove from the Virtual Chassis
+          type: integer
+        member_id:
+          description: Required if `op`==`preprovision`. Optional if `op`==`add`; target member ID for the Virtual Chassis member
+          type: integer
+        vc_ports:
+          $ref: '#/components/schemas/virtual_chassis_member_update_vc_ports'
+          description: Required if `op`==`add` or `op`==`preprovision`; port names to use as Virtual Chassis ports
+        vc_role:
+          $ref: '#/components/schemas/virtual_chassis_member_update_vc_role'
+          description: Required if `op`==`add` or `op`==`preprovision`; role of the member in the Virtual Chassis
+      type: object
+    response_map_import:
+      additionalProperties: false
+      description: Result of importing map files and matching AP placements
+      properties:
+        aps:
+          $ref: '#/components/schemas/response_map_import_aps'
+          description: AP placement results produced by the map import
+        floorplans:
+          $ref: '#/components/schemas/response_map_import_floorplans'
+          description: Floorplan import results produced by the map import
+        for_site:
+          description: Whether this map import response is scoped to a site
+          readOnly: true
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the map import result
+        summary:
+          $ref: '#/components/schemas/response_map_import_summary'
+          description: Counts summarizing assignments made during the map import
+      required:
+      - site_id
+      - aps
+      - floorplans
+      - summary
+      type: object
+    response_detail_string:
+      additionalProperties: false
+      description: Response containing a human-readable detail message
+      properties:
+        detail:
+          description: Human-readable detail message returned by the API
+          type: string
+      type: object
+    map_geofences:
+      description: List of geofences for the map
+      items:
+        $ref: '#/components/schemas/map_geofence'
+      type: array
+    response_map_import_aps:
+      description: AP placement results produced by the map import
+      items:
+        $ref: '#/components/schemas/response_map_import_ap'
+      type: array
+      uniqueItems: true
+    installer_provision_device:
+      description: Installer payload for provisioning or replacing a device
+      properties:
+        deviceprofile_name:
+          description: Profile name applied to the device during installer provisioning
+          examples:
+          - SJ1
+          type: string
+        for_site:
+          description: Whether this installer provisioning request is scoped to a site
+          readOnly: true
+          type: boolean
+        height:
+          description: Mounting height recorded for map placement
+          examples:
+          - 2.7
+          format: double
+          type: number
+        map_id:
+          description: Identifier of the map where the device should be placed
+          examples:
+          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          format: uuid
+          type: string
+        name:
+          description: Device name to set during installer provisioning
+          examples:
+          - SJ1-AP1
+          type: string
+        orientation:
+          description: Device orientation in degrees from 0 to 359, where 0 is up and 90 is right
+          examples:
+          - 90
+          type: integer
+        replacing_mac:
+          description: Only if replacing an existing device; MAC address of the device being replaced
+          examples:
+          - 5c5b3500003
+          type: string
+        role:
+          description: Optional role for switch / gateway
+          type: string
+        site_id:
+          description: Identifier of the destination site for installer provisioning
+          examples:
+          - 72771e6a-6f5e-4de4-a5b9-1266c4197811
+          format: uuid
+          type: string
+        site_name:
+          description: Destination site name for installer provisioning
+          examples:
+          - SJ1
+          type: string
+        x:
+          description: Horizontal map position for the device, in pixels
+          examples:
+          - 150
+          format: double
+          type: number
+        y:
+          description: Vertical map position for the device, in pixels
+          examples:
+          - 300
+          format: double
+          type: number
+      required:
+      - name
+      type: object
+    map_import_json:
+      additionalProperties: false
+      description: Options for importing map data from Ekahau or iBwave JSON
+      properties:
+        import_all_floorplans:
+          default: false
+          description: Whether to import all floorplans from the uploaded map JSON
+          type: boolean
+        import_height:
+          default: true
+          description: Whether to import height metadata from the uploaded map JSON
+          type: boolean
+        import_orientation:
+          default: true
+          description: Whether to import orientation metadata from the uploaded map JSON
+          type: boolean
+        vendor_name:
+          $ref: '#/components/schemas/map_import_json_vendor_name'
+          description: Map import vendor for the uploaded JSON
+      required:
+      - vendor_name
+      type: object
+    stats_switch_module_stat:
+      description: Hardware module statistics reported by a switch
+      items:
+        $ref: '#/components/schemas/stats_switch_module_stat_item'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    lat_lng:
+      additionalProperties: false
+      description: Geographic latitude and longitude coordinate pair
+      properties:
+        lat:
+          description: Geographic latitude in decimal degrees
+          examples:
+          - 37.295833
+          format: double
+          type: number
+        lng:
+          description: Geographic longitude in decimal degrees
+          examples:
+          - -122.032946
+          format: double
+          type: number
+      required:
+      - lat
+      - lng
       type: object
     stats_switch_module_stat_item:
       additionalProperties: false
@@ -1362,480 +2249,13 @@ components:
           - string
           - 'null'
       type: object
-    response_inventory_error:
-      description: Claim codes rejected by the inventory add operation
-      items:
-        examples:
-        - PO1025335ohoh
-        type: string
-      type: array
-    module_stat_item_errors:
-      description: Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.
-      items:
-        $ref: '#/components/schemas/module_stat_item_errors_items'
-      type: array
-    response_inventory_added:
-      description: Claim codes accepted into organization inventory
-      items:
-        examples:
-        - 6JG8E-PTFV2-A9Z2N
-        type: string
-      type: array
-    module_stat_item_psus:
-      description: Power supply status records for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_psus_item'
-      type: array
-      uniqueItems: true
-    response_inventory_inventory_duplicated_items:
-      additionalProperties: false
-      description: Inventory device already present during the claim operation
-      properties:
-        mac:
-          description: Device MAC address for the duplicate inventory item
-          examples:
-          - 5c5b35000012
-          type: string
-        magic:
-          description: Activation code or claim code associated with the duplicate inventory item
-          examples:
-          - DVH4VSNMSZPDXBR
-          type: string
-        model:
-          description: Device model for the duplicate inventory item
-          examples:
-          - AP41
-          type: string
-        serial:
-          description: Device serial number for the duplicate inventory item
-          examples:
-          - FXLH2015150027
-          type: string
-        type:
-          description: Device type for the duplicate inventory item
-          examples:
-          - ap
-          type: string
-      required:
-      - mac
-      - magic
-      - model
-      - serial
-      - type
-      type: object
-    module_stat_item_vc_links:
-      description: Virtual chassis link records for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_vc_links_item'
-      type: array
-      uniqueItems: true
-    virtual_chassis_update_op:
-      description: 'enum: `add`, `preprovision`, `remove`, `renumber`'
-      enum:
-      - add
-      - preprovision
-      - remove
-      - renumber
-      type: string
-    response_inventory_inventory_added:
-      description: Detailed inventory records added by the claim operation
-      items:
-        $ref: '#/components/schemas/response_inventory_inventory_added_items'
-      minItems: 1
-      type: array
-      uniqueItems: true
-    module_stat_item_pics_item:
-      additionalProperties: false
-      description: Physical Interface Card summary for a device module
-      properties:
-        index:
-          description: PIC index within the device module
-          type: integer
-        model_number:
-          description: Model number reported for the PIC
-          type: string
-        port_groups:
-          $ref: '#/components/schemas/module_stat_item_pics_item_port_groups'
-          description: Port groups provided by this PIC
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    memory_stat:
-      additionalProperties: false
-      description: Memory utilization statistics for a device; in a virtual chassis, this reports the master Routing Engine
-      properties:
-        usage:
-          description: Current memory utilization percentage for the device or master Routing Engine
-          type: number
-      required:
-      - usage
-      type: object
-    module_stat_item_pics_item_port_groups_item:
-      additionalProperties: false
-      description: Port group summary for a PIC
-      properties:
-        count:
-          description: Number of ports in this PIC port group
-          type: integer
-        type:
-          description: Port media or interface type for this PIC port group
-          type: string
-      type: object
-    module_stat_item_pics:
-      description: Physical Interface Card summaries for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_pics_item'
-      type: array
-    response_map_import_ap_action:
-      description: 'enum: `assigned-named-placed`, `assigned-placed`, `ignored`, `named-placed`, `placed`'
-      enum:
-      - assigned-named-placed
-      - assigned-placed
-      - ignored
-      - named-placed
-      - placed
-      type: string
-    module_stat_item_temperatures_item:
-      additionalProperties: false
-      description: Temperature sensor reading for a device module
-      properties:
-        celsius:
-          description: Temperature reading for the sensor, in degrees Celsius
-          examples:
-          - 45
-          type: number
-        name:
-          description: Temperature sensor label reported by the device
-          examples:
-          - CPU
-          type: string
-        status:
-          description: Operational status reported for the temperature sensor
-          examples:
-          - ok
-          type: string
-      type: object
-    map_sitesurvey_path_items:
-      additionalProperties: false
-      description: Site survey path definition on a map
-      properties:
-        coordinate:
-          description: Site survey path coordinate space
-          examples:
-          - actual
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the site survey path
-        name:
-          description: Display name of the site survey path
-          examples:
-          - Default
-          type: string
-        nodes:
-          $ref: '#/components/schemas/map_sitesurvey_path_items_nodes'
-          description: Path nodes included in the site survey path
-      type: object
-    virtual_chassis_config_member_vc_role:
-      description: 'enum: `backup`, `linecard`, `master`'
-      enum:
-      - backup
-      - linecard
-      - master
-      type: string
-    installer_device_ble_stat:
-      additionalProperties: false
-      description: BLE statistics for the device
-      properties:
-        major:
-          description: iBeacon major value reported by the device
-          examples:
-          - 12345
-          type: integer
-        minors:
-          description: iBeacon minor values reported by the device
-          items:
-            type: integer
-          type: array
-        uuid:
-          description: iBeacon UUID advertised by the device
-          examples:
-          - ada72f8f-1643-e5c6-94db-f2a5636f1a64
-          format: uuid
-          type: string
-      type: object
-    installers:
-      description: Installer access entries returned by list responses
-      items:
-        $ref: '#/components/schemas/installers_item'
-      type: array
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    installer_site:
-      description: Site definition available to installer workflows
-      properties:
-        address:
-          description: Street or postal address for the installer site
-          examples:
-          - 1601 S. Deanza Blvd., Cupertino, CA, 95014
-          type: string
-        country_code:
-          description: ISO country code for the installer site
-          examples:
-          - US
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the installer site
-        latlng:
-          $ref: '#/components/schemas/lat_lng'
-          description: Geographic coordinates of the installer site
-        name:
-          description: Display name of the installer site
-          examples:
-          - Mist Office
-          type: string
-        rftemplate_name:
-          description: RF template name applied to the installer site
-          examples:
-          - rftemplate1
-          type: string
-        sitegroup_names:
-          $ref: '#/components/schemas/installer_site_sitegroup_names'
-          description: Names of site groups associated with the installer site
-        timezone:
-          description: Time zone configured for the installer site
-          examples:
-          - America/Los_Angeles
-          type: string
-      required:
-      - address
-      - country_code
-      - latlng
-      - name
-      type: object
-    installer_site_sitegroup_names:
-      description: Site group names associated with an installer site
+    site_id:
+      description: Unique identifier of a Mist site
       examples:
-      - - sg1
-        - sg2
-      items:
-        type: string
-      type: array
-    map_geofence_vertices:
-      description: List of vertices defining the geofence
-      items:
-        $ref: '#/components/schemas/map_geofence_vertice'
-      type: array
-    response_virtual_chassis_config:
-      additionalProperties: false
-      description: Combined virtual chassis status, topology, and member statistics
-      properties:
-        config_type:
-          description: Provisioning mode of the virtual chassis configuration
-          readOnly: true
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique value identifying the virtual chassis device record
-        locating:
-          description: Whether locate mode is active for the virtual chassis device
-          readOnly: true
-          type: boolean
-        mac:
-          description: Device MAC address for the virtual chassis device record
-          type: string
-        members:
-          $ref: '#/components/schemas/stats_switch_module_stat'
-          description: Virtual chassis member module statistics and topology details
-        model:
-          description: Switch model for the virtual chassis device record
-          readOnly: true
-          type: string
-        num_routing_engines:
-          description: Number of routing engines in the virtual chassis
-          examples:
-          - 1
-          type: integer
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization identifier for the virtual chassis device
-        serial:
-          description: Device serial number reported for the virtual chassis
-          readOnly: true
-          type: string
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Identifier of the site containing the virtual chassis
-        status:
-          description: Connection status of the virtual chassis device
-          readOnly: true
-          type: string
-        type:
-          description: Device type for the virtual chassis record
-          type: string
-        vc_mac:
-          description: Virtual Chassis MAC address used to identify the VC device
-          readOnly: true
-          type: string
-      type: object
-    response_map_import_ap:
-      additionalProperties: false
-      description: AP placement result from a map import
-      properties:
-        action:
-          $ref: '#/components/schemas/response_map_import_ap_action'
-          description: Import action applied to this AP
-        floorplan_id:
-          description: Floorplan identifier where the AP placement was imported
-          format: uuid
-          type: string
-        height:
-          description: Mounting height for the AP on the imported floorplan
-          format: double
-          type: number
-        mac:
-          description: AP MAC address matched from the import file
-          type: string
-        map_id:
-          description: Map identifier associated with the imported AP placement
-          format: uuid
-          type: string
-        orientation:
-          description: AP orientation in degrees on the imported floorplan
-          type: integer
-        reason:
-          description: Explanation of why the AP import action was not completed, when provided
-          type: string
-      required:
-      - mac
-      - action
-      - map_id
-      - floorplan_id
-      - orientation
-      type: object
-    response_map_import_aps:
-      description: AP placement results produced by the map import
-      items:
-        $ref: '#/components/schemas/response_map_import_ap'
-      type: array
-      uniqueItems: true
-    map_wayfinding_micello:
-      additionalProperties: false
-      description: Micello wayfinding integration settings
-      properties:
-        account_key:
-          description: Micello account key used for wayfinding
-          examples:
-          - adasdf
-          type: string
-        default_level_id:
-          description: Default Micello floor or level identifier for wayfinding
-          examples:
-          - 5
-          type: integer
-        map_id:
-          description: Micello map identifier used for wayfinding
-          examples:
-          - c660f81dd250c
-          type: string
-      type: object
-    map_wayfinding_path_nodes:
-      description: Map nodes included in a wayfinding path
-      items:
-        $ref: '#/components/schemas/map_node'
-      minItems: 0
-      type: array
-    map_wall_path:
-      additionalProperties: false
-      description: JSON blob for wall definition (same format as wayfinding_path)
-      properties:
-        coordinate:
-          description: Wall path coordinate space
-          examples:
-          - actual
-          type: string
-        nodes:
-          $ref: '#/components/schemas/map_wall_path_nodes'
-          description: Path nodes that define the wall geometry
-      type: object
-    map_geofence:
-      additionalProperties: false
-      description: Geofence drawn on a map
-      properties:
-        name:
-          description: Display name for the map geofence
-          examples:
-          - example
-          type: string
-        vertices:
-          $ref: '#/components/schemas/map_geofence_vertices'
-          description: Polygon points that define the geofence boundary
-      type: object
-    module_stat_item_fans:
-      description: Cooling fan status records for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_fans_items'
-      type: array
-      uniqueItems: true
-    map_node:
-      additionalProperties: false
-      description: Node in a map path graph
-      properties:
-        edges:
-          additionalProperties:
-            type: string
-          description: Adjacent node IDs and path weights for this map node
-          examples:
-          - N1: '1'
-          type: object
-        name:
-          description: Map node identifier or display name
-          examples:
-          - N1
-          type: string
-        position:
-          $ref: '#/components/schemas/map_node_position'
-          description: Coordinates of this map node
-      required:
-      - name
-      type: object
-    lat_lng:
-      additionalProperties: false
-      description: Geographic latitude and longitude coordinate pair
-      properties:
-        lat:
-          description: Geographic latitude in decimal degrees
-          examples:
-          - 37.295833
-          format: double
-          type: number
-        lng:
-          description: Geographic longitude in decimal degrees
-          examples:
-          - -122.032946
-          format: double
-          type: number
-      required:
-      - lat
-      - lng
-      type: object
-    virtual_chassis_member_update_vc_ports:
-      description: Required if `op`==`add` or `op`==`preprovision`
-      items:
-        type: string
-      type: array
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     module_stat_item_fans_items:
       additionalProperties: false
       description: Cooling fan telemetry for a device module
@@ -1859,12 +2279,94 @@ components:
           - ok
           type: string
       type: object
-    map_sitesurvey_path:
-      description: Site survey path definitions for a map
+    map_import_json_vendor_name:
+      description: 'Map import vendor for the uploaded JSON. enum: `ekahau`, `ibwave`'
+      enum:
+      - ekahau
+      - ibwave
+      examples:
+      - ekahau
+      type: string
+    virtual_chassis_config_members:
+      description: Virtual Chassis member configurations
       items:
-        $ref: '#/components/schemas/map_sitesurvey_path_items'
-      minItems: 0
+        $ref: '#/components/schemas/virtual_chassis_config_member'
       type: array
+    module_stat_item_errors_items:
+      additionalProperties: false
+      description: Error condition reported for a device module
+      properties:
+        feature:
+          description: Affected feature associated with this module error condition
+          examples:
+          - Mist-Management
+          type: string
+        minimum_version:
+          description: Minimum software version associated with this module error
+          examples:
+          - 128T-6.0.0-1
+          type: string
+        reason:
+          description: Human-readable reason for the module error condition
+          type: string
+        since:
+          description: Epoch timestamp when the module error condition began
+          examples:
+          - 1657497600
+          type: integer
+        type:
+          description: Module error type code reported by the device
+          examples:
+          - FW_UPGRADE_REQUIRED_BY_FEATURE
+          type: string
+      required:
+      - since
+      - type
+      type: object
+    virtual_chassis_member_update_vc_role:
+      description: 'Required if `op`==`add` or `op`==`preprovision`. enum: `backup`, `linecard`, `master`'
+      enum:
+      - backup
+      - linecard
+      - master
+      type: string
+    virtual_chassis_update_members:
+      description: Member updates for a Virtual Chassis operation
+      items:
+        $ref: '#/components/schemas/virtual_chassis_member_update'
+      type: array
+    response_inventory_error:
+      description: Claim codes rejected by the inventory add operation
+      items:
+        examples:
+        - PO1025335ohoh
+        type: string
+      type: array
+    installer_devices:
+      description: Recently claimed devices available to installer workflows
+      items:
+        $ref: '#/components/schemas/installer_device'
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     installer_device:
       additionalProperties: false
       description: Recently claimed device visible to installer workflows
@@ -1967,106 +2469,6 @@ components:
           format: double
           type: number
       type: object
-    map_geofence_vertice:
-      additionalProperties: false
-      description: Vertex coordinate for a map geofence polygon
-      properties:
-        X:
-          description: Geofence vertex X coordinate in map units
-          examples:
-          - 700
-          type: number
-        Y:
-          description: Geofence vertex Y coordinate in map units
-          examples:
-          - 100
-          type: number
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    module_stat_item_psus_item:
-      additionalProperties: false
-      description: Power supply status for a device module
-      properties:
-        name:
-          description: Power supply label reported by the device
-          examples:
-          - Power Supply 0
-          type: string
-        status:
-          description: Operational status reported for the power supply
-          examples:
-          - ok
-          type: string
-      type: object
-    map_geofences:
-      description: List of geofences for the map
-      items:
-        $ref: '#/components/schemas/map_geofence'
-      type: array
-    module_stat_item_pics_item_port_groups:
-      description: Port group summaries for a PIC
-      items:
-        $ref: '#/components/schemas/module_stat_item_pics_item_port_groups_item'
-      type: array
-    installer_devices:
-      description: Recently claimed devices available to installer workflows
-      items:
-        $ref: '#/components/schemas/installer_device'
-      type: array
-    map_wayfinding:
-      additionalProperties: false
-      description: Properties related to wayfinding
-      properties:
-        micello:
-          $ref: '#/components/schemas/map_wayfinding_micello'
-          description: External Micello wayfinding integration settings for this map
-        snap_to_path:
-          description: Whether wayfinding should snap routes to configured paths
-          type: boolean
-      type: object
-    map_wall_path_nodes:
-      description: Map nodes included in a wall path
-      items:
-        $ref: '#/components/schemas/map_node'
-      minItems: 0
-      type: array
-    map_sitesurvey_path_items_nodes:
-      description: Map nodes included in a site survey path
-      items:
-        $ref: '#/components/schemas/map_node'
-      minItems: 0
-      type: array
-    virtual_chassis_update_members:
-      description: Member updates for a Virtual Chassis operation
-      items:
-        $ref: '#/components/schemas/virtual_chassis_member_update'
-      type: array
     response_inventory_inventory_added_items:
       additionalProperties: false
       description: Inventory device added by the claim operation
@@ -2103,392 +2505,86 @@ components:
       - serial
       - type
       type: object
-    map_import_json:
+    response_inventory:
       additionalProperties: false
-      description: Options for importing map data from Ekahau or iBwave JSON
+      description: Result of adding device claim codes to organization inventory
       properties:
-        import_all_floorplans:
-          default: false
-          description: Whether to import all floorplans from the uploaded map JSON
-          type: boolean
-        import_height:
-          default: true
-          description: Whether to import height metadata from the uploaded map JSON
-          type: boolean
-        import_orientation:
-          default: true
-          description: Whether to import orientation metadata from the uploaded map JSON
-          type: boolean
-        vendor_name:
-          $ref: '#/components/schemas/map_import_json_vendor_name'
-          description: Map import vendor for the uploaded JSON
-      required:
-      - vendor_name
+        added:
+          $ref: '#/components/schemas/response_inventory_added'
+          description: Claim codes accepted into organization inventory
+        duplicated:
+          $ref: '#/components/schemas/response_inventory_duplicated'
+          description: Claim codes already present in organization inventory
+        error:
+          $ref: '#/components/schemas/response_inventory_error'
+          description: Claim codes rejected by the inventory add operation
+        inventory_added:
+          $ref: '#/components/schemas/response_inventory_inventory_added'
+          description: Detailed inventory records added by the claim operation
+        inventory_duplicated:
+          $ref: '#/components/schemas/response_inventory_inventory_duplicated'
+          description: Detailed inventory records already present during the claim operation
+        reason:
+          $ref: '#/components/schemas/strings'
+          description: Error reasons for claim codes that could not be added
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_map_import:
-      additionalProperties: false
-      description: Result of importing map files and matching AP placements
-      properties:
-        aps:
-          $ref: '#/components/schemas/response_map_import_aps'
-          description: AP placement results produced by the map import
-        floorplans:
-          $ref: '#/components/schemas/response_map_import_floorplans'
-          description: Floorplan import results produced by the map import
-        for_site:
-          description: Whether this map import response is scoped to a site
-          readOnly: true
-          type: boolean
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with the map import result
-        summary:
-          $ref: '#/components/schemas/response_map_import_summary'
-          description: Counts summarizing assignments made during the map import
-      required:
-      - site_id
-      - aps
-      - floorplans
-      - summary
-      type: object
-    map_view:
-      description: 'if `type`==`google`. enum: `hybrid`, `roadmap`, `satellite`, `terrain`'
-      enum:
-      - hybrid
-      - roadmap
-      - satellite
-      - terrain
-      type:
-      - string
-      - 'null'
-    response_inventory_duplicated:
-      description: Claim codes already present in organization inventory
-      items:
-        examples:
+    claim_codes:
+      description: List of Claim Codes
+      examples:
+      - - 6JG8E-PTFV2-A9Z2N
         - DVH4V-SNMSZ-PDXBR
+      items:
+        description: Claim code
         type: string
       type: array
-    map_site_import_file:
-      additionalProperties: false
-      description: Multipart payload for importing map files at site scope
-      properties:
-        auto_deviceprofile_assignment:
-          description: Whether to auto assign device to deviceprofile by name
-          examples:
-          - true
-          type: boolean
-        csv:
-          contentMediaType: application/octet-stream
-          description: Optional AP name-mapping CSV file
-          type: string
-        file:
-          contentMediaType: application/octet-stream
-          description: Ekahau or iBwave floorplan file to import
-          type: string
-        json:
-          $ref: '#/components/schemas/map_import_json'
-          description: Import options for the site map file
-      type: object
-    installers_item:
-      additionalProperties: false
-      description: Installer access entry with scope and role details
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the installer access entry
-        name:
-          description: Display name of the installer access entry
-          examples:
-          - 'Entry #1'
-          type: string
-      type: object
-    virtual_chassis_config_members:
-      description: Virtual Chassis member configurations
-      items:
-        $ref: '#/components/schemas/virtual_chassis_config_member'
-      type: array
-    response_inventory_inventory_duplicated:
-      description: Detailed inventory records already present during the claim operation
-      items:
-        $ref: '#/components/schemas/response_inventory_inventory_duplicated_items'
-      type: array
       uniqueItems: true
-    module_stat_item_errors_items:
-      additionalProperties: false
-      description: Error condition reported for a device module
-      properties:
-        feature:
-          description: Affected feature associated with this module error condition
-          examples:
-          - Mist-Management
-          type: string
-        minimum_version:
-          description: Minimum software version associated with this module error
-          examples:
-          - 128T-6.0.0-1
-          type: string
-        reason:
-          description: Human-readable reason for the module error condition
-          type: string
-        since:
-          description: Epoch timestamp when the module error condition began
-          examples:
-          - 1657497600
-          type: integer
-        type:
-          description: Module error type code reported by the device
-          examples:
-          - FW_UPGRADE_REQUIRED_BY_FEATURE
-          type: string
-      required:
-      - since
-      - type
-      type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    created_time:
+      description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    stats_switch_module_stat:
-      description: Hardware module statistics reported by a switch
-      items:
-        $ref: '#/components/schemas/stats_switch_module_stat_item'
-      minItems: 1
-      type: array
-      uniqueItems: true
-    virtual_chassis_config_member:
-      additionalProperties: false
-      description: Virtual Chassis member configuration
-      properties:
-        locating:
-          description: Whether this Virtual Chassis member is currently in locate mode
-          readOnly: true
-          type: boolean
-        mac:
-          description: Member MAC address; for FPC0 this matches the device MAC address
-          type: string
-        member_id:
-          description: Member ID used for a pre-provisioned Virtual Chassis
-          type: integer
-        vc_ports:
-          $ref: '#/components/schemas/strings'
-          description: Port names to use as Virtual Chassis ports on this member
-        vc_role:
-          $ref: '#/components/schemas/virtual_chassis_config_member_vc_role'
-          description: Role of this member in the Virtual Chassis
-      required:
-      - mac
-      - vc_role
-      type: object
-    cpu_stat_load_avg:
-      description: Load averages for the last 1, 5, and 15 minutes
-      items:
-        type: number
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    installer_provision_device:
-      description: Installer payload for provisioning or replacing a device
-      properties:
-        deviceprofile_name:
-          description: Profile name applied to the device during installer provisioning
-          examples:
-          - SJ1
-          type: string
-        for_site:
-          description: Whether this installer provisioning request is scoped to a site
-          readOnly: true
-          type: boolean
-        height:
-          description: Mounting height recorded for map placement
-          examples:
-          - 2.7
-          format: double
-          type: number
-        map_id:
-          description: Identifier of the map where the device should be placed
-          examples:
-          - 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          format: uuid
-          type: string
-        name:
-          description: Device name to set during installer provisioning
-          examples:
-          - SJ1-AP1
-          type: string
-        orientation:
-          description: Device orientation in degrees from 0 to 359, where 0 is up and 90 is right
-          examples:
-          - 90
-          type: integer
-        replacing_mac:
-          description: Only if replacing an existing device; MAC address of the device being replaced
-          examples:
-          - 5c5b3500003
-          type: string
-        role:
-          description: Optional role for switch / gateway
-          type: string
-        site_id:
-          description: Identifier of the destination site for installer provisioning
-          examples:
-          - 72771e6a-6f5e-4de4-a5b9-1266c4197811
-          format: uuid
-          type: string
-        site_name:
-          description: Destination site name for installer provisioning
-          examples:
-          - SJ1
-          type: string
-        x:
-          description: Horizontal map position for the device, in pixels
-          examples:
-          - 150
-          format: double
-          type: number
-        y:
-          description: Vertical map position for the device, in pixels
-          examples:
-          - 300
-          format: double
-          type: number
-      required:
-      - name
-      type: object
-    response_map_import_floorplan:
-      additionalProperties: false
-      description: Floorplan result from a map import
-      properties:
-        action:
-          description: Import action applied to this floorplan
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Floorplan identifier returned by the import
-        map_id:
-          description: Map identifier associated with the imported floorplan
-          format: uuid
-          type: string
-        name:
-          description: Floorplan name imported from the map file
-          type: string
-        reason:
-          description: Explanation of why the floorplan import action was not completed, when provided
-          type: string
-      required:
-      - id
-      - name
-      - action
-      - map_id
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    response_detail_string:
-      additionalProperties: false
-      description: Response containing a human-readable detail message
-      properties:
-        detail:
-          description: Human-readable detail message returned by the API
-          type: string
-      type: object
-    map_import_json_vendor_name:
-      description: 'Map import vendor for the uploaded JSON. enum: `ekahau`, `ibwave`'
+    map_type:
+      default: image
+      description: 'Map type, such as `image` or `google`. enum: `google`, `image`'
       enum:
-      - ekahau
-      - ibwave
+      - google
+      - image
       examples:
-      - ekahau
+      - image
       type: string
+    module_stat_item_poe:
+      additionalProperties: false
+      description: Power over Ethernet telemetry for a device module
+      properties:
+        max_power:
+          description: Total PoE power budget available to the module, in watts
+          examples:
+          - 250
+          type: number
+        power_draw:
+          description: Current PoE power draw on the module, in watts
+          examples:
+          - 120.3
+          type: number
+        status:
+          description: Operational status of PoE on the module
+          type: string
+      type: object
     response_map_import_floorplans:
       description: Floorplan import results produced by the map import
       items:
         $ref: '#/components/schemas/response_map_import_floorplan'
       type: array
       uniqueItems: true
-    latlng_tl:
-      additionalProperties: false
-      description: When `type`==`google`, latitude and longitude of the top-left corner
-      properties:
-        lat:
-          description: Top-left latitude for the Google map bounds
-          type: string
-        lng:
-          description: Top-left longitude for the Google map bounds
-          type: string
-      type: object
-    latlng_br:
-      additionalProperties: false
-      description: When `type`==`google`, latitude and longitude of the bottom-right corner
-      properties:
-        lat:
-          description: Bottom-right latitude for the Google map bounds
-          type: string
-        lng:
-          description: Bottom-right longitude for the Google map bounds
-          type: string
-      type: object
-    virtual_chassis_config:
-      description: Virtual Chassis creation or configuration request
-      properties:
-        locating:
-          description: Whether the Virtual Chassis is currently in locate mode
-          readOnly: true
-          type: boolean
-        members:
-          $ref: '#/components/schemas/virtual_chassis_config_members'
-          description: Virtual Chassis members and their expected roles and VC ports
-        preprovisioned:
-          default: false
-          description: Whether to create the Virtual Chassis in pre-provisioned mode
-          type: boolean
-      type: object
-    module_stat_item_temperatures:
-      description: Temperature sensor readings for a device module
-      items:
-        $ref: '#/components/schemas/module_stat_item_temperatures_item'
-      type: array
-      uniqueItems: true
-    map_node_position:
-      additionalProperties: false
-      description: Position of a map path node
-      properties:
-        x:
-          description: Horizontal coordinate of the map node
-          examples:
-          - 746
-          format: double
-          type: number
-        y:
-          description: Vertical coordinate of the map node
-          examples:
-          - 104
-          format: double
-          type: number
-      required:
-      - x
-      - y
-      type: object
+    response_map_import_ap_action:
+      description: 'enum: `assigned-named-placed`, `assigned-placed`, `ignored`, `named-placed`, `placed`'
+      enum:
+      - assigned-named-placed
+      - assigned-placed
+      - ignored
+      - named-placed
+      - placed
+      type: string
     device_type_default_ap:
       default: ap
       description: 'enum: `ap`, `gateway`, `switch`'
@@ -2497,90 +2593,7 @@ components:
       - gateway
       - switch
       type: string
-    cpu_stat:
-      additionalProperties: false
-      description: CPU utilization breakdown for a device
-      properties:
-        idle:
-          description: Percentage of CPU time that is idle
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        interrupt:
-          description: Percentage of CPU time being used by interrupts
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        load_avg:
-          $ref: '#/components/schemas/cpu_stat_load_avg'
-          description: Load averages for the last 1, 5, and 15 minutes
-        system:
-          description: Percentage of CPU time being used by system processes
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        usage:
-          description: Overall CPU usage percentage
-          readOnly: true
-          type:
-          - number
-          - 'null'
-        user:
-          description: Percentage of CPU time being used by user processes
-          readOnly: true
-          type:
-          - number
-          - 'null'
-      type: object
   responses:
-    OrgInventoryAdd:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgInventoryAddExample'
-          schema:
-            $ref: '#/components/schemas/response_inventory'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgInventoryAddExample'
-          schema:
-            $ref: '#/components/schemas/response_inventory'
-      description: OK - if any of entries are valid or there’s no errors
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    InstallerDevicesArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerDevicesArrayExample'
-          schema:
-            $ref: '#/components/schemas/installer_devices'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerDevicesArrayExample'
-          schema:
-            $ref: '#/components/schemas/installer_devices'
-      description: List of Devices Recently Claimed
     MapImport:
       content:
         application/json:
@@ -2604,85 +2617,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_map_import'
       description: OK
-    InstallerAlarmtemplates:
+    HTTP404:
       content:
         application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerAlarmtemplatesExample'
           schema:
-            $ref: '#/components/schemas/installers'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerAlarmtemplatesExample'
           schema:
-            $ref: '#/components/schemas/installers'
-      description: Installer List of Alarm Templates
-    VirtualChassis:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VirtualChassisExample'
-          schema:
-            $ref: '#/components/schemas/response_virtual_chassis_config'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VirtualChassisExample'
-          schema:
-            $ref: '#/components/schemas/response_virtual_chassis_config'
-      description: Example response
-    OrgInventoryUnassignNotFound:
-      content:
-        application/json:
-          examples:
-            Replacing Mac Device Is Not In Org Inventory:
-              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory'
-            Replacing Mac Device Not Found:
-              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-        application/vnd.api+json:
-          examples:
-            Replacing Mac Device Is Not In Org Inventory:
-              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory'
-            Replacing Mac Device Not Found:
-              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-      description: Not Found
-    InstallerRftemplatesArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerRftemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/installers'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/InstallerRftemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/installers'
-      description: Installer List of RF Templates
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -2698,14 +2641,22 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    Map:
+    MapsArray:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MapsArrayExample'
           schema:
-            $ref: '#/components/schemas/map'
+            $ref: '#/components/schemas/maps'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MapsArrayExample'
           schema:
-            $ref: '#/components/schemas/map'
+            $ref: '#/components/schemas/maps'
+      description: OK
+    OK:
       description: OK
     OrgInventoryUnassignFailed:
       content:
@@ -2738,30 +2689,51 @@ components:
           schema:
             $ref: '#/components/schemas/response_detail_string'
       description: Bad Request
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    InstallerSitegroupsArray:
+    VirtualChassis:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/InstallerSitegroupsArrayExample'
+              $ref: '#/components/examples/VirtualChassisExample'
+          schema:
+            $ref: '#/components/schemas/response_virtual_chassis_config'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VirtualChassisExample'
+          schema:
+            $ref: '#/components/schemas/response_virtual_chassis_config'
+      description: Example response
+    OrgInventoryAdd:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryAddExample'
+          schema:
+            $ref: '#/components/schemas/response_inventory'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgInventoryAddExample'
+          schema:
+            $ref: '#/components/schemas/response_inventory'
+      description: OK - if any of entries are valid or there’s no errors
+    InstallerRftemplatesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerRftemplatesArrayExample'
           schema:
             $ref: '#/components/schemas/installers'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/InstallerSitegroupsArrayExample'
+              $ref: '#/components/examples/InstallerRftemplatesArrayExample'
           schema:
             $ref: '#/components/schemas/installers'
-      description: Installer List of Site Groups
+      description: Installer List of RF Templates
     HTTP429:
       content:
         application/json:
@@ -2777,38 +2749,79 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    OK:
-      description: OK
-    MapsArray:
+    InstallerDevicesArray:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/MapsArrayExample'
+              $ref: '#/components/examples/InstallerDevicesArrayExample'
           schema:
-            $ref: '#/components/schemas/maps'
+            $ref: '#/components/schemas/installer_devices'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/MapsArrayExample'
+              $ref: '#/components/examples/InstallerDevicesArrayExample'
           schema:
-            $ref: '#/components/schemas/maps'
+            $ref: '#/components/schemas/installer_devices'
+      description: List of Devices Recently Claimed
+    Map:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/map'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/map'
       description: OK
-    InstallerSitesArray:
+    HTTP401:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/InstallerSitesArrayExample'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/installer_sites'
+            $ref: '#/components/schemas/response_http401'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/InstallerSitesArrayExample'
+              $ref: '#/components/examples/HTTP401Example'
           schema:
-            $ref: '#/components/schemas/installer_sites'
-      description: List of Sites
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    InstallerAlarmtemplates:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerAlarmtemplatesExample'
+          schema:
+            $ref: '#/components/schemas/installers'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerAlarmtemplatesExample'
+          schema:
+            $ref: '#/components/schemas/installers'
+      description: Installer List of Alarm Templates
+    OrgInventoryUnassignNotFound:
+      content:
+        application/json:
+          examples:
+            Replacing Mac Device Is Not In Org Inventory:
+              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory'
+            Replacing Mac Device Not Found:
+              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Replacing Mac Device Is Not In Org Inventory:
+              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory'
+            Replacing Mac Device Not Found:
+              $ref: '#/components/examples/OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Not Found
     InstallerDeviceProfiles:
       content:
         application/json:
@@ -2824,74 +2837,66 @@ components:
           schema:
             $ref: '#/components/schemas/installers'
       description: Installer List of Device Profiles
-  parameters:
-    site_name:
-      in: path
-      name: site_name
-      required: true
-      schema:
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    device_mac:
-      in: path
-      name: device_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    map_id:
-      in: path
-      name: map_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    image_name:
-      in: path
-      name: image_name
-      required: true
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    InstallerSitegroupsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerSitegroupsArrayExample'
+          schema:
+            $ref: '#/components/schemas/installers'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerSitegroupsArrayExample'
+          schema:
+            $ref: '#/components/schemas/installers'
+      description: Installer List of Site Groups
+    InstallerSitesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerSitesArrayExample'
+          schema:
+            $ref: '#/components/schemas/installer_sites'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/InstallerSitesArrayExample'
+          schema:
+            $ref: '#/components/schemas/installer_sites'
+      description: List of Sites
   examples:
-    InstallerRftemplatesArrayExample:
+    InstallerDevicesArrayExample:
       value:
-      - id: bb8a9017-1e36-5d6c-6f2b-551abe8a76a2
-        name: RFTemplate 1
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    InstallerSitegroupsArrayExample:
-      value:
-      - id: 581328b6-e382-f54e-c9dc-999983183a34
-        name: SiteGroup 1
+      - connected: true
+        deviceprofile_name: SJ1
+        height: 2.7
+        mac: 5c5b35000018
+        map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+        model: AP41
+        name: hallway
+        orientation: 90
+        serial: FXLH2015150025
+        site_name: SJ1
+        x: 150
+        y: 300
     MapImportAssignedNamedAndPlaced:
       value:
         aps:
@@ -2910,108 +2915,39 @@ components:
           num_ap_assigned: 1
           num_inv_assigned: 1
           num_map_assigned: 1
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    MapImportAssignedAndPlaced:
-      value:
-        aps:
-        - action: assigned-placed
-          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
-          height: 3
-          mac: 5c5b35000001
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          orientation: 45
-        floorplans:
-        - action: imported
-          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          name: map1
-        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
-        summary:
-          num_ap_assigned: 1
-          num_inv_assigned: 1
-          num_map_assigned: 1
-    MapsArrayExample:
-      value:
-      - created_time: 0
-        flags: {}
-        group_idx: 1
-        group_name: East Wing
-        height: 0
-        height_m: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        latlng_br:
-          lat: string
-          lng: string
-        latlng_tl:
-          lat: string
-          lng: string
-        locked: true
-        modified_time: 0
-        name: string
-        occupancy_limit: 0
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        orientation: 0
-        origin_x: 0
-        origin_y: 0
-        ppm: 0
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        sitesurvey_path:
-        - coordinate: string
-          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          name: string
-          nodes:
-          - edges:
-              N2: string
-            name: string
-            position:
-              x: 0
-              y: 0
-        thumbnail_url: string
-        type: image
-        url: string
-        view: roadmap
-        wall_path:
-          coordinate: string
-          nodes:
-          - edges:
-              N2: string
-            name: string
-            position:
-              x: 0
-              y: 0
-        wayfinding:
-          micello:
-            account_key: string
-            default_level_id: 0
-            map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          snap_to_path: true
-        wayfinding_path:
-          coordinate: string
-          nodes:
-          - edges:
-              N2: string
-            name: string
-            position:
-              x: 0
-              y: 0
-        width: 0
-        width_m: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     InstallerAlarmtemplatesExample:
       value:
       - id: 684dfc5c-fe77-2290-eb1d-ef3d677fe168
         name: AlarmTemplate 1
-    OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound:
+    HTTP400Example:
       value:
-        detail: replacing_mac device not found
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     InstallerDeviceProfilesExample:
       value:
       - id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
         name: DeviceProfile 1
+    OrgInventoryAddExample:
+      value:
+        added:
+        - 6JG8E-PTFV2-A9Z2N
+        duplicated:
+        - DVH4V-SNMSZ-PDXBR
+        error:
+        - PO1025335ohoh
+        inventory_added:
+        - mac: 5c5b35000018
+          magic: 6JG8EPTFV2A9Z2N
+          model: AP41
+          serial: FXLH2015150025
+          type: ap
+        inventory_duplicated:
+        - mac: 5c5b35000012
+          magic: DVH4VSNMSZPDXBR
+          model: AP41
+          serial: FXLH2015150027
+          type: ap
+        reason:
+        - belongs to another org ('e2f543f7-d6e1-409f-a565-e77a1f098d3b' (other) != '0de5d6fc-219a-414d-a840-67d6b919ad8f' (you))
     VirtualChassisExample:
       value:
         config_type: nonprovisioned
@@ -3154,6 +3090,89 @@ components:
         status: connected
         type: switch
         vc_mac: 52d9107af289
+    MapsArrayExample:
+      value:
+      - created_time: 0
+        flags: {}
+        group_idx: 1
+        group_name: East Wing
+        height: 0
+        height_m: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        latlng_br:
+          lat: string
+          lng: string
+        latlng_tl:
+          lat: string
+          lng: string
+        locked: true
+        modified_time: 0
+        name: string
+        occupancy_limit: 0
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        orientation: 0
+        origin_x: 0
+        origin_y: 0
+        ppm: 0
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        sitesurvey_path:
+        - coordinate: string
+          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          name: string
+          nodes:
+          - edges:
+              N2: string
+            name: string
+            position:
+              x: 0
+              y: 0
+        thumbnail_url: string
+        type: image
+        url: string
+        view: roadmap
+        wall_path:
+          coordinate: string
+          nodes:
+          - edges:
+              N2: string
+            name: string
+            position:
+              x: 0
+              y: 0
+        wayfinding:
+          micello:
+            account_key: string
+            default_level_id: 0
+            map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          snap_to_path: true
+        wayfinding_path:
+          coordinate: string
+          nodes:
+          - edges:
+              N2: string
+            name: string
+            position:
+              x: 0
+              y: 0
+        width: 0
+        width_m: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    InstallerSitegroupsArrayExample:
+      value:
+      - id: 581328b6-e382-f54e-c9dc-999983183a34
+        name: SiteGroup 1
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OrgInventoryUnassignFailedInvalidMacGivenForReplacingMac:
+      value:
+        detail: invalid replacing_mac
+    InstallerRftemplatesArrayExample:
+      value:
+      - id: bb8a9017-1e36-5d6c-6f2b-551abe8a76a2
+        name: RFTemplate 1
     InstallerSitesArrayExample:
       value:
       - address: 1601 S. Deanza Blvd., Cupertino, CA, 95014
@@ -3168,23 +3187,46 @@ components:
         - sg1
         - sg2
         timezone: America/Los_Angeles
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    OrgInventoryUnassignFailedInventoryDeviceIsAlreadyAssigned:
+      value:
+        detail: device already assigned
+    OrgInventoryUnassignFailedReplacingMacDeviceIsNotAssignedToASite:
+      value:
+        detail: replacing_mac device is unassigned
+    OrgInventoryUnassignNotFoundReplacingMacDeviceNotFound:
+      value:
+        detail: replacing_mac device not found
+    MapImportAssignedAndPlaced:
+      value:
+        aps:
+        - action: assigned-placed
+          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+          height: 3
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
+    OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory:
+      value:
+        detail: replacing_mac inventory not found
     OrgInventoryUnassignFailedOutsideOfGracePeriod:
       value:
         detail: outside of grace period
-    InstallerDevicesArrayExample:
+    OrgInventoryUnassignFailedReplacingMacDeviceLastModifiedOutsideOfGracePeriod:
       value:
-      - connected: true
-        deviceprofile_name: SJ1
-        height: 2.7
-        mac: 5c5b35000018
-        map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-        model: AP41
-        name: hallway
-        orientation: 90
-        serial: FXLH2015150025
-        site_name: SJ1
-        x: 150
-        y: 300
+        detail: replacing_mac device outside of grace period
     MapImportPlaced:
       value:
         aps:
@@ -3204,46 +3246,62 @@ components:
           num_ap_assigned: 1
           num_inv_assigned: 1
           num_map_assigned: 1
-    OrgInventoryUnassignNotFoundReplacingMacDeviceIsNotInOrgInventory:
-      value:
-        detail: replacing_mac inventory not found
-    OrgInventoryUnassignFailedReplacingMacDeviceIsNotAssignedToASite:
-      value:
-        detail: replacing_mac device is unassigned
-    OrgInventoryUnassignFailedInventoryDeviceIsAlreadyAssigned:
-      value:
-        detail: device already assigned
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    OrgInventoryUnassignFailedReplacingMacDeviceLastModifiedOutsideOfGracePeriod:
-      value:
-        detail: replacing_mac device outside of grace period
-    OrgInventoryAddExample:
-      value:
-        added:
-        - 6JG8E-PTFV2-A9Z2N
-        duplicated:
-        - DVH4V-SNMSZ-PDXBR
-        error:
-        - PO1025335ohoh
-        inventory_added:
-        - mac: 5c5b35000018
-          magic: 6JG8EPTFV2A9Z2N
-          model: AP41
-          serial: FXLH2015150025
-          type: ap
-        inventory_duplicated:
-        - mac: 5c5b35000012
-          magic: DVH4VSNMSZPDXBR
-          model: AP41
-          serial: FXLH2015150027
-          type: ap
-        reason:
-        - belongs to another org ('e2f543f7-d6e1-409f-a565-e77a1f098d3b' (other) != '0de5d6fc-219a-414d-a840-67d6b919ad8f' (you))
-    OrgInventoryUnassignFailedInvalidMacGivenForReplacingMac:
-      value:
-        detail: invalid replacing_mac
+  parameters:
+    site_name:
+      in: path
+      name: site_name
+      required: true
+      schema:
+        type: string
+    image_name:
+      in: path
+      name: image_name
+      required: true
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    device_mac:
+      in: path
+      name: device_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
