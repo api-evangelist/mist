@@ -151,24 +151,147 @@ paths:
       tags:
       - Constants Models
 components:
+  responses:
+    ConstDeviceModels:
+      content:
+        application/json:
+          examples:
+            AP:
+              $ref: '#/components/examples/ConstDeviceModelsAP'
+            Gateway:
+              $ref: '#/components/examples/ConstDeviceModelsGateway'
+            Switch:
+              $ref: '#/components/examples/ConstDeviceModelsSwitch'
+          schema:
+            $ref: '#/components/schemas/const_device_models'
+        application/vnd.api+json:
+          examples:
+            AP:
+              $ref: '#/components/examples/ConstDeviceModelsAP'
+            Gateway:
+              $ref: '#/components/examples/ConstDeviceModelsGateway'
+            Switch:
+              $ref: '#/components/examples/ConstDeviceModelsSwitch'
+          schema:
+            $ref: '#/components/schemas/const_device_models'
+      description: List of supported device models
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    ConstDefaultGatewayConfig:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstDefaultGatewayConfigExample'
+          schema:
+            additionalProperties: true
+            type: object
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstDefaultGatewayConfigExample'
+          schema:
+            additionalProperties: true
+            type: object
+      description: OK
+    ConstOtherDeviceModels:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstOtherDeviceModelsExample'
+          schema:
+            $ref: '#/components/schemas/const_other_device_models'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstOtherDeviceModelsExample'
+          schema:
+            $ref: '#/components/schemas/const_other_device_models'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    ConstMxEdgeModels:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstMxEdgeModelsExample'
+          schema:
+            $ref: '#/components/schemas/const_mxedge_models'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstMxEdgeModelsExample'
+          schema:
+            $ref: '#/components/schemas/const_mxedge_models'
+      description: List of MxEdge Models
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   schemas:
-    const_device_model:
-      description: Device model definition returned by the constants API
-      discriminator:
-        mapping:
-          ap: '#/components/schemas/const_device_ap'
-          gateway: '#/components/schemas/const_device_switch'
-          switch: '#/components/schemas/const_device_gateway'
-        propertyName: type
-      oneOf:
-      - $ref: '#/components/schemas/const_device_ap'
-      - $ref: '#/components/schemas/const_device_switch'
-      - $ref: '#/components/schemas/const_device_gateway'
-    const_other_device_models:
-      description: Other-device model definitions returned by the constants API
-      items:
-        $ref: '#/components/schemas/const_other_device_model'
-      type: array
     const_mxedge_model_port:
       additionalProperties: false
       description: Mist Edge model port metadata
@@ -184,55 +307,78 @@ components:
           - 10000
           type: integer
       type: object
-    const_device_type_ap:
-      description: 'Device Type. enum: `ap`'
-      enum:
-      - ap
-      readOnly: true
-      type: string
-    const_device_type_switch:
-      description: 'Device Type. enum: `switch`'
-      enum:
-      - switch
-      readOnly: true
-      type: string
-    const_device_gateway_pic:
-      additionalProperties:
-        description: List of type and number of ports (e.g. "mge*8, ge*16")
-        type: string
-      description: Object Key is the PIC number
-      type: object
-    const_device_ap_band6:
+    const_device_ap_vble:
       additionalProperties: false
-      description: 6 GHz radio capability limits for an AP model
+      description: Virtual BLE (vBLE) capability settings for an AP model
       properties:
-        max_clients:
-          description: Maximum client count supported on the 6 GHz radio
+        beacon_rate:
+          description: Advertisement rate for the virtual BLE beacon
           examples:
-          - 128
+          - 4
           type: integer
-        max_power:
-          description: Maximum transmit power for the 6 GHz radio, in dBm
+        beams:
+          description: Number of virtual BLE beams supported by the AP model
           examples:
-          - 17
+          - 9
           type: integer
-        min_power:
-          description: Minimum transmit power for the 6 GHz radio, in dBm
+        power:
+          description: Transmit power for virtual BLE beacons, in dBm
           examples:
           - 8
           type: integer
       type: object
-    const_device_ap_extios_default_dir:
-      description: 'Default direction for this external I/O port. enum: `IN`, `OUT`'
-      enum:
-      - IN
-      - OUT
-      type: string
-    const_device_gateway_defaults:
-      additionalProperties:
-        description: List of interfaces names (e.g. "ge-0/0/3,ge-1/0/3")
-        type: string
-      description: Object Key is the interface type name (e.g. "lan_ports", "wan_ports", ...)
+    const_mxedge_model:
+      additionalProperties: false
+      description: Mist Edge model definition returned by the constants API
+      properties:
+        custom_ports:
+          description: Whether this Mist Edge model supports custom port definitions
+          type: boolean
+        display:
+          description: User-facing model name shown for the Mist Edge
+          examples:
+          - X10
+          type: string
+        model:
+          description: Mist Edge model identifier
+          examples:
+          - ME-X10
+          type: string
+        ports:
+          additionalProperties:
+            $ref: '#/components/schemas/const_mxedge_model_port'
+          description: Port metadata keyed by interface number for this Mist Edge model
+          type: object
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
       type: object
     const_other_device_model:
       additionalProperties: false
@@ -254,18 +400,114 @@ components:
           description: Manufacturer name for this other-device model
           type: string
       type: object
-    const_device_gateway_ports:
+    const_device_ap_band5:
       additionalProperties: false
-      description: Object Key is the interface name (e.g. "ge-0/0/1", ...)
+      description: 5 GHz radio capability limits for an AP model
       properties:
-        display:
-          description: User-facing interface name for the gateway port
+        max_clients:
+          description: Maximum client count supported on the 5 GHz radio
+          examples:
+          - 128
+          type: integer
+        max_power:
+          description: Maximum transmit power for the 5 GHz radio, in dBm
+          examples:
+          - 17
+          type: integer
+        min_power:
+          description: Minimum transmit power for the 5 GHz radio, in dBm
+          examples:
+          - 8
+          type: integer
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
-        pci_address:
-          description: PCI address for the gateway port
+      type: object
+    const_device_gateway_pic:
+      additionalProperties:
+        description: List of type and number of ports (e.g. "mge*8, ge*16")
+        type: string
+      description: Object Key is the PIC number
+      type: object
+    const_device_ap_disallowed_channels:
+      description: Disallowed RF channel definitions for AP device models
+      items:
+        type: integer
+      type: array
+    const_device_type_gateway:
+      description: 'Device Type. enum: `gateway`'
+      enum:
+      - gateway
+      readOnly: true
+      type: string
+    const_device_ap_extios_default_dir:
+      description: 'Default direction for this external I/O port. enum: `IN`, `OUT`'
+      enum:
+      - IN
+      - OUT
+      type: string
+    const_device_gateway_defaults:
+      additionalProperties:
+        description: List of interfaces names (e.g. "ge-0/0/3,ge-1/0/3")
+        type: string
+      description: Object Key is the interface type name (e.g. "lan_ports", "wan_ports", ...)
+      type: object
+    const_device_type_switch:
+      description: 'Device Type. enum: `switch`'
+      enum:
+      - switch
+      readOnly: true
+      type: string
+    const_device_model:
+      description: Device model definition returned by the constants API
+      discriminator:
+        mapping:
+          ap: '#/components/schemas/const_device_ap'
+          gateway: '#/components/schemas/const_device_switch'
+          switch: '#/components/schemas/const_device_gateway'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/const_device_ap'
+      - $ref: '#/components/schemas/const_device_switch'
+      - $ref: '#/components/schemas/const_device_gateway'
+    const_device_switch_default:
+      additionalProperties: false
+      description: Default switch port ranges for a model
+      properties:
+        _ports:
+          description: Default switch port range list for this model
+          examples:
+          - ge-0/0/0-47, et-0/1/0-3, xe-0/2/0-3, ge-0/2/0-3
           type: string
-        speed:
-          description: Port speed for the gateway interface, in Mbps
+      type: object
+    const_device_ap_band24:
+      additionalProperties: false
+      description: 2.4 GHz radio capability limits for an AP model
+      properties:
+        band5_channels_op:
+          description: 5 GHz channel set used when this radio operates on 5 GHz
+          examples:
+          - low
+          type: string
+        max_clients:
+          description: Maximum client count supported on the 2.4 GHz radio
+          examples:
+          - 128
+          type: integer
+        max_power:
+          description: Maximum transmit power for the 2.4 GHz radio, in dBm
+          examples:
+          - 19
+          type: integer
+        min_power:
+          description: Minimum transmit power for the 2.4 GHz radio, in dBm
+          examples:
+          - 8
           type: integer
       type: object
     const_device_switch:
@@ -399,89 +641,51 @@ components:
       required:
       - type
       type: object
-    const_mxedge_models:
-      description: Mist Edge model definitions returned by the constants API
-      items:
-        $ref: '#/components/schemas/const_mxedge_model'
-      type: array
-    response_http404:
+    const_device_type_ap:
+      description: 'Device Type. enum: `ap`'
+      enum:
+      - ap
+      readOnly: true
+      type: string
+    const_device_ap_band6:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: 6 GHz radio capability limits for an AP model
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    const_device_switch_default:
-      additionalProperties: false
-      description: Default switch port ranges for a model
-      properties:
-        _ports:
-          description: Default switch port range list for this model
-          examples:
-          - ge-0/0/0-47, et-0/1/0-3, xe-0/2/0-3, ge-0/2/0-3
-          type: string
-      type: object
-    const_device_ap_band24:
-      additionalProperties: false
-      description: 2.4 GHz radio capability limits for an AP model
-      properties:
-        band5_channels_op:
-          description: 5 GHz channel set used when this radio operates on 5 GHz
-          examples:
-          - low
-          type: string
         max_clients:
-          description: Maximum client count supported on the 2.4 GHz radio
+          description: Maximum client count supported on the 6 GHz radio
           examples:
           - 128
           type: integer
         max_power:
-          description: Maximum transmit power for the 2.4 GHz radio, in dBm
+          description: Maximum transmit power for the 6 GHz radio, in dBm
           examples:
-          - 19
+          - 17
           type: integer
         min_power:
-          description: Minimum transmit power for the 2.4 GHz radio, in dBm
+          description: Minimum transmit power for the 6 GHz radio, in dBm
           examples:
           - 8
           type: integer
       type: object
-    response_http401:
+    const_device_ap_extios:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: External I/O port capabilities for an AP model
       properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
+        default_dir:
+          $ref: '#/components/schemas/const_device_ap_extios_default_dir'
+          description: Default direction for this external I/O port
+        input:
+          description: Whether this external I/O port supports input mode
+          type: boolean
+        output:
+          description: Whether this external I/O port supports output mode
+          type: boolean
       type: object
-    const_device_ap_disallowed_channels:
-      description: Disallowed RF channel definitions for AP device models
+    const_other_device_models:
+      description: Other-device model definitions returned by the constants API
       items:
-        type: integer
+        $ref: '#/components/schemas/const_other_device_model'
       type: array
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     const_device_gateway:
       additionalProperties: false
       description: Gateway model capability definition returned by the constants API
@@ -567,12 +771,35 @@ components:
       required:
       - type
       type: object
-    const_device_type_gateway:
-      description: 'Device Type. enum: `gateway`'
-      enum:
-      - gateway
-      readOnly: true
-      type: string
+    const_device_gateway_ports:
+      additionalProperties: false
+      description: Object Key is the interface name (e.g. "ge-0/0/1", ...)
+      properties:
+        display:
+          description: User-facing interface name for the gateway port
+          type: string
+        pci_address:
+          description: PCI address for the gateway port
+          type: string
+        speed:
+          description: Port speed for the gateway interface, in Mbps
+          type: integer
+      type: object
+    const_mxedge_models:
+      description: Mist Edge model definitions returned by the constants API
+      items:
+        $ref: '#/components/schemas/const_mxedge_model'
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     const_device_ap:
       additionalProperties: false
       description: AP model capability definition returned by the constants API
@@ -738,31 +965,16 @@ components:
       - ap_type
       - type
       type: object
+    const_device_models:
+      description: Device model definitions returned by the constants API
+      items:
+        $ref: '#/components/schemas/const_device_model'
+      type: array
     const_device_ap_band_24_usages:
       description: Supported 2.4 GHz radio usage modes for AP models
       items:
         $ref: '#/components/schemas/const_device_ap_band_24_usage'
       type: array
-    const_device_ap_vble:
-      additionalProperties: false
-      description: Virtual BLE (vBLE) capability settings for an AP model
-      properties:
-        beacon_rate:
-          description: Advertisement rate for the virtual BLE beacon
-          examples:
-          - 4
-          type: integer
-        beams:
-          description: Number of virtual BLE beams supported by the AP model
-          examples:
-          - 9
-          type: integer
-        power:
-          description: Transmit power for virtual BLE beacons, in dBm
-          examples:
-          - 8
-          type: integer
-      type: object
     const_device_ap_band_24_usage:
       description: 'enum: `24`, `5`, `6`'
       enum:
@@ -770,132 +982,7 @@ components:
       - '5'
       - '6'
       type: string
-    const_device_ap_extios:
-      additionalProperties: false
-      description: External I/O port capabilities for an AP model
-      properties:
-        default_dir:
-          $ref: '#/components/schemas/const_device_ap_extios_default_dir'
-          description: Default direction for this external I/O port
-        input:
-          description: Whether this external I/O port supports input mode
-          type: boolean
-        output:
-          description: Whether this external I/O port supports output mode
-          type: boolean
-      type: object
-    const_mxedge_model:
-      additionalProperties: false
-      description: Mist Edge model definition returned by the constants API
-      properties:
-        custom_ports:
-          description: Whether this Mist Edge model supports custom port definitions
-          type: boolean
-        display:
-          description: User-facing model name shown for the Mist Edge
-          examples:
-          - X10
-          type: string
-        model:
-          description: Mist Edge model identifier
-          examples:
-          - ME-X10
-          type: string
-        ports:
-          additionalProperties:
-            $ref: '#/components/schemas/const_mxedge_model_port'
-          description: Port metadata keyed by interface number for this Mist Edge model
-          type: object
-      type: object
-    const_device_models:
-      description: Device model definitions returned by the constants API
-      items:
-        $ref: '#/components/schemas/const_device_model'
-      type: array
-    const_device_ap_band5:
-      additionalProperties: false
-      description: 5 GHz radio capability limits for an AP model
-      properties:
-        max_clients:
-          description: Maximum client count supported on the 5 GHz radio
-          examples:
-          - 128
-          type: integer
-        max_power:
-          description: Maximum transmit power for the 5 GHz radio, in dBm
-          examples:
-          - 17
-          type: integer
-        min_power:
-          description: Minimum transmit power for the 5 GHz radio, in dBm
-          examples:
-          - 8
-          type: integer
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
   examples:
-    ConstDefaultGatewayConfigExample:
-      value:
-        dhcpd_config:
-          lan:
-            ip_end: 192.168.1.254
-            ip_start: 192.168.1.2
-        ip_configs:
-          lan:
-            ip: 192.168.1.1
-            type: static
-        networks:
-          lan:
-            name: lan
-            subnet: 192.168.1.0/24
-            vlan_id: 1
-        path_preferences:
-          wan:
-            paths:
-            - name: wan
-              type: wan
-        port_config:
-          cl-1/0/0:
-            ip_config:
-              type: dhcp
-            name: lte
-            usage: wan
-            wan_type: lte
-          ge-0/0/0,ge-0/0/7:
-            ip_config:
-              type: dhcp
-            name: wan
-            usage: wan
-          ge-0/0/1-6:
-            port_network: lan
-            usage: lan
-        service_policies:
-        - action: allow
-          name: Internet
-          path_preference: wan
-          services:
-          - any
-          tenants:
-          - lan
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    ConstOtherDeviceModelsExample:
-      value:
-      - _vendor_model_id: '65'
-        display: W1850
-        model: W1850
-        type: router
-        vendor: cradlepoint
     ConstDeviceModelsAP:
       value:
       - ap_type: jewel
@@ -986,9 +1073,12 @@ components:
           '2': sfp+*4 (uplink)
         sub_required: string
         type: switch
-    HTTP403Example:
+    HTTP429Example:
       value:
-        detail: You do not have permission to perform this action.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     ConstDeviceModelsGateway:
       value:
       - defaults:
@@ -1019,6 +1109,49 @@ components:
           '0': ge*6, sfp*2
         sub_required: wan1
         type: gateway
+    ConstDefaultGatewayConfigExample:
+      value:
+        dhcpd_config:
+          lan:
+            ip_end: 192.168.1.254
+            ip_start: 192.168.1.2
+        ip_configs:
+          lan:
+            ip: 192.168.1.1
+            type: static
+        networks:
+          lan:
+            name: lan
+            subnet: 192.168.1.0/24
+            vlan_id: 1
+        path_preferences:
+          wan:
+            paths:
+            - name: wan
+              type: wan
+        port_config:
+          cl-1/0/0:
+            ip_config:
+              type: dhcp
+            name: lte
+            usage: wan
+            wan_type: lte
+          ge-0/0/0,ge-0/0/7:
+            ip_config:
+              type: dhcp
+            name: wan
+            usage: wan
+          ge-0/0/1-6:
+            port_network: lan
+            usage: lan
+        service_policies:
+        - action: allow
+          name: Internet
+          path_preference: wan
+          services:
+          - any
+          tenants:
+          - lan
     ConstMxEdgeModelsExample:
       value:
       - display: X10
@@ -1036,152 +1169,19 @@ components:
           '3':
             display: xe3
             speed: 10000
-    HTTP401Example:
+    HTTP403Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: You do not have permission to perform this action.
+    ConstOtherDeviceModelsExample:
+      value:
+      - _vendor_model_id: '65'
+        display: W1850
+        model: W1850
+        type: router
+        vendor: cradlepoint
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    ConstDeviceModels:
-      content:
-        application/json:
-          examples:
-            AP:
-              $ref: '#/components/examples/ConstDeviceModelsAP'
-            Gateway:
-              $ref: '#/components/examples/ConstDeviceModelsGateway'
-            Switch:
-              $ref: '#/components/examples/ConstDeviceModelsSwitch'
-          schema:
-            $ref: '#/components/schemas/const_device_models'
-        application/vnd.api+json:
-          examples:
-            AP:
-              $ref: '#/components/examples/ConstDeviceModelsAP'
-            Gateway:
-              $ref: '#/components/examples/ConstDeviceModelsGateway'
-            Switch:
-              $ref: '#/components/examples/ConstDeviceModelsSwitch'
-          schema:
-            $ref: '#/components/schemas/const_device_models'
-      description: List of supported device models
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    ConstDefaultGatewayConfig:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstDefaultGatewayConfigExample'
-          schema:
-            additionalProperties: true
-            type: object
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstDefaultGatewayConfigExample'
-          schema:
-            additionalProperties: true
-            type: object
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    ConstOtherDeviceModels:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstOtherDeviceModelsExample'
-          schema:
-            $ref: '#/components/schemas/const_other_device_models'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstOtherDeviceModelsExample'
-          schema:
-            $ref: '#/components/schemas/const_other_device_models'
-      description: OK
-    ConstMxEdgeModels:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstMxEdgeModelsExample'
-          schema:
-            $ref: '#/components/schemas/const_mxedge_models'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstMxEdgeModelsExample'
-          schema:
-            $ref: '#/components/schemas/const_mxedge_models'
-      description: List of MxEdge Models
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

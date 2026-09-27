@@ -206,90 +206,57 @@ paths:
       tags:
       - Sites vBeacons
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    VBeaconExample:
-      value:
-        created_time: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        major: 0
-        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        message: string
-        minor: 0
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        power: 4
-        power_mode: default
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        url: string
-        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        wayfinding_nodename: string
-        x: 0
-        y: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    VBeaconsArrayExample:
-      value:
-      - created_time: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        major: 0
-        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        message: string
-        minor: 0
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        power: 4
-        power_mode: default
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        url: string
-        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        wayfinding_nodename: string
-        x: 0
-        y: 0
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  schemas:
-    ble_config_power_mode:
-      default: default
-      description: 'Transmit power mode for BLE beacons; use `custom` to set explicit power. enum: `custom`, `default`'
-      enum:
-      - custom
-      - default
-      examples:
-      - custom
-      type: string
-    vbeacons:
-      description: Virtual beacon records returned by a list response
-      items:
-        $ref: '#/components/schemas/vbeacon'
-      type: array
+  parameters:
+    vbeacon_id:
+      in: path
+      name: vbeacon_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
     site_id:
-      description: Unique identifier of a Mist site
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  schemas:
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
       format: uuid
       readOnly: true
       type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -302,6 +269,13 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -312,6 +286,33 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
+    vbeacons:
+      description: Virtual beacon records returned by a list response
+      items:
+        $ref: '#/components/schemas/vbeacon'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    ble_config_power_mode:
+      default: default
+      description: 'Transmit power mode for BLE beacons; use `custom` to set explicit power. enum: `custom`, `default`'
+      enum:
+      - custom
+      - default
+      examples:
+      - custom
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -322,6 +323,18 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
     vbeacon:
       description: Virtual beacon configuration for SDK proximity notifications
       properties:
@@ -408,36 +421,22 @@ components:
           format: double
           type: number
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
   responses:
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     VBeaconsArray:
       content:
         application/json:
@@ -455,45 +454,6 @@ components:
       description: OK
     OK:
       description: OK
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    VBeacon:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VBeaconExample'
-          schema:
-            $ref: '#/components/schemas/vbeacon'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VBeaconExample'
-          schema:
-            $ref: '#/components/schemas/vbeacon'
-      description: OK
     HTTP400:
       content:
         application/json:
@@ -509,6 +469,30 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    VBeacon:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconExample'
+          schema:
+            $ref: '#/components/schemas/vbeacon'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VBeaconExample'
+          schema:
+            $ref: '#/components/schemas/vbeacon'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -539,41 +523,57 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  parameters:
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    vbeacon_id:
-      in: path
-      name: vbeacon_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    VBeaconsArrayExample:
+      value:
+      - created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        major: 0
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        message: string
+        minor: 0
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        power: 4
+        power_mode: default
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        url: string
+        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        wayfinding_nodename: string
+        x: 0
+        y: 0
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    VBeaconExample:
+      value:
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        major: 0
+        map_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        message: string
+        minor: 0
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        power: 4
+        power_mode: default
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        url: string
+        uuid: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        wayfinding_nodename: string
+        x: 0
+        y: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

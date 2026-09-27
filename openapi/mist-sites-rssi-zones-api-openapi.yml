@@ -202,42 +202,87 @@ paths:
       tags:
       - Sites RSSI Zones
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    RssizoneExample:
-      value:
-        created_time: 0
-        devices:
-        - device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          rssi: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    RssizonesArrayExample:
-      value:
-      - created_time: 0
-        devices:
-        - device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          rssi: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    rssi_zone_device:
+      additionalProperties: false
+      description: AP device and RSSI threshold used by an RSSI zone
+      properties:
+        device_id:
+          $ref: '#/components/schemas/device_id'
+          description: Identifier of the AP device used by this RSSI zone
+        rssi:
+          description: Minimum RSSI threshold for considering the device inside the zone
+          examples:
+          - 0
+          type: integer
+      required:
+      - device_id
+      - rssi
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    rssi_zones:
+      description: RSSI zone configurations returned by list operations
+      items:
+        $ref: '#/components/schemas/rssi_zone'
+      type: array
+    device_id:
+      description: Read-only UUID identifier for a device
+      examples:
+      - 00000000-0000-0000-1000-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
     rssi_zone:
       description: RSSI-based zone configuration for a site
       properties:
@@ -271,46 +316,17 @@ components:
       required:
       - devices
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
+    rssi_zone_devices:
+      description: List of devices and the respective RSSI values to be considered in the zone
+      items:
+        $ref: '#/components/schemas/rssi_zone_device'
+      type: array
+      uniqueItems: true
     modified_time:
       description: When the object has been modified for the last time, in epoch
       format: double
       readOnly: true
       type: number
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -321,24 +337,6 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    rssi_zones:
-      description: RSSI zone configurations returned by list operations
-      items:
-        $ref: '#/components/schemas/rssi_zone'
-      type: array
-    rssi_zone_devices:
-      description: List of devices and the respective RSSI values to be considered in the zone
-      items:
-        $ref: '#/components/schemas/rssi_zone_device'
-      type: array
-      uniqueItems: true
-    device_id:
-      description: Read-only UUID identifier for a device
-      examples:
-      - 00000000-0000-0000-1000-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
     id:
       description: Unique ID of the object instance in the Mist Organization
       examples:
@@ -346,62 +344,12 @@ components:
       format: uuid
       readOnly: true
       type: string
-    rssi_zone_device:
-      additionalProperties: false
-      description: AP device and RSSI threshold used by an RSSI zone
-      properties:
-        device_id:
-          $ref: '#/components/schemas/device_id'
-          description: Identifier of the AP device used by this RSSI zone
-        rssi:
-          description: Minimum RSSI threshold for considering the device inside the zone
-          examples:
-          - 0
-          type: integer
-      required:
-      - device_id
-      - rssi
-      type: object
     created_time:
       description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
   responses:
-    Rssizone:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RssizoneExample'
-          schema:
-            $ref: '#/components/schemas/rssi_zone'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/RssizoneExample'
-          schema:
-            $ref: '#/components/schemas/rssi_zone'
-      description: OK
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -417,6 +365,38 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    OK:
+      description: OK
+    Rssizone:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RssizoneExample'
+          schema:
+            $ref: '#/components/schemas/rssi_zone'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/RssizoneExample'
+          schema:
+            $ref: '#/components/schemas/rssi_zone'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     HTTP404:
       content:
         application/json:
@@ -441,21 +421,6 @@ components:
           schema:
             $ref: '#/components/schemas/rssi_zones'
       description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     HTTP429:
       content:
         application/json:
@@ -486,6 +451,41 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    RssizonesArrayExample:
+      value:
+      - created_time: 0
+        devices:
+        - device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          rssi: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+    RssizoneExample:
+      value:
+        created_time: 0
+        devices:
+        - device_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          rssi: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
     page:
       description: Select the page number to return when using page-based pagination; starts at `1`
@@ -495,15 +495,6 @@ components:
         default: 1
         minimum: 1
         type: integer
-    rssizone_id:
-      in: path
-      name: rssizone_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
     limit:
       description: Maximum number of results to return per page
       in: query
@@ -515,6 +506,15 @@ components:
     site_id:
       in: path
       name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    rssizone_id:
+      in: path
+      name: rssizone_id
       required: true
       schema:
         examples:

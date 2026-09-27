@@ -186,51 +186,15 @@ paths:
       tags:
       - Orgs SecIntel Profiles
 components:
-  examples:
-    SecIntelProfilesArrayExample:
-      value:
-      - name: secintel-custom
-        profiles:
-        - action: default
-          category: CC
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    SecIntelProfileExample:
-      value:
-        name: secintel-custom
-        profiles:
-        - action: default
-          category: CC
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
-    secintel_profile_profiles:
-      description: Category-specific SecIntel action settings
-      items:
-        $ref: '#/components/schemas/secintel_profile_profile'
-      type: array
-    secintel_profile_profile_action:
-      default: default
-      description: 'enum: `default`, `standard`, `strict`'
-      enum:
-      - default
-      - standard
-      - strict
-      type: string
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -241,6 +205,29 @@ components:
           description: Human-readable explanation of the bad request error
           examples:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    secintel_profiles:
+      description: SecIntel profiles returned by list operations
+      items:
+        $ref: '#/components/schemas/secintel_profile'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     secintel_profile:
@@ -255,6 +242,18 @@ components:
           $ref: '#/components/schemas/secintel_profile_profiles'
           description: Category-specific SecIntel action settings included in this profile
       type: object
+    secintel_profile_profile_category:
+      description: 'enum: `CC`, `IH` (Infected Host), `DNS`'
+      enum:
+      - CC
+      - DNS
+      - IH
+      type: string
+    secintel_profile_profiles:
+      description: Category-specific SecIntel action settings
+      items:
+        $ref: '#/components/schemas/secintel_profile_profile'
+      type: array
     secintel_profile_profile:
       additionalProperties: false
       description: SecIntel action setting for a specific feed category
@@ -266,16 +265,6 @@ components:
           $ref: '#/components/schemas/secintel_profile_profile_category'
           description: SecIntel feed category configured by this profile entry
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -286,63 +275,39 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    secintel_profile_profile_category:
-      description: 'enum: `CC`, `IH` (Infected Host), `DNS`'
+    secintel_profile_profile_action:
+      default: default
+      description: 'enum: `default`, `standard`, `strict`'
       enum:
-      - CC
-      - DNS
-      - IH
+      - default
+      - standard
+      - strict
       type: string
-    secintel_profiles:
-      description: SecIntel profiles returned by list operations
-      items:
-        $ref: '#/components/schemas/secintel_profile'
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-  parameters:
-    secintelprofile_id:
-      in: path
-      name: secintelprofile_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
+  examples:
+    SecIntelProfileExample:
+      value:
+        name: secintel-custom
+        profiles:
+        - action: default
+          category: CC
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    SecIntelProfilesArrayExample:
+      value:
+      - name: secintel-custom
+        profiles:
+        - action: default
+          category: CC
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
     SecIntelProfilesArray:
       content:
@@ -359,8 +324,6 @@ components:
           schema:
             $ref: '#/components/schemas/secintel_profiles'
       description: Example response
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -376,6 +339,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    OK:
+      description: OK
     SecIntelProfile:
       content:
         application/json:
@@ -391,15 +356,6 @@ components:
           schema:
             $ref: '#/components/schemas/secintel_profile'
       description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -415,6 +371,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -445,6 +410,41 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    secintelprofile_id:
+      in: path
+      name: secintelprofile_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

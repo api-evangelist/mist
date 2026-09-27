@@ -111,40 +111,14 @@ paths:
       - Sites Stats - IoT Endpoints
 components:
   schemas:
-    response_iot_endpoints_search:
+    response_http429:
       additionalProperties: false
-      description: Time-bounded response for IoT endpoint search results
+      description: Standard HTTP 429 rate limit error response
       properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the IoT endpoint search window
-          type: number
-        results:
-          $ref: '#/components/schemas/response_iot_endpoints_search_results'
-          description: IoT endpoint statistics matching the search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the IoT endpoint search window
-          type: number
-        total:
-          description: Number of IoT endpoint records matching the search filters
-          type: integer
-      required:
-      - start
-      - end
-      - total
-      - results
-      type: object
-    response_iot_endpoints_search_results:
-      description: IoT endpoint statistics returned by a search response
-      items:
-        $ref: '#/components/schemas/iotendpoint_stats'
-      type: array
-      uniqueItems: true
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -157,6 +131,30 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_iot_endpoints_search_results:
+      description: IoT endpoint statistics returned by a search response
+      items:
+        $ref: '#/components/schemas/iotendpoint_stats'
+      type: array
+      uniqueItems: true
     iotendpoint_stats:
       additionalProperties: false
       description: IoT endpoint statistics returned by a search response
@@ -200,16 +198,6 @@ components:
           - zigbee
           type: string
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -220,59 +208,29 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    response_http429:
+    response_iot_endpoints_search:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Time-bounded response for IoT endpoint search results
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    IotEndpointsSearchExample:
-      value:
-        end: 1531862583.0
+        end:
+          description: Epoch timestamp, in seconds, for the end of the IoT endpoint search window
+          type: number
         results:
-        - ap_mac: 5c5b350e0001
-          id: 63f9e299182b63f9
-          lqi: 178
-          mac: 63f9e299182b63f9
-          mfg: Assa Abloy
-          model: Assa Abloy
-          timestamp: 1531782218
-          type: zigbee
-        start: 1531776183.0
-        total: 2
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          $ref: '#/components/schemas/response_iot_endpoints_search_results'
+          description: IoT endpoint statistics matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the IoT endpoint search window
+          type: number
+        total:
+          description: Number of IoT endpoint records matching the search filters
+          type: integer
+      required:
+      - start
+      - end
+      - total
+      - results
+      type: object
   responses:
-    IotEndpointsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/IotEndpointsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_iot_endpoints_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/IotEndpointsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_iot_endpoints_search'
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -288,15 +246,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -312,6 +261,30 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    IotEndpointsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/IotEndpointsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_iot_endpoints_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/IotEndpointsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_iot_endpoints_search'
+      description: OK
     HTTP429:
       content:
         application/json:
@@ -343,21 +316,6 @@ components:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
   parameters:
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
     start:
       description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
@@ -381,6 +339,48 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    IotEndpointsSearchExample:
+      value:
+        end: 1531862583.0
+        results:
+        - ap_mac: 5c5b350e0001
+          id: 63f9e299182b63f9
+          lqi: 178
+          mac: 63f9e299182b63f9
+          mfg: Assa Abloy
+          model: Assa Abloy
+          timestamp: 1531782218
+          type: zigbee
+        start: 1531776183.0
+        total: 2
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

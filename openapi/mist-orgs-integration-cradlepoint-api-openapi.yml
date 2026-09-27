@@ -173,26 +173,106 @@ paths:
       tags:
       - Orgs Integration Cradlepoint
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    TestCradlepointCrowdstrike:
-      value:
-        error: Cradlepoint API keys are no longer valid, please verify and update the keys under organization settings.
-        last_status: inactive
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  schemas:
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    account_cradlepoint_config:
+      description: Cradlepoint account credentials and LLDP integration settings
+      properties:
+        cp_api_id:
+          description: Cradlepoint API ID used by Mist for the integration
+          examples:
+          - 84446d61-2206-4ea5-855a-0043f980be54
+          type: string
+        cp_api_key:
+          description: Cradlepoint API key paired with the Cradlepoint API ID
+          examples:
+          - 79c329da9893e34099c7d8ad5cb9c941
+          type: string
+        ecm_api_id:
+          description: Cradlepoint ECM API ID used by Mist for the integration
+          examples:
+          - 73446d61-2206-4ea5-855a-0043f980be62
+          type: string
+        ecm_api_key:
+          description: Cradlepoint ECM API key paired with the ECM API ID
+          examples:
+          - 68b329da9893e34099c7d8ad5cb9c9405
+          type: string
+        enable_lldp:
+          description: Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices
+          type: boolean
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    test_cradlepoint_last_status:
+      description: 'status of integration detected during last sync. enum: `active`, `inactive`'
+      enum:
+      - active
+      - inactive
+      examples:
+      - inactive
+      readOnly: true
+      type: string
+    test_cradlepoint:
+      additionalProperties: false
+      description: Cradlepoint integration connectivity test result
+      properties:
+        error:
+          description: if status is `inactive` this field returns the reason for it being inactive.
+          examples:
+          - Cradlepoint API keys are no longer valid, please verify and update the keys under organization settings.
+          readOnly: true
+          type: string
+        last_status:
+          $ref: '#/components/schemas/test_cradlepoint_last_status'
+          description: Integration status detected during the most recent Cradlepoint sync
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -208,15 +288,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     TestCradlepoint:
       content:
         application/json:
@@ -231,6 +302,8 @@ components:
               $ref: '#/components/examples/TestCradlepointCrowdstrike'
           schema:
             $ref: '#/components/schemas/test_cradlepoint'
+      description: OK
+    OK:
       description: OK
     HTTP400:
       content:
@@ -247,6 +320,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -277,105 +359,23 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  schemas:
-    test_cradlepoint_last_status:
-      description: 'status of integration detected during last sync. enum: `active`, `inactive`'
-      enum:
-      - active
-      - inactive
-      examples:
-      - inactive
-      readOnly: true
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    test_cradlepoint:
-      additionalProperties: false
-      description: Cradlepoint integration connectivity test result
-      properties:
-        error:
-          description: if status is `inactive` this field returns the reason for it being inactive.
-          examples:
-          - Cradlepoint API keys are no longer valid, please verify and update the keys under organization settings.
-          readOnly: true
-          type: string
-        last_status:
-          $ref: '#/components/schemas/test_cradlepoint_last_status'
-          description: Integration status detected during the most recent Cradlepoint sync
-      type: object
-    account_cradlepoint_config:
-      description: Cradlepoint account credentials and LLDP integration settings
-      properties:
-        cp_api_id:
-          description: Cradlepoint API ID used by Mist for the integration
-          examples:
-          - 84446d61-2206-4ea5-855a-0043f980be54
-          type: string
-        cp_api_key:
-          description: Cradlepoint API key paired with the Cradlepoint API ID
-          examples:
-          - 79c329da9893e34099c7d8ad5cb9c941
-          type: string
-        ecm_api_id:
-          description: Cradlepoint ECM API ID used by Mist for the integration
-          examples:
-          - 73446d61-2206-4ea5-855a-0043f980be62
-          type: string
-        ecm_api_key:
-          description: Cradlepoint ECM API key paired with the ECM API ID
-          examples:
-          - 68b329da9893e34099c7d8ad5cb9c9405
-          type: string
-        enable_lldp:
-          description: Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices
-          type: boolean
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    TestCradlepointCrowdstrike:
+      value:
+        error: Cradlepoint API keys are no longer valid, please verify and update the keys under organization settings.
+        last_status: inactive
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
     org_id:
       in: path

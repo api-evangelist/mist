@@ -204,132 +204,6 @@ paths:
       - Orgs UI Settings
 components:
   schemas:
-    org_ui_settings_tiles:
-      description: List of tiles in the databoard
-      items:
-        $ref: '#/components/schemas/org_ui_settings_tile'
-      type: array
-    org_ui_settings_tile:
-      additionalProperties: false
-      description: Tile shown on an organization UI databoard
-      properties:
-        description:
-          description: Text describing the databoard tile
-          examples:
-          - This tile shows the top 10 APs by bandwidth
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the databoard tile
-        isAutoTitle:
-          description: Whether the tile title is auto generated or not
-          type: boolean
-        name:
-          description: Display name of the databoard tile
-          examples:
-          - Top 10 APs by Bandwidth
-          type: string
-        nl_query:
-          description: Natural Language query for the tile
-          examples:
-          - List top 10 APs by bandwidth
-          type: string
-        position:
-          $ref: '#/components/schemas/org_ui_settings_tile_position'
-          description: Grid position and span for the databoard tile
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    org_ui_settings_list:
-      description: List of organization UI databoards
-      items:
-        $ref: '#/components/schemas/org_ui_settings'
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    org_ui_settings_tile_position:
-      additionalProperties: false
-      description: Grid position for a databoard tile
-      properties:
-        col:
-          description: Grid column index for the tile
-          examples:
-          - 1
-          type: integer
-        colSpan:
-          description: Grid column span for the tile
-          examples:
-          - 5
-          type: integer
-        row:
-          description: Grid row index for the tile
-          examples:
-          - 1
-          type: integer
-        rowSpan:
-          description: Grid row span for the tile
-          examples:
-          - 2
-          type: integer
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    org_ui_settings_purpose:
-      description: 'UI surface or purpose for this databoard. enum: `marvisdashboard`'
-      enum:
-      - marvisdashboard
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
     org_ui_settings:
       description: Organization UI settings databoard
       properties:
@@ -374,11 +248,13 @@ components:
           $ref: '#/components/schemas/org_ui_settings_tiles'
           description: Configured tiles for the databoard
       type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
       readOnly: true
-      type: number
+      type: string
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -389,94 +265,138 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
       examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
       format: uuid
       readOnly: true
       type: string
-  examples:
-    OrgUiSettingsArrayExample:
-      value:
-      - created_time: 1749083436
-        description: AP related stats
-        for_site: false
-        id: 9a702097-0dd3-48af-909b-2be4ff94d139
-        isCustomDataboard: true
-        modified_time: 1749083436
-        name: AP Stats
-        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
-        purpose: marvisdashboard
-        site_id: 00000000-0000-0000-0000-000000000000
-        tiles:
-        - description: User typed tile descr
-          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
-          isAutoTitle: true
-          name: List top 10 APs by bandwidth
-          nl_query: List top 10 APs by bandwidth
-          position:
-            col: 1
-            colSpan: 2
-            row: 1
-            rowSpan: 1
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    OrgUiSettingsExample:
-      value:
-        created_time: 1749083436
-        description: AP related stats
-        for_site: false
-        id: 9a702097-0dd3-48af-909b-2be4ff94d139
-        isCustomDataboard: true
-        modified_time: 1749083436
-        name: AP Stats
-        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
-        purpose: marvisdashboard
-        site_id: 00000000-0000-0000-0000-000000000000
-        tiles:
-        - description: User typed tile descr
-          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
-          isAutoTitle: true
-          name: List top 10 APs by bandwidth
-          nl_query: List top 10 APs by bandwidth
-          position:
-            col: 1
-            colSpan: 2
-            row: 1
-            rowSpan: 1
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    uisetting_id:
-      in: path
-      name: uisetting_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    org_ui_settings_purpose:
+      description: 'UI surface or purpose for this databoard. enum: `marvisdashboard`'
+      enum:
+      - marvisdashboard
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    org_ui_settings_tile_position:
+      additionalProperties: false
+      description: Grid position for a databoard tile
+      properties:
+        col:
+          description: Grid column index for the tile
+          examples:
+          - 1
+          type: integer
+        colSpan:
+          description: Grid column span for the tile
+          examples:
+          - 5
+          type: integer
+        row:
+          description: Grid row index for the tile
+          examples:
+          - 1
+          type: integer
+        rowSpan:
+          description: Grid row span for the tile
+          examples:
+          - 2
+          type: integer
+      type: object
+    org_ui_settings_list:
+      description: List of organization UI databoards
+      items:
+        $ref: '#/components/schemas/org_ui_settings'
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    org_ui_settings_tiles:
+      description: List of tiles in the databoard
+      items:
+        $ref: '#/components/schemas/org_ui_settings_tile'
+      type: array
+    org_ui_settings_tile:
+      additionalProperties: false
+      description: Tile shown on an organization UI databoard
+      properties:
+        description:
+          description: Text describing the databoard tile
+          examples:
+          - This tile shows the top 10 APs by bandwidth
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the databoard tile
+        isAutoTitle:
+          description: Whether the tile title is auto generated or not
+          type: boolean
+        name:
+          description: Display name of the databoard tile
+          examples:
+          - Top 10 APs by Bandwidth
+          type: string
+        nl_query:
+          description: Natural Language query for the tile
+          examples:
+          - List top 10 APs by bandwidth
+          type: string
+        position:
+          $ref: '#/components/schemas/org_ui_settings_tile_position'
+          description: Grid position and span for the databoard tile
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -492,6 +412,23 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     HTTP404:
       content:
         application/json:
@@ -516,21 +453,6 @@ components:
           schema:
             $ref: '#/components/schemas/org_ui_settings_list'
       description: List of Org UI Setting
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     OrgUiSettings:
       content:
         application/json:
@@ -576,6 +498,84 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OrgUiSettingsArrayExample:
+      value:
+      - created_time: 1749083436
+        description: AP related stats
+        for_site: false
+        id: 9a702097-0dd3-48af-909b-2be4ff94d139
+        isCustomDataboard: true
+        modified_time: 1749083436
+        name: AP Stats
+        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+        purpose: marvisdashboard
+        site_id: 00000000-0000-0000-0000-000000000000
+        tiles:
+        - description: User typed tile descr
+          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
+          isAutoTitle: true
+          name: List top 10 APs by bandwidth
+          nl_query: List top 10 APs by bandwidth
+          position:
+            col: 1
+            colSpan: 2
+            row: 1
+            rowSpan: 1
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    OrgUiSettingsExample:
+      value:
+        created_time: 1749083436
+        description: AP related stats
+        for_site: false
+        id: 9a702097-0dd3-48af-909b-2be4ff94d139
+        isCustomDataboard: true
+        modified_time: 1749083436
+        name: AP Stats
+        org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+        purpose: marvisdashboard
+        site_id: 00000000-0000-0000-0000-000000000000
+        tiles:
+        - description: User typed tile descr
+          id: 3eef7c83-3d33-417a-a729-4772d4a1013a
+          isAutoTitle: true
+          name: List top 10 APs by bandwidth
+          nl_query: List top 10 APs by bandwidth
+          position:
+            col: 1
+            colSpan: 2
+            row: 1
+            rowSpan: 1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    uisetting_id:
+      in: path
+      name: uisetting_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

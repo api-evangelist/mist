@@ -163,7 +163,136 @@ paths:
       tags:
       - Orgs Events
 components:
+  parameters:
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
   schemas:
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    response_org_system_events_search_results:
+      description: Organization system event records returned by search
+      items:
+        $ref: '#/components/schemas/org_system_event'
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
     response_org_system_events_search:
       additionalProperties: false
       description: Paginated response for organization system event search results
@@ -193,35 +322,16 @@ components:
       - limit
       - total
       type: object
-    response_events_orgs_search_results:
-      description: Organization event records returned by a search response
-      items:
-        $ref: '#/components/schemas/org_event'
-      type: array
     timestamp:
       description: Epoch timestamp, in seconds
       format: double
       readOnly: true
       type: number
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    count_results:
-      description: List of count result rows
+    response_events_orgs_search_results:
+      description: Organization event records returned by a search response
       items:
-        $ref: '#/components/schemas/count_result'
+        $ref: '#/components/schemas/org_event'
       type: array
-      uniqueItems: true
-    response_org_system_events_search_results:
-      description: Organization system event records returned by search
-      items:
-        $ref: '#/components/schemas/org_system_event'
-      type: array
-      uniqueItems: true
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -252,12 +362,64 @@ components:
       - start
       - total
       type: object
-    response_http404:
+    response_events_orgs_search:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Paginated response for organization event search results
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        end:
+          description: Epoch timestamp for the end of the organization event search window
+          examples:
+          - 1688035193
+          type: integer
+        limit:
+          description: Maximum number of organization event records returned in this page
+          examples:
+          - 10
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of organization event records
+          type: string
+        results:
+          $ref: '#/components/schemas/response_events_orgs_search_results'
+          description: Organization event records matching the search filters
+        start:
+          description: Epoch timestamp for the start of the organization event search window
+          examples:
+          - 1687948793
+          type: integer
+        total:
+          description: Number of organization event records matching the search filters across all pages
+          type: integer
+      type: object
+    org_event:
+      additionalProperties: false
+      description: Event record generated at the organization level
+      properties:
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with this event
+        text:
+          description: Detailed human-readable message for the organization event
+          examples:
+          - authentication failed, API key invalid
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the organization event occurred
+        type:
+          description: Event type code for this organization event
+          examples:
+          - CRADLEPOINT_SYNC_FAILED
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
       type: object
     org_system_event:
@@ -292,243 +454,7 @@ components:
           - delete-wlan
           type: string
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_events_orgs_search:
-      additionalProperties: false
-      description: Paginated response for organization event search results
-      properties:
-        end:
-          description: Epoch timestamp for the end of the organization event search window
-          examples:
-          - 1688035193
-          type: integer
-        limit:
-          description: Maximum number of organization event records returned in this page
-          examples:
-          - 10
-          type: integer
-        next:
-          description: Pagination cursor or URL for retrieving the next page of organization event records
-          type: string
-        results:
-          $ref: '#/components/schemas/response_events_orgs_search_results'
-          description: Organization event records matching the search filters
-        start:
-          description: Epoch timestamp for the start of the organization event search window
-          examples:
-          - 1687948793
-          type: integer
-        total:
-          description: Number of organization event records matching the search filters across all pages
-          type: integer
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    org_event:
-      additionalProperties: false
-      description: Event record generated at the organization level
-      properties:
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization associated with this event
-        text:
-          description: Detailed human-readable message for the organization event
-          examples:
-          - authentication failed, API key invalid
-          type: string
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Time when the organization event occurred
-        type:
-          description: Event type code for this organization event
-          examples:
-          - CRADLEPOINT_SYNC_FAILED
-          type: string
-      type: object
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    OrgSystemEventsSearchExample:
-      value:
-        end: 1741312800
-        limit: 1000
-        results:
-        - change_cat: admin_action
-          metadata: '{"\wlan_id\": \"None\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Delete WLAN \\"Automation Test\\"\"}'
-          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
-          scope: org
-          site_id: dc47920f-52d5-499c-af72-dcd646764f84
-          timestamp: 1741309621
-          type: delete-wlan
-        - change_cat: admin_action
-          metadata: '{\"wlan_id\": \"3855dc19-63fb-4490-b113-0176dc1cc8f4\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Add WLAN \\"Automation Test\\"\"}'
-          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
-          scope: org
-          site_id: dc47920f-52d5-499c-af72-dcd646764f84
-          timestamp: 1741309601
-          type: add-wlan
-        - change_cat: admin_action
-          metadata: '{\"template_id\": \"7e49acf4-6841-4e56-ad7d-68d0801cbba8\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Add Template \\"Automation template\\"\"}'
-          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
-          scope: org
-          timestamp: 1741309280
-          type: add-template
-        start: 1741309200
-        total: 3
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     OrgSystemEventsSearch:
       content:
         application/json:
@@ -544,6 +470,45 @@ components:
           schema:
             $ref: '#/components/schemas/response_org_system_events_search'
       description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    OrgEventsSearch:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_events_orgs_search'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_events_orgs_search'
+      description: Example response
     HTTP400:
       content:
         application/json:
@@ -559,15 +524,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    OrgEventsSearch:
+    HTTP404:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/response_events_orgs_search'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/response_events_orgs_search'
-      description: Example response
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -598,21 +563,56 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    OrgSystemEventsSearchExample:
+      value:
+        end: 1741312800
+        limit: 1000
+        results:
+        - change_cat: admin_action
+          metadata: '{"\wlan_id\": \"None\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Delete WLAN \\"Automation Test\\"\"}'
+          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
+          scope: org
+          site_id: dc47920f-52d5-499c-af72-dcd646764f84
+          timestamp: 1741309621
+          type: delete-wlan
+        - change_cat: admin_action
+          metadata: '{\"wlan_id\": \"3855dc19-63fb-4490-b113-0176dc1cc8f4\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Add WLAN \\"Automation Test\\"\"}'
+          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
+          scope: org
+          site_id: dc47920f-52d5-499c-af72-dcd646764f84
+          timestamp: 1741309601
+          type: add-wlan
+        - change_cat: admin_action
+          metadata: '{\"template_id\": \"7e49acf4-6841-4e56-ad7d-68d0801cbba8\",\"admin_name\": \"API Automation api_automation@mistsys.com\",\"desc\": \"Add Template \\"Automation template\\"\"}'
+          org_id: 268e599f-5379-473f-b18b-4384e9b3f244
+          scope: org
+          timestamp: 1741309280
+          type: add-template
+        start: 1741309200
+        total: 3
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

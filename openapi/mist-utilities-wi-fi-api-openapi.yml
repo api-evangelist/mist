@@ -460,47 +460,73 @@ paths:
       tags:
       - Utilities Wi-Fi
 components:
-  schemas:
-    test_telstra:
-      description: Request body for validating Telstra SMS gateway credentials
-      properties:
-        telstra_client_id:
-          description: Telstra client identifier used to send the test SMS
-          examples:
-          - '123456'
-          type: string
-        telstra_client_secret:
-          description: Telstra client secret used to send the test SMS
-          examples:
-          - abcdef
-          format: password
-          type: string
-        to:
-          description: Phone number of the recipient of SMS with country code
-          examples:
-          - '+911122334455'
-          type: string
-      required:
-      - telstra_client_id
-      - telstra_client_secret
-      - to
-      type: object
-    utils_rrm_optimize_macs:
-      description: AP MAC addresses to target for optimization. Neighboring APs may also change; omitted or empty targets all APs
-      items:
+  parameters:
+    client_mac:
+      in: path
+      name: client_mac
+      required: true
+      schema:
         examples:
-        - 5c5b35000001
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
         type: string
-      type: array
-    utils_zeroize_fips:
-      description: Request body for confirming FIPS AP zeroize operations
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    rogue_bssid:
+      in: path
+      name: rogue_bssid
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  schemas:
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
       properties:
-        password:
-          description: Confirmation password for the FIPS zeroize operation
-          format: password
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-      required:
-      - password
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
       type: object
     test_sms_global:
       description: Request body for validating SMSGlobal SMS gateway credentials
@@ -531,20 +557,6 @@ components:
       - smsglobal_api_secret
       - to
       type: object
-    utils_reset_radio_config_bands:
-      description: Radio bands to reset, such as `24`, `5`, or `6`
-      items:
-        type: string
-      type: array
-    mac_addresses_macs:
-      description: Unique MAC addresses included in a request
-      examples:
-      - - 683b679ac024
-      items:
-        type: string
-      minItems: 1
-      type: array
-      uniqueItems: true
     utils_rrm_optimize:
       description: Request to optimize RRM for selected AP radio bands
       properties:
@@ -561,11 +573,35 @@ components:
       required:
       - bands
       type: object
-    utils_rrm_optimize_bands:
-      description: Radio bands to include in the RRM optimization
+    utils_zeroize_fips:
+      description: Request body for confirming FIPS AP zeroize operations
+      properties:
+        password:
+          description: Confirmation password for the FIPS zeroize operation
+          format: password
+          type: string
+      required:
+      - password
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
       items:
         type: string
       type: array
+      uniqueItems: true
+    utils_reset_radio_config:
+      description: Request to reset AP radio settings to RRM-managed values
+      properties:
+        bands:
+          $ref: '#/components/schemas/utils_reset_radio_config_bands'
+          description: Radio bands to reset to RRM management
+        force:
+          default: false
+          description: Whether to reset radios that are currently disabled; default `false` honors radios intentionally disabled by the user
+          type: boolean
+      required:
+      - bands
+      type: object
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -574,25 +610,49 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+    utils_reset_radio_config_bands:
+      description: Radio bands to reset, such as `24`, `5`, or `6`
+      items:
+        type: string
+      type: array
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
+    test_telstra:
+      description: Request body for validating Telstra SMS gateway credentials
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
+        telstra_client_id:
+          description: Telstra client identifier used to send the test SMS
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - '123456'
           type: string
-      type: object
-    mac_addresses:
-      description: Request containing one or more MAC addresses
-      properties:
-        macs:
-          $ref: '#/components/schemas/mac_addresses_macs'
-          description: List of MAC addresses included in the request
+        telstra_client_secret:
+          description: Telstra client secret used to send the test SMS
+          examples:
+          - abcdef
+          format: password
+          type: string
+        to:
+          description: Phone number of the recipient of SMS with country code
+          examples:
+          - '+911122334455'
+          type: string
       required:
-      - macs
+      - telstra_client_id
+      - telstra_client_secret
+      - to
       type: object
+    utils_rrm_optimize_bands:
+      description: Radio bands to include in the RRM optimization
+      items:
+        type: string
+      type: array
     test_twilio:
       description: Request body for validating Twilio SMS gateway credentials
       properties:
@@ -622,16 +682,13 @@ components:
       - from
       - to
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
+    utils_rrm_optimize_macs:
+      description: AP MAC addresses to target for optimization. Neighboring APs may also change; omitted or empty targets all APs
+      items:
+        examples:
+        - 5c5b35000001
+        type: string
+      type: array
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -642,88 +699,16 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    utils_reset_radio_config:
-      description: Request to reset AP radio settings to RRM-managed values
+    mac_addresses:
+      description: Request containing one or more MAC addresses
       properties:
-        bands:
-          $ref: '#/components/schemas/utils_reset_radio_config_bands'
-          description: Radio bands to reset to RRM management
-        force:
-          default: false
-          description: Whether to reset radios that are currently disabled; default `false` honors radios intentionally disabled by the user
-          type: boolean
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
       required:
-      - bands
+      - macs
       type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    rogue_bssid:
-      in: path
-      name: rogue_bssid
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    client_mac:
-      in: path
-      name: client_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -739,15 +724,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
     HTTP400:
       content:
         application/json:
@@ -763,6 +741,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -793,6 +780,19 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

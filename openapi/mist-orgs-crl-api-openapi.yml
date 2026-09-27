@@ -80,17 +80,29 @@ paths:
       tags:
       - Orgs CRL
 components:
-  parameters:
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP401:
       content:
         application/json:
@@ -121,15 +133,19 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    HTTP404:
+    File:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/response_http404'
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            contentMediaType: application/octet-stream
+            description: File
+            type: string
+      description: OK
     HTTP429:
       content:
         application/json:
@@ -145,19 +161,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    File:
-      content:
-        application/json:
-          schema:
-            contentMediaType: application/octet-stream
-            description: File
-            type: string
-        application/vnd.api+json:
-          schema:
-            contentMediaType: application/octet-stream
-            description: File
-            type: string
-      description: OK
     HTTP403:
       content:
         application/json:
@@ -174,12 +177,14 @@ components:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
   schemas:
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -212,29 +217,24 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    response_http429:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
+  parameters:
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

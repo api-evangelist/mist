@@ -345,20 +345,149 @@ paths:
       tags:
       - Orgs Webhooks
 components:
-  schemas:
-    webhook_delivery_status:
-      description: 'webhook delivery status. enum: `failure`, `success`'
-      enum:
-      - failure
-      - success
-      examples:
-      - failure
-      type: string
-    webhook_oauth2_scopes:
-      description: Required when `type`==`oauth2`, if provided, will be used in the token request
-      items:
+  parameters:
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
         type: string
+    webhook_id:
+      in: path
+      name: webhook_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+  schemas:
+    webhook_type:
+      default: http-post
+      description: 'enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`'
+      enum:
+      - aws-sns
+      - google-pubsub
+      - http-post
+      - oauth2
+      - splunk
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    webhook_delivery_topic:
+      description: 'webhook topic. enum: `alarms`, `audits`, `device-updowns`, `occupancy-alerts`, `ping`'
+      enum:
+      - alarms
+      - audits
+      - device-updowns
+      - occupancy-alerts
+      - ping
+      examples:
+      - audits
+      type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
       type: array
+      uniqueItems: true
     search_webhook_delivery:
       additionalProperties: false
       description: Paginated response for webhook delivery searches
@@ -388,84 +517,40 @@ components:
           description: Count of webhook delivery records matching the search
           type: integer
       type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    webhook_delivery:
+    response_http400_webhook:
       additionalProperties: false
-      description: Record of a webhook delivery attempt and the destination response
+      description: Webhook-specific HTTP 400 bad request error response
       properties:
-        error:
-          description: Message returned for a failed delivery attempt, when available
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the webhook delivery attempt
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization associated with the webhook delivery attempt
-        req_headers:
-          description: HTTP headers sent with the webhook delivery request
+        detail:
+          description: Human-readable explanation of the invalid webhook request
           examples:
-          - '{\"Content-Type\":[\"application/json\"],\"User-Agent\":[\"Mist-webhook\"]}'
+          - 'invalid field: assetfilter_ids'
           type: string
-        req_payload:
-          description: JSON payload sent in the webhook delivery request
+        reason:
+          description: Additional reason explaining why the webhook request was invalid
           examples:
-          - '{\"topic\":\"audits\",\"events\":[{\"admin_name\":\"John Doe john.doe@juniper.net\",\"after\":\"{\\"radio_config\\": {\\"band_24\\": {\\"disabled\\": false, \\"allow_rrm_disable\\": false, \\"power_min\\": null, \\"power_max\\": null, \\"power\\": 10, \\"preamble\\": \\"short\\", \\"channels\\": [1, 10], \\"bandwidth\\": 20}}}\",\"before\":\"{\\"radio_config\\": {\\"band_24\\": {\\"disabled\\": false, \\"allow_rrm_disable\\": false, \\"power_min\\": 8, \\"power_max\\": 18, \\"power\\": null, \\"preamble\\": \\"long\\", \\"channels\\": [1, 10], \\"bandwidth\\": 20}}}\",\"id\":\"737909a2-04ff-4aeb-b9da-cc924e74a4dd\",\"message\":\"Update Site Settings\",\"org_id\":\"fc7e2967-e7ef-41e6-b007-1217713de05a\",\"site_id\":\"256c3a35-9cb7-436e-bc6d-314972645d95\",\"site_name\":\"Test Site\",\"src_ip\":\"1.2.3.4\",\"timestamp\":1685956576.923601,\"user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36\"}]}'
-          type: string
-        req_url:
-          description: Destination URL used for the webhook delivery request
-          examples:
-          - https://example.com
-          type: string
-        resp_body:
-          description: Response body returned by the webhook destination
-          examples:
-          - Ok
-          type: string
-        resp_headers:
-          description: Response headers returned by the webhook destination
-          type: string
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with the webhook delivery attempt, when applicable
-        status:
-          $ref: '#/components/schemas/webhook_delivery_status'
-          description: Delivery result for the webhook request
-        status_code:
-          description: HTTP status code returned by the webhook destination
-          examples:
-          - 200
-          type: integer
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Time when the webhook delivery attempt occurred, in epoch seconds
-        topic:
-          $ref: '#/components/schemas/webhook_delivery_topic'
-          description: Webhook topic delivered in this request
-        webhook_id:
-          description: Unique identifier of the configured webhook used for this delivery attempt
-          examples:
-          - 7a11b901-f719-4c91-8aef-deb8699a6364
-          format: uuid
+          - contains duplicate uuids
           type: string
       type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
     webhook:
       description: Webhook configuration for delivering selected Mist events to an external destination
       properties:
@@ -561,6 +646,32 @@ components:
           description: When url uses HTTPS, whether to verify the certificate
           type: boolean
       type: object
+    webhook_assetfilter_ids:
+      description: Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook
+      items:
+        format: uuid
+        type: string
+      type: array
+    webhook_topics:
+      description: List of supported webhook topics available with the API Call [List Webhook Topics](/#operations/listWebhookTopics)
+      items:
+        type: string
+      type: array
+    search_webhook_delivery_results:
+      description: Webhook delivery records returned by a search response
+      items:
+        $ref: '#/components/schemas/webhook_delivery'
+      type: array
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    webhooks:
+      description: Webhook configuration records returned by a list response
+      items:
+        $ref: '#/components/schemas/webhook'
+      type: array
     modified_time:
       description: When the object has been modified for the last time, in epoch
       format: double
@@ -596,140 +707,6 @@ components:
       - start
       - total
       type: object
-    webhook_type:
-      default: http-post
-      description: 'enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`'
-      enum:
-      - aws-sns
-      - google-pubsub
-      - http-post
-      - oauth2
-      - splunk
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    webhook_assetfilter_ids:
-      description: Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook
-      items:
-        format: uuid
-        type: string
-      type: array
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    webhook_oauth2_grant_type:
-      description: 'required when `type`==`oauth2`. enum: `client_credentials`, `password`'
-      enum:
-      - client_credentials
-      - password
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    webhooks:
-      description: Webhook configuration records returned by a list response
-      items:
-        $ref: '#/components/schemas/webhook'
-      type: array
-    search_webhook_delivery_results:
-      description: Webhook delivery records returned by a search response
-      items:
-        $ref: '#/components/schemas/webhook_delivery'
-      type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    webhook_delivery_topic:
-      description: 'webhook topic. enum: `alarms`, `audits`, `device-updowns`, `occupancy-alerts`, `ping`'
-      enum:
-      - alarms
-      - audits
-      - device-updowns
-      - occupancy-alerts
-      - ping
-      examples:
-      - audits
-      type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    webhook_topics:
-      description: List of supported webhook topics available with the API Call [List Webhook Topics](/#operations/listWebhookTopics)
-      items:
-        type: string
-      type: array
-    response_http400_webhook:
-      additionalProperties: false
-      description: Webhook-specific HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the invalid webhook request
-          examples:
-          - 'invalid field: assetfilter_ids'
-          type: string
-        reason:
-          description: Additional reason explaining why the webhook request was invalid
-          examples:
-          - contains duplicate uuids
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
     webhook_delivery_distinct:
       description: 'webhook topic. enum: `status`, `status_code`, `topic`, `webhook_id`'
       enum:
@@ -740,31 +717,108 @@ components:
       examples:
       - webhook_id
       type: string
-    org_id:
-      description: Unique identifier of a Mist organization
+    webhook_oauth2_grant_type:
+      description: 'required when `type`==`oauth2`. enum: `client_credentials`, `password`'
+      enum:
+      - client_credentials
+      - password
+      type: string
+    webhook_delivery_status:
+      description: 'webhook delivery status. enum: `failure`, `success`'
+      enum:
+      - failure
+      - success
       examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      - failure
+      type: string
+    webhook_delivery:
+      additionalProperties: false
+      description: Record of a webhook delivery attempt and the destination response
+      properties:
+        error:
+          description: Message returned for a failed delivery attempt, when available
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the webhook delivery attempt
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization associated with the webhook delivery attempt
+        req_headers:
+          description: HTTP headers sent with the webhook delivery request
+          examples:
+          - '{\"Content-Type\":[\"application/json\"],\"User-Agent\":[\"Mist-webhook\"]}'
+          type: string
+        req_payload:
+          description: JSON payload sent in the webhook delivery request
+          examples:
+          - '{\"topic\":\"audits\",\"events\":[{\"admin_name\":\"John Doe john.doe@juniper.net\",\"after\":\"{\\"radio_config\\": {\\"band_24\\": {\\"disabled\\": false, \\"allow_rrm_disable\\": false, \\"power_min\\": null, \\"power_max\\": null, \\"power\\": 10, \\"preamble\\": \\"short\\", \\"channels\\": [1, 10], \\"bandwidth\\": 20}}}\",\"before\":\"{\\"radio_config\\": {\\"band_24\\": {\\"disabled\\": false, \\"allow_rrm_disable\\": false, \\"power_min\\": 8, \\"power_max\\": 18, \\"power\\": null, \\"preamble\\": \\"long\\", \\"channels\\": [1, 10], \\"bandwidth\\": 20}}}\",\"id\":\"737909a2-04ff-4aeb-b9da-cc924e74a4dd\",\"message\":\"Update Site Settings\",\"org_id\":\"fc7e2967-e7ef-41e6-b007-1217713de05a\",\"site_id\":\"256c3a35-9cb7-436e-bc6d-314972645d95\",\"site_name\":\"Test Site\",\"src_ip\":\"1.2.3.4\",\"timestamp\":1685956576.923601,\"user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36\"}]}'
+          type: string
+        req_url:
+          description: Destination URL used for the webhook delivery request
+          examples:
+          - https://example.com
+          type: string
+        resp_body:
+          description: Response body returned by the webhook destination
+          examples:
+          - Ok
+          type: string
+        resp_headers:
+          description: Response headers returned by the webhook destination
+          type: string
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the webhook delivery attempt, when applicable
+        status:
+          $ref: '#/components/schemas/webhook_delivery_status'
+          description: Delivery result for the webhook request
+        status_code:
+          description: HTTP status code returned by the webhook destination
+          examples:
+          - 200
+          type: integer
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when the webhook delivery attempt occurred, in epoch seconds
+        topic:
+          $ref: '#/components/schemas/webhook_delivery_topic'
+          description: Webhook topic delivered in this request
+        webhook_id:
+          description: Unique identifier of the configured webhook used for this delivery attempt
+          examples:
+          - 7a11b901-f719-4c91-8aef-deb8699a6364
+          format: uuid
+          type: string
+      type: object
+    webhook_oauth2_scopes:
+      description: Required when `type`==`oauth2`, if provided, will be used in the token request
+      items:
+        type: string
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
       format: uuid
       readOnly: true
       type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
   responses:
-    WebhooksArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WebhooksArrayExample'
-          schema:
-            $ref: '#/components/schemas/webhooks'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WebhooksArrayExample'
-          schema:
-            $ref: '#/components/schemas/webhooks'
-      description: OK
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -780,15 +834,68 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
+    Count:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_count'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    Webhook:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WebhookExample'
+          schema:
+            $ref: '#/components/schemas/webhook'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WebhookExample'
+          schema:
+            $ref: '#/components/schemas/webhook'
+      description: OK
+    OK:
+      description: OK
+    WebhooksArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WebhooksArrayExample'
+          schema:
+            $ref: '#/components/schemas/webhooks'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WebhooksArrayExample'
+          schema:
+            $ref: '#/components/schemas/webhooks'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     HTTP400Webhook:
       content:
         application/json:
@@ -824,6 +931,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400_webhook'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     WebhookDeliverySearch:
       content:
         application/json:
@@ -839,36 +955,6 @@ components:
           schema:
             $ref: '#/components/schemas/search_webhook_delivery'
       description: Example response
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    Webhook:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WebhookExample'
-          schema:
-            $ref: '#/components/schemas/webhook'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WebhookExample'
-          schema:
-            $ref: '#/components/schemas/webhook'
-      description: OK
     HTTP429:
       content:
         application/json:
@@ -899,25 +985,36 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
   examples:
+    HTTP400WebhookInvalidassetfilterid:
+      value:
+        detail: 'invalid field: assetfilter_ids'
+    HTTP400WebhookRawDataWebhookalreadycreated:
+      value:
+        detail: Webhook already configured for special location topic
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    WebhooksArrayExample:
+      value:
+      - created_time: 0
+        enabled: true
+        headers: {}
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        secret: string
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        splunk_token: string
+        topics:
+        - location
+        type: http-post
+        url: string
+        verify_cert: true
+    HTTP400WebhookMalformedassetfilterid:
+      value:
+        detail: 'invalid field: assetfilter_ids'
     WebhookExample:
       value:
         created_time: 0
@@ -935,6 +1032,36 @@ components:
         type: http-post
         url: string
         verify_cert: true
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400WebhookDuplicateassetfilterid:
+      value:
+        detail: 'invalid field: assetfilter_ids'
+        reason: contains duplicate uuids
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Webhookorglevelfilterwebhook:
+      value:
+        detail: 'invalid field: topics'
+        reason: filtered asset webhooks must be associated with a site
+    HTTP400WebhookRawDataWebhookmultipletopics:
+      value:
+        detail: Only one location topic can be configured per URL
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     WebhookDeliverySearchWebhookDeliveries:
       value:
         end: 1688035193
@@ -956,133 +1083,6 @@ components:
           webhook_id: 7a11b901-f719-4c91-8aef-deb8699a6364
         start: 1687948793
         total: 0
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    WebhooksArrayExample:
-      value:
-      - created_time: 0
-        enabled: true
-        headers: {}
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        name: string
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        secret: string
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        splunk_token: string
-        topics:
-        - location
-        type: http-post
-        url: string
-        verify_cert: true
-    HTTP400WebhookMalformedassetfilterid:
-      value:
-        detail: 'invalid field: assetfilter_ids'
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400WebhookRawDataWebhookalreadycreated:
-      value:
-        detail: Webhook already configured for special location topic
-    HTTP400WebhookDuplicateassetfilterid:
-      value:
-        detail: 'invalid field: assetfilter_ids'
-        reason: contains duplicate uuids
-    HTTP400Webhookorglevelfilterwebhook:
-      value:
-        detail: 'invalid field: topics'
-        reason: filtered asset webhooks must be associated with a site
-    HTTP400WebhookInvalidassetfilterid:
-      value:
-        detail: 'invalid field: assetfilter_ids'
-    HTTP400WebhookRawDataWebhookmultipletopics:
-      value:
-        detail: Only one location topic can be configured per URL
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    webhook_id:
-      in: path
-      name: webhook_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

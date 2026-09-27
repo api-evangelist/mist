@@ -127,71 +127,22 @@ paths:
       - Sites Devices - Wired
 components:
   schemas:
-    switch_port_local_usage_storm_control:
-      additionalProperties: false
-      description: Storm-control settings for this local port configuration
-      properties:
-        disable_port:
-          default: false
-          description: Whether to disable the port when storm control is triggered
-          type: boolean
-        no_broadcast:
-          default: false
-          description: Whether to disable storm control on broadcast traffic
-          type: boolean
-        no_multicast:
-          default: false
-          description: Whether to disable storm control on multicast traffic
-          type: boolean
-        no_registered_multicast:
-          default: false
-          description: Whether to disable storm control on registered multicast traffic
-          type: boolean
-        no_unknown_unicast:
-          default: false
-          description: Whether to disable storm control on unknown unicast traffic
-          type: boolean
-        percentage:
-          default: 80
-          description: Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth
-          maximum: 100
-          minimum: 0
-          type: integer
-      type: object
-    switch_port_usage_reauth_interval:
-      anyOf:
-      - default: 3600
-        maximum: 65535
-        minimum: 10
-        type: integer
-      - type: string
-      description: 'Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication).'
-    switch_port_local_usage_mode:
-      description: 'enum: `access`, `inet`, `trunk`'
+    switch_port_local_usage_mac_auth_protocol:
+      default: eap-md5
+      description: 'Only if `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`'
       enum:
-      - access
-      - inet
-      - trunk
+      - eap-md5
+      - eap-peap
+      - pap
       type: string
-    switch_port_usage_networks:
-      description: Only if `mode`==`trunk`, the list of network/vlans
-      items:
-        type: string
-      type: array
-    switch_port_local_usage_duplex:
-      default: auto
-      description: 'link connection mode. enum: `auto`, `full`, `half`'
-      enum:
-      - auto
-      - full
-      - half
-      type: string
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -214,43 +165,37 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http403:
+    switch_port_local_usage_dynamic_vlan_networks:
+      description: Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+      examples:
+      - - corp
+        - user
+      items:
+        type: string
+      type: array
+    switch_port_local_usage_mode:
+      description: 'enum: `access`, `inet`, `trunk`'
+      enum:
+      - access
+      - inet
+      - trunk
+      type: string
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    local_port_config:
-      additionalProperties:
-        $ref: '#/components/schemas/junos_local_port_config'
-      description: Per-port Switch Port Operator (SPO) override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10")
-      type: object
-    switch_port_local_usage_dot1x:
-      description: 'if dot1x is desired, set to dot1x. enum: `dot1x`'
-      enum:
-      - dot1x
-      type:
-      - string
-      - 'null'
-    junos_port_config_speed:
-      default: auto
-      description: 'enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
-      enum:
-      - 10m
-      - 100m
-      - 1g
-      - 2.5g
-      - 5g
-      - 10g
-      - 25g
-      - 40g
-      - 100g
-      - auto
-      type: string
+    switch_port_usage_reauth_interval:
+      anyOf:
+      - default: 3600
+        maximum: 65535
+        minimum: 10
+        type: integer
+      - type: string
+      description: 'Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication).'
     junos_local_port_config:
       additionalProperties: false
       description: Per-port Switch Port Operator (SPO) override configuration used in `local_port_config` to customize settings inherited from `port_config`
@@ -394,48 +339,107 @@ components:
       required:
       - usage
       type: object
-    switch_port_local_usage_dynamic_vlan_networks:
-      description: Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
-      examples:
-      - - corp
-        - user
+    switch_port_usage_networks:
+      description: Only if `mode`==`trunk`, the list of network/vlans
       items:
         type: string
       type: array
-    switch_port_local_usage_mac_auth_protocol:
-      default: eap-md5
-      description: 'Only if `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`'
+    switch_port_local_usage_duplex:
+      default: auto
+      description: 'link connection mode. enum: `auto`, `full`, `half`'
       enum:
-      - eap-md5
-      - eap-peap
-      - pap
+      - auto
+      - full
+      - half
       type: string
-    response_http429:
+    switch_port_local_usage_storm_control:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Storm-control settings for this local port configuration
+      properties:
+        disable_port:
+          default: false
+          description: Whether to disable the port when storm control is triggered
+          type: boolean
+        no_broadcast:
+          default: false
+          description: Whether to disable storm control on broadcast traffic
+          type: boolean
+        no_multicast:
+          default: false
+          description: Whether to disable storm control on multicast traffic
+          type: boolean
+        no_registered_multicast:
+          default: false
+          description: Whether to disable storm control on registered multicast traffic
+          type: boolean
+        no_unknown_unicast:
+          default: false
+          description: Whether to disable storm control on unknown unicast traffic
+          type: boolean
+        percentage:
+          default: 80
+          description: Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth
+          maximum: 100
+          minimum: 0
+          type: integer
+      type: object
+    junos_port_config_speed:
+      default: auto
+      description: 'enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`'
+      enum:
+      - 10m
+      - 100m
+      - 1g
+      - 2.5g
+      - 5g
+      - 10g
+      - 25g
+      - 40g
+      - 100g
+      - auto
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
+          description: Human-readable explanation of the permission error
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - You do not have permission to perform this action.
           type: string
       type: object
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    local_port_config:
+      additionalProperties:
+        $ref: '#/components/schemas/junos_local_port_config'
+      description: Per-port Switch Port Operator (SPO) override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10")
+      type: object
+    switch_port_local_usage_dot1x:
+      description: 'if dot1x is desired, set to dot1x. enum: `dot1x`'
+      enum:
+      - dot1x
+      type:
+      - string
+      - 'null'
+  parameters:
+    device_id:
+      in: path
+      name: device_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -451,15 +455,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
     HTTP400:
       content:
         application/json:
@@ -475,6 +472,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -505,25 +511,19 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  parameters:
-    device_id:
-      in: path
-      name: device_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -16,7 +16,7 @@ info:
   license:
     name: MIT
     url: https://raw.githubusercontent.com/tmunzer/Mist-OAS3.0/main/LICENSE
-  title: Mist MS Ps API
+  title: Mist MSPs API
   version: 2606.1.1
   x-logo:
     altText: Juniper-MistAI
@@ -198,144 +198,25 @@ paths:
       tags:
       - MSPs
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    SearchExample:
-      value:
-        limit: 0
-        page: 0
-        results:
-        - id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          text: string
-          type: string
-        total: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    MspExample:
-      value:
-        created_time: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        name: string
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    msp_id:
-      in: path
-      name: msp_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
   schemas:
-    msp_tier:
-      default: base
-      description: 'Service tier for the MSP account. enum: `advanced`, `base`'
-      enum:
-      - advanced
-      - base
-      type: string
-    response_search_results:
-      description: MSP search result entries returned by search
-      items:
-        $ref: '#/components/schemas/response_search_item'
-      type: array
-      uniqueItems: true
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http404:
+    response_search_item:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: MSP search result entry
       properties:
         id:
-          description: Missing resource identifier, when the API includes one
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the matching MSP search result
+        text:
+          description: Display text for the MSP search result
           type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        type:
+          description: Category of MSP search result, such as `orgs`
           type: string
+      required:
+      - id
+      - text
+      - type
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    msp_search_type:
-      description: 'Search result type returned by MSP organization search. enum: `orgs`'
-      enum:
-      - orgs
-      type: string
     response_search:
       additionalProperties: false
       description: Paginated response for MSP organization search results
@@ -361,18 +242,77 @@ components:
       - results
       - total
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    msp_tier:
+      default: base
+      description: 'Service tier for the MSP account. enum: `advanced`, `base`'
+      enum:
+      - advanced
+      - base
       type: string
-    created_time:
-      description: When the object has been created, in epoch
+    response_search_results:
+      description: MSP search result entries returned by search
+      items:
+        $ref: '#/components/schemas/response_search_item'
+      type: array
+      uniqueItems: true
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
       format: double
       readOnly: true
       type: number
+    msp_search_type:
+      description: 'Search result type returned by MSP organization search. enum: `orgs`'
+      enum:
+      - orgs
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     msp:
       description: Managed service provider account
       properties:
@@ -401,37 +341,67 @@ components:
           description: For advanced tier (uMSPs) only
           type: string
       type: object
-    response_search_item:
-      additionalProperties: false
-      description: MSP search result entry
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for the matching MSP search result
-        text:
-          description: Display text for the MSP search result
-          type: string
-        type:
-          description: Category of MSP search result, such as `orgs`
-          type: string
-      required:
-      - id
-      - text
-      - type
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+  parameters:
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    msp_id:
+      in: path
+      name: msp_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -447,30 +417,8 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    Search:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SearchExample'
-          schema:
-            $ref: '#/components/schemas/response_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SearchExample'
-          schema:
-            $ref: '#/components/schemas/response_search'
+    OK:
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -486,6 +434,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     Msp:
       content:
         application/json:
@@ -500,6 +457,21 @@ components:
               $ref: '#/components/examples/MspExample'
           schema:
             $ref: '#/components/schemas/msp'
+      description: OK
+    Search:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SearchExample'
+          schema:
+            $ref: '#/components/schemas/response_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SearchExample'
+          schema:
+            $ref: '#/components/schemas/response_search'
       description: OK
     HTTP429:
       content:
@@ -531,6 +503,34 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    SearchExample:
+      value:
+        limit: 0
+        page: 0
+        results:
+        - id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          text: string
+          type: string
+        total: 0
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    MspExample:
+      value:
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        name: string
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

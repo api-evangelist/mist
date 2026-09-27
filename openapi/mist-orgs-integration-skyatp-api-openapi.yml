@@ -229,75 +229,16 @@ paths:
       tags:
       - Orgs Integration SkyATP
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    SkyAtpListExample:
-      value:
-        domains:
-        - comment: restricted
-          value: unsafe.xxx
-        ips:
-        - comment: nas
-          value: 10.1.3.5
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
-    account_skyatp_data_secintel:
+    response_http429:
       additionalProperties: false
-      description: "juniper secintel_feeds are enabled depending on your license tier: infected_host, geo_ip, attacker_ip, command_and_control.\nthird party:\n  * ip-based: block_list, threatfox_ip, feodo_tracker, dshield, tor\n  * url-based: threatfox_url, urlhaus, open_phish\n  * domain-based: threatfox_domains"
+      description: Standard HTTP 429 rate limit error response
       properties:
-        third_party_threat_feeds:
-          $ref: '#/components/schemas/strings'
-          description: Third-party threat feed names enabled for SecIntel
-      type: object
-    account_skyatp_cloud_name:
-      description: 'Sky ATP cloud name. enum: `www.amerskyatp.com`, `www.apacskyatp.com`, `www.euroskyatp.com`, `www.canadaskyatp.com`'
-      enum:
-      - www.amerskyatp.com
-      - www.apacskyatp.com
-      - www.euroskyatp.com
-      - www.canadaskyatp.com
-      examples:
-      - www.amerskyatp.com
-      type: string
-    skyatp_list_domains:
-      description: Domain entries in a Sky ATP SecIntel list
-      items:
-        $ref: '#/components/schemas/skyatp_list_domain'
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    skyatp_list_domain:
-      additionalProperties: false
-      description: Domain entry in a Sky ATP SecIntel list
-      properties:
-        comment:
-          description: Optional note describing the domain list entry
+        detail:
+          description: Human-readable explanation of the rate limit error
           examples:
-          - restricted
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-        value:
-          description: Domain name included in the Sky ATP SecIntel list
-          examples:
-          - unsafe.com
-          type: string
-      required:
-      - value
       type: object
     response_http400:
       additionalProperties: false
@@ -319,16 +260,89 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    skyatp_list:
+      description: Sky ATP SecIntel allowlist or blocklist entries
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
+        domains:
+          $ref: '#/components/schemas/skyatp_list_domains'
+          description: SecIntel domain entries in this Sky ATP list
+        ip:
+          $ref: '#/components/schemas/skyatp_list_ips'
+          description: SecIntel IP address entries in this Sky ATP list
+      type: object
+    skyatp_list_domain:
+      additionalProperties: false
+      description: Domain entry in a Sky ATP SecIntel list
+      properties:
+        comment:
+          description: Optional note describing the domain list entry
           examples:
-          - You do not have permission to perform this action.
+          - restricted
+          type: string
+        value:
+          description: Domain name included in the Sky ATP SecIntel list
+          examples:
+          - unsafe.com
+          type: string
+      required:
+      - value
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    account_skyatp_cloud_name:
+      description: 'Sky ATP cloud name. enum: `www.amerskyatp.com`, `www.apacskyatp.com`, `www.euroskyatp.com`, `www.canadaskyatp.com`'
+      enum:
+      - www.amerskyatp.com
+      - www.apacskyatp.com
+      - www.euroskyatp.com
+      - www.canadaskyatp.com
+      examples:
+      - www.amerskyatp.com
+      type: string
+    account_skyatp_data_secintel:
+      additionalProperties: false
+      description: "juniper secintel_feeds are enabled depending on your license tier: infected_host, geo_ip, attacker_ip, command_and_control.\nthird party:\n  * ip-based: block_list, threatfox_ip, feodo_tracker, dshield, tor\n  * url-based: threatfox_url, urlhaus, open_phish\n  * domain-based: threatfox_domains"
+      properties:
+        third_party_threat_feeds:
+          $ref: '#/components/schemas/strings'
+          description: Third-party threat feed names enabled for SecIntel
+      type: object
+    account_skyatp_data:
+      description: Sky ATP SecIntel feed data and generated list URLs
+      properties:
+        secintel:
+          $ref: '#/components/schemas/account_skyatp_data_secintel'
+          description: Juniper SecIntel threat feed configuration provided by Sky ATP
+        secintel_allowlist_url:
+          description: URL for the Sky ATP SecIntel allowlist
+          examples:
+          - https://papi.s3.amazonaws.com/secintel_allowlist/xxx...
+          readOnly: true
+          type: string
+        secintel_blocklist_url:
+          description: URL for the Sky ATP SecIntel blocklist
+          examples:
+          - https://papi.s3.amazonaws.com/secintel_blocklist/xxx...
+          readOnly: true
+          type: string
+      type: object
+    skyatp_list_domains:
+      description: Domain entries in a Sky ATP SecIntel list
+      items:
+        $ref: '#/components/schemas/skyatp_list_domain'
+      type: array
     account_skyatp_config:
       description: Sky ATP account credentials and realm settings used for integration
       properties:
@@ -356,15 +370,20 @@ components:
       - username
       - password
       type: object
-    skyatp_list:
-      description: Sky ATP SecIntel allowlist or blocklist entries
+    skyatp_list_ips:
+      description: IP address entries in a Sky ATP SecIntel list
+      items:
+        $ref: '#/components/schemas/skyatp_list_ip'
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
       properties:
-        domains:
-          $ref: '#/components/schemas/skyatp_list_domains'
-          description: SecIntel domain entries in this Sky ATP list
-        ip:
-          $ref: '#/components/schemas/skyatp_list_ips'
-          description: SecIntel IP address entries in this Sky ATP list
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
       type: object
     account_skyatp_info:
       additionalProperties: false
@@ -382,46 +401,6 @@ components:
           description: Sky ATP username configured for the linked realm
           examples:
           - john@abc.com
-          type: string
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    skyatp_list_ips:
-      description: IP address entries in a Sky ATP SecIntel list
-      items:
-        $ref: '#/components/schemas/skyatp_list_ip'
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    account_skyatp_data:
-      description: Sky ATP SecIntel feed data and generated list URLs
-      properties:
-        secintel:
-          $ref: '#/components/schemas/account_skyatp_data_secintel'
-          description: Juniper SecIntel threat feed configuration provided by Sky ATP
-        secintel_allowlist_url:
-          description: URL for the Sky ATP SecIntel allowlist
-          examples:
-          - https://papi.s3.amazonaws.com/secintel_allowlist/xxx...
-          readOnly: true
-          type: string
-        secintel_blocklist_url:
-          description: URL for the Sky ATP SecIntel blocklist
-          examples:
-          - https://papi.s3.amazonaws.com/secintel_blocklist/xxx...
-          readOnly: true
           type: string
       type: object
     skyatp_list_ip:
@@ -442,8 +421,6 @@ components:
       - value
       type: object
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -459,6 +436,47 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    SkyAtpList:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SkyAtpListExample'
+          schema:
+            $ref: '#/components/schemas/skyatp_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SkyAtpListExample'
+          schema:
+            $ref: '#/components/schemas/skyatp_list'
+      description: OK
+    AccountSkyAtpData:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/account_skyatp_info'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/account_skyatp_info'
+      description: OK
     HTTP404:
       content:
         application/json:
@@ -484,45 +502,6 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/account_skyatp_data'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    AccountSkyAtpData:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/account_skyatp_info'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/account_skyatp_info'
-      description: OK
-    SkyAtpList:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SkyAtpListExample'
-          schema:
-            $ref: '#/components/schemas/skyatp_list'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SkyAtpListExample'
-          schema:
-            $ref: '#/components/schemas/skyatp_list'
       description: OK
     HTTP429:
       content:
@@ -554,6 +533,27 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    SkyAtpListExample:
+      value:
+        domains:
+        - comment: restricted
+          value: unsafe.xxx
+        ips:
+        - comment: nas
+          value: 10.1.3.5
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
     org_id:
       in: path

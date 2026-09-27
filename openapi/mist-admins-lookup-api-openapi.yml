@@ -87,24 +87,102 @@ paths:
       - Admins Lookup
 components:
   examples:
-    LoginLookuplocaluserexists:
-      value: {}
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+    LoginLookuplocaluserexists:
+      value: {}
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     LoginLookupSSOuserexists:
       value:
         sso_url: https://my.sso/idp_sso_url
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
+  schemas:
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_login_lookup:
+      additionalProperties: false
+      description: Login lookup response indicating whether SSO is available for the account
+      properties:
+        sso_url:
+          description: URL for SSO login when the account must authenticate through an identity provider
+          type: string
+      type: object
+    email_string:
+      description: Request body containing an email address
+      properties:
+        email:
+          description: Request email address provided in the payload
+          format: email
+          type: string
+      required:
+      - email
+      type: object
   responses:
+    LoginLookup:
+      content:
+        application/json:
+          examples:
+            SSO_user_exists:
+              $ref: '#/components/examples/LoginLookupSSOuserexists'
+            local_user_exists:
+              $ref: '#/components/examples/LoginLookuplocaluserexists'
+          schema:
+            $ref: '#/components/schemas/response_login_lookup'
+        application/vnd.api+json:
+          examples:
+            SSO_user_exists:
+              $ref: '#/components/examples/LoginLookupSSOuserexists'
+            local_user_exists:
+              $ref: '#/components/examples/LoginLookuplocaluserexists'
+          schema:
+            $ref: '#/components/schemas/response_login_lookup'
+      description: Account exists
     HTTP401:
       content:
         application/json:
@@ -135,25 +213,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    LoginLookup:
-      content:
-        application/json:
-          examples:
-            SSO_user_exists:
-              $ref: '#/components/examples/LoginLookupSSOuserexists'
-            local_user_exists:
-              $ref: '#/components/examples/LoginLookuplocaluserexists'
-          schema:
-            $ref: '#/components/schemas/response_login_lookup'
-        application/vnd.api+json:
-          examples:
-            SSO_user_exists:
-              $ref: '#/components/examples/LoginLookupSSOuserexists'
-            local_user_exists:
-              $ref: '#/components/examples/LoginLookuplocaluserexists'
-          schema:
-            $ref: '#/components/schemas/response_login_lookup'
-      description: Account exists
     HTTP429:
       content:
         application/json:
@@ -184,65 +243,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  schemas:
-    email_string:
-      description: Request body containing an email address
-      properties:
-        email:
-          description: Request email address provided in the payload
-          format: email
-          type: string
-      required:
-      - email
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_login_lookup:
-      additionalProperties: false
-      description: Login lookup response indicating whether SSO is available for the account
-      properties:
-        sso_url:
-          description: URL for SSO login when the account must authenticate through an identity provider
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

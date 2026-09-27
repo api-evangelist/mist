@@ -309,222 +309,52 @@ paths:
       - MSPs SSO
 components:
   schemas:
-    response_sso_failure_search_results:
-      description: SSO authentication failure records returned by the request
-      items:
-        $ref: '#/components/schemas/response_sso_failure_search_item'
-      type: array
-      uniqueItems: true
-    sso_oauth_type:
-      default: azure
-      description: 'if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`'
-      enum:
-      - azure
-      - azure-gov
-      - okta
-      - ping_identity
-      type: string
-    ssos:
-      description: List of SSO configurations
-      items:
-        $ref: '#/components/schemas/sso'
-      type: array
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    sso_openroaming_ssids:
-      description: Network SSID names enabled for OpenRoaming SSO
-      examples:
-      - - ssid_name1
-        - ssid_name2
-      items:
-        type: string
-      type: array
-    sso_mxedge_proxy_auth_servers:
-      description: RADIUS authentication servers used by the Mist Edge SSO proxy
-      items:
-        $ref: '#/components/schemas/sso_mxedge_proxy_auth_server'
-      type: array
-    sso_mxedge_proxy:
+    saml_metadata:
       additionalProperties: false
-      description: Mist Edge proxy settings for NAC SSO. If `idp_type`==`mxedge_proxy`, this requires `mist_nac` to be enabled on the mxcluster
+      description: Read-only SAML and SCIM metadata generated for an SSO configuration
       properties:
-        acct_servers:
-          $ref: '#/components/schemas/sso_mxedge_proxy_acct_servers'
-          description: RADIUS accounting servers used by the Mist Edge SSO proxy
-        auth_servers:
-          $ref: '#/components/schemas/sso_mxedge_proxy_auth_servers'
-          description: RADIUS authentication servers used by the Mist Edge SSO proxy
-        mxcluster_id:
-          description: Mist Edge cluster identifier that provides the SSO proxy
+        acs_url:
+          description: If `idp_type`==`saml`, Assertion Consumer Service URL that receives SAML responses for this Mist SSO configuration
           examples:
-          - 572586b7-f97b-a22b-526c-8b97a3f609c4
-          format: uuid
+          - https://api.mist.com/api/v1/saml/llDfa13f/login
+          readOnly: true
           type: string
-        operator_name:
-          description: Operator name as RADIUS attribute while proxying
-          type: string
-        proxy_hosts:
-          $ref: '#/components/schemas/sso_mxedge_proxy_proxy_hosts'
-          description: Public hostnames or IP addresses that clients use to reach the Mist Edge SSO proxy
-        ssids:
-          $ref: '#/components/schemas/sso_mxedge_proxy_ssids'
-          description: Eduroam SSIDs handled by the Mist Edge SSO proxy
-      type: object
-    sso_delete_admins:
-      additionalProperties: false
-      description: Request body listing SSO admin email addresses to delete
-      properties:
-        emails:
-          description: List of admin email addresses to delete
-          items:
-            type: string
-          type: array
-      required:
-      - emails
-      type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    msp_id:
-      description: Managed service provider identifier
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      readOnly: true
-      type: string
-    sso_ldap_server_hosts:
-      description: If `idp_type`==`ldap`, list of LDAP/LDAPS server IP addresses or Hostnames
-      examples:
-      - - hostname
-        - 63.1.3.5
-      items:
-        type: string
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
+        entity_id:
+          description: If `idp_type`==`saml`, service provider entity ID for this Mist SSO configuration
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - https://api.mist.com/api/v1/saml/llDfa13f/login
+          readOnly: true
+          type: string
+        logout_url:
+          description: If `idp_type`==`saml`, Single Logout URL used by the identity provider to end the Mist SSO session
+          examples:
+          - https://api.mist.com/api/v1/saml/llDfa13f/logout
+          readOnly: true
+          type: string
+        metadata:
+          description: If `idp_type`==`saml`, service provider metadata XML for configuring the identity provider
+          examples:
+          - <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://api.mist.com/api/v1/saml/llDfa13f/login" validUntil="2027-10-12T21:59:01Z" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://api.mist.com/api/v1/saml/llDfa13f/login" index="0" isDefault="true"/></md:SPSSODescriptor></md:EntityDescriptor>
+          readOnly: true
+          type: string
+        scim_base_url:
+          description: If `idp_type`==`oauth` and `scim_enabled`==`true`, SCIM base URL that the identity provider uses to send provisioning requests to Mist
+          examples:
+          - https://scim.nac-staging.mistsys.com/S_41b2525a-e8b8-4809-8168-f1d8dcbe9735/azure/4d72b1dc-7503-4717-81ea-80d0125b886e
           type: string
       type: object
-    sso_idp_type:
-      default: saml
-      description: "SSO IDP Type:\n  * For Admin SSO, enum: `saml`\n  * For NAC SSO, enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`"
-      enum:
-      - ldap
-      - mxedge_proxy
-      - oauth
-      - saml
-      - openroaming
-      type: string
-    sso_mxedge_proxy_auth_server:
-      additionalProperties: false
-      description: RADIUS authentication server for the Mist Edge SSO proxy
-      properties:
-        host:
-          description: RADIUS authentication server hostname or IP address
-          examples:
-          - 1.2.3.4
-          type: string
-        port:
-          default: 1812
-          description: UDP port for RADIUS authentication requests
-          type: integer
-        require_message_authenticator:
-          default: false
-          description: Whether to require Message-Authenticator in requests
-          type: boolean
-        retry:
-          default: 2
-          description: Number of retry attempts for RADIUS authentication requests
-          type: integer
-        secret:
-          description: Shared secret used with the RADIUS authentication server
-          examples:
-          - testing123
-          format: password
-          type: string
-        timeout:
-          default: 5
-          description: Authentication request timeout, in seconds
-          type: integer
-      type: object
-    oauth_ping_identity_region:
-      default: us
-      description: 'enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)'
-      enum:
-      - asia
-      - au
-      - ca
-      - eu
-      - us
-      type: string
     sso_mxedge_proxy_acct_servers:
       description: RADIUS accounting servers used by the Mist Edge SSO proxy
       items:
         $ref: '#/components/schemas/sso_mxedge_proxy_acct_server'
       type: array
-    sso_mxedge_proxy_proxy_hosts:
-      description: Public hostnames or IP addresses for the Mist Edge SSO proxy
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - - mxedge1.corp.com
-        - 63.1.3.5
-      items:
-        type: string
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_sso_failure_search:
-      additionalProperties: false
-      description: Response containing recent SSO authentication failure records
-      properties:
-        results:
-          $ref: '#/components/schemas/response_sso_failure_search_results'
-          description: SSO authentication failure records returned by the request
-      required:
-      - results
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
     sso:
       description: Single sign-on identity provider configuration
       properties:
@@ -717,6 +547,26 @@ components:
       required:
       - name
       type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
     sso_delete_admins_response:
       additionalProperties: false
       description: Result of deleting SSO admin accounts
@@ -732,6 +582,32 @@ components:
             type: string
           type: array
       type: object
+    sso_mxedge_proxy:
+      additionalProperties: false
+      description: Mist Edge proxy settings for NAC SSO. If `idp_type`==`mxedge_proxy`, this requires `mist_nac` to be enabled on the mxcluster
+      properties:
+        acct_servers:
+          $ref: '#/components/schemas/sso_mxedge_proxy_acct_servers'
+          description: RADIUS accounting servers used by the Mist Edge SSO proxy
+        auth_servers:
+          $ref: '#/components/schemas/sso_mxedge_proxy_auth_servers'
+          description: RADIUS authentication servers used by the Mist Edge SSO proxy
+        mxcluster_id:
+          description: Mist Edge cluster identifier that provides the SSO proxy
+          examples:
+          - 572586b7-f97b-a22b-526c-8b97a3f609c4
+          format: uuid
+          type: string
+        operator_name:
+          description: Operator name as RADIUS attribute while proxying
+          type: string
+        proxy_hosts:
+          $ref: '#/components/schemas/sso_mxedge_proxy_proxy_hosts'
+          description: Public hostnames or IP addresses that clients use to reach the Mist Edge SSO proxy
+        ssids:
+          $ref: '#/components/schemas/sso_mxedge_proxy_ssids'
+          description: Eduroam SSIDs handled by the Mist Edge SSO proxy
+      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -742,6 +618,130 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    sso_mxedge_proxy_auth_servers:
+      description: RADIUS authentication servers used by the Mist Edge SSO proxy
+      items:
+        $ref: '#/components/schemas/sso_mxedge_proxy_auth_server'
+      type: array
+    sso_mxedge_proxy_proxy_hosts:
+      description: Public hostnames or IP addresses for the Mist Edge SSO proxy
+      examples:
+      - - mxedge1.corp.com
+        - 63.1.3.5
+      items:
+        type: string
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_sso_failure_search:
+      additionalProperties: false
+      description: Response containing recent SSO authentication failure records
+      properties:
+        results:
+          $ref: '#/components/schemas/response_sso_failure_search_results'
+          description: SSO authentication failure records returned by the request
+      required:
+      - results
+      type: object
+    sso_nameid_format:
+      default: email
+      description: 'if `idp_type`==`saml`. enum: `email`, `unspecified`'
+      enum:
+      - email
+      - unspecified
+      type: string
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_sso_failure_search_results:
+      description: SSO authentication failure records returned by the request
+      items:
+        $ref: '#/components/schemas/response_sso_failure_search_item'
+      type: array
+      uniqueItems: true
+    sso_mxedge_proxy_auth_server:
+      additionalProperties: false
+      description: RADIUS authentication server for the Mist Edge SSO proxy
+      properties:
+        host:
+          description: RADIUS authentication server hostname or IP address
+          examples:
+          - 1.2.3.4
+          type: string
+        port:
+          default: 1812
+          description: UDP port for RADIUS authentication requests
+          type: integer
+        require_message_authenticator:
+          default: false
+          description: Whether to require Message-Authenticator in requests
+          type: boolean
+        retry:
+          default: 2
+          description: Number of retry attempts for RADIUS authentication requests
+          type: integer
+        secret:
+          description: Shared secret used with the RADIUS authentication server
+          examples:
+          - testing123
+          format: password
+          type: string
+        timeout:
+          default: 5
+          description: Authentication request timeout, in seconds
+          type: integer
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    msp_id:
+      description: Managed service provider identifier
+      examples:
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
+      format: uuid
+      readOnly: true
+      type: string
+    sso_idp_sign_algo:
+      description: 'Required if `idp_type`==`saml`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`'
+      enum:
+      - sha1
+      - sha256
+      - sha384
+      - sha512
+      type: string
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    sso_oauth_type:
+      default: azure
+      description: 'if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`'
+      enum:
+      - azure
+      - azure-gov
+      - okta
+      - ping_identity
+      type: string
     sso_mxedge_proxy_ssids:
       description: Eduroam SSID names handled by the Mist Edge SSO proxy
       examples:
@@ -750,13 +750,32 @@ components:
         default: eduroam
         type: string
       type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    sso_openroaming_ssids:
+      description: Network SSID names enabled for OpenRoaming SSO
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
+      - - ssid_name1
+        - ssid_name2
+      items:
+        type: string
+      type: array
+    response_sso_failure_search_item:
+      additionalProperties: false
+      description: SSO authentication failure record
+      properties:
+        detail:
+          description: Failure details reported for the SSO authentication attempt
+          type: string
+        saml_assertion_xml:
+          description: SAML assertion XML captured for the failed SSO authentication attempt
+          type: string
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Epoch timestamp, in seconds, when the SSO authentication failure occurred
+      required:
+      - timestamp
+      - detail
+      - saml_assertion_xml
+      type: object
     oauth_provider_domain:
       default: okta.com
       description: 'If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`'
@@ -770,11 +789,6 @@ components:
       examples:
       - okta.com
       type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
     sso_ldap_ca_certs:
       description: Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate
       examples:
@@ -783,6 +797,18 @@ components:
       items:
         type: string
       type: array
+    sso_delete_admins:
+      additionalProperties: false
+      description: Request body listing SSO admin email addresses to delete
+      properties:
+        emails:
+          description: List of admin email addresses to delete
+          items:
+            type: string
+          type: array
+      required:
+      - emails
+      type: object
     sso_mxedge_proxy_acct_server:
       additionalProperties: false
       description: RADIUS accounting server for the Mist Edge SSO proxy
@@ -803,32 +829,29 @@ components:
           format: password
           type: string
       type: object
-    response_sso_failure_search_item:
+    sso_ldap_server_hosts:
+      description: If `idp_type`==`ldap`, list of LDAP/LDAPS server IP addresses or Hostnames
+      examples:
+      - - hostname
+        - 63.1.3.5
+      items:
+        type: string
+      type: array
+    ssos:
+      description: List of SSO configurations
+      items:
+        $ref: '#/components/schemas/sso'
+      type: array
+    response_http403:
       additionalProperties: false
-      description: SSO authentication failure record
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Failure details reported for the SSO authentication attempt
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
-        saml_assertion_xml:
-          description: SAML assertion XML captured for the failed SSO authentication attempt
-          type: string
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Epoch timestamp, in seconds, when the SSO authentication failure occurred
-      required:
-      - timestamp
-      - detail
-      - saml_assertion_xml
       type: object
-    sso_idp_sign_algo:
-      description: 'Required if `idp_type`==`saml`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`'
-      enum:
-      - sha1
-      - sha256
-      - sha384
-      - sha512
-      type: string
     sso_ldap_type:
       default: azure
       description: 'if `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`, `ping_identity`'
@@ -838,139 +861,32 @@ components:
       - google
       - okta
       type: string
-    saml_metadata:
-      additionalProperties: false
-      description: Read-only SAML and SCIM metadata generated for an SSO configuration
-      properties:
-        acs_url:
-          description: If `idp_type`==`saml`, Assertion Consumer Service URL that receives SAML responses for this Mist SSO configuration
-          examples:
-          - https://api.mist.com/api/v1/saml/llDfa13f/login
-          readOnly: true
-          type: string
-        entity_id:
-          description: If `idp_type`==`saml`, service provider entity ID for this Mist SSO configuration
-          examples:
-          - https://api.mist.com/api/v1/saml/llDfa13f/login
-          readOnly: true
-          type: string
-        logout_url:
-          description: If `idp_type`==`saml`, Single Logout URL used by the identity provider to end the Mist SSO session
-          examples:
-          - https://api.mist.com/api/v1/saml/llDfa13f/logout
-          readOnly: true
-          type: string
-        metadata:
-          description: If `idp_type`==`saml`, service provider metadata XML for configuring the identity provider
-          examples:
-          - <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://api.mist.com/api/v1/saml/llDfa13f/login" validUntil="2027-10-12T21:59:01Z" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://api.mist.com/api/v1/saml/llDfa13f/login" index="0" isDefault="true"/></md:SPSSODescriptor></md:EntityDescriptor>
-          readOnly: true
-          type: string
-        scim_base_url:
-          description: If `idp_type`==`oauth` and `scim_enabled`==`true`, SCIM base URL that the identity provider uses to send provisioning requests to Mist
-          examples:
-          - https://scim.nac-staging.mistsys.com/S_41b2525a-e8b8-4809-8168-f1d8dcbe9735/azure/4d72b1dc-7503-4717-81ea-80d0125b886e
-          type: string
-      type: object
-    sso_nameid_format:
-      default: email
-      description: 'if `idp_type`==`saml`. enum: `email`, `unspecified`'
+    oauth_ping_identity_region:
+      default: us
+      description: 'enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)'
       enum:
-      - email
-      - unspecified
+      - asia
+      - au
+      - ca
+      - eu
+      - us
       type: string
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
       readOnly: true
+      type: number
+    sso_idp_type:
+      default: saml
+      description: "SSO IDP Type:\n  * For Admin SSO, enum: `saml`\n  * For NAC SSO, enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`"
+      enum:
+      - ldap
+      - mxedge_proxy
+      - oauth
+      - saml
+      - openroaming
       type: string
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    SamlMetadataExample:
-      value:
-        acs_url: https://api.mist.com/api/v1/saml/llDfa13f/login
-        entity_id: https://api.mist.com/api/v1/saml/llDfa13f/login
-        logout_url: https://api.mist.com/api/v1/saml/llDfa13f/logout
-        metadata: <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://api.mist.com/api/v1/saml/llDfa13f/login" validUntil="2027-10-12T21:59:01Z" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://api.mist.com/api/v1/saml/llDfa13f/login" index="0" isDefault="true"/></md:SPSSODescriptor></md:EntityDescriptor>
-    SsoLatestFailuresExample:
-      value:
-        results:
-        - detail: string
-          saml_assertion_xml: string
-          timestamp: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    SsoExample:
-      value:
-        created_time: 0
-        custom_logout_url: string
-        default_role: string
-        domain: string
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        idp_cert: string
-        idp_sign_algo: sha256
-        idp_sso_url: string
-        ignore_unmatched_roles: true
-        issuer: string
-        modified_time: 0
-        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        name: string
-        nameid_format: email
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        type: string
-    SsosArrayExample:
-      value:
-      - created_time: 0
-        custom_logout_url: string
-        default_role: string
-        domain: string
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        idp_cert: string
-        idp_sign_algo: sha256
-        idp_sso_url: string
-        ignore_unmatched_roles: true
-        issuer: string
-        modified_time: 0
-        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        name: string
-        nameid_format: email
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        type: string
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-  parameters:
-    sso_id:
-      in: path
-      name: sso_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    msp_id:
-      in: path
-      name: msp_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   responses:
-    OK:
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -986,59 +902,7 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    SamlMetadata:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SamlMetadataExample'
-          schema:
-            $ref: '#/components/schemas/saml_metadata'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SamlMetadataExample'
-          schema:
-            $ref: '#/components/schemas/saml_metadata'
-      description: OK
-    Sso:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoExample'
-          schema:
-            $ref: '#/components/schemas/sso'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoExample'
-          schema:
-            $ref: '#/components/schemas/sso'
-      description: OK
-    SsoLatestFailures:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoLatestFailuresExample'
-          schema:
-            $ref: '#/components/schemas/response_sso_failure_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoLatestFailuresExample'
-          schema:
-            $ref: '#/components/schemas/response_sso_failure_search'
+    OK:
       description: OK
     HTTP400:
       content:
@@ -1055,6 +919,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    Sso:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoExample'
+          schema:
+            $ref: '#/components/schemas/sso'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoExample'
+          schema:
+            $ref: '#/components/schemas/sso'
+      description: OK
     File:
       content:
         application/json:
@@ -1068,6 +947,30 @@ components:
             description: File
             type: string
       description: OK
+    SsoLatestFailures:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoLatestFailuresExample'
+          schema:
+            $ref: '#/components/schemas/response_sso_failure_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoLatestFailuresExample'
+          schema:
+            $ref: '#/components/schemas/response_sso_failure_search'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     SsosArray:
       content:
         application/json:
@@ -1082,6 +985,21 @@ components:
               $ref: '#/components/examples/SsosArrayExample'
           schema:
             $ref: '#/components/schemas/ssos'
+      description: OK
+    SamlMetadata:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SamlMetadataExample'
+          schema:
+            $ref: '#/components/schemas/saml_metadata'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SamlMetadataExample'
+          schema:
+            $ref: '#/components/schemas/saml_metadata'
       description: OK
     HTTP429:
       content:
@@ -1113,6 +1031,88 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  examples:
+    SamlMetadataExample:
+      value:
+        acs_url: https://api.mist.com/api/v1/saml/llDfa13f/login
+        entity_id: https://api.mist.com/api/v1/saml/llDfa13f/login
+        logout_url: https://api.mist.com/api/v1/saml/llDfa13f/logout
+        metadata: <?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://api.mist.com/api/v1/saml/llDfa13f/login" validUntil="2027-10-12T21:59:01Z" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://api.mist.com/api/v1/saml/llDfa13f/login" index="0" isDefault="true"/></md:SPSSODescriptor></md:EntityDescriptor>
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    SsosArrayExample:
+      value:
+      - created_time: 0
+        custom_logout_url: string
+        default_role: string
+        domain: string
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        idp_cert: string
+        idp_sign_algo: sha256
+        idp_sso_url: string
+        ignore_unmatched_roles: true
+        issuer: string
+        modified_time: 0
+        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        name: string
+        nameid_format: email
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        type: string
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    SsoExample:
+      value:
+        created_time: 0
+        custom_logout_url: string
+        default_role: string
+        domain: string
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        idp_cert: string
+        idp_sign_algo: sha256
+        idp_sso_url: string
+        ignore_unmatched_roles: true
+        issuer: string
+        modified_time: 0
+        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        name: string
+        nameid_format: email
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        type: string
+    SsoLatestFailuresExample:
+      value:
+        results:
+        - detail: string
+          saml_assertion_xml: string
+          timestamp: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    sso_id:
+      in: path
+      name: sso_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    msp_id:
+      in: path
+      name: msp_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

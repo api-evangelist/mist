@@ -215,41 +215,6 @@ paths:
       - Sites Spectrum Analysis
 components:
   schemas:
-    response_past_spectrum_analysis:
-      additionalProperties: false
-      description: Paginated response for past site spectrum analysis records
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the spectrum analysis query window
-          type: integer
-        limit:
-          description: Maximum number of spectrum analysis records returned in this page
-          type: integer
-        page:
-          description: Current page number returned for the spectrum analysis results
-          type: integer
-        results:
-          $ref: '#/components/schemas/response_past_spectrum_analysis_results'
-          description: Spectrum analysis records for the requested site and time window
-        start:
-          description: Epoch timestamp, in seconds, for the start of the spectrum analysis query window
-          type: integer
-        total:
-          description: Number of spectrum analysis records available for the given time range
-          type: integer
-      type: object
-    spectrum_analysis_band:
-      description: 'Band for spectrum analysis. enum: `24`, `5`, `6`'
-      enum:
-      - '24'
-      - '5'
-      - '6'
-      type: string
-    response_past_spectrum_analysis_results:
-      description: Past spectrum analysis records returned for the site
-      items:
-        $ref: '#/components/schemas/response_past_spectrum_analysis_result'
-      type: array
     websocket_session:
       additionalProperties: false
       description: Response containing the WebSocket session handle for asynchronous command output
@@ -261,6 +226,61 @@ components:
           type: string
       required:
       - session
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_past_spectrum_analysis_results:
+      description: Past spectrum analysis records returned for the site
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_result'
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_past_spectrum_analysis_channel_usages:
+      description: Per-channel utilization measurements captured during spectrum analysis
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_channel_usage'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
       type: object
     response_past_spectrum_analysis_channel_usage:
       additionalProperties: false
@@ -287,26 +307,18 @@ components:
           - 0.13
           type: number
       type: object
-    response_past_spectrum_analysis_fft_sample:
-      additionalProperties: false
-      description: FFT sample data for a specific frequency
-      properties:
-        frequency:
-          description: Sample frequency, in MHz, for this FFT point
-          examples:
-          - 2437.0
-          type: number
-        rssi:
-          description: Received signal strength, in dBm, for this FFT sample
-          examples:
-          - -70.0
-          type: number
-        signal7:
-          description: Additional signal level, in dBm, reported for this FFT sample
-          examples:
-          - -70.0
-          type: number
-      type: object
+    response_past_spectrum_analysis_fft_samples:
+      description: List of FFT samples for the spectrum analysis
+      items:
+        $ref: '#/components/schemas/response_past_spectrum_analysis_fft_sample'
+      type: array
+    spectrum_analysis_format:
+      default: json
+      description: 'Format of the spectrum analysis data. enum: `json`, `stream`'
+      enum:
+      - json
+      - stream
+      type: string
     response_past_spectrum_analysis_result:
       additionalProperties: false
       description: Result of a past spectrum analysis
@@ -330,13 +342,6 @@ components:
           description: Epoch timestamp, in seconds, when the spectrum analysis was run
           type: integer
       type: object
-    spectrum_analysis_format:
-      default: json
-      description: 'Format of the spectrum analysis data. enum: `json`, `stream`'
-      enum:
-      - json
-      - stream
-      type: string
     response_running_spectrum_analysis:
       additionalProperties: false
       description: Running spectrum analysis session for a site
@@ -365,14 +370,6 @@ components:
         width:
           description: Channel width used during the spectrum analysis scan, in MHz
           type: integer
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
       type: object
     spectrum_analysis:
       description: Request parameters for starting AP spectrum analysis at a site
@@ -406,26 +403,13 @@ components:
       required:
       - band
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
+    spectrum_analysis_band:
+      description: 'Band for spectrum analysis. enum: `24`, `5`, `6`'
+      enum:
+      - '24'
+      - '5'
+      - '6'
+      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -436,43 +420,96 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    response_past_spectrum_analysis_channel_usages:
-      description: Per-channel utilization measurements captured during spectrum analysis
-      items:
-        $ref: '#/components/schemas/response_past_spectrum_analysis_channel_usage'
-      type: array
-    response_http429:
+    response_past_spectrum_analysis:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Paginated response for past site spectrum analysis records
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
+        end:
+          description: Epoch timestamp, in seconds, for the end of the spectrum analysis query window
+          type: integer
+        limit:
+          description: Maximum number of spectrum analysis records returned in this page
+          type: integer
+        page:
+          description: Current page number returned for the spectrum analysis results
+          type: integer
+        results:
+          $ref: '#/components/schemas/response_past_spectrum_analysis_results'
+          description: Spectrum analysis records for the requested site and time window
+        start:
+          description: Epoch timestamp, in seconds, for the start of the spectrum analysis query window
+          type: integer
+        total:
+          description: Number of spectrum analysis records available for the given time range
+          type: integer
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_past_spectrum_analysis_fft_samples:
-      description: List of FFT samples for the spectrum analysis
-      items:
-        $ref: '#/components/schemas/response_past_spectrum_analysis_fft_sample'
-      type: array
+    response_past_spectrum_analysis_fft_sample:
+      additionalProperties: false
+      description: FFT sample data for a specific frequency
+      properties:
+        frequency:
+          description: Sample frequency, in MHz, for this FFT point
+          examples:
+          - 2437.0
+          type: number
+        rssi:
+          description: Received signal strength, in dBm, for this FFT sample
+          examples:
+          - -70.0
+          type: number
+        signal7:
+          description: Additional signal level, in dBm, reported for this FFT sample
+          examples:
+          - -70.0
+          type: number
+      type: object
+  examples:
+    RunningSpectrumAnalysis:
+      value:
+        band: '5'
+        channels:
+        - 36
+        - 40
+        - 44
+        - 48
+        device_id: 00000000-0000-0000-1000-5c5b35bd76bb
+        duration: 600
+        format: stream
+        started_time: 1435080709
+        width: 20
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    PastSpectrumAnalysis:
+      value:
+        end: 1694708579
+        limit: 10
+        results:
+        - band: '5'
+          channel_usage:
+          - channel: 36
+            noise: -78
+            non_wifi: 0.08
+            wifi: 0.13
+          fft_samples:
+          - frequency: 2437
+            rssi: -92
+            signal7: -93
+          mac: 5c5b35bd76bb
+          org_id: f2695c32-0e83-4936-b1b2-96fc88051213
+          timestamp: 1694098696
+        start: 1694622179
+        total: 4
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    WebsocketSession:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/websocket_session'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/websocket_session'
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -488,15 +525,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP400:
       content:
         application/json:
@@ -527,6 +555,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_past_spectrum_analysis'
       description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     RunningSpectrumAnalysis:
       content:
         application/json:
@@ -557,6 +594,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    WebsocketSession:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+      description: OK
     HTTP403:
       content:
         application/json:
@@ -572,68 +618,7 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    RunningSpectrumAnalysis:
-      value:
-        band: '5'
-        channels:
-        - 36
-        - 40
-        - 44
-        - 48
-        device_id: 00000000-0000-0000-1000-5c5b35bd76bb
-        duration: 600
-        format: stream
-        started_time: 1435080709
-        width: 20
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    PastSpectrumAnalysis:
-      value:
-        end: 1694708579
-        limit: 10
-        results:
-        - band: '5'
-          channel_usage:
-          - channel: 36
-            noise: -78
-            non_wifi: 0.08
-            wifi: 0.13
-          fft_samples:
-          - frequency: 2437
-            rssi: -92
-            signal7: -93
-          mac: 5c5b35bd76bb
-          org_id: f2695c32-0e83-4936-b1b2-96fc88051213
-          timestamp: 1694098696
-        start: 1694622179
-        total: 4
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
     start:
       description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
@@ -656,6 +641,21 @@ components:
         examples:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
         type: string
   securitySchemes:
     apiToken:

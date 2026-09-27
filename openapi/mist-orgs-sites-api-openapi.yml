@@ -295,201 +295,84 @@ paths:
       tags:
       - Orgs Sites
 components:
+  parameters:
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
   schemas:
-    response_site_search_item:
-      additionalProperties: false
-      description: Site record returned by organization site search
-      properties:
-        auto_upgrade_enabled:
-          description: Whether automatic firmware upgrade is enabled for the site
-          type: boolean
-        auto_upgrade_version:
-          description: Desired automatic firmware upgrade version track for the site
-          readOnly: true
-          type: string
-        country_code:
-          description: Country code configured for the site, or null if unset
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        honeypot_enabled:
-          description: Whether honeypot detection is enabled for the site
-          type: boolean
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for the site search result
-        name:
-          description: Display name of the site
-          readOnly: true
-          type: string
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Organization that owns the site
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site identifier for this search result
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Epoch timestamp, in seconds, for this site search result
-        timezone:
-          description: Time zone configured for the site
-          readOnly: true
-          type: string
-        vna_enabled:
-          description: Whether Virtual Network Assistant is enabled for the site
-          type: boolean
-        wifi_enabled:
-          description: Whether Wi-Fi service is enabled for the site
-          type: boolean
-      required:
-      - honeypot_enabled
-      - wifi_enabled
-      - vna_enabled
-      - timezone
-      - timestamp
-      - org_id
-      - site_id
-      - name
-      - id
-      - auto_upgrade_version
-      - auto_upgrade_enabled
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    lat_lng:
-      additionalProperties: false
-      description: Geographic latitude and longitude coordinate pair
-      properties:
-        lat:
-          description: Geographic latitude in decimal degrees
-          examples:
-          - 37.295833
-          format: double
-          type: number
-        lng:
-          description: Geographic longitude in decimal degrees
-          examples:
-          - -122.032946
-          format: double
-          type: number
-      required:
-      - lat
-      - lng
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
       format: uuid
       readOnly: true
       type: string
-    org_sites_count_distinct:
-      default: id
-      description: 'enum: `analytic_enabled`, `app_waking`, `asset_enabled`, `auto_upgrade_enabled`, `auto_upgrade_version`, `country_code`, `honeypot_enabled`, `id`, `locate_unconnected`, `mesh_enabled`, `name`, `remote_syslog_enabled`, `rogue_enabled`, `rtsa_enabled`, `vna_enabled`, `wifi_enabled`'
-      enum:
-      - analytic_enabled
-      - app_waking
-      - asset_enabled
-      - auto_upgrade_enabled
-      - auto_upgrade_version
-      - country_code
-      - honeypot_enabled
-      - id
-      - locate_unconnected
-      - mesh_enabled
-      - name
-      - remote_syslog_enabled
-      - rogue_enabled
-      - rtsa_enabled
-      - vna_enabled
-      - wifi_enabled
-      type: string
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    site_sitegroup_ids:
-      description: Site group identifiers for groups this site belongs to
-      items:
-        format: uuid
-        type: string
-      type: array
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_count:
+    response_http429:
       additionalProperties: false
-      description: Distinct count response for time-bounded search results
+      description: Standard HTTP 429 rate limit error response
       properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
-    response_site_search:
-      additionalProperties: false
-      description: Paginated response for organization site search results
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the site search window
-          type: integer
-        limit:
-          description: Maximum number of site records returned in this page
-          type: integer
-        next:
-          description: URL for retrieving the next page of site search results
-          type: string
-        results:
-          $ref: '#/components/schemas/response_site_search_results'
-          description: Site records matching the organization search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the site search window
-          type: integer
-        total:
-          description: Number of site records matching the search filters across all pages
-          type: integer
-      required:
-      - results
-      - start
-      - end
-      - limit
-      - total
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -502,6 +385,13 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -510,6 +400,20 @@ components:
           description: Human-readable explanation of the authentication error
           examples:
           - Authentication credentials were not provided.
+          type: string
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     count_result:
@@ -523,22 +427,6 @@ components:
       required:
       - count
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_site_search_results:
-      description: Site records returned by organization site search
-      items:
-        $ref: '#/components/schemas/response_site_search_item'
-      type: array
-      uniqueItems: true
     site:
       description: Site configuration and metadata within an organization
       properties:
@@ -657,11 +545,202 @@ components:
       required:
       - name
       type: object
+    site_sitegroup_ids:
+      description: Site group identifiers for groups this site belongs to
+      items:
+        format: uuid
+        type: string
+      type: array
+    org_sites_count_distinct:
+      default: id
+      description: 'enum: `analytic_enabled`, `app_waking`, `asset_enabled`, `auto_upgrade_enabled`, `auto_upgrade_version`, `country_code`, `honeypot_enabled`, `id`, `locate_unconnected`, `mesh_enabled`, `name`, `remote_syslog_enabled`, `rogue_enabled`, `rtsa_enabled`, `vna_enabled`, `wifi_enabled`'
+      enum:
+      - analytic_enabled
+      - app_waking
+      - asset_enabled
+      - auto_upgrade_enabled
+      - auto_upgrade_version
+      - country_code
+      - honeypot_enabled
+      - id
+      - locate_unconnected
+      - mesh_enabled
+      - name
+      - remote_syslog_enabled
+      - rogue_enabled
+      - rtsa_enabled
+      - vna_enabled
+      - wifi_enabled
+      type: string
     sites:
       description: Site records returned by a list response
       items:
         $ref: '#/components/schemas/site'
       type: array
+    response_site_search:
+      additionalProperties: false
+      description: Paginated response for organization site search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the site search window
+          type: integer
+        limit:
+          description: Maximum number of site records returned in this page
+          type: integer
+        next:
+          description: URL for retrieving the next page of site search results
+          type: string
+        results:
+          $ref: '#/components/schemas/response_site_search_results'
+          description: Site records matching the organization search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the site search window
+          type: integer
+        total:
+          description: Number of site records matching the search filters across all pages
+          type: integer
+      required:
+      - results
+      - start
+      - end
+      - limit
+      - total
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_site_search_results:
+      description: Site records returned by organization site search
+      items:
+        $ref: '#/components/schemas/response_site_search_item'
+      type: array
+      uniqueItems: true
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    lat_lng:
+      additionalProperties: false
+      description: Geographic latitude and longitude coordinate pair
+      properties:
+        lat:
+          description: Geographic latitude in decimal degrees
+          examples:
+          - 37.295833
+          format: double
+          type: number
+        lng:
+          description: Geographic longitude in decimal degrees
+          examples:
+          - -122.032946
+          format: double
+          type: number
+      required:
+      - lat
+      - lng
+      type: object
+    response_site_search_item:
+      additionalProperties: false
+      description: Site record returned by organization site search
+      properties:
+        auto_upgrade_enabled:
+          description: Whether automatic firmware upgrade is enabled for the site
+          type: boolean
+        auto_upgrade_version:
+          description: Desired automatic firmware upgrade version track for the site
+          readOnly: true
+          type: string
+        country_code:
+          description: Country code configured for the site, or null if unset
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        honeypot_enabled:
+          description: Whether honeypot detection is enabled for the site
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for the site search result
+        name:
+          description: Display name of the site
+          readOnly: true
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Organization that owns the site
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site identifier for this search result
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Epoch timestamp, in seconds, for this site search result
+        timezone:
+          description: Time zone configured for the site
+          readOnly: true
+          type: string
+        vna_enabled:
+          description: Whether Virtual Network Assistant is enabled for the site
+          type: boolean
+        wifi_enabled:
+          description: Whether Wi-Fi service is enabled for the site
+          type: boolean
+      required:
+      - honeypot_enabled
+      - wifi_enabled
+      - vna_enabled
+      - timezone
+      - timestamp
+      - org_id
+      - site_id
+      - name
+      - id
+      - auto_upgrade_version
+      - auto_upgrade_enabled
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     id:
       description: Unique ID of the object instance in the Mist Organization
       examples:
@@ -674,37 +753,7 @@ components:
       format: double
       readOnly: true
       type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
   examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
     SitesSearchExample:
       value:
         end: 0
@@ -725,9 +774,9 @@ components:
           wifi_enabled: true
         start: 0
         total: 0
-    HTTP403Example:
+    HTTP429Example:
       value:
-        detail: You do not have permission to perform this action.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
@@ -753,6 +802,22 @@ components:
         sitegroup_ids:
         - 497f6eca-6276-5008-bfeb-53cbbbba6f1a
         timezone: America/Los_Angeles
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     SiteExample:
       value:
         address: 1601 S. Deanza Blvd., Cupertino, CA, 95014
@@ -775,86 +840,21 @@ components:
         sitegroup_ids:
         - 497f6eca-6276-5006-bfeb-53cbbbba6f18
         timezone: America/Los_Angeles
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
   responses:
-    SitesSearch:
+    SitesArray:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/SitesSearchExample'
+              $ref: '#/components/examples/SitesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_site_search'
+            $ref: '#/components/schemas/sites'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/SitesSearchExample'
+              $ref: '#/components/examples/SitesArrayExample'
           schema:
-            $ref: '#/components/schemas/response_site_search'
+            $ref: '#/components/schemas/sites'
       description: OK
     HTTP401:
       content:
@@ -871,29 +871,35 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    SitesArray:
+    Count:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/SitesArrayExample'
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/sites'
+            $ref: '#/components/schemas/response_count'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/SitesArrayExample'
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/sites'
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    SitesSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SitesSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_site_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SitesSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_site_search'
       description: OK
     HTTP400:
       content:
@@ -910,6 +916,30 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     Site:
       content:
         application/json:
@@ -940,36 +970,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

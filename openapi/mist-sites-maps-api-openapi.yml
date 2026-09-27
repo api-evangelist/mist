@@ -535,6 +535,86 @@ paths:
       - Sites Maps
 components:
   schemas:
+    image_import:
+      additionalProperties: false
+      description: Multipart image upload payload
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          description: Image file content uploaded as multipart form data
+          type: string
+        json:
+          description: Optional JSON metadata submitted with the image upload
+          type: string
+      required:
+      - file
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    map_geofence:
+      additionalProperties: false
+      description: Geofence drawn on a map
+      properties:
+        name:
+          description: Display name for the map geofence
+          examples:
+          - example
+          type: string
+        vertices:
+          $ref: '#/components/schemas/map_geofence_vertices'
+          description: Polygon points that define the geofence boundary
+      type: object
+    map_sitesurvey_path_items:
+      additionalProperties: false
+      description: Site survey path definition on a map
+      properties:
+        coordinate:
+          description: Site survey path coordinate space
+          examples:
+          - actual
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the site survey path
+        name:
+          description: Display name of the site survey path
+          examples:
+          - Default
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_sitesurvey_path_items_nodes'
+          description: Path nodes included in the site survey path
+      type: object
+    map_type:
+      default: image
+      description: 'Map type, such as `image` or `google`. enum: `google`, `image`'
+      enum:
+      - google
+      - image
+      examples:
+      - image
+      type: string
+    map_wayfinding:
+      additionalProperties: false
+      description: Properties related to wayfinding
+      properties:
+        micello:
+          $ref: '#/components/schemas/map_wayfinding_micello'
+          description: External Micello wayfinding integration settings for this map
+        snap_to_path:
+          description: Whether wayfinding should snap routes to configured paths
+          type: boolean
+      type: object
+    wayfinding_import_json:
+      description: Vendor wayfinding map metadata imported from Jibestream or Micello
+      oneOf:
+      - $ref: '#/components/schemas/map_jibestream'
+      - $ref: '#/components/schemas/map_micello'
     map_site_import_file:
       additionalProperties: false
       description: Multipart payload for importing map files at site scope
@@ -556,100 +636,18 @@ components:
           $ref: '#/components/schemas/map_import_json'
           description: Import options for the site map file
       type: object
-    map_node_position:
-      additionalProperties: false
-      description: Position of a map path node
-      properties:
-        x:
-          description: Horizontal coordinate of the map node
-          examples:
-          - 746
-          format: double
-          type: number
-        y:
-          description: Vertical coordinate of the map node
-          examples:
-          - 104
-          format: double
-          type: number
-      required:
-      - x
-      - y
-      type: object
-    latlng_br:
-      additionalProperties: false
-      description: When `type`==`google`, latitude and longitude of the bottom-right corner
-      properties:
-        lat:
-          description: Bottom-right latitude for the Google map bounds
-          type: string
-        lng:
-          description: Bottom-right longitude for the Google map bounds
-          type: string
-      type: object
-    map_node:
-      additionalProperties: false
-      description: Node in a map path graph
-      properties:
-        edges:
-          additionalProperties:
-            type: string
-          description: Adjacent node IDs and path weights for this map node
-          examples:
-          - N1: '1'
-          type: object
-        name:
-          description: Map node identifier or display name
-          examples:
-          - N1
-          type: string
-        position:
-          $ref: '#/components/schemas/map_node_position'
-          description: Coordinates of this map node
-      required:
-      - name
-      type: object
-    map_wayfinding_path:
-      additionalProperties: false
-      description: JSON blob for wayfinding (using Dijkstra’s algorithm)
-      properties:
-        coordinate:
-          description: Wayfinding path coordinate space
-          examples:
-          - actual
-          type: string
-        nodes:
-          $ref: '#/components/schemas/map_wayfinding_path_nodes'
-          description: Path nodes used for wayfinding routes
-      type: object
-    latlng_tl:
-      additionalProperties: false
-      description: When `type`==`google`, latitude and longitude of the top-left corner
-      properties:
-        lat:
-          description: Top-left latitude for the Google map bounds
-          type: string
-        lng:
-          description: Top-left longitude for the Google map bounds
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    mac_addresses:
-      description: Request containing one or more MAC addresses
-      properties:
-        macs:
-          $ref: '#/components/schemas/mac_addresses_macs'
-          description: List of MAC addresses included in the request
-      required:
-      - macs
-      type: object
+    response_map_import_floorplans:
+      description: Floorplan import results produced by the map import
+      items:
+        $ref: '#/components/schemas/response_map_import_floorplan'
+      type: array
+      uniqueItems: true
+    response_map_import_aps:
+      description: AP placement results produced by the map import
+      items:
+        $ref: '#/components/schemas/response_map_import_ap'
+      type: array
+      uniqueItems: true
     response_set_devices_map:
       additionalProperties: false
       description: Result of assigning APs to a site map
@@ -661,37 +659,89 @@ components:
           $ref: '#/components/schemas/response_set_devices_map_moved'
           description: AP MAC addresses successfully associated with the requested map
       type: object
-    map_wayfinding_path_nodes:
-      description: Map nodes included in a wayfinding path
+    map_micello_vendor_name:
+      default: micello
+      description: 'The vendor ‘micello’. enum: `micello`'
+      enum:
+      - micello
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    map_geofence_vertice:
+      additionalProperties: false
+      description: Vertex coordinate for a map geofence polygon
+      properties:
+        X:
+          description: Geofence vertex X coordinate in map units
+          examples:
+          - 700
+          type: number
+        Y:
+          description: Geofence vertex Y coordinate in map units
+          examples:
+          - 100
+          type: number
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    map_sitesurvey_path:
+      description: Site survey path definitions for a map
+      items:
+        $ref: '#/components/schemas/map_sitesurvey_path_items'
+      minItems: 0
+      type: array
+    map_wall_path_nodes:
+      description: Map nodes included in a wall path
       items:
         $ref: '#/components/schemas/map_node'
       minItems: 0
       type: array
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    map_wayfinding_micello:
+    map_site_replace_file:
       additionalProperties: false
-      description: Micello wayfinding integration settings
+      description: Multipart payload for replacing a site map image
       properties:
-        account_key:
-          description: Micello account key used for wayfinding
-          examples:
-          - adasdf
+        file:
+          contentMediaType: application/octet-stream
+          description: Map image file used to replace the existing site map
           type: string
-        default_level_id:
-          description: Default Micello floor or level identifier for wayfinding
-          examples:
-          - 5
-          type: integer
-        map_id:
-          description: Micello map identifier used for wayfinding
-          examples:
-          - c660f81dd250c
+        json:
+          $ref: '#/components/schemas/map_site_replace_file_json'
+          description: Replacement transform options for the map image
+      required:
+      - file
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     map_micello:
@@ -723,18 +773,177 @@ components:
       - map_id
       - default_level_id
       type: object
-    wayfinding_import_json:
-      description: Vendor wayfinding map metadata imported from Jibestream or Micello
-      oneOf:
-      - $ref: '#/components/schemas/map_jibestream'
-      - $ref: '#/components/schemas/map_micello'
-    response_set_devices_map_locked:
-      description: AP MAC addresses that were locked during map assignment
+    map_site_replace_file_json_transform:
+      additionalProperties: false
+      description: If `transform` is provided, all the locations of the objects on the map (AP, Zone, Vbeacon, Beacon) will be transformed as well (relative to the new Map)
+      properties:
+        rotation:
+          default: 0
+          description: Whether to rotate the replacing image, in degrees
+          type: number
+        scale:
+          default: 1
+          description: Whether to scale the replacing image
+          examples:
+          - 0.98
+          type: number
+        x:
+          default: 0
+          description: Where the (0, 0) of the new image is relative to the original map
+          examples:
+          - 3.16
+          format: double
+          type: number
+        y:
+          default: 0
+          description: Where the (0, 0) of the new image is relative to the original map
+          examples:
+          - 12
+          format: double
+          type: number
+      type: object
+    map_geofence_vertices:
+      description: List of vertices defining the geofence
       items:
-        examples:
-        - 5c5b35584a6f
-        type: string
+        $ref: '#/components/schemas/map_geofence_vertice'
       type: array
+    map_wayfinding_micello:
+      additionalProperties: false
+      description: Micello wayfinding integration settings
+      properties:
+        account_key:
+          description: Micello account key used for wayfinding
+          examples:
+          - adasdf
+          type: string
+        default_level_id:
+          description: Default Micello floor or level identifier for wayfinding
+          examples:
+          - 5
+          type: integer
+        map_id:
+          description: Micello map identifier used for wayfinding
+          examples:
+          - c660f81dd250c
+          type: string
+      type: object
+    response_map_import:
+      additionalProperties: false
+      description: Result of importing map files and matching AP placements
+      properties:
+        aps:
+          $ref: '#/components/schemas/response_map_import_aps'
+          description: AP placement results produced by the map import
+        floorplans:
+          $ref: '#/components/schemas/response_map_import_floorplans'
+          description: Floorplan import results produced by the map import
+        for_site:
+          description: Whether this map import response is scoped to a site
+          readOnly: true
+          type: boolean
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with the map import result
+        summary:
+          $ref: '#/components/schemas/response_map_import_summary'
+          description: Counts summarizing assignments made during the map import
+      required:
+      - site_id
+      - aps
+      - floorplans
+      - summary
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_map_import_ap_action:
+      description: 'enum: `assigned-named-placed`, `assigned-placed`, `ignored`, `named-placed`, `placed`'
+      enum:
+      - assigned-named-placed
+      - assigned-placed
+      - ignored
+      - named-placed
+      - placed
+      type: string
+    map_node:
+      additionalProperties: false
+      description: Node in a map path graph
+      properties:
+        edges:
+          additionalProperties:
+            type: string
+          description: Adjacent node IDs and path weights for this map node
+          examples:
+          - N1: '1'
+          type: object
+        name:
+          description: Map node identifier or display name
+          examples:
+          - N1
+          type: string
+        position:
+          $ref: '#/components/schemas/map_node_position'
+          description: Coordinates of this map node
+      required:
+      - name
+      type: object
+    response_map_import_floorplan:
+      additionalProperties: false
+      description: Floorplan result from a map import
+      properties:
+        action:
+          description: Import action applied to this floorplan
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Floorplan identifier returned by the import
+        map_id:
+          description: Map identifier associated with the imported floorplan
+          format: uuid
+          type: string
+        name:
+          description: Floorplan name imported from the map file
+          type: string
+        reason:
+          description: Explanation of why the floorplan import action was not completed, when provided
+          type: string
+      required:
+      - id
+      - name
+      - action
+      - map_id
+      type: object
+    map_wayfinding_path_nodes:
+      description: Map nodes included in a wayfinding path
+      items:
+        $ref: '#/components/schemas/map_node'
+      minItems: 0
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    map_jibestream_vendor_name:
+      default: jibestream
+      description: 'The vendor ‘jibestream’. enum: `jibestream`'
+      enum:
+      - jibestream
+      type: string
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     response_map_import_ap:
       additionalProperties: false
       description: AP placement result from a map import
@@ -770,31 +979,47 @@ components:
       - floorplan_id
       - orientation
       type: object
-    map_geofence_vertices:
-      description: List of vertices defining the geofence
-      items:
-        $ref: '#/components/schemas/map_geofence_vertice'
-      type: array
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    map_geofence_vertice:
-      additionalProperties: false
-      description: Vertex coordinate for a map geofence polygon
+    mac_addresses:
+      description: Request containing one or more MAC addresses
       properties:
-        X:
-          description: Geofence vertex X coordinate in map units
-          examples:
-          - 700
-          type: number
-        Y:
-          description: Geofence vertex Y coordinate in map units
-          examples:
-          - 100
-          type: number
+        macs:
+          $ref: '#/components/schemas/mac_addresses_macs'
+          description: List of MAC addresses included in the request
+      required:
+      - macs
       type: object
+    map_wayfinding_path:
+      additionalProperties: false
+      description: JSON blob for wayfinding (using Dijkstra’s algorithm)
+      properties:
+        coordinate:
+          description: Wayfinding path coordinate space
+          examples:
+          - actual
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_wayfinding_path_nodes'
+          description: Path nodes used for wayfinding routes
+      type: object
+    map_view:
+      description: 'if `type`==`google`. enum: `hybrid`, `roadmap`, `satellite`, `terrain`'
+      enum:
+      - hybrid
+      - roadmap
+      - satellite
+      - terrain
+      type:
+      - string
+      - 'null'
+    mac_addresses_macs:
+      description: Unique MAC addresses included in a request
+      examples:
+      - - 683b679ac024
+      items:
+        type: string
+      minItems: 1
+      type: array
+      uniqueItems: true
     map:
       description: Map or floorplan metadata for a site or organization
       properties:
@@ -929,20 +1154,6 @@ components:
           format: double
           type: number
       type: object
-    image_import:
-      additionalProperties: false
-      description: Multipart image upload payload
-      properties:
-        file:
-          contentMediaType: application/octet-stream
-          description: Image file content uploaded as multipart form data
-          type: string
-        json:
-          description: Optional JSON metadata submitted with the image upload
-          type: string
-      required:
-      - file
-      type: object
     response_map_import_summary:
       additionalProperties: false
       description: Counts summarizing assignments made during the map import
@@ -961,14 +1172,15 @@ components:
       - num_map_assigned
       - num_inv_assigned
       type: object
-    response_http400:
+    latlng_tl:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: When `type`==`google`, latitude and longitude of the top-left corner
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        lat:
+          description: Top-left latitude for the Google map bounds
+          type: string
+        lng:
+          description: Top-left longitude for the Google map bounds
           type: string
       type: object
     maps:
@@ -976,151 +1188,13 @@ components:
       items:
         $ref: '#/components/schemas/map'
       type: array
-    map_wall_path_nodes:
-      description: Map nodes included in a wall path
+    response_set_devices_map_locked:
+      description: AP MAC addresses that were locked during map assignment
       items:
-        $ref: '#/components/schemas/map_node'
-      minItems: 0
-      type: array
-    map_wayfinding:
-      additionalProperties: false
-      description: Properties related to wayfinding
-      properties:
-        micello:
-          $ref: '#/components/schemas/map_wayfinding_micello'
-          description: External Micello wayfinding integration settings for this map
-        snap_to_path:
-          description: Whether wayfinding should snap routes to configured paths
-          type: boolean
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    map_geofence:
-      additionalProperties: false
-      description: Geofence drawn on a map
-      properties:
-        name:
-          description: Display name for the map geofence
-          examples:
-          - example
-          type: string
-        vertices:
-          $ref: '#/components/schemas/map_geofence_vertices'
-          description: Polygon points that define the geofence boundary
-      type: object
-    map_sitesurvey_path:
-      description: Site survey path definitions for a map
-      items:
-        $ref: '#/components/schemas/map_sitesurvey_path_items'
-      minItems: 0
-      type: array
-    map_view:
-      description: 'if `type`==`google`. enum: `hybrid`, `roadmap`, `satellite`, `terrain`'
-      enum:
-      - hybrid
-      - roadmap
-      - satellite
-      - terrain
-      type:
-      - string
-      - 'null'
-    map_wall_path:
-      additionalProperties: false
-      description: JSON blob for wall definition (same format as wayfinding_path)
-      properties:
-        coordinate:
-          description: Wall path coordinate space
-          examples:
-          - actual
-          type: string
-        nodes:
-          $ref: '#/components/schemas/map_wall_path_nodes'
-          description: Path nodes that define the wall geometry
-      type: object
-    map_site_replace_file:
-      additionalProperties: false
-      description: Multipart payload for replacing a site map image
-      properties:
-        file:
-          contentMediaType: application/octet-stream
-          description: Map image file used to replace the existing site map
-          type: string
-        json:
-          $ref: '#/components/schemas/map_site_replace_file_json'
-          description: Replacement transform options for the map image
-      required:
-      - file
-      type: object
-    mac_addresses_macs:
-      description: Unique MAC addresses included in a request
-      examples:
-      - - 683b679ac024
-      items:
+        examples:
+        - 5c5b35584a6f
         type: string
-      minItems: 1
       type: array
-      uniqueItems: true
-    map_sitesurvey_path_items:
-      additionalProperties: false
-      description: Site survey path definition on a map
-      properties:
-        coordinate:
-          description: Site survey path coordinate space
-          examples:
-          - actual
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the site survey path
-        name:
-          description: Display name of the site survey path
-          examples:
-          - Default
-          type: string
-        nodes:
-          $ref: '#/components/schemas/map_sitesurvey_path_items_nodes'
-          description: Path nodes included in the site survey path
-      type: object
-    map_jibestream_vendor_name:
-      default: jibestream
-      description: 'The vendor ‘jibestream’. enum: `jibestream`'
-      enum:
-      - jibestream
-      type: string
-    response_map_import_floorplan:
-      additionalProperties: false
-      description: Floorplan result from a map import
-      properties:
-        action:
-          description: Import action applied to this floorplan
-          type: string
-        id:
-          $ref: '#/components/schemas/id'
-          description: Floorplan identifier returned by the import
-        map_id:
-          description: Map identifier associated with the imported floorplan
-          format: uuid
-          type: string
-        name:
-          description: Floorplan name imported from the map file
-          type: string
-        reason:
-          description: Explanation of why the floorplan import action was not completed, when provided
-          type: string
-      required:
-      - id
-      - name
-      - action
-      - map_id
-      type: object
     id:
       description: Unique ID of the object instance in the Mist Organization
       examples:
@@ -1128,38 +1202,6 @@ components:
       format: uuid
       readOnly: true
       type: string
-    map_sitesurvey_path_items_nodes:
-      description: Map nodes included in a site survey path
-      items:
-        $ref: '#/components/schemas/map_node'
-      minItems: 0
-      type: array
-    response_map_import:
-      additionalProperties: false
-      description: Result of importing map files and matching AP placements
-      properties:
-        aps:
-          $ref: '#/components/schemas/response_map_import_aps'
-          description: AP placement results produced by the map import
-        floorplans:
-          $ref: '#/components/schemas/response_map_import_floorplans'
-          description: Floorplan import results produced by the map import
-        for_site:
-          description: Whether this map import response is scoped to a site
-          readOnly: true
-          type: boolean
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with the map import result
-        summary:
-          $ref: '#/components/schemas/response_map_import_summary'
-          description: Counts summarizing assignments made during the map import
-      required:
-      - site_id
-      - aps
-      - floorplans
-      - summary
-      type: object
     map_site_replace_file_json:
       additionalProperties: false
       description: Options for replacing a site map image
@@ -1168,39 +1210,27 @@ components:
           $ref: '#/components/schemas/map_site_replace_file_json_transform'
           description: Coordinate transform to apply when replacing the map image
       type: object
-    map_import_json:
-      additionalProperties: false
-      description: Options for importing map data from Ekahau or iBwave JSON
-      properties:
-        import_all_floorplans:
-          default: false
-          description: Whether to import all floorplans from the uploaded map JSON
-          type: boolean
-        import_height:
-          default: true
-          description: Whether to import height metadata from the uploaded map JSON
-          type: boolean
-        import_orientation:
-          default: true
-          description: Whether to import orientation metadata from the uploaded map JSON
-          type: boolean
-        vendor_name:
-          $ref: '#/components/schemas/map_import_json_vendor_name'
-          description: Map import vendor for the uploaded JSON
-      required:
-      - vendor_name
-      type: object
-    map_geofences:
-      description: List of geofences for the map
+    map_import_json_vendor_name:
+      description: 'Map import vendor for the uploaded JSON. enum: `ekahau`, `ibwave`'
+      enum:
+      - ekahau
+      - ibwave
+      examples:
+      - ekahau
+      type: string
+    response_set_devices_map_moved:
+      description: AP MAC addresses moved during map assignment
       items:
-        $ref: '#/components/schemas/map_geofence'
+        examples:
+        - 5c5b35000001
+        type: string
       type: array
-    response_map_import_aps:
-      description: AP placement results produced by the map import
+    map_sitesurvey_path_items_nodes:
+      description: Map nodes included in a site survey path
       items:
-        $ref: '#/components/schemas/response_map_import_ap'
+        $ref: '#/components/schemas/map_node'
+      minItems: 0
       type: array
-      uniqueItems: true
     map_jibestream:
       additionalProperties: false
       description: Jibestream map import configuration
@@ -1262,113 +1292,178 @@ components:
       - endpoint_url
       - mmpp
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    map_import_json_vendor_name:
-      description: 'Map import vendor for the uploaded JSON. enum: `ekahau`, `ibwave`'
-      enum:
-      - ekahau
-      - ibwave
-      examples:
-      - ekahau
-      type: string
-    map_micello_vendor_name:
-      default: micello
-      description: 'The vendor ‘micello’. enum: `micello`'
-      enum:
-      - micello
-      type: string
-    response_set_devices_map_moved:
-      description: AP MAC addresses moved during map assignment
+    map_import_json:
+      additionalProperties: false
+      description: Options for importing map data from Ekahau or iBwave JSON
+      properties:
+        import_all_floorplans:
+          default: false
+          description: Whether to import all floorplans from the uploaded map JSON
+          type: boolean
+        import_height:
+          default: true
+          description: Whether to import height metadata from the uploaded map JSON
+          type: boolean
+        import_orientation:
+          default: true
+          description: Whether to import orientation metadata from the uploaded map JSON
+          type: boolean
+        vendor_name:
+          $ref: '#/components/schemas/map_import_json_vendor_name'
+          description: Map import vendor for the uploaded JSON
+      required:
+      - vendor_name
+      type: object
+    map_node_position:
+      additionalProperties: false
+      description: Position of a map path node
+      properties:
+        x:
+          description: Horizontal coordinate of the map node
+          examples:
+          - 746
+          format: double
+          type: number
+        y:
+          description: Vertical coordinate of the map node
+          examples:
+          - 104
+          format: double
+          type: number
+      required:
+      - x
+      - y
+      type: object
+    map_geofences:
+      description: List of geofences for the map
       items:
-        examples:
-        - 5c5b35000001
-        type: string
+        $ref: '#/components/schemas/map_geofence'
       type: array
-    response_http401:
+    map_wall_path:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: JSON blob for wall definition (same format as wayfinding_path)
       properties:
-        detail:
-          description: Human-readable explanation of the authentication error
+        coordinate:
+          description: Wall path coordinate space
           examples:
-          - Authentication credentials were not provided.
+          - actual
+          type: string
+        nodes:
+          $ref: '#/components/schemas/map_wall_path_nodes'
+          description: Path nodes that define the wall geometry
+      type: object
+    latlng_br:
+      additionalProperties: false
+      description: When `type`==`google`, latitude and longitude of the bottom-right corner
+      properties:
+        lat:
+          description: Bottom-right latitude for the Google map bounds
+          type: string
+        lng:
+          description: Bottom-right longitude for the Google map bounds
           type: string
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    map_type:
-      default: image
-      description: 'Map type, such as `image` or `google`. enum: `google`, `image`'
-      enum:
-      - google
-      - image
-      examples:
-      - image
-      type: string
     created_time:
       description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    map_site_replace_file_json_transform:
-      additionalProperties: false
-      description: If `transform` is provided, all the locations of the objects on the map (AP, Zone, Vbeacon, Beacon) will be transformed as well (relative to the new Map)
-      properties:
-        rotation:
-          default: 0
-          description: Whether to rotate the replacing image, in degrees
-          type: number
-        scale:
-          default: 1
-          description: Whether to scale the replacing image
-          examples:
-          - 0.98
-          type: number
-        x:
-          default: 0
-          description: Where the (0, 0) of the new image is relative to the original map
-          examples:
-          - 3.16
-          format: double
-          type: number
-        y:
-          default: 0
-          description: Where the (0, 0) of the new image is relative to the original map
-          examples:
-          - 12
-          format: double
-          type: number
-      type: object
-    response_map_import_floorplans:
-      description: Floorplan import results produced by the map import
-      items:
-        $ref: '#/components/schemas/response_map_import_floorplan'
-      type: array
-      uniqueItems: true
-    response_map_import_ap_action:
-      description: 'enum: `assigned-named-placed`, `assigned-placed`, `ignored`, `named-placed`, `placed`'
-      enum:
-      - assigned-named-placed
-      - assigned-placed
-      - ignored
-      - named-placed
-      - placed
-      type: string
   responses:
+    Map:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/map'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/map'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    SetDevicesMap:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SetDevicesMapExample'
+          schema:
+            $ref: '#/components/schemas/response_set_devices_map'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SetDevicesMapExample'
+          schema:
+            $ref: '#/components/schemas/response_set_devices_map'
+      description: OK
+    MapsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MapsArrayExample'
+          schema:
+            $ref: '#/components/schemas/maps'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MapsArrayExample'
+          schema:
+            $ref: '#/components/schemas/maps'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     MapImport:
       content:
         application/json:
@@ -1392,101 +1487,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_map_import'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    MapsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MapsArrayExample'
-          schema:
-            $ref: '#/components/schemas/maps'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MapsArrayExample'
-          schema:
-            $ref: '#/components/schemas/maps'
-      description: OK
-    OK:
-      description: OK
-    SetDevicesMap:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SetDevicesMapExample'
-          schema:
-            $ref: '#/components/schemas/response_set_devices_map'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SetDevicesMapExample'
-          schema:
-            $ref: '#/components/schemas/response_set_devices_map'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    Map:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/map'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/map'
-      description: OK
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -1502,7 +1502,61 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+  parameters:
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
   examples:
+    MapImportPlaced:
+      value:
+        aps:
+        - action: placed
+          floorplan_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          height: 3
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
     MapImportAssignedNamedAndPlaced:
       value:
         aps:
@@ -1521,9 +1575,28 @@ components:
           num_ap_assigned: 1
           num_inv_assigned: 1
           num_map_assigned: 1
-    HTTP400Example:
+    HTTP401Example:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        detail: Authentication credentials were not provided.
+    MapImportAssignedAndPlaced:
+      value:
+        aps:
+        - action: assigned-placed
+          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+          height: 3
+          mac: 5c5b35000001
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          orientation: 45
+        floorplans:
+        - action: imported
+          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
+          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
+          name: map1
+        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+        summary:
+          num_ap_assigned: 1
+          num_inv_assigned: 1
+          num_map_assigned: 1
     MapsArrayExample:
       value:
       - created_time: 0
@@ -1590,94 +1663,21 @@ components:
               y: 0
         width: 0
         width_m: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     SetDevicesMapExample:
       value:
         locked:
         - 5c5b35584a6f
         moved:
         - 5c5b35000001
-    HTTP401Example:
+    HTTP403Example:
       value:
-        detail: Authentication credentials were not provided.
-    MapImportAssignedAndPlaced:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
       value:
-        aps:
-        - action: assigned-placed
-          floorplan_id: 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
-          height: 3
-          mac: 5c5b35000001
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          orientation: 45
-        floorplans:
-        - action: imported
-          id: cbdb7f0b-3be0-4872-88f9-58790b509c23
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          name: map1
-        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
-        summary:
-          num_ap_assigned: 1
-          num_inv_assigned: 1
-          num_map_assigned: 1
-    MapImportPlaced:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP429Example:
       value:
-        aps:
-        - action: placed
-          floorplan_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          height: 3
-          mac: 5c5b35000001
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          orientation: 45
-        floorplans:
-        - action: imported
-          id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-          map_id: 845a23bf-bed9-e43c-4c86-6fa474be7ae5
-          name: map1
-        site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
-        summary:
-          num_ap_assigned: 1
-          num_inv_assigned: 1
-          num_map_assigned: 1
-  parameters:
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    map_id:
-      in: path
-      name: map_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -75,7 +75,47 @@ paths:
       tags:
       - Admins Logout
 components:
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    LogoutExample:
+      value:
+        forward_url: https://my.sso/custom_logout_url
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    Logout:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LogoutExample'
+          schema:
+            $ref: '#/components/schemas/response_logout'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LogoutExample'
+          schema:
+            $ref: '#/components/schemas/response_logout'
+      description: OK
     HTTP401:
       content:
         application/json:
@@ -106,15 +146,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -145,36 +176,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    Logout:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LogoutExample'
-          schema:
-            $ref: '#/components/schemas/response_logout'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LogoutExample'
-          schema:
-            $ref: '#/components/schemas/response_logout'
-      description: OK
   schemas:
-    response_logout:
+    response_http429:
       additionalProperties: false
-      description: Logout response with optional SSO forwarding URL
+      description: Standard HTTP 429 rate limit error response
       properties:
-        forward_url:
-          description: If configured in SSO as custom_logout_url
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -207,32 +217,22 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    response_http429:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-  examples:
-    LogoutExample:
-      value:
-        forward_url: https://my.sso/custom_logout_url
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
+    response_logout:
+      additionalProperties: false
+      description: Logout response with optional SSO forwarding URL
+      properties:
+        forward_url:
+          description: If configured in SSO as custom_logout_url
+          type: string
+      type: object
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

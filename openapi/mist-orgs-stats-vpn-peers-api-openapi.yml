@@ -134,118 +134,7 @@ paths:
       tags:
       - Orgs Stats - VPN Peers
 components:
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    VpnPeersStatsExample:
-      value:
-        end: 1619518989.4989712
-        limit: 10
-        results:
-        - is_active: true
-          last_seen: 1619518709.222
-          mac: 020001c04668
-          org_id: 0c160b7f-1027-4cd1-923b-744534c4b070
-          peer_mac: 020001367edd
-          peer_port_id: DC_Internet
-          peer_site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
-          port_id: Lte
-          site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
-          type: svr
-          up: true
-          uptime: 1527128046
-        - is_active: true
-          last_seen: 1619518709.222
-          latency: 91
-          mac: 020001c04668
-          mos: 4
-          mtu: 1500
-          org_id: 0c160b7f-1027-4cd1-923b-744534c4b070
-          peer_mac: 020001367edd
-          peer_port_id: DC_Internet
-          peer_router_name: RIDCBBP1
-          peer_site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
-          port_id: Lte
-          router_name: RIST01544AP1
-          site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
-          type: svr
-          up: true
-          uptime: 1527128046
-        start: 1619518689.4989705
-        total: 2
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
-    last_seen:
-      description: Timestamp indicating when the entity was last seen
-      examples:
-      - 1470417522
-      format: double
-      readOnly: true
-      type:
-      - number
-      - 'null'
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    response_count:
-      additionalProperties: false
-      description: Distinct count response for time-bounded search results
-      properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
     vpn_peer_stat:
       additionalProperties: false
       description: VPN peer path statistics returned by organization VPN peer searches
@@ -321,18 +210,21 @@ components:
           description: Gateway-reported VPN peer uptime value, in seconds
           type: integer
       type: object
-    vpn_peer_stat_search_results:
-      description: VPN peer statistic rows returned by a search response
-      items:
-        $ref: '#/components/schemas/vpn_peer_stat'
-      type: array
-      uniqueItems: true
-    response_http404:
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
     response_http400:
@@ -345,6 +237,15 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -355,27 +256,19 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
     vpn_peer_stat_search:
       additionalProperties: false
       description: Search response containing VPN peer path statistics
@@ -405,23 +298,71 @@ components:
       - start
       - total
       type: object
-    response_http429:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    vpn_peer_stat_search_results:
+      description: VPN peer statistic rows returned by a search response
+      items:
+        $ref: '#/components/schemas/vpn_peer_stat'
+      type: array
+      uniqueItems: true
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
   parameters:
     sort:
       description: On which field the list should be sorted, -prefix represents DESC order
@@ -431,21 +372,6 @@ components:
         default: timestamp
         examples:
         - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
         type: string
     start:
       description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
@@ -462,12 +388,6 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
     limit:
       description: Maximum number of results to return per page
       in: query
@@ -476,22 +396,28 @@ components:
         default: 100
         minimum: 0
         type: integer
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
   responses:
-    VpnPeersStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VpnPeersStatsExample'
-          schema:
-            $ref: '#/components/schemas/vpn_peer_stat_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/VpnPeersStatsExample'
-          schema:
-            $ref: '#/components/schemas/vpn_peer_stat_search'
-      description: OK
     HTTP401:
       content:
         application/json:
@@ -507,15 +433,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP404:
+    Count:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_count'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
     HTTP400:
       content:
         application/json:
@@ -531,6 +463,30 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
+    VpnPeersStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VpnPeersStatsExample'
+          schema:
+            $ref: '#/components/schemas/vpn_peer_stat_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/VpnPeersStatsExample'
+          schema:
+            $ref: '#/components/schemas/vpn_peer_stat_search'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -561,21 +517,65 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    VpnPeersStatsExample:
+      value:
+        end: 1619518989.4989712
+        limit: 10
+        results:
+        - is_active: true
+          last_seen: 1619518709.222
+          mac: 020001c04668
+          org_id: 0c160b7f-1027-4cd1-923b-744534c4b070
+          peer_mac: 020001367edd
+          peer_port_id: DC_Internet
+          peer_site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
+          port_id: Lte
+          site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
+          type: svr
+          up: true
+          uptime: 1527128046
+        - is_active: true
+          last_seen: 1619518709.222
+          latency: 91
+          mac: 020001c04668
+          mos: 4
+          mtu: 1500
+          org_id: 0c160b7f-1027-4cd1-923b-744534c4b070
+          peer_mac: 020001367edd
+          peer_port_id: DC_Internet
+          peer_router_name: RIDCBBP1
+          peer_site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
+          port_id: Lte
+          router_name: RIST01544AP1
+          site_id: 725a8d34-a126-4f2c-b990-d1219421cb75
+          type: svr
+          up: true
+          uptime: 1527128046
+        start: 1619518689.4989705
+        total: 2
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
