@@ -137,6 +137,35 @@ paths:
       - Orgs Stats - Ospf
 components:
   parameters:
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
     sort:
       description: On which field the list should be sorted, -prefix represents DESC order
       in: query
@@ -152,69 +181,64 @@ components:
       name: start
       schema:
         type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
       type: object
-    response_http400:
+    ospf_peer_stats_search_result:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Paginated OSPF peer statistics search result
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
+        end:
+          description: Query end timestamp for the OSPF peer statistics search
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - 1711035686
+          type: integer
+        limit:
+          description: Maximum number of OSPF peer statistics returned per page
+          examples:
+          - 10
+          type: integer
+        next:
+          description: URL for the next page of OSPF peer statistics, when available
           type: string
+        results:
+          $ref: '#/components/schemas/ospf_peer_stats_search_results'
+          description: OSPF peer statistic records returned for the current page
+        start:
+          description: Query start timestamp for the OSPF peer statistics search
+          examples:
+          - 1710949286
+          type: integer
+        total:
+          description: Number of OSPF peer statistic records matching the search
+          examples:
+          - 232
+          type: integer
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
+    ospf_peer_stats_search_results:
+      description: List of OSPF peer statistic records
+      items:
+        $ref: '#/components/schemas/ospf_peer_stats_search_results_items'
+      type: array
+    ospf_peer_stats_count_distinct:
+      description: 'enum: `site_id`, `org_id`, `mac`, `peer_ip`, `port_id`, `state`, `vrf_name`'
+      enum:
+      - site_id
+      - org_id
+      - mac
+      - peer_ip
+      - port_id
+      - state
+      - vrf_name
       type: string
     response_http401:
       additionalProperties: false
@@ -232,24 +256,37 @@ components:
         $ref: '#/components/schemas/count_result'
       type: array
       uniqueItems: true
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 429 rate limit error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
       properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
       type: object
     ospf_peer_stats_search_results_items:
       additionalProperties: false
@@ -291,53 +328,14 @@ components:
           description: Instance name, e.g. master
           type: string
       type: object
-    ospf_peer_stats_search_result:
+    response_http404:
       additionalProperties: false
-      description: Paginated OSPF peer statistics search result
+      description: Standard HTTP 404 not found error response
       properties:
-        end:
-          description: Query end timestamp for the OSPF peer statistics search
-          examples:
-          - 1711035686
-          type: integer
-        limit:
-          description: Maximum number of OSPF peer statistics returned per page
-          examples:
-          - 10
-          type: integer
-        next:
-          description: URL for the next page of OSPF peer statistics, when available
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
-        results:
-          $ref: '#/components/schemas/ospf_peer_stats_search_results'
-          description: OSPF peer statistic records returned for the current page
-        start:
-          description: Query start timestamp for the OSPF peer statistics search
-          examples:
-          - 1710949286
-          type: integer
-        total:
-          description: Number of OSPF peer statistic records matching the search
-          examples:
-          - 232
-          type: integer
       type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    ospf_peer_stats_count_distinct:
-      description: 'enum: `site_id`, `org_id`, `mac`, `peer_ip`, `port_id`, `state`, `vrf_name`'
-      enum:
-      - site_id
-      - org_id
-      - mac
-      - peer_ip
-      - port_id
-      - state
-      - vrf_name
-      type: string
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -368,37 +366,47 @@ components:
       - start
       - total
       type: object
-    response_http403:
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the bad request error
           examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    ospf_peer_stats_search_results:
-      description: List of OSPF peer statistic records
-      items:
-        $ref: '#/components/schemas/ospf_peer_stats_search_results_items'
-      type: array
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
     Count:
       content:
         application/json:
@@ -414,21 +422,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_count'
       description: Result of Count
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     OspfPeersStatsSearch:
       content:
         application/json:
@@ -462,6 +455,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -477,29 +485,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -225,6 +225,45 @@ paths:
       - Sites Clients - Wan
 components:
   parameters:
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    partial_filter_mac_client:
+      description: Partial / full Client MAC address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported
+      in: query
+      name: mac
+      schema:
+        examples:
+        - aabbccddeeff
+        - aabbcc*
+        - '*bbcc*'
+        type: string
     partial_filter_ip_client:
       description: Partial / full Client IP address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `10.100.10.*` and `*100.10.*` match `10.100.10.54`). Suffix-only wildcards (e.g. `*.54`) are not supported
       in: query
@@ -244,12 +283,6 @@ components:
         examples:
         - -site_id
         type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
     partial_filter_network:
       description: Partial / full Name of the network the client is/was connected to. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `my-corp*` and `*corp*` match `my-corp-network`). Suffix-only wildcards (e.g. `*corp`) are not supported
       in: query
@@ -259,54 +292,6 @@ components:
         - my-corp-network
         - my-corp*
         - '*corp*'
-        type: string
-    partial_filter_mac_client:
-      description: Partial / full Client MAC address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported
-      in: query
-      name: mac
-      schema:
-        examples:
-        - aabbccddeeff
-        - aabbcc*
-        - '*bbcc*'
-        type: string
-    client_event_type:
-      description: See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)
-      in: query
-      name: type
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
         type: string
     partial_filter_hostname_client:
       description: Partial / full Client hostname. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `everest*` and `*rest*` match `my-everest-client`). Suffix-only wildcards (e.g. `*everest`) are not supported
@@ -318,10 +303,25 @@ components:
         - my-everest*
         - '*everest*'
         type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+    client_event_type:
+      description: See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)
       in: query
-      name: search_after
+      name: type
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
       schema:
         type: string
   schemas:
@@ -332,33 +332,40 @@ components:
       format: uuid
       readOnly: true
       type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
       type: object
-    response_http400:
+    search_wan_client:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Paginated response for WAN client searches
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        end:
+          description: Upper bound timestamp of the WAN client search window, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of WAN client records returned by this page
+          type: integer
+        next:
+          description: URL for the next page of WAN client records, when more results are available
           type: string
+        results:
+          $ref: '#/components/schemas/stats_wan_clients'
+          description: WAN client records returned by the search response
+        start:
+          description: Lower bound timestamp of the WAN client search window, in epoch seconds
+          type: integer
+        total:
+          description: Count of WAN client records matching the search
+          type: integer
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -369,12 +376,41 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
+    stats_wan_client_hostname:
+      description: Hostnames observed for a WAN client
+      items:
+        examples:
+        - sonoszp
+        type: string
+      type: array
     count_results:
       description: List of count result rows
       items:
         $ref: '#/components/schemas/count_result'
       type: array
       uniqueItems: true
+    stats_wan_clients:
+      description: WAN client records returned by the search response
+      items:
+        $ref: '#/components/schemas/stats_wan_client'
+      type: array
+    stats_wan_client_ip:
+      description: IP addresses observed for a WAN client
+      items:
+        examples:
+        - 192.168.1.139
+        type: string
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     events_client_wan:
       additionalProperties: false
       description: WAN client event returned by WAN client event search APIs
@@ -414,34 +450,36 @@ components:
           format: uuid
           type: string
       type: object
-    response_http404:
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 403 permission error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
       type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    site_wan_client_events_distinct:
-      default: type
-      description: 'enum: `hostname`, `ip`, `mac`, `mfg`, `type`'
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    site_wan_clients_count_distinct:
+      default: mac
+      description: 'enum: `hostname`, `ip`, `mac`, `mfg`'
       enum:
       - hostname
       - ip
       - mac
       - mfg
-      - type
       type: string
     stats_wan_client:
       additionalProperties: false
@@ -499,62 +537,47 @@ components:
           - 8bbe7389-212b-c65d-2208-00fab2017936
           type: string
       type: object
-    site_wan_clients_count_distinct:
-      default: mac
-      description: 'enum: `hostname`, `ip`, `mac`, `mfg`'
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    site_wan_client_events_distinct:
+      default: type
+      description: 'enum: `hostname`, `ip`, `mac`, `mfg`, `type`'
       enum:
       - hostname
       - ip
       - mac
       - mfg
+      - type
       type: string
-    search_wan_client:
+    search_events_wan_client:
       additionalProperties: false
-      description: Paginated response for WAN client searches
+      description: Paginated response for WAN client event searches
       properties:
         end:
-          description: Upper bound timestamp of the WAN client search window, in epoch seconds
+          description: Upper bound timestamp of the WAN client event search window, in epoch seconds
           type: integer
         limit:
-          description: Maximum number of WAN client records returned by this page
+          description: Maximum number of WAN client event results returned by this page
           type: integer
         next:
-          description: URL for the next page of WAN client records, when more results are available
+          description: URL for the next page of WAN client event results, when more results are available
           type: string
         results:
-          $ref: '#/components/schemas/stats_wan_clients'
-          description: WAN client records returned by the search response
+          $ref: '#/components/schemas/events_client_wan'
+          description: WAN client event result data returned by the search response
         start:
-          description: Lower bound timestamp of the WAN client search window, in epoch seconds
+          description: Lower bound timestamp of the WAN client event search window, in epoch seconds
           type: integer
         total:
-          description: Count of WAN client records matching the search
+          description: Count of WAN client event results matching the search
           type: integer
       type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    stats_wan_client_hostname:
-      description: Hostnames observed for a WAN client
-      items:
-        examples:
-        - sonoszp
-        type: string
-      type: array
-    stats_wan_client_ip:
-      description: IP addresses observed for a WAN client
-      items:
-        examples:
-        - 192.168.1.139
-        type: string
-      type: array
-    stats_wan_clients:
-      description: WAN client records returned by the search response
-      items:
-        $ref: '#/components/schemas/stats_wan_client'
-      type: array
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -585,124 +608,17 @@ components:
       - start
       - total
       type: object
-    search_events_wan_client:
+    response_http400:
       additionalProperties: false
-      description: Paginated response for WAN client event searches
-      properties:
-        end:
-          description: Upper bound timestamp of the WAN client event search window, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of WAN client event results returned by this page
-          type: integer
-        next:
-          description: URL for the next page of WAN client event results, when more results are available
-          type: string
-        results:
-          $ref: '#/components/schemas/events_client_wan'
-          description: WAN client event result data returned by the search response
-        start:
-          description: Lower bound timestamp of the WAN client event search window, in epoch seconds
-          type: integer
-        total:
-          description: Count of WAN client event results matching the search
-          type: integer
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the bad request error
           examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    WanClientEventsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WanClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_events_wan_client'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WanClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_events_wan_client'
-      description: Example response
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     WanClientsSearch:
       content:
         application/json:
@@ -718,6 +634,45 @@ components:
           schema:
             $ref: '#/components/schemas/search_wan_client'
       description: Example response
+    WanClientEventsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WanClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_events_wan_client'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WanClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_events_wan_client'
+      description: Example response
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -733,25 +688,52 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    WanClientEventsSearchExample:
-      value:
-        end: 0
-        limit: 0
-        results:
-          When: '2022-12-31 23:59:59.293000+00:00'
-          ev_type: CLIENT_IP_ASSIGNED
-          metadata: {}
-          org_id: b0b9f142-aaba-11e6-aafc-0242ac110002
-          random_mac: true
-          site_id: fc656275-b157-43fd-b922-5f4f341c19bf
-          text: DHCP Ack IP 192.168.88.216
-          wcid: 62bbfb75-10d8-49d1-dec7-d2df91624287
-        start: 0
-        total: 0
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
@@ -772,9 +754,21 @@ components:
           wcid: 8bbe7389-212b-c65d-2208-00fab2017936
         start: 0
         total: 0
-    HTTP403Example:
+    WanClientEventsSearchExample:
       value:
-        detail: You do not have permission to perform this action.
+        end: 0
+        limit: 0
+        results:
+          When: '2022-12-31 23:59:59.293000+00:00'
+          ev_type: CLIENT_IP_ASSIGNED
+          metadata: {}
+          org_id: b0b9f142-aaba-11e6-aafc-0242ac110002
+          random_mac: true
+          site_id: fc656275-b157-43fd-b922-5f4f341c19bf
+          text: DHCP Ack IP 192.168.88.216
+          wcid: 62bbfb75-10d8-49d1-dec7-d2df91624287
+        start: 0
+        total: 0
     CountExample:
       value:
         distinct: string
@@ -785,6 +779,12 @@ components:
           property: string
         start: 0
         total: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'

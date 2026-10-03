@@ -87,164 +87,6 @@ paths:
       - Sites VPNs
 components:
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    vpn_path_selection:
-      additionalProperties: false
-      description: Only if `type`==`hub_spoke`; path selection behavior for VPN paths
-      properties:
-        strategy:
-          $ref: '#/components/schemas/vpn_path_selection_strategy'
-          description: Path selection strategy for a hub-and-spoke VPN
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    vpn_path_peer_paths_peer:
-      additionalProperties: false
-      description: Peer path preference settings for mesh VPN routing
-      properties:
-        preference:
-          description: Lower numeric value makes this outgoing WAN path more preferred
-          type: integer
-      type: object
-    vpn_path_bfd_profile:
-      default: broadband
-      description: 'BFD profile used for this VPN path. enum: `broadband`, `lte`'
-      enum:
-      - broadband
-      - lte
-      type: string
-    vpn_mode:
-      default: hub_spoke
-      description: 'VPN topology mode for this configuration. enum: `hub_spoke`, `mesh`'
-      enum:
-      - hub_spoke
-      - mesh
-      type: string
-    vpn_path_peer_paths:
-      additionalProperties:
-        $ref: '#/components/schemas/vpn_path_peer_paths_peer'
-      description: If `type`==`mesh`, property key is the peer interface name
-      type: object
-    vpn_path:
-      additionalProperties: false
-      description: VPN path settings used by an organization VPN
-      properties:
-        bfd_profile:
-          $ref: '#/components/schemas/vpn_path_bfd_profile'
-          description: BFD profile used for this VPN path
-        bfd_use_tunnel_mode:
-          default: false
-          description: If `type`==`mesh` and for SSR only, whether to use tunnel mode
-          type: boolean
-        ip:
-          description: Source IP address for this VPN path, if different from the WAN port IP
-          type: string
-        peer_paths:
-          $ref: '#/components/schemas/vpn_path_peer_paths'
-          description: Peer path preferences used when `type`==`mesh`
-        pod:
-          default: 1
-          description: Grouping index used to place this VPN path into a pod
-          examples:
-          - 2
-          maximum: 128
-          minimum: 1
-          type: integer
-        traffic_shaping:
-          $ref: '#/components/schemas/vpn_path_traffic_shaping'
-          description: Traffic shaping settings applied to this VPN path
-      type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    vpn_paths:
-      additionalProperties:
-        $ref: '#/components/schemas/vpn_path'
-      description: For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name
-      type: object
-    vpn_path_traffic_shaping:
-      additionalProperties: false
-      description: Traffic shaping settings for a VPN path
-      properties:
-        class_percentage:
-          $ref: '#/components/schemas/vpn_path_traffic_shaping_class_percentage'
-          description: Bandwidth percentages for high, medium, low, and best-effort traffic classes
-        enabled:
-          description: Whether traffic shaping is enabled for this VPN path
-          type: boolean
-        max_tx_kbps:
-          description: Maximum transmit rate for this VPN path, in Kbps; `null` means no explicit limit
-          type:
-          - integer
-          - 'null'
-      type: object
-    vpns:
-      description: VPN records returned by a list response
-      items:
-        $ref: '#/components/schemas/vpn'
-      type: array
-    vpn_path_selection_strategy:
-      default: disabled
-      description: 'enum: `disabled`, `simple`, `manual`'
-      enum:
-      - disabled
-      - simple
-      - manual
-      type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     vpn_path_traffic_shaping_class_percentage:
       default:
       - 80
@@ -257,6 +99,31 @@ components:
       maxItems: 4
       minItems: 4
       type: array
+    vpn_paths:
+      additionalProperties:
+        $ref: '#/components/schemas/vpn_path'
+      description: For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    vpn_path_selection:
+      additionalProperties: false
+      description: Only if `type`==`hub_spoke`; path selection behavior for VPN paths
+      properties:
+        strategy:
+          $ref: '#/components/schemas/vpn_path_selection_strategy'
+          description: Path selection strategy for a hub-and-spoke VPN
+      type: object
+    vpn_path_peer_paths:
+      additionalProperties:
+        $ref: '#/components/schemas/vpn_path_peer_paths_peer'
+      description: If `type`==`mesh`, property key is the peer interface name
+      type: object
     vpn:
       description: Organization VPN overlay configuration
       properties:
@@ -289,34 +156,152 @@ components:
       - name
       - paths
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
+    vpns:
+      description: VPN records returned by a list response
+      items:
+        $ref: '#/components/schemas/vpn'
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    vpn_mode:
+      default: hub_spoke
+      description: 'VPN topology mode for this configuration. enum: `hub_spoke`, `mesh`'
+      enum:
+      - hub_spoke
+      - mesh
       type: string
     created_time:
       description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    vpn_path:
+      additionalProperties: false
+      description: VPN path settings used by an organization VPN
+      properties:
+        bfd_profile:
+          $ref: '#/components/schemas/vpn_path_bfd_profile'
+          description: BFD profile used for this VPN path
+        bfd_use_tunnel_mode:
+          default: false
+          description: If `type`==`mesh` and for SSR only, whether to use tunnel mode
+          type: boolean
+        ip:
+          description: Source IP address for this VPN path, if different from the WAN port IP
+          type: string
+        peer_paths:
+          $ref: '#/components/schemas/vpn_path_peer_paths'
+          description: Peer path preferences used when `type`==`mesh`
+        pod:
+          default: 1
+          description: Grouping index used to place this VPN path into a pod
+          examples:
+          - 2
+          maximum: 128
+          minimum: 1
+          type: integer
+        traffic_shaping:
+          $ref: '#/components/schemas/vpn_path_traffic_shaping'
+          description: Traffic shaping settings applied to this VPN path
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    vpn_path_peer_paths_peer:
+      additionalProperties: false
+      description: Peer path preference settings for mesh VPN routing
+      properties:
+        preference:
+          description: Lower numeric value makes this outgoing WAN path more preferred
+          type: integer
+      type: object
+    vpn_path_traffic_shaping:
+      additionalProperties: false
+      description: Traffic shaping settings for a VPN path
+      properties:
+        class_percentage:
+          $ref: '#/components/schemas/vpn_path_traffic_shaping_class_percentage'
+          description: Bandwidth percentages for high, medium, low, and best-effort traffic classes
+        enabled:
+          description: Whether traffic shaping is enabled for this VPN path
+          type: boolean
+        max_tx_kbps:
+          description: Maximum transmit rate for this VPN path, in Kbps; `null` means no explicit limit
+          type:
+          - integer
+          - 'null'
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    vpn_path_selection_strategy:
+      default: disabled
+      description: 'enum: `disabled`, `simple`, `manual`'
+      enum:
+      - disabled
+      - simple
+      - manual
+      type: string
+    vpn_path_bfd_profile:
+      default: broadband
+      description: 'BFD profile used for this VPN path. enum: `broadband`, `lte`'
+      enum:
+      - broadband
+      - lte
+      type: string
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
     VpnsArray:
       content:
         application/json:
@@ -332,21 +317,6 @@ components:
           schema:
             $ref: '#/components/schemas/vpns'
       description: Example response
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     HTTP404:
       content:
         application/json:
@@ -371,6 +341,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -386,29 +371,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    VpnsArrayExample:
-      value:
-      - name: string
-        paths:
-          property1:
-            bfd_profile: broadband
-            ip: string
-          property2:
-            bfd_profile: lte
-            ip: string
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   parameters:
     site_id:
       in: path
@@ -419,6 +396,29 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    VpnsArrayExample:
+      value:
+      - name: string
+        paths:
+          property1:
+            bfd_profile: broadband
+            ip: string
+          property2:
+            bfd_profile: lte
+            ip: string
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

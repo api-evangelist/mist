@@ -292,7 +292,134 @@ paths:
       tags:
       - MSPs Orgs
 components:
+  examples:
+    OrgExample:
+      value:
+        alarmtemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        allow_mist: true
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        name: string
+        orggroup_ids:
+        - b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        session_expiry: 1440
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    OrgsSearchExample:
+      value:
+        end: 1614383378.4365287
+        limit: 10
+        next: /api/v1/msps/43e96c5a-6ef6-11e6-9909-9596d1d1534f/orgs/search?end=1760601621&limit=1&search_after=%5B1760599794477%5D&start=1759996821
+        results:
+        - msp_id: d287e62f-0000-0000-0000-f2b9ba0a531f
+          name: Test Org
+          num_aps: 9
+          num_sites: 5
+          num_switches: 1
+          num_unassigned_aps: 1
+          org_id: bb1a8bf6-0000-0000-0000-8053a663cf65
+          sub_ana_required: 9
+          sub_ast_entitled: 5
+          sub_ast_required: 3
+          sub_eng_required: 3
+          sub_ex12_required: 1
+          sub_insufficient: true
+          sub_man_required: 9
+          sub_vna_entitled: 1
+          timestamp: 1614322563.513937
+          trial_enabled: false
+          usage_types:
+          - sub_eng
+        - msp_id: d287e62f-0000-0000-0000-f2b9ba0a531f
+          name: Rogue Test1
+          num_aps: 1
+          num_sites: 1
+          org_id: 0fb81690-0000-0000-0000-9596d1d1534f
+          sub_ana_entitled: 1
+          sub_ana_required: 1
+          sub_insufficient: false
+          sub_man_entitled: 1
+          sub_man_required: 1
+          timestamp: 1614309876.500955
+        start: 1613778578.4365668
+        total: 2
+    OrgsArrayExample:
+      value:
+      - alarmtemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        allow_mist: true
+        created_time: 0
+        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        modified_time: 0
+        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        name: string
+        orggroup_ids:
+        - b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        session_expiry: 1440
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    msp_id:
+      in: path
+      name: msp_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    name:
+      description: Filter results by name
+      in: query
+      name: name
+      schema:
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
     sort:
       description: On which field the list should be sorted, -prefix represents DESC order
       in: query
@@ -308,58 +435,6 @@ components:
       name: start
       schema:
         type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    msp_id:
-      in: path
-      name: msp_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    name:
-      description: Filter results by name
-      in: query
-      name: name
-      schema:
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
   schemas:
     org_id:
       description: Unique identifier of a Mist organization
@@ -368,39 +443,24 @@ components:
       format: uuid
       readOnly: true
       type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    stats_org_sle:
-      additionalProperties: false
-      description: Organization SLE summary for a service path
-      properties:
-        path:
-          description: SLE path represented by this organization summary
-          type: string
-        user_minutes:
-          $ref: '#/components/schemas/stats_org_sle_user_minutes'
-          description: User-minute totals for this SLE path
-      required:
-      - path
-      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    stats_org_orggroup_ids:
+      description: Organization group identifiers associated with an organization stats record
+      items:
+        format: uuid
+        type: string
+      type: array
+    org_list:
+      description: Organization records returned by a list response
+      items:
+        $ref: '#/components/schemas/org'
+      type: array
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -417,54 +477,128 @@ components:
         type: string
       type: array
       uniqueItems: true
-    orggroup_ids:
-      description: List of organization group identifiers
+    response_org_search_results:
+      description: Organization records returned by MSP organization search
       items:
-        format: uuid
-        type: string
+        $ref: '#/components/schemas/response_org_search_item'
       type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      uniqueItems: true
+    org:
+      description: Mist organization containing sites, devices, users, and organization-level settings
       properties:
+        alarmtemplate_id:
+          description: Org-level alarm template ID used as the default for sites
+          format: uuid
+          type:
+          - string
+          - 'null'
+        allow_mist:
+          default: true
+          description: Whether Mist support access is allowed for this organization
+          type: boolean
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Epoch timestamp when the organization was created
         id:
-          description: Missing resource identifier, when the API includes one
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the organization
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Epoch timestamp when the organization was last modified
+        msp_id:
+          $ref: '#/components/schemas/msp_id'
+          description: Managed service provider account that owns this organization, when applicable
+        msp_logo_url:
+          description: logo uploaded by the MSP with advanced tier, only present if provided
+          examples:
+          - https://example.com/logo/b9d42c2e-88ee-41f8-b798-f009ce7fe909.jpeg
+          format: uri
+          readOnly: true
           type: string
+        msp_name:
+          description: Name of the msp the org belongs to
+          examples:
+          - MSP
+          readOnly: true
+          type: string
+        name:
+          description: Display name of the organization
+          examples:
+          - Org
+          type: string
+        orggroup_ids:
+          $ref: '#/components/schemas/orggroup_ids'
+          description: Organization group IDs that include this organization
+        session_expiry:
+          default: 1440
+          description: Admin session lifetime for the organization, in minutes
+          format: int32
+          maximum: 20160
+          minimum: 10
+          type: integer
+      required:
+      - name
       type: object
+    response_org_search:
+      additionalProperties: false
+      description: Paginated response for MSP organization search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the organization search window
+          readOnly: true
+          type: number
+        limit:
+          description: Maximum number of organization records returned in this page
+          readOnly: true
+          type: integer
+        next:
+          description: URL for retrieving the next page of organization search results
+          type: string
+        results:
+          $ref: '#/components/schemas/response_org_search_results'
+          description: Organization records matching the MSP search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the organization search window
+          readOnly: true
+          type: number
+        total:
+          description: Number of organization records matching the search filters across all pages
+          readOnly: true
+          type: integer
+      required:
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
     response_org_search_item_usage_types:
       description: Subscription usage type codes enabled for an organization
       items:
         type: string
       readOnly: true
       type: array
-    stats_orgs:
-      description: Organization statistics summaries returned by stats APIs
-      items:
-        $ref: '#/components/schemas/stats_org'
-      type: array
-    stats_org_orggroup_ids:
-      description: Organization group identifiers associated with an organization stats record
+    orggroup_ids:
+      description: List of organization group identifiers
       items:
         format: uuid
         type: string
       type: array
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    msp_id:
-      description: Managed service provider identifier
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      readOnly: true
-      type: string
-    org_list:
-      description: Organization records returned by a list response
-      items:
-        $ref: '#/components/schemas/org'
-      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     stats_org_sle_user_minutes:
       additionalProperties: false
       description: User-minute totals for an organization SLE summary
@@ -479,23 +613,113 @@ components:
       - total
       - ok
       type: object
-    response_org_search_results:
-      description: Organization records returned by MSP organization search
-      items:
-        $ref: '#/components/schemas/response_org_search_item'
-      type: array
-      uniqueItems: true
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    timestamp:
+      description: Epoch timestamp, in seconds
       format: double
       readOnly: true
       type: number
-    msp_org_change_operation:
-      description: 'Assignment operation to apply to the listed org IDs. enum: `assign`, `unassign`'
-      enum:
-      - assign
-      - unassign
-      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    msp_org_change_org_ids:
+      description: List of org IDs to assign to or unassign from an MSP account
+      items:
+        type: string
+      type: array
+    stats_org_sle:
+      additionalProperties: false
+      description: Organization SLE summary for a service path
+      properties:
+        path:
+          description: SLE path represented by this organization summary
+          type: string
+        user_minutes:
+          $ref: '#/components/schemas/stats_org_sle_user_minutes'
+          description: User-minute totals for this SLE path
+      required:
+      - path
+      type: object
+    stats_org:
+      additionalProperties: false
+      description: Organization statistics summary returned by the org stats endpoint
+      properties:
+        alarmtemplate_id:
+          description: Organization-level alarm template identifier used as the default for sites
+          format: uuid
+          type: string
+        allow_mist:
+          description: Whether Mist support access is allowed for this organization
+          type: boolean
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when the organization was created, in epoch seconds
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the organization
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Time when the organization was last modified, in epoch seconds
+        msp_id:
+          $ref: '#/components/schemas/msp_id'
+          description: Managed service provider identifier associated with the organization
+        name:
+          description: Display name of the organization
+          type: string
+        num_devices:
+          description: Total number of devices in the organization
+          type: integer
+        num_devices_connected:
+          description: Number of organization devices currently connected to Mist
+          type: integer
+        num_devices_disconnected:
+          description: Number of organization devices currently disconnected from Mist
+          type: integer
+        num_inventory:
+          description: Number of devices in the organization's inventory
+          type: integer
+        num_sites:
+          description: Number of sites in the organization
+          type: integer
+        orggroup_ids:
+          $ref: '#/components/schemas/stats_org_orggroup_ids'
+          description: Organization group identifiers that include this organization
+        session_expiry:
+          description: Admin session lifetime for the organization, in minutes
+          format: int64
+          type: integer
+        sle:
+          $ref: '#/components/schemas/stats_org_sles'
+          description: Service level expectation summaries for the organization
+      required:
+      - orggroup_ids
+      - name
+      - id
+      - msp_id
+      - created_time
+      - modified_time
+      - allow_mist
+      - session_expiry
+      - alarmtemplate_id
+      - num_sites
+      - num_devices
+      - num_inventory
+      - num_devices_connected
+      - num_devices_disconnected
+      - sle
+      type: object
+    stats_org_sles:
+      description: Service level expectation summaries for an organization
+      items:
+        $ref: '#/components/schemas/stats_org_sle'
+      type: array
+      uniqueItems: true
     msp_org_change:
       description: Request to assign or unassign orgs for an MSP account
       properties:
@@ -509,10 +733,15 @@ components:
       - op
       - org_ids
       type: object
-    msp_org_change_org_ids:
-      description: List of org IDs to assign to or unassign from an MSP account
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    stats_orgs:
+      description: Organization statistics summaries returned by stats APIs
       items:
-        type: string
+        $ref: '#/components/schemas/stats_org'
       type: array
     response_org_search_item:
       additionalProperties: false
@@ -611,254 +840,38 @@ components:
           $ref: '#/components/schemas/response_org_search_item_usage_types'
           description: Subscription usage types enabled for the organization
       type: object
-    stats_org_sles:
-      description: Service level expectation summaries for an organization
-      items:
-        $ref: '#/components/schemas/stats_org_sle'
-      type: array
-      uniqueItems: true
-    stats_org:
+    response_http404:
       additionalProperties: false
-      description: Organization statistics summary returned by the org stats endpoint
+      description: Standard HTTP 404 not found error response
       properties:
-        alarmtemplate_id:
-          description: Organization-level alarm template identifier used as the default for sites
-          format: uuid
-          type: string
-        allow_mist:
-          description: Whether Mist support access is allowed for this organization
-          type: boolean
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Time when the organization was created, in epoch seconds
         id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the organization
-        modified_time:
-          $ref: '#/components/schemas/modified_time'
-          description: Time when the organization was last modified, in epoch seconds
-        msp_id:
-          $ref: '#/components/schemas/msp_id'
-          description: Managed service provider identifier associated with the organization
-        name:
-          description: Display name of the organization
-          type: string
-        num_devices:
-          description: Total number of devices in the organization
-          type: integer
-        num_devices_connected:
-          description: Number of organization devices currently connected to Mist
-          type: integer
-        num_devices_disconnected:
-          description: Number of organization devices currently disconnected from Mist
-          type: integer
-        num_inventory:
-          description: Number of devices in the organization's inventory
-          type: integer
-        num_sites:
-          description: Number of sites in the organization
-          type: integer
-        orggroup_ids:
-          $ref: '#/components/schemas/stats_org_orggroup_ids'
-          description: Organization group identifiers that include this organization
-        session_expiry:
-          description: Admin session lifetime for the organization, in minutes
-          format: int64
-          type: integer
-        sle:
-          $ref: '#/components/schemas/stats_org_sles'
-          description: Service level expectation summaries for the organization
-      required:
-      - orggroup_ids
-      - name
-      - id
-      - msp_id
-      - created_time
-      - modified_time
-      - allow_mist
-      - session_expiry
-      - alarmtemplate_id
-      - num_sites
-      - num_devices
-      - num_inventory
-      - num_devices_connected
-      - num_devices_disconnected
-      - sle
-      type: object
-    response_org_search:
-      additionalProperties: false
-      description: Paginated response for MSP organization search results
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the organization search window
-          readOnly: true
-          type: number
-        limit:
-          description: Maximum number of organization records returned in this page
-          readOnly: true
-          type: integer
-        next:
-          description: URL for retrieving the next page of organization search results
-          type: string
-        results:
-          $ref: '#/components/schemas/response_org_search_results'
-          description: Organization records matching the MSP search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the organization search window
-          readOnly: true
-          type: number
-        total:
-          description: Number of organization records matching the search filters across all pages
-          readOnly: true
-          type: integer
-      required:
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    msp_id:
+      description: Managed service provider identifier
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
       format: uuid
       readOnly: true
       type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    org:
-      description: Mist organization containing sites, devices, users, and organization-level settings
+    msp_org_change_operation:
+      description: 'Assignment operation to apply to the listed org IDs. enum: `assign`, `unassign`'
+      enum:
+      - assign
+      - unassign
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
       properties:
-        alarmtemplate_id:
-          description: Org-level alarm template ID used as the default for sites
-          format: uuid
-          type:
-          - string
-          - 'null'
-        allow_mist:
-          default: true
-          description: Whether Mist support access is allowed for this organization
-          type: boolean
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Epoch timestamp when the organization was created
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the organization
-        modified_time:
-          $ref: '#/components/schemas/modified_time'
-          description: Epoch timestamp when the organization was last modified
-        msp_id:
-          $ref: '#/components/schemas/msp_id'
-          description: Managed service provider account that owns this organization, when applicable
-        msp_logo_url:
-          description: logo uploaded by the MSP with advanced tier, only present if provided
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-          - https://example.com/logo/b9d42c2e-88ee-41f8-b798-f009ce7fe909.jpeg
-          format: uri
-          readOnly: true
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
-        msp_name:
-          description: Name of the msp the org belongs to
-          examples:
-          - MSP
-          readOnly: true
-          type: string
-        name:
-          description: Display name of the organization
-          examples:
-          - Org
-          type: string
-        orggroup_ids:
-          $ref: '#/components/schemas/orggroup_ids'
-          description: Organization group IDs that include this organization
-        session_expiry:
-          default: 1440
-          description: Admin session lifetime for the organization, in minutes
-          format: int32
-          maximum: 20160
-          minimum: 10
-          type: integer
-      required:
-      - name
       type: object
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
-      description: OK
-    OrgsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgsArrayExample'
-          schema:
-            $ref: '#/components/schemas/org_list'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgsArrayExample'
-          schema:
-            $ref: '#/components/schemas/org_list'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    Org:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgExample'
-          schema:
-            $ref: '#/components/schemas/org'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgExample'
-          schema:
-            $ref: '#/components/schemas/org'
-      description: Org Infos
     OrgsSearch:
       content:
         application/json:
@@ -874,21 +887,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_org_search'
       description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
     HTTP404:
       content:
         application/json:
@@ -907,6 +905,23 @@ components:
           schema:
             $ref: '#/components/schemas/stats_orgs'
       description: OK
+    OK:
+      description: OK
+    OrgsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgsArrayExample'
+          schema:
+            $ref: '#/components/schemas/org_list'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgsArrayExample'
+          schema:
+            $ref: '#/components/schemas/org_list'
+      description: OK
     HTTP429:
       content:
         application/json:
@@ -922,81 +937,66 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    OrgsSearchExample:
-      value:
-        end: 1614383378.4365287
-        limit: 10
-        next: /api/v1/msps/43e96c5a-6ef6-11e6-9909-9596d1d1534f/orgs/search?end=1760601621&limit=1&search_after=%5B1760599794477%5D&start=1759996821
-        results:
-        - msp_id: d287e62f-0000-0000-0000-f2b9ba0a531f
-          name: Test Org
-          num_aps: 9
-          num_sites: 5
-          num_switches: 1
-          num_unassigned_aps: 1
-          org_id: bb1a8bf6-0000-0000-0000-8053a663cf65
-          sub_ana_required: 9
-          sub_ast_entitled: 5
-          sub_ast_required: 3
-          sub_eng_required: 3
-          sub_ex12_required: 1
-          sub_insufficient: true
-          sub_man_required: 9
-          sub_vna_entitled: 1
-          timestamp: 1614322563.513937
-          trial_enabled: false
-          usage_types:
-          - sub_eng
-        - msp_id: d287e62f-0000-0000-0000-f2b9ba0a531f
-          name: Rogue Test1
-          num_aps: 1
-          num_sites: 1
-          org_id: 0fb81690-0000-0000-0000-9596d1d1534f
-          sub_ana_entitled: 1
-          sub_ana_required: 1
-          sub_insufficient: false
-          sub_man_entitled: 1
-          sub_man_required: 1
-          timestamp: 1614309876.500955
-        start: 1613778578.4365668
-        total: 2
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    OrgsArrayExample:
-      value:
-      - alarmtemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        allow_mist: true
-        created_time: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        name: string
-        orggroup_ids:
-        - b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        session_expiry: 1440
-    OrgExample:
-      value:
-        alarmtemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        allow_mist: true
-        created_time: 0
-        id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        modified_time: 0
-        msp_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        name: string
-        orggroup_ids:
-        - b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        session_expiry: 1440
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    Org:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgExample'
+          schema:
+            $ref: '#/components/schemas/org'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgExample'
+          schema:
+            $ref: '#/components/schemas/org'
+      description: Org Infos
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

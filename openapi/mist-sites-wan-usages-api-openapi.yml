@@ -208,20 +208,20 @@ paths:
       - Sites WAN Usages
 components:
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: sort
+      name: end
       schema:
-        default: timestamp
-        examples:
-        - -site_id
         type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
+    site_id:
+      in: path
+      name: site_id
+      required: true
       schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
         type: string
     limit:
       description: Maximum number of results to return per page
@@ -231,14 +231,14 @@ components:
         default: 100
         minimum: 0
         type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
       schema:
+        default: timestamp
         examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
+        - -site_id
         type: string
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
@@ -249,32 +249,117 @@ components:
         examples:
         - 10m
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
+  responses:
+    Wan_Usages:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/search_wan_usage'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/search_wan_usage'
+      description: OK
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   schemas:
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
       type: object
     response_http401:
       additionalProperties: false
@@ -286,12 +371,6 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
     wan_usages:
       additionalProperties: false
       description: WAN usage record returned by site WAN usage searches
@@ -337,6 +416,49 @@ components:
           - tenant1
           type: string
       type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    search_wan_usage:
+      additionalProperties: false
+      description: Paginated response for WAN usage searches
+      properties:
+        end:
+          description: Upper bound timestamp of the WAN usage search window, in epoch seconds
+          type: number
+        limit:
+          description: Maximum number of WAN usage records returned by this page
+          type: integer
+        results:
+          $ref: '#/components/schemas/search_wan_usage_results'
+          description: WAN usage records returned by the search response
+        start:
+          description: Lower bound timestamp of the WAN usage search window, in epoch seconds
+          type: number
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -345,29 +467,6 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    wan_usages_count_distinct:
-      default: policy
-      description: 'enum: `mac`, `path_type`, `peer_mac`, `peer_port_id`, `policy`, `port_id`, `tenant`'
-      enum:
-      - mac
-      - path_type
-      - peer_mac
-      - peer_port_id
-      - policy
-      - port_id
-      - tenant
-      type: string
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -398,142 +497,37 @@ components:
       - start
       - total
       type: object
-    search_wan_usage:
-      additionalProperties: false
-      description: Paginated response for WAN usage searches
-      properties:
-        end:
-          description: Upper bound timestamp of the WAN usage search window, in epoch seconds
-          type: number
-        limit:
-          description: Maximum number of WAN usage records returned by this page
-          type: integer
-        results:
-          $ref: '#/components/schemas/search_wan_usage_results'
-          description: WAN usage records returned by the search response
-        start:
-          description: Lower bound timestamp of the WAN usage search window, in epoch seconds
-          type: number
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     search_wan_usage_results:
       description: WAN usage records returned by a search response
       items:
         $ref: '#/components/schemas/wan_usages'
       type: array
-  responses:
-    HTTP401:
-      content:
-        application/json:
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    Wan_Usages:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/search_wan_usage'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/search_wan_usage'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    wan_usages_count_distinct:
+      default: policy
+      description: 'enum: `mac`, `path_type`, `peer_mac`, `peer_port_id`, `policy`, `port_id`, `tenant`'
+      enum:
+      - mac
+      - path_type
+      - peer_mac
+      - peer_port_id
+      - policy
+      - port_id
+      - tenant
+      type: string
   examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     CountExample:
       value:
         distinct: string
@@ -544,6 +538,12 @@ components:
           property: string
         start: 0
         total: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'

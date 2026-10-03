@@ -198,37 +198,12 @@ paths:
       - Constants Events
 components:
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
+    const_nac_events_cert_san_upn:
+      description: Certificate Subject Alternative Name UPN values
       examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    const_alarm_definitions:
-      description: Alarm type definitions returned by the constants API
+      - - suriyas@juniper.net
       items:
-        $ref: '#/components/schemas/const_alarm_definition'
+        type: string
       type: array
     const_alarm_definition_fields:
       description: List of fields available in an alarm details payload (in REST APIs & Webhooks); e.g. `aps`, `switches`, `gateways`, `hostnames`, `ssids`, `bssids`
@@ -238,13 +213,6 @@ components:
       items:
         type: string
       type: array
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -255,14 +223,76 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http404:
+    const_alarm_definition:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Alarm type definition returned by the constants API
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        display:
+          description: Description of the alarm type
+          examples:
+          - Device offline
+          type: string
+        example:
+          additionalProperties: true
+          description: Sample alarm payload returned for this alarm type
+          examples:
+          - aps:
+            - d420b02000fa
+            count: 1
+            group: infrastructure
+            hostnames:
+            - Vendor_AP2
+            id: f70c308f-7007-4866-9ecd-0d01842979ea
+            last_seen: 1629753888
+            org_id: 09dac91f-6e73-4100-89f7-698e0fafbb1b
+            severity: warn
+            site_id: dcfb31a1-d615-4361-8c95-b9dde05aa704
+            timestamp: 1629753888
+            type: device_down
+          type: object
+        fields:
+          $ref: '#/components/schemas/const_alarm_definition_fields'
+          description: Alarm payload fields available for this alarm type
+        group:
+          description: Alarm group to which this definition belongs
+          examples:
+          - infrastructure
+          type: string
+        key:
+          description: Alarm type key used in event and alarm payloads
+          examples:
+          - device_down
+          type: string
+        marvis_suggestion_category:
+          description: Marvis defined category to which the alarm belongs
+          type: string
+        severity:
+          description: Alarm severity level for this definition
+          examples:
+          - warn
+          type: string
+      required:
+      - key
+      - display
+      - group
+      - severity
+      - fields
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
     const_event:
       additionalProperties: false
       description: Device event definition returned by the constants API
@@ -287,6 +317,28 @@ components:
       - key
       - display
       type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    const_events:
+      description: Event type definitions returned by the constants API
+      items:
+        $ref: '#/components/schemas/const_event'
+      type: array
     const_nac_event:
       additionalProperties: false
       description: NAC event example payload returned by the constants API
@@ -375,286 +427,54 @@ components:
           format: uuid
           type: string
       type: object
-    const_events:
-      description: Event type definitions returned by the constants API
+    const_alarm_definitions:
+      description: Alarm type definitions returned by the constants API
       items:
-        $ref: '#/components/schemas/const_event'
+        $ref: '#/components/schemas/const_alarm_definition'
       type: array
-    const_nac_events_cert_san_upn:
-      description: Certificate Subject Alternative Name UPN values
-      examples:
-      - - suriyas@juniper.net
-      items:
-        type: string
-      type: array
-    const_alarm_definition:
-      additionalProperties: false
-      description: Alarm type definition returned by the constants API
-      properties:
-        display:
-          description: Description of the alarm type
-          examples:
-          - Device offline
-          type: string
-        example:
-          additionalProperties: true
-          description: Sample alarm payload returned for this alarm type
-          examples:
-          - aps:
-            - d420b02000fa
-            count: 1
-            group: infrastructure
-            hostnames:
-            - Vendor_AP2
-            id: f70c308f-7007-4866-9ecd-0d01842979ea
-            last_seen: 1629753888
-            org_id: 09dac91f-6e73-4100-89f7-698e0fafbb1b
-            severity: warn
-            site_id: dcfb31a1-d615-4361-8c95-b9dde05aa704
-            timestamp: 1629753888
-            type: device_down
-          type: object
-        fields:
-          $ref: '#/components/schemas/const_alarm_definition_fields'
-          description: Alarm payload fields available for this alarm type
-        group:
-          description: Alarm group to which this definition belongs
-          examples:
-          - infrastructure
-          type: string
-        key:
-          description: Alarm type key used in event and alarm payloads
-          examples:
-          - device_down
-          type: string
-        marvis_suggestion_category:
-          description: Marvis defined category to which the alarm belongs
-          type: string
-        severity:
-          description: Alarm severity level for this definition
-          examples:
-          - warn
-          type: string
-      required:
-      - key
-      - display
-      - group
-      - severity
-      - fields
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
     const_nac_events:
       description: NAC event example payloads returned by the constants API
       items:
         $ref: '#/components/schemas/const_nac_event'
       type: array
-    response_http403:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-  responses:
-    ConstOtherDeviceEvents:
-      content:
-        application/json:
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/ConstOtherDeviceEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstOtherDeviceEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-      description: List of Other Device Events definitions
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    ConstClientEvents:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstClientEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstClientEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-      description: List of Client Events definitions
-    ConstAlarmDefinitions:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstAlarmDefinitionsExample'
-          schema:
-            $ref: '#/components/schemas/const_alarm_definitions'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstAlarmDefinitionsExample'
-          schema:
-            $ref: '#/components/schemas/const_alarm_definitions'
-      description: List of Alarm Definitions
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    ConstSystemEvents:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstSystemEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstSystemEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-      description: List of System Events definitions
-    ConstNacEvents:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstNacEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_nac_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstNacEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_nac_events'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    ConstMxEdgeEvents:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstMxEdgeEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstMxEdgeEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-      description: List of MxEdge Events definitions
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    ConstDeviceEvents:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstDeviceEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ConstDeviceEventsExample'
-          schema:
-            $ref: '#/components/schemas/const_events'
-      description: List of Device Events Definitions
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   examples:
-    ConstMxEdgeEventsExample:
+    HTTP401Example:
       value:
-      - description: Config change on ME was triggered as a result of change made by user
-        display: ME Config changed by user
-        example:
-          audit_id: e9a88814-fa81-5bdc-34b0-84e8735420e5
-          mxcluster_id: ed4665ed-c9ad-4835-8ca5-dda642765ad3
-          mxedge_id: 387804a7-3474-85ce-15a2-f9a9684c9c9
-          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
-          service: mxagent
-          site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
-          timestamp: 1552408871
-          type: ME_CONFIG_CHANGED_BY_USER
-        key: ME_CONFIG_CHANGED_BY_USER
-    HTTP429Example:
+        detail: Authentication credentials were not provided.
+    ConstClientEventsExample:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+      - display: 11r Association
+        key: CLIENT_AUTH_ASSOCIATION_11R
+    ConstSystemEventsExample:
+      value:
+      - display: AP Disconnect
+        group: ap_health
+        key: ap_disconnected
     ConstOtherDeviceEventsExample:
       value:
       - display: Connected to NCM
@@ -668,25 +488,6 @@ components:
           type: CELLULAR_EDGE_CONNECTED_TO_NCM
           vendor: cradlepoint
         key: CELLULAR_EDGE_CONNECTED_TO_NCM
-    ConstClientEventsExample:
-      value:
-      - display: 11r Association
-        key: CLIENT_AUTH_ASSOCIATION_11R
-    ConstDeviceEventsExample:
-      value:
-      - description: AP was assigned to a site
-        display: AP Assigned
-        example:
-          ap: 5c5b35000001
-          audit_id: e9a88814-fa81-5bdc-34b0-84e8735420e5
-          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
-          site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
-          timestamp: 1552408871
-          type: AP_ASSIGNED
-        key: AP_ASSIGNED
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
     ConstNacEventsExample:
       value:
       - ap: 5c5b355008c0
@@ -708,17 +509,26 @@ components:
         type: NAC_CLIENT_CERT_CHECK_SUCCESS
         username: suriyas@juniper.net
         wcid: b43637b0-f0d9-0a1d-1ec2-73c394a9f679
-    ConstSystemEventsExample:
+    ConstMxEdgeEventsExample:
       value:
-      - display: AP Disconnect
-        group: ap_health
-        key: ap_disconnected
+      - description: Config change on ME was triggered as a result of change made by user
+        display: ME Config changed by user
+        example:
+          audit_id: e9a88814-fa81-5bdc-34b0-84e8735420e5
+          mxcluster_id: ed4665ed-c9ad-4835-8ca5-dda642765ad3
+          mxedge_id: 387804a7-3474-85ce-15a2-f9a9684c9c9
+          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+          service: mxagent
+          site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          timestamp: 1552408871
+          type: ME_CONFIG_CHANGED_BY_USER
+        key: ME_CONFIG_CHANGED_BY_USER
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    HTTP400Example:
+    HTTP429Example:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     ConstAlarmDefinitionsExample:
       value:
       - display: Device offline
@@ -743,6 +553,196 @@ components:
         key: device_down
         marvis_suggestion_category: string
         severity: warn
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    ConstDeviceEventsExample:
+      value:
+      - description: AP was assigned to a site
+        display: AP Assigned
+        example:
+          ap: 5c5b35000001
+          audit_id: e9a88814-fa81-5bdc-34b0-84e8735420e5
+          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+          site_id: 4ac1dcf4-9d8b-7211-65c4-057819f0862b
+          timestamp: 1552408871
+          type: AP_ASSIGNED
+        key: AP_ASSIGNED
+  responses:
+    ConstMxEdgeEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstMxEdgeEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstMxEdgeEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+      description: List of MxEdge Events definitions
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    ConstSystemEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstSystemEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstSystemEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+      description: List of System Events definitions
+    ConstClientEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstClientEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstClientEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+      description: List of Client Events definitions
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    ConstNacEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstNacEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_nac_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstNacEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_nac_events'
+      description: Example response
+    ConstAlarmDefinitions:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstAlarmDefinitionsExample'
+          schema:
+            $ref: '#/components/schemas/const_alarm_definitions'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstAlarmDefinitionsExample'
+          schema:
+            $ref: '#/components/schemas/const_alarm_definitions'
+      description: List of Alarm Definitions
+    ConstOtherDeviceEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstOtherDeviceEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstOtherDeviceEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+      description: List of Other Device Events definitions
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    ConstDeviceEvents:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstDeviceEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ConstDeviceEventsExample'
+          schema:
+            $ref: '#/components/schemas/const_events'
+      description: List of Device Events Definitions
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

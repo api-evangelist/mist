@@ -232,29 +232,17 @@ paths:
       - Orgs Clients - Wired
 components:
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
+      name: end
       schema:
         type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
       schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
         type: string
     limit:
       description: Maximum number of results to return per page
@@ -264,11 +252,23 @@ components:
         default: 100
         minimum: 0
         type: integer
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
+    org_id:
+      in: path
+      name: org_id
+      required: true
       schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
         type: string
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
@@ -279,78 +279,13 @@ components:
         examples:
         - 10m
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    wired_client_response_device_mac:
-      description: Switch or gateway MAC addresses where the wired client was observed
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     count_result:
       additionalProperties:
         type: string
@@ -362,13 +297,6 @@ components:
       required:
       - count
       type: object
-    wired_client_response_device_mac_port:
-      description: Per-port switch or gateway observations for a wired client
-      items:
-        $ref: '#/components/schemas/wired_client_response_device_mac_port_item'
-      readOnly: true
-      type: array
-      uniqueItems: true
     wired_client_response_port_id:
       description: Switch or gateway port identifiers where a wired client was observed
       items:
@@ -376,62 +304,36 @@ components:
         type: string
       readOnly: true
       type: array
-    org_wired_clients_count_distinct:
-      default: mac
-      description: 'enum: `device_mac`, `mac`, `port_id`, `site_id`, `type`, `vlan`'
-      enum:
-      - device_mac
-      - mac
-      - port_id
-      - site_id
-      - type
-      - vlan
-      type: string
-    wired_client_dhcp_client_options:
-      description: DHCP options observed for a wired client
+    search_wired_client_results:
+      description: Wired client records returned by a search response
       items:
-        $ref: '#/components/schemas/dhcp_client_option'
+        $ref: '#/components/schemas/wired_client_response'
       type: array
-    wired_client_response_ip:
-      description: Client IP addresses observed for a wired client
+      uniqueItems: true
+    wired_client_response_vlan:
+      description: Client VLAN IDs observed for a wired client
+      items:
+        readOnly: true
+        type: integer
+      readOnly: true
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    wired_client_response_device_mac:
+      description: Switch or gateway MAC addresses where the wired client was observed
       items:
         readOnly: true
         type: string
       readOnly: true
       type: array
-    wired_client_response_device_mac_port_item:
-      additionalProperties: false
-      description: Switch or gateway port observation for a wired client
-      properties:
-        device_mac:
-          description: Switch or gateway MAC address for this wired client observation
-          minLength: 1
-          type: string
-        ip:
-          description: Client IP address observed for this port entry
-          readOnly: true
-          type: string
-        port_id:
-          description: Interface identifier where the wired client was observed
-          readOnly: true
-          type: string
-        port_parent:
-          description: Parent interface or port group associated with this port entry
-          type: string
-        start:
-          description: Time when this wired client observation began
-          readOnly: true
-          type: string
-        vlan:
-          description: Client VLAN identifier observed for this port entry
-          readOnly: true
-          type: integer
-        when:
-          description: Time when this wired client port entry was recorded
-          readOnly: true
-          type: string
-      readOnly: true
-      type: object
     wired_client_response:
       additionalProperties: false
       description: Wired client record returned by a wired client search
@@ -503,47 +405,27 @@ components:
           $ref: '#/components/schemas/wired_client_response_vlan'
           description: Client VLAN identifiers observed for the wired client
       type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    response_count:
-      additionalProperties: false
-      description: Distinct count response for time-bounded search results
-      properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
-    search_wired_client_results:
-      description: Wired client records returned by a search response
+    count_results:
+      description: List of count result rows
       items:
-        $ref: '#/components/schemas/wired_client_response'
+        $ref: '#/components/schemas/count_result'
       type: array
       uniqueItems: true
+    wired_client_dhcp_client_options:
+      description: DHCP options observed for a wired client
+      items:
+        $ref: '#/components/schemas/dhcp_client_option'
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     dhcp_client_option:
       additionalProperties: false
       description: DHCP client option observed in a DHCP packet
@@ -558,6 +440,72 @@ components:
           examples:
           - DHCPREQUEST
           type: string
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    org_wired_clients_count_distinct:
+      default: mac
+      description: 'enum: `device_mac`, `mac`, `port_id`, `site_id`, `type`, `vlan`'
+      enum:
+      - device_mac
+      - mac
+      - port_id
+      - site_id
+      - type
+      - vlan
+      type: string
+    wired_client_response_device_mac_port_item:
+      additionalProperties: false
+      description: Switch or gateway port observation for a wired client
+      properties:
+        device_mac:
+          description: Switch or gateway MAC address for this wired client observation
+          minLength: 1
+          type: string
+        ip:
+          description: Client IP address observed for this port entry
+          readOnly: true
+          type: string
+        port_id:
+          description: Interface identifier where the wired client was observed
+          readOnly: true
+          type: string
+        port_parent:
+          description: Parent interface or port group associated with this port entry
+          type: string
+        start:
+          description: Time when this wired client observation began
+          readOnly: true
+          type: string
+        vlan:
+          description: Client VLAN identifier observed for this port entry
+          readOnly: true
+          type: integer
+        when:
+          description: Time when this wired client port entry was recorded
+          readOnly: true
+          type: string
+      readOnly: true
       type: object
     search_wired_client:
       additionalProperties: false
@@ -588,133 +536,79 @@ components:
       - start
       - total
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    wired_client_response_vlan:
-      description: Client VLAN IDs observed for a wired client
+    wired_client_response_ip:
+      description: Client IP addresses observed for a wired client
       items:
         readOnly: true
-        type: integer
+        type: string
       readOnly: true
       type: array
-  responses:
-    HTTP401:
-      content:
-        application/json:
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    wired_client_response_device_mac_port:
+      description: Per-port switch or gateway observations for a wired client
+      items:
+        $ref: '#/components/schemas/wired_client_response_device_mac_port_item'
+      readOnly: true
+      type: array
+      uniqueItems: true
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    WiredClientsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WiredClientsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_wired_client'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WiredClientsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_wired_client'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     CountExample:
       value:
         distinct: string
@@ -725,9 +619,12 @@ components:
           property: string
         start: 0
         total: 0
-    HTTP400Example:
+    HTTP403Example:
       value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        detail: You do not have permission to perform this action.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     WiredClientsSearchExample:
       value:
         end: 1648529800.8221116
@@ -770,6 +667,109 @@ components:
           - 1001
         start: 1648443400.8221116
         total: 1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  responses:
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    WiredClientsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WiredClientsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_wired_client'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WiredClientsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_wired_client'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

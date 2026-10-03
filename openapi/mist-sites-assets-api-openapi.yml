@@ -274,7 +274,112 @@ paths:
       tags:
       - Sites Assets
 components:
+  parameters:
+    asset_id:
+      in: path
+      name: asset_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
   schemas:
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    assets_import_file:
+      additionalProperties: false
+      description: CSV file upload payload for importing BLE assets
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          description: CSV file containing asset records to import
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    assets_import_json:
+      description: BLE asset records supplied in a JSON import payload
+      examples:
+      - - mac: a31eb04e1c38
+          name: Expensive Instrument
+        - mac: a31eb04e1c37
+          name: Cheap Instrument
+      items:
+        $ref: '#/components/schemas/asset_import'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     image_import:
       additionalProperties: false
       description: Multipart image upload payload
@@ -289,23 +394,47 @@ components:
       required:
       - file
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
       readOnly: true
-      type: string
-    response_http429:
+      type: number
+    asset_import:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Asset record supplied in a JSON import payload
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        mac:
+          description: Bluetooth MAC address used to identify the imported BLE asset
+          minLength: 1
+          type: string
+        name:
+          description: Display name for the imported BLE asset
+          minLength: 1
+          type: string
+      required:
+      - name
+      - mac
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    import_site_assets_upsert:
+      default: 'False'
+      description: 'Whether site asset import should update matching existing assets. enum: `False`, `True`'
+      enum:
+      - 'False'
+      - 'True'
+      type: string
+    assets:
+      description: List of named BLE asset records
+      items:
+        $ref: '#/components/schemas/asset'
+      type: array
     asset:
       description: Named Bluetooth Low Energy asset record
       properties:
@@ -346,6 +475,13 @@ components:
       - name
       - mac
       type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
     response_http400:
       additionalProperties: false
       description: Standard HTTP 400 bad request error response
@@ -356,125 +492,7 @@ components:
           - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    asset_import:
-      additionalProperties: false
-      description: Asset record supplied in a JSON import payload
-      properties:
-        mac:
-          description: Bluetooth MAC address used to identify the imported BLE asset
-          minLength: 1
-          type: string
-        name:
-          description: Display name for the imported BLE asset
-          minLength: 1
-          type: string
-      required:
-      - name
-      - mac
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    assets:
-      description: List of named BLE asset records
-      items:
-        $ref: '#/components/schemas/asset'
-      type: array
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    import_site_assets_upsert:
-      default: 'False'
-      description: 'Whether site asset import should update matching existing assets. enum: `False`, `True`'
-      enum:
-      - 'False'
-      - 'True'
-      type: string
-    assets_import_file:
-      additionalProperties: false
-      description: CSV file upload payload for importing BLE assets
-      properties:
-        file:
-          contentMediaType: application/octet-stream
-          description: CSV file containing asset records to import
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    assets_import_json:
-      description: BLE asset records supplied in a JSON import payload
-      examples:
-      - - mac: a31eb04e1c38
-          name: Expensive Instrument
-        - mac: a31eb04e1c37
-          name: Cheap Instrument
-      items:
-        $ref: '#/components/schemas/asset_import'
-      minItems: 1
-      type: array
-      uniqueItems: true
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
-      description: OK
     Asset:
       content:
         application/json:
@@ -490,30 +508,6 @@ components:
           schema:
             $ref: '#/components/schemas/asset'
       description: OK
-    AssetsArray:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/assets'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/assets'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
     HTTP404:
       content:
         application/json:
@@ -523,6 +517,17 @@ components:
           schema:
             $ref: '#/components/schemas/response_http404'
       description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    AssetsArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/assets'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/assets'
+      description: OK
+    OK:
+      description: OK
     HTTP429:
       content:
         application/json:
@@ -538,6 +543,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -553,42 +573,25 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-  parameters:
-    asset_id:
-      in: path
-      name: asset_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     AssetExample:
       value:
         created_time: 0
@@ -603,9 +606,6 @@ components:
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.

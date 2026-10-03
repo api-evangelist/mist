@@ -114,7 +114,172 @@ paths:
       tags:
       - Orgs Integration Juniper
 components:
+  examples:
+    JuniperLinkAccountSuccessExample:
+      value:
+        account:
+          linked_by: John Smith (john@abccorp.com)
+          name: ABC Corp
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    JuniperLinkAccountFailedExample:
+      value:
+        detail: Account[ABC Corp] already linked
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  responses:
+    JuniperLinkAccountSuccess:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
+          schema:
+            $ref: '#/components/schemas/account_juniper_info'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
+          schema:
+            $ref: '#/components/schemas/account_juniper_info'
+      description: Account linked
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    JuniperLinkAccountFailed:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Account already linked
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   schemas:
+    response_detail_string:
+      additionalProperties: false
+      description: Response containing a human-readable detail message
+      properties:
+        detail:
+          description: Human-readable detail message returned by the API
+          type: string
+      type: object
+    account_juniper_info:
+      description: Linked Juniper account information returned by the integration
+      properties:
+        accounts:
+          $ref: '#/components/schemas/juniper_accounts'
+          description: List of linked Juniper account records
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    juniper_account:
+      additionalProperties: false
+      description: Linked Juniper account available to the organization
+      properties:
+        linked_by:
+          description: User who linked this Juniper account
+          examples:
+          - John Smith (john@abccorp.com)
+          readOnly: true
+          type: string
+        name:
+          description: Display name of the linked Juniper account
+          examples:
+          - ABC Corp
+          readOnly: true
+          type: string
+      type: object
     response_http429:
       additionalProperties: false
       description: Standard HTTP 429 rate limit error response
@@ -125,14 +290,14 @@ components:
           - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-    response_http400:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 403 permission error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the permission error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - You do not have permission to perform this action.
           type: string
       type: object
     account_juniper_config:
@@ -153,16 +318,6 @@ components:
       - username
       - password
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -171,176 +326,21 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    response_detail_string:
-      additionalProperties: false
-      description: Response containing a human-readable detail message
-      properties:
-        detail:
-          description: Human-readable detail message returned by the API
-          type: string
-      type: object
-    juniper_account:
-      additionalProperties: false
-      description: Linked Juniper account available to the organization
-      properties:
-        linked_by:
-          description: User who linked this Juniper account
-          examples:
-          - John Smith (john@abccorp.com)
-          readOnly: true
-          type: string
-        name:
-          description: Display name of the linked Juniper account
-          examples:
-          - ABC Corp
-          readOnly: true
-          type: string
-      type: object
-    account_juniper_info:
-      description: Linked Juniper account information returned by the integration
-      properties:
-        accounts:
-          $ref: '#/components/schemas/juniper_accounts'
-          description: List of linked Juniper account records
-      type: object
     juniper_accounts:
       description: Linked Juniper accounts available to the organization
       items:
         $ref: '#/components/schemas/juniper_account'
       type: array
-    response_http403:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the bad request error
           examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-  responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
-      description: OK
-    JuniperLinkAccountSuccess:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
-          schema:
-            $ref: '#/components/schemas/account_juniper_info'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/JuniperLinkAccountSuccessExample'
-          schema:
-            $ref: '#/components/schemas/account_juniper_info'
-      description: Account linked
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    JuniperLinkAccountFailed:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/JuniperLinkAccountFailedExample'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-      description: Account already linked
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-  examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    JuniperLinkAccountSuccessExample:
-      value:
-        account:
-          linked_by: John Smith (john@abccorp.com)
-          name: ABC Corp
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    JuniperLinkAccountFailedExample:
-      value:
-        detail: Account[ABC Corp] already linked
   parameters:
     org_id:
       in: path

@@ -296,75 +296,23 @@ paths:
       tags:
       - Orgs SDK Invites
 components:
-  examples:
-    SdkinviteExample:
-      value:
-        created_time: 1428954000
-        enabled: true
-        expire_time: 1428954000
-        id: 5034b980-b49e-501c-66e0-9de4c38f18a2
-        name: Macy's
-        quota: -1
-    SdkinvitesArrayExample:
-      value:
-      - created_time: 1428954000
-        enabled: true
-        expire_time: 1428954000
-        id: 5034b980-b49e-501c-66e0-9de4c38f18a2
-        name: Macy's
-        quota: -1
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    MobileVerifySecretExample:
-      value:
-        name: Macy's
-        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        secret: device-specific-secret
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
       format: uuid
       readOnly: true
       type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    sdk_invite_sms:
+      description: Request body for sending an SDK invite by SMS
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        number:
+          description: Destination phone number for the SDK invite SMS
           type: string
+      required:
+      - number
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -374,24 +322,6 @@ components:
           examples:
           - Authentication credentials were not provided.
           type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    email_string:
-      description: Request body containing an email address
-      properties:
-        email:
-          description: Request email address provided in the payload
-          format: email
-          type: string
-      required:
-      - email
       type: object
     sdkinvite:
       description: SDK invite configuration used to onboard mobile SDK clients to an organization
@@ -431,35 +361,28 @@ components:
       required:
       - name
       type: object
-    device_id_string:
-      description: Request body containing a device identifier
-      properties:
-        device_id:
-          description: Device identifier supplied by the request
-          format: uuid
-          type: string
-      required:
-      - device_id
-      type: object
-    sdkinvite_list:
-      description: SDK invite configurations returned by list operations
-      items:
-        $ref: '#/components/schemas/sdkinvite'
-      type: array
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    created_time:
+      description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
-    sdk_invite_sms:
-      description: Request body for sending an SDK invite by SMS
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
       properties:
-        number:
-          description: Destination phone number for the SDK invite SMS
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-      required:
-      - number
       type: object
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -470,18 +393,44 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    created_time:
-      description: When the object has been created, in epoch
+    email_string:
+      description: Request body containing an email address
+      properties:
+        email:
+          description: Request email address provided in the payload
+          format: email
+          type: string
+      required:
+      - email
+      type: object
+    device_id_string:
+      description: Request body containing a device identifier
+      properties:
+        device_id:
+          description: Device identifier supplied by the request
+          format: uuid
+          type: string
+      required:
+      - device_id
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
       format: double
       readOnly: true
       type: number
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
+    sdkinvite_list:
+      description: SDK invite configurations returned by list operations
+      items:
+        $ref: '#/components/schemas/sdkinvite'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     response_mobile_verify_secret:
       additionalProperties: false
       description: Mobile SDK invite verification response
@@ -501,39 +450,82 @@ components:
       - org_id
       - secret
       type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    SdkinviteExample:
+      value:
+        created_time: 1428954000
+        enabled: true
+        expire_time: 1428954000
+        id: 5034b980-b49e-501c-66e0-9de4c38f18a2
+        name: Macy's
+        quota: -1
+    SdkinvitesArrayExample:
+      value:
+      - created_time: 1428954000
+        enabled: true
+        expire_time: 1428954000
+        id: 5034b980-b49e-501c-66e0-9de4c38f18a2
+        name: Macy's
+        quota: -1
+    MobileVerifySecretExample:
+      value:
+        name: Macy's
+        org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        secret: device-specific-secret
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    HTTP401:
+    Sdkinvite:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/SdkinviteExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
+            $ref: '#/components/schemas/sdkinvite'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/SdkinviteExample'
           schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
+            $ref: '#/components/schemas/sdkinvite'
       description: OK
-    HTTP400:
+    HTTP404:
       content:
         application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http400'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     SdkinvitesArray:
       content:
         application/json:
@@ -562,6 +554,8 @@ components:
             description: File
             type: string
       description: OK
+    OK:
+      description: OK
     MobileVerifySecret:
       content:
         application/json:
@@ -577,15 +571,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_mobile_verify_secret'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     HTTP429:
       content:
         application/json:
@@ -601,6 +586,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
     HTTP403:
       content:
         application/json:
@@ -616,25 +616,34 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
-    Sdkinvite:
+    HTTP400:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/SdkinviteExample'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/sdkinvite'
+            $ref: '#/components/schemas/response_http400'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/SdkinviteExample'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/sdkinvite'
-      description: OK
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   parameters:
     org_id:
       in: path
       name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    sdkinvite_id:
+      in: path
+      name: sdkinvite_id
       required: true
       schema:
         examples:
@@ -646,15 +655,6 @@ components:
       name: secret
       required: true
       schema:
-        type: string
-    sdkinvite_id:
-      in: path
-      name: sdkinvite_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
         type: string
   securitySchemes:
     apiToken:

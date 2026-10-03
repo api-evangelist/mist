@@ -262,154 +262,7 @@ paths:
       tags:
       - Sites Guests
 components:
-  examples:
-    GuestExample:
-      value:
-        authorized: true
-        authorized_expiring_time: 0
-        authorized_time: 0
-        company: string
-        email: user@example.com
-        field1: string
-        field2: string
-        field3: string
-        field4: string
-        mac: string
-        minutes: 0
-        name: string
-    GuestExample2:
-      value:
-        authorized: true
-        authorized_expiring_time: 1480704955
-        authorized_time: 1480704355
-        company: abc
-        email: john@abc.com
-        field1: xxx
-        mac: 5684dae9ac8b
-        name: John Smith
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    GuestsArrayExample2:
-      value:
-      - authorized: true
-        authorized_expiring_time: 1480704955
-        authorized_time: 1480704355
-        company: abc
-        email: john@abc.com
-        field1: xxx
-        mac: 5684dae9ac8b
-        name: John Smith
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    GuestsSearchExample:
-      value:
-        end: 1531862583
-        limit: 2
-        next: /api/v1/sites/8aaba0aa-09cc-44bd-9709-33b98040550c/guests/search?wlan_id=88ffe630-95b8-11e8-b294-346895ed1b7d&end=1531855849.000&limit=2&start=1531776183.0
-        results:
-        - ap: 5c5b350e0001
-          auth_method: passphrase
-          authorized_expiring_time: 1531810258.186273
-          authorized_time: 1531782218
-          company: mistsystems
-          email: user@mistsys.com
-          name: john
-          ssid: openNet
-          timestamp: 1531782218
-        - ap: 5c5b350e0001
-          auth_method: facebook
-          authorized_expiring_time: 1531810821.145
-          authorized_time: 1531782632
-          company: xyz inc.
-          email: cool_user@yahoo.com
-          name: John White
-          ssid: openNet
-          timestamp: 1531782632
-        start: 1531776183
-        total: 14
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-    GuestsArrayExample:
-      value:
-      - authorized: true
-        authorized_expiring_time: 0
-        authorized_time: 0
-        company: string
-        email: user@example.com
-        field1: string
-        field2: string
-        field3: string
-        field4: string
-        mac: string
-        minutes: 0
-        name: string
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    guest_mac:
-      in: path
-      name: guest_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
     end:
       description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
@@ -422,33 +275,57 @@ components:
       name: search_after
       schema:
         type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    guest_mac:
+      in: path
+      name: guest_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
   schemas:
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_guest_search_results:
-      description: Guest authorization records returned by a search response
-      items:
-        $ref: '#/components/schemas/guest'
-      type: array
-      uniqueItems: true
     guest:
       description: Guest authorization record at site scope
       properties:
@@ -537,38 +414,6 @@ components:
           readOnly: true
           type: string
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    site_guests_count_distinct:
-      default: auth_method
-      description: 'enum: `auth_method`, `company`, `ssid`'
-      enum:
-      - auth_method
-      - company
-      - ssid
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     count_result:
       additionalProperties:
         type: string
@@ -580,40 +425,42 @@ components:
       required:
       - count
       type: object
+    response_guest_search_results:
+      description: Guest authorization records returned by a search response
+      items:
+        $ref: '#/components/schemas/guest'
+      type: array
+      uniqueItems: true
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
     guests:
       description: List of guest authorization records
       items:
         $ref: '#/components/schemas/guest'
       type: array
-    response_count:
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    response_http429:
       additionalProperties: false
-      description: Distinct count response for time-bounded search results
+      description: Standard HTTP 429 rate limit error response
       properties:
-        distinct:
-          description: Field used to group the count results
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
-        end:
-          description: Search window end timestamp for the count request, in epoch seconds
-          type: integer
-        limit:
-          description: Maximum number of distinct count results requested
-          type: integer
-        results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
-        start:
-          description: Search window start timestamp for the count request, in epoch seconds
-          type: integer
-        total:
-          description: Number of distinct result buckets returned
-          type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
       type: object
     response_guest_search:
       additionalProperties: false
@@ -654,22 +501,160 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
+    site_guests_count_distinct:
+      default: auth_method
+      description: 'enum: `auth_method`, `company`, `ssid`'
+      enum:
+      - auth_method
+      - company
+      - ssid
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+  examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+    GuestsArrayExample:
+      value:
+      - authorized: true
+        authorized_expiring_time: 0
+        authorized_time: 0
+        company: string
+        email: user@example.com
+        field1: string
+        field2: string
+        field3: string
+        field4: string
+        mac: string
+        minutes: 0
+        name: string
+    GuestsArrayExample2:
+      value:
+      - authorized: true
+        authorized_expiring_time: 1480704955
+        authorized_time: 1480704355
+        company: abc
+        email: john@abc.com
+        field1: xxx
+        mac: 5684dae9ac8b
+        name: John Smith
+    GuestExample:
+      value:
+        authorized: true
+        authorized_expiring_time: 0
+        authorized_time: 0
+        company: string
+        email: user@example.com
+        field1: string
+        field2: string
+        field3: string
+        field4: string
+        mac: string
+        minutes: 0
+        name: string
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    GuestsSearchExample:
+      value:
+        end: 1531862583
+        limit: 2
+        next: /api/v1/sites/8aaba0aa-09cc-44bd-9709-33b98040550c/guests/search?wlan_id=88ffe630-95b8-11e8-b294-346895ed1b7d&end=1531855849.000&limit=2&start=1531776183.0
+        results:
+        - ap: 5c5b350e0001
+          auth_method: passphrase
+          authorized_expiring_time: 1531810258.186273
+          authorized_time: 1531782218
+          company: mistsystems
+          email: user@mistsys.com
+          name: john
+          ssid: openNet
+          timestamp: 1531782218
+        - ap: 5c5b350e0001
+          auth_method: facebook
+          authorized_expiring_time: 1531810821.145
+          authorized_time: 1531782632
+          company: xyz inc.
+          email: cool_user@yahoo.com
+          name: John White
+          ssid: openNet
+          timestamp: 1531782632
+        start: 1531776183
+        total: 14
+    GuestExample2:
+      value:
+        authorized: true
+        authorized_expiring_time: 1480704955
+        authorized_time: 1480704355
+        company: abc
+        email: john@abc.com
+        field1: xxx
+        mac: 5684dae9ac8b
+        name: John Smith
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
     Count:
       content:
         application/json:
@@ -685,23 +670,15 @@ components:
           schema:
             $ref: '#/components/schemas/response_count'
       description: Result of Count
-    OK:
-      description: OK
-    HTTP400:
+    HTTP404:
       content:
         application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http400'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     GuestsArray:
       content:
         application/json:
@@ -721,45 +698,8 @@ components:
           schema:
             $ref: '#/components/schemas/guests'
       description: OK
-    GuestsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/GuestsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_guest_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/GuestsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_guest_search'
+    OK:
       description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
     Guest:
       content:
         application/json:
@@ -794,6 +734,66 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    GuestsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/GuestsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_guest_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/GuestsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_guest_search'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

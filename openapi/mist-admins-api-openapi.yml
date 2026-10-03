@@ -182,25 +182,80 @@ paths:
       tags:
       - Admins
 components:
+  examples:
+    InviteVerifyNotFoundInvalidSecret:
+      value:
+        detail: invalid secret
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    VerifyRegisterTokenInvalidNotFound:
+      value:
+        detail: Not found.
+    RecaptchaHcaptcha:
+      value:
+        flavor: hcaptcha
+        required: true
+        sitekey: 6LdAewsTAAAAAE25XKQhPEQ2FiMTft-WrZXQ5NUd
+    VerifyRegisterTokenAlreadyRegisteredVerificationExpired:
+      value:
+        detail: expired
+    InviteVerifyNotFoundInviteCreatedBySelf:
+      value:
+        detail: invite created by self
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    VerifyRegisterTokenSuccessSuccess:
+      value:
+        return_to: https://mist.zendesk.com/hc/quickstart.pdf
+    RecaptchaGoogle:
+      value:
+        flavor: google
+        required: true
+        sitekey: 6LdAewsTAAAAAE25XKQhPEQ2FiMTft-WrZXQ5NUd
+    VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered:
+      value:
+        detail: already registered
+    VerifyRegisterTokenSuccesssuccessbutfailedtoapplytheinvitationautomatically:
+      value:
+        detail: password policy not met
+        invite_not_applied: true
+        min_length: 8
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    token:
+      in: path
+      name: token
+      required: true
+      schema:
+        type: string
   schemas:
-    response_http429:
+    response_detail_string:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Response containing a human-readable detail message
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          description: Human-readable detail message returned by the API
           type: string
       type: object
-    response_http400:
+    recaptcha:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: CAPTCHA settings returned for admin registration
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        flavor:
+          $ref: '#/components/schemas/recaptcha_flavor'
+          description: CAPTCHA provider used for registration, such as Google reCAPTCHA or hCaptcha
+        required:
+          description: Whether CAPTCHA verification is required for registration
+          type: boolean
+        sitekey:
+          description: Public site key used to render the selected CAPTCHA provider
           type: string
       type: object
     response_http401:
@@ -213,48 +268,6 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_detail_string:
-      additionalProperties: false
-      description: Response containing a human-readable detail message
-      properties:
-        detail:
-          description: Human-readable detail message returned by the API
-          type: string
-      type: object
-    response_verify_token_success:
-      additionalProperties: false
-      description: Successful registration token verification response
-      properties:
-        detail:
-          description: Result message returned with the verification response
-          type: string
-        invite_not_applied:
-          description: Whether the invitation was verified but not applied automatically
-          type: boolean
-        min_length:
-          description: Required minimum password length from the applicable password policy
-          type: integer
-        return_to:
-          description: URL to redirect the user to after successful registration verification
-          type: string
-      type: object
-    recaptcha_flavor:
-      default: google
-      description: 'CAPTCHA provider flavor. enum: `google`, `hcaptcha`'
-      enum:
-      - google
-      - hcaptcha
-      examples:
-      - hcaptcha
-      type: string
     admin_invite:
       description: Administrator invitation and initial registration payload
       properties:
@@ -352,6 +365,42 @@ components:
       - password
       - recaptcha
       type: object
+    response_verify_token_success:
+      additionalProperties: false
+      description: Successful registration token verification response
+      properties:
+        detail:
+          description: Result message returned with the verification response
+          type: string
+        invite_not_applied:
+          description: Whether the invitation was verified but not applied automatically
+          type: boolean
+        min_length:
+          description: Required minimum password length from the applicable password policy
+          type: integer
+        return_to:
+          description: URL to redirect the user to after successful registration verification
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    recaptcha_flavor:
+      default: google
+      description: 'CAPTCHA provider flavor. enum: `google`, `hcaptcha`'
+      enum:
+      - google
+      - hcaptcha
+      examples:
+      - hcaptcha
+      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -362,89 +411,68 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    recaptcha:
+    response_http404:
       additionalProperties: false
-      description: CAPTCHA settings returned for admin registration
+      description: Standard HTTP 404 not found error response
       properties:
-        flavor:
-          $ref: '#/components/schemas/recaptcha_flavor'
-          description: CAPTCHA provider used for registration, such as Google reCAPTCHA or hCaptcha
-        required:
-          description: Whether CAPTCHA verification is required for registration
-          type: boolean
-        sitekey:
-          description: Public site key used to render the selected CAPTCHA provider
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-  examples:
-    VerifyRegisterTokenSuccesssuccessbutfailedtoapplytheinvitationautomatically:
-      value:
-        detail: password policy not met
-        invite_not_applied: true
-        min_length: 8
-    InviteVerifyNotFoundInvalidSecret:
-      value:
-        detail: invalid secret
-    RecaptchaGoogle:
-      value:
-        flavor: google
-        required: true
-        sitekey: 6LdAewsTAAAAAE25XKQhPEQ2FiMTft-WrZXQ5NUd
-    VerifyRegisterTokenInvalidNotFound:
-      value:
-        detail: Not found.
-    VerifyRegisterTokenAlreadyRegisteredVerificationExpired:
-      value:
-        detail: expired
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    RecaptchaHcaptcha:
-      value:
-        flavor: hcaptcha
-        required: true
-        sitekey: 6LdAewsTAAAAAE25XKQhPEQ2FiMTft-WrZXQ5NUd
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    InviteVerifyNotFoundInviteCreatedBySelf:
-      value:
-        detail: invite created by self
-    VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered:
-      value:
-        detail: already registered
-    VerifyRegisterTokenSuccessSuccess:
-      value:
-        return_to: https://mist.zendesk.com/hc/quickstart.pdf
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  parameters:
-    token:
-      in: path
-      name: token
-      required: true
-      schema:
-        type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   responses:
-    HTTP401:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    InviteVerifyNotFound:
+      content:
+        application/json:
+          examples:
+            Invalid Secret:
+              $ref: '#/components/examples/InviteVerifyNotFoundInvalidSecret'
+            Invite Created By Self:
+              $ref: '#/components/examples/InviteVerifyNotFoundInviteCreatedBySelf'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Invalid Secret:
+              $ref: '#/components/examples/InviteVerifyNotFoundInvalidSecret'
+            Invite Created By Self:
+              $ref: '#/components/examples/InviteVerifyNotFoundInviteCreatedBySelf'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Not Found
+    HTTP400:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http401'
+            $ref: '#/components/schemas/response_http400'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP401Example'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     Recaptcha:
       content:
         application/json:
@@ -466,83 +494,6 @@ components:
       description: Example response
     OK:
       description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    InviteVerifyNotFound:
-      content:
-        application/json:
-          examples:
-            Invalid Secret:
-              $ref: '#/components/examples/InviteVerifyNotFoundInvalidSecret'
-            Invite Created By Self:
-              $ref: '#/components/examples/InviteVerifyNotFoundInviteCreatedBySelf'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-        application/vnd.api+json:
-          examples:
-            Invalid Secret:
-              $ref: '#/components/examples/InviteVerifyNotFoundInvalidSecret'
-            Invite Created By Self:
-              $ref: '#/components/examples/InviteVerifyNotFoundInviteCreatedBySelf'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-      description: Not Found
-    VerifyRegisterTokenInvalid:
-      content:
-        application/json:
-          examples:
-            Not Found:
-              $ref: '#/components/examples/VerifyRegisterTokenInvalidNotFound'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-        application/vnd.api+json:
-          examples:
-            Not Found:
-              $ref: '#/components/examples/VerifyRegisterTokenInvalidNotFound'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-      description: Response if secret is invalid
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    VerifyRegisterTokenAlreadyRegistered:
-      content:
-        application/json:
-          examples:
-            Already Registered:
-              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered'
-            Verification Expired:
-              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredVerificationExpired'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-        application/vnd.api+json:
-          examples:
-            Already Registered:
-              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered'
-            Verification Expired:
-              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredVerificationExpired'
-          schema:
-            $ref: '#/components/schemas/response_detail_string'
-      description: Response if verification expired or already registered
     VerifyRegisterTokenSuccess:
       content:
         application/json:
@@ -583,6 +534,40 @@ components:
           schema:
             $ref: '#/components/schemas/response_http429'
       description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    VerifyRegisterTokenAlreadyRegistered:
+      content:
+        application/json:
+          examples:
+            Already Registered:
+              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered'
+            Verification Expired:
+              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredVerificationExpired'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Already Registered:
+              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredAlreadyRegistered'
+            Verification Expired:
+              $ref: '#/components/examples/VerifyRegisterTokenAlreadyRegisteredVerificationExpired'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Response if verification expired or already registered
     HTTP403:
       content:
         application/json:
@@ -598,6 +583,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http403'
       description: Permission Denied
+    VerifyRegisterTokenInvalid:
+      content:
+        application/json:
+          examples:
+            Not Found:
+              $ref: '#/components/examples/VerifyRegisterTokenInvalidNotFound'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+        application/vnd.api+json:
+          examples:
+            Not Found:
+              $ref: '#/components/examples/VerifyRegisterTokenInvalidNotFound'
+          schema:
+            $ref: '#/components/schemas/response_detail_string'
+      description: Response if secret is invalid
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

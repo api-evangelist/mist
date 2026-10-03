@@ -228,21 +228,26 @@ paths:
       - Orgs Stats - Assets
 components:
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
+      name: end
       schema:
         type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
     org_id:
       in: path
       name: org_id
@@ -260,19 +265,14 @@ components:
         default: 1
         minimum: 1
         type: integer
-    limit:
-      description: Maximum number of results to return per page
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
       in: query
-      name: limit
+      name: sort
       schema:
-        default: 100
-        minimum: 0
-        type: integer
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
+        default: timestamp
+        examples:
+        - -site_id
         type: string
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
@@ -283,42 +283,61 @@ components:
         examples:
         - 10m
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
   schemas:
-    last_seen:
-      description: Timestamp indicating when the entity was last seen
+    asset_zone:
+      additionalProperties: false
+      description: Map zone membership for an individual asset statistic
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the zone
+        since:
+          description: Timestamp when the asset entered this zone
+          type: number
+      type: object
+    org_asset_count_distinct:
+      description: 'enum: `ibeacon_major`, `ibeacon_minor`, `ibeacon_uuid`, `mac`, `map_id`, `site_id`'
+      enum:
+      - ibeacon_major
+      - ibeacon_minor
+      - ibeacon_uuid
+      - mac
+      - map_id
+      - site_id
+      type: string
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - 1470417522
-      format: double
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
       readOnly: true
+      type: string
+    count_result:
+      additionalProperties:
+        type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    ibeacon_minor:
+      description: Minor number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
       type:
-      - number
+      - integer
       - 'null'
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -329,10 +348,16 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    asset_rssi_zones:
-      description: Only send this for individual asset stat
+    stats_asset_service_packets:
+      description: List of all service data advertisements (maximum length of 10)
       items:
-        $ref: '#/components/schemas/asset_rssi_zone'
+        $ref: '#/components/schemas/stats_asset_service_packet'
+      maxItems: 10
+      type: array
+    stats_assets:
+      description: Asset statistics returned by the request
+      items:
+        $ref: '#/components/schemas/stats_asset'
       type: array
     count_results:
       description: List of count result rows
@@ -340,6 +365,72 @@ components:
         $ref: '#/components/schemas/count_result'
       type: array
       uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    ibeacon_uuid:
+      description: iBeacon UUID value, or null when no iBeacon UUID is configured
+      examples:
+      - f3f17139-704a-f03a-2786-0400279e37c3
+      format: uuid
+      type:
+      - string
+      - 'null'
+    asset_rssi_zone:
+      additionalProperties: false
+      description: RSSI zone membership for an individual asset statistic
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the RSSI zone
+        since:
+          description: Timestamp when the asset entered this RSSI zone
+          type: number
+      type: object
+    asset_zones:
+      description: Only send this for individual asset stat
+      items:
+        $ref: '#/components/schemas/asset_zone'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    asset_rssi_zones:
+      description: Only send this for individual asset stat
+      items:
+        $ref: '#/components/schemas/asset_rssi_zone'
+      type: array
+    ibeacon_major:
+      description: Major number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
     stats_asset:
       additionalProperties: false
       description: BLE asset location and advertisement statistics
@@ -477,104 +568,6 @@ components:
       required:
       - mac
       type: object
-    stats_assets:
-      description: Asset statistics returned by the request
-      items:
-        $ref: '#/components/schemas/stats_asset'
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    ibeacon_uuid:
-      description: iBeacon UUID value, or null when no iBeacon UUID is configured
-      examples:
-      - f3f17139-704a-f03a-2786-0400279e37c3
-      format: uuid
-      type:
-      - string
-      - 'null'
-    response_stats_assets:
-      additionalProperties: false
-      description: Paginated response for asset statistics search results
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the asset statistics search window
-          type: integer
-        limit:
-          description: Maximum number of asset statistics records returned in this page
-          type: integer
-        next:
-          description: URL for retrieving the next page of asset statistics results
-          type: string
-        results:
-          $ref: '#/components/schemas/stats_assets'
-          description: Asset statistics records matching the search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the asset statistics search window
-          type: integer
-        total:
-          description: Number of asset statistics records matching the search filters across all pages
-          type: integer
-      required:
-      - start
-      - end
-      - limit
-      - total
-      - results
-      type: object
-    ibeacon_major:
-      description: Major number for iBeacon
-      examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
-    asset_zone:
-      additionalProperties: false
-      description: Map zone membership for an individual asset statistic
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the zone
-        since:
-          description: Timestamp when the asset entered this zone
-          type: number
-      type: object
-    asset_rssi_zone:
-      additionalProperties: false
-      description: RSSI zone membership for an individual asset statistic
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the RSSI zone
-        since:
-          description: Timestamp when the asset entered this RSSI zone
-          type: number
-      type: object
-    stats_asset_service_packets:
-      description: List of all service data advertisements (maximum length of 10)
-      items:
-        $ref: '#/components/schemas/stats_asset_service_packet'
-      maxItems: 10
-      type: array
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -605,15 +598,6 @@ components:
       - start
       - total
       type: object
-    ibeacon_minor:
-      description: Minor number for iBeacon
-      examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
     stats_asset_service_packet:
       additionalProperties: false
       description: Service data advertisement from a BLE asset
@@ -639,184 +623,55 @@ components:
           - 00003e10-0000-1000-8000-00805f9b34fb
           type: string
       type: object
-    org_asset_count_distinct:
-      description: 'enum: `ibeacon_major`, `ibeacon_minor`, `ibeacon_uuid`, `mac`, `map_id`, `site_id`'
-      enum:
-      - ibeacon_major
-      - ibeacon_minor
-      - ibeacon_uuid
-      - mac
-      - map_id
-      - site_id
-      type: string
-    response_http403:
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    response_stats_assets:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Paginated response for asset statistics search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the asset statistics search window
+          type: integer
+        limit:
+          description: Maximum number of asset statistics records returned in this page
+          type: integer
+        next:
+          description: URL for retrieving the next page of asset statistics results
+          type: string
+        results:
+          $ref: '#/components/schemas/stats_assets'
+          description: Asset statistics records matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the asset statistics search window
+          type: integer
+        total:
+          description: Number of asset statistics records matching the search filters across all pages
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the bad request error
           examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    asset_zones:
-      description: Only send this for individual asset stat
-      items:
-        $ref: '#/components/schemas/asset_zone'
-      type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-  responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    AssetsArrayStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_assets'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_assets'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    AssetsArrayStatsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_stats_assets'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_stats_assets'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
   examples:
-    AssetsArrayStatsSearchExample:
-      value:
-        end: 0
-        limit: 0
-        next: string
-        results:
-        - battery_voltage: 0
-          eddystone_uid_instance: string
-          eddystone_uid_namespace: string
-          eddystone_url_url: string
-          ibeacon_major: 1
-          ibeacon_minor: 1
-          ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
-          last_seen: 0
-          mac: string
-          map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
-          name: string
-          rssizones:
-          - id: 476f6eca-6276-4993-bfeb-5dcbbbbaef08
-            since: 0
-          x: 0
-          y: 0
-          zones:
-          - id: 475f6eca-6276-4993-bfeb-5ecbbbbf6f08
-            since: 0
-        start: 0
-        total: 0
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
@@ -856,9 +711,6 @@ components:
         zones:
         - id: 477f6eca-6276-4993-bfeb-5ccbbbbadf08
           since: 0
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     CountExample:
       value:
         distinct: string
@@ -869,9 +721,157 @@ components:
           property: string
         start: 0
         total: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    AssetsArrayStatsSearchExample:
+      value:
+        end: 0
+        limit: 0
+        next: string
+        results:
+        - battery_voltage: 0
+          eddystone_uid_instance: string
+          eddystone_uid_namespace: string
+          eddystone_url_url: string
+          ibeacon_major: 1
+          ibeacon_minor: 1
+          ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
+          last_seen: 0
+          mac: string
+          map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+          name: string
+          rssizones:
+          - id: 476f6eca-6276-4993-bfeb-5dcbbbbaef08
+            since: 0
+          x: 0
+          y: 0
+          zones:
+          - id: 475f6eca-6276-4993-bfeb-5ecbbbbf6f08
+            since: 0
+        start: 0
+        total: 0
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  responses:
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    AssetsArrayStatsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_assets'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_assets'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    AssetsArrayStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_assets'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_assets'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

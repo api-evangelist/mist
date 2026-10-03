@@ -264,26 +264,24 @@ paths:
       - Orgs Admins
 components:
   schemas:
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
+    admin_privilege_view:
+      description: 'UI view name allowed by a custom admin role. enum: `lobby_admin`, `location`, `marketing`, `mxedge_admin`, `reporting`, `security`, `super_observer`, `switch_admin`'
+      enum:
+      - lobby_admin
+      - location
+      - marketing
+      - mxedge_admin
+      - reporting
+      - security
+      - super_observer
+      - switch_admin
+      type: string
+    admin_privilege_msp_id:
+      description: Required if `scope`==`msp`. MSP granted by this privilege
+      examples:
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
+      format: uuid
+      type: string
     response_http401:
       additionalProperties: false
       description: Standard HTTP 401 authentication error response
@@ -294,12 +292,34 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    sitegroup_id:
-      description: Unique identifier of a Mist site group
-      examples:
-      - 3c708be3-9422-4695-b729-babdbd2f7615
-      format: uuid
+    admin_privilege_orggroup_ids:
+      description: If `scope`==`orggroup`. Organization groups granted by this privilege
+      items:
+        $ref: '#/components/schemas/orggroup_id'
+      type: array
+    admin_compliance_status:
+      description: 'trade compliance status. enum: `blocked`, `restricted`'
+      enum:
+      - blocked
+      - restricted
       type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    admin_privileges:
+      description: List of privileges the admin has
+      items:
+        $ref: '#/components/schemas/admin_privilege'
+      minItems: 1
+      type: array
+      uniqueItems: true
     admin:
       description: Mist administrator account or organization API token details
       properties:
@@ -385,29 +405,25 @@ components:
           readOnly: true
           type: boolean
       type: object
-    admin_privilege_views:
-      description: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |"
-      items:
-        $ref: '#/components/schemas/admin_privilege_view'
-      type: array
-    admin_compliance_status:
-      description: 'trade compliance status. enum: `blocked`, `restricted`'
-      enum:
-      - blocked
-      - restricted
-      type: string
-    response_http404:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 403 permission error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
       type: object
-    admin_privilege_site_id:
-      description: Required if `scope`==`site`. Site granted by this privilege
+    admin_privilege_sitegroup_ids:
+      description: Site group identifiers granted by an admin privilege when scope is `sitegroup`
+      items:
+        $ref: '#/components/schemas/sitegroup_id'
+      type: array
+    admin_privilege_org_id:
+      description: Required if `scope`==`org`. Organization granted by this privilege
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
       format: uuid
       type: string
     orggroup_id:
@@ -416,10 +432,11 @@ components:
       - 832b1d74-9531-409b-ae37-4d7f3edbde92
       format: uuid
       type: string
-    admin_privilege_orggroup_ids:
-      description: If `scope`==`orggroup`. Organization groups granted by this privilege
+    admin_tags:
+      description: Read-only tags associated with an administrator account
       items:
-        $ref: '#/components/schemas/orggroup_id'
+        type: string
+      readOnly: true
       type: array
     admin_privilege_role:
       description: 'access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`'
@@ -430,65 +447,14 @@ components:
       - read
       - write
       type: string
-    admin_privileges:
-      description: List of privileges the admin has
-      items:
-        $ref: '#/components/schemas/admin_privilege'
-      minItems: 1
-      type: array
-      uniqueItems: true
-    admin_privilege_scope:
-      description: 'enum: `msp`, `org`, `orggroup`, `site`, `sitegroup`'
-      enum:
-      - msp
-      - org
-      - orggroup
-      - site
-      - sitegroup
-      type: string
-    admins:
-      description: List of Mist administrator accounts
-      items:
-        $ref: '#/components/schemas/admin'
-      type: array
-      uniqueItems: true
-    admin_tags:
-      description: Read-only tags associated with an administrator account
-      items:
-        type: string
-      readOnly: true
-      type: array
-    admin_privilege_view:
-      description: 'UI view name allowed by a custom admin role. enum: `lobby_admin`, `location`, `marketing`, `mxedge_admin`, `reporting`, `security`, `super_observer`, `switch_admin`'
-      enum:
-      - lobby_admin
-      - location
-      - marketing
-      - mxedge_admin
-      - reporting
-      - security
-      - super_observer
-      - switch_admin
-      type: string
-    admin_privilege_msp_id:
-      description: Required if `scope`==`msp`. MSP granted by this privilege
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      type: string
-    admin_privilege_org_id:
-      description: Required if `scope`==`org`. Organization granted by this privilege
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      type: string
-    admin_id:
-      description: ID of the administrator
-      examples:
-      - 456b7016-a916-a4b1-78dd-72b947c152b7
-      format: uuid
-      readOnly: true
-      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     admin_privilege:
       additionalProperties: false
       description: Admin privilege scope, role, and UI access settings
@@ -543,159 +509,59 @@ components:
       - role
       - scope
       type: object
-    response_http403:
+    admin_privilege_scope:
+      description: 'enum: `msp`, `org`, `orggroup`, `site`, `sitegroup`'
+      enum:
+      - msp
+      - org
+      - orggroup
+      - site
+      - sitegroup
+      type: string
+    sitegroup_id:
+      description: Unique identifier of a Mist site group
+      examples:
+      - 3c708be3-9422-4695-b729-babdbd2f7615
+      format: uuid
+      type: string
+    admin_privilege_site_id:
+      description: Required if `scope`==`site`. Site granted by this privilege
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      type: string
+    admins:
+      description: List of Mist administrator accounts
+      items:
+        $ref: '#/components/schemas/admin'
+      type: array
+      uniqueItems: true
+    admin_privilege_views:
+      description: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |"
+      items:
+        $ref: '#/components/schemas/admin_privilege_view'
+      type: array
+    admin_id:
+      description: ID of the administrator
+      examples:
+      - 456b7016-a916-a4b1-78dd-72b947c152b7
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the permission error
+          description: Human-readable explanation of the bad request error
           examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    admin_privilege_sitegroup_ids:
-      description: Site group identifiers granted by an admin privilege when scope is `sitegroup`
-      items:
-        $ref: '#/components/schemas/sitegroup_id'
-      type: array
-  parameters:
-    admin_id:
-      in: path
-      name: admin_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    invite_id:
-      in: path
-      name: invite_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-  responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    Admin:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AdminExample'
-          schema:
-            $ref: '#/components/schemas/admin'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AdminExample'
-          schema:
-            $ref: '#/components/schemas/admin'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    AdminsArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AdminsArrayExample'
-            Example2:
-              $ref: '#/components/examples/AdminsArrayExample2'
-          schema:
-            $ref: '#/components/schemas/admins'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AdminsArrayExample'
-            Example2:
-              $ref: '#/components/examples/AdminsArrayExample2'
-          schema:
-            $ref: '#/components/schemas/admins'
-      description: OK
   examples:
-    HTTP429Example:
+    HTTP401Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        detail: Authentication credentials were not provided.
     AdminsArrayExample:
       value:
       - admin_id: 456b7016-a916-a4b1-78dd-72b947c152b7
@@ -712,9 +578,6 @@ components:
           - 507f1bab-13ba-73e2-f291-2bcb8d1362b0
           role: read
           scope: orggroup
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
     AdminExample:
       value:
         admin_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
@@ -735,9 +598,6 @@ components:
           site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
           sitegroup_ids:
           - 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     AdminsArrayExample2:
       value:
       - admin_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
@@ -757,9 +617,149 @@ components:
           site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
           sitegroup_ids:
           - 6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    invite_id:
+      in: path
+      name: invite_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    admin_id:
+      in: path
+      name: admin_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    OK:
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    Admin:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AdminExample'
+          schema:
+            $ref: '#/components/schemas/admin'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AdminExample'
+          schema:
+            $ref: '#/components/schemas/admin'
+      description: OK
+    AdminsArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AdminsArrayExample'
+            Example2:
+              $ref: '#/components/examples/AdminsArrayExample2'
+          schema:
+            $ref: '#/components/schemas/admins'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AdminsArrayExample'
+            Example2:
+              $ref: '#/components/examples/AdminsArrayExample2'
+          schema:
+            $ref: '#/components/schemas/admins'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -206,6 +206,77 @@ paths:
       - Orgs WLAN Templates
 components:
   schemas:
+    template_applies_sitegroup_ids:
+      description: List of sitegroup ids
+      items:
+        format: uuid
+        type: string
+      type: array
+    template_applies_site_ids:
+      description: List of site ids
+      items:
+        format: uuid
+        type: string
+      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    template_exceptions:
+      additionalProperties: false
+      description: Where this template should not be applied to (takes precedence)
+      properties:
+        site_ids:
+          $ref: '#/components/schemas/template_exceptions_site_ids'
+          description: Sites excluded from the WLAN template application scope
+        sitegroup_ids:
+          $ref: '#/components/schemas/template_exceptions_sitegroup_ids'
+          description: Site groups excluded from the WLAN template application scope
+      type: object
+    template_deviceprofile_ids:
+      description: List of Device Profile ids
+      items:
+        format: uuid
+        type: string
+      type: array
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     template_applies:
       additionalProperties: false
       description: Where this template should be applied to, can be org_id, site_ids, sitegroup_ids
@@ -221,103 +292,6 @@ components:
           $ref: '#/components/schemas/template_applies_sitegroup_ids'
           description: Site groups included in the WLAN template application scope
       type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    template_exceptions:
-      additionalProperties: false
-      description: Where this template should not be applied to (takes precedence)
-      properties:
-        site_ids:
-          $ref: '#/components/schemas/template_exceptions_site_ids'
-          description: Sites excluded from the WLAN template application scope
-        sitegroup_ids:
-          $ref: '#/components/schemas/template_exceptions_sitegroup_ids'
-          description: Site groups excluded from the WLAN template application scope
-      type: object
-    template_exceptions_site_ids:
-      description: List of site ids
-      items:
-        format: uuid
-        type: string
-      type: array
-    templates:
-      description: WLAN template records returned by a template list response
-      items:
-        $ref: '#/components/schemas/template'
-      type: array
-    template_exceptions_sitegroup_ids:
-      description: List of sitegroup ids
-      items:
-        format: uuid
-        type: string
-      type: array
-    name_string:
-      description: Request body containing a name value
-      properties:
-        name:
-          description: Value to create or update as the target resource name
-          type: string
-      type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    template_deviceprofile_ids:
-      description: List of Device Profile ids
-      items:
-        format: uuid
-        type: string
-      type: array
-    template_applies_sitegroup_ids:
-      description: List of sitegroup ids
-      items:
-        format: uuid
-        type: string
-      type: array
     template:
       description: WLAN template configuration applied across sites or site groups
       properties:
@@ -351,175 +325,64 @@ components:
       required:
       - name
       type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
+    name_string:
+      description: Request body containing a name value
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+        name:
+          description: Value to create or update as the target resource name
           type: string
       type: object
-    template_applies_site_ids:
+    template_exceptions_sitegroup_ids:
+      description: List of sitegroup ids
+      items:
+        format: uuid
+        type: string
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    templates:
+      description: WLAN template records returned by a template list response
+      items:
+        $ref: '#/components/schemas/template'
+      type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    template_exceptions_site_ids:
       description: List of site ids
       items:
         format: uuid
         type: string
       type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
       format: uuid
       readOnly: true
       type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-  responses:
-    TemplatesArray:
-      content:
-        application/json:
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/TemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/templates'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/TemplatesArrayExample'
-          schema:
-            $ref: '#/components/schemas/templates'
-      description: OK
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OK:
-      description: OK
-    Template:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/TemplateExample'
-          schema:
-            $ref: '#/components/schemas/template'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/TemplateExample'
-          schema:
-            $ref: '#/components/schemas/template'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-  parameters:
-    template_id:
-      in: path
-      name: template_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   examples:
-    HTTP429Example:
+    HTTP401Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        detail: Authentication credentials were not provided.
     TemplatesArrayExample:
       value:
       - applies:
@@ -562,15 +425,152 @@ components:
         modified_time: 0
         name: string
         org_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  parameters:
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    template_id:
+      in: path
+      name: template_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    Template:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/TemplateExample'
+          schema:
+            $ref: '#/components/schemas/template'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/TemplateExample'
+          schema:
+            $ref: '#/components/schemas/template'
+      description: OK
+    TemplatesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/TemplatesArrayExample'
+          schema:
+            $ref: '#/components/schemas/templates'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/TemplatesArrayExample'
+          schema:
+            $ref: '#/components/schemas/templates'
+      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

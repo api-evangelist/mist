@@ -376,33 +376,32 @@ paths:
       - Orgs User MACs
 components:
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: sort
+      name: end
       schema:
-        default: timestamp
-        examples:
-        - -site_id
         type: string
-    usermac_id:
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    org_id:
       in: path
-      name: usermac_id
+      name: org_id
       required: true
       schema:
         examples:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    org_id:
+    usermac_id:
       in: path
-      name: org_id
+      name: usermac_id
       required: true
       schema:
         examples:
@@ -417,14 +416,15 @@ components:
         default: 1
         minimum: 1
         type: integer
-    limit:
-      description: Maximum number of results to return per page
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
       in: query
-      name: limit
+      name: sort
       schema:
-        default: 100
-        minimum: 0
-        type: integer
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
     partial_filter_mac_usermac:
       description: Partial / full Client MAC address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported
       in: query
@@ -435,32 +435,43 @@ components:
         - aabbcc*
         - '*bbcc*'
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
   schemas:
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    user_mac_import_added:
+      description: MAC addresses added during a user MAC import
+      examples:
+      - - 921b638445cd
+      items:
+        type: string
+      type: array
+    count_usermac_distinct:
+      description: 'Fields that can be used to group user MAC count results. enum: `mac`, `name`, `labels`, `org_id`'
+      enum:
+      - mac
+      - name
+      - labels
+      - org_id
+      examples:
+      - org_id
+      type: string
+    usermacs_id:
+      description: Request body for deleting multiple user MAC entries
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
+        usermac_ids:
+          $ref: '#/components/schemas/uuids'
+          description: User MAC entry IDs to delete
       type: object
     response_http401:
       additionalProperties: false
@@ -472,11 +483,6 @@ components:
           - Authentication credentials were not provided.
           type: string
       type: object
-    user_macs:
-      description: List of user MAC entries
-      items:
-        $ref: '#/components/schemas/user_mac'
-      type: array
     user_mac_import_updated:
       description: MAC addresses updated during a user MAC import
       examples:
@@ -485,34 +491,38 @@ components:
       items:
         type: string
       type: array
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    user_mac_import_errors:
-      description: Error messages returned during a user MAC import
-      examples:
-      - - 921b638445ce - mac invalid
-        - 921b638445cf - mac already provided
-      items:
-        type: string
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     uuids:
       description: UUID string values used as identifiers
       items:
         format: uuid
         type: string
       type: array
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     user_mac_import:
       additionalProperties: false
       description: Result of importing user MAC entries
@@ -529,35 +539,6 @@ components:
         updated:
           $ref: '#/components/schemas/user_mac_import_updated'
           description: MAC addresses updated by the import
-      type: object
-    user_mac_labels:
-      description: Labels applied to a user MAC entry
-      examples:
-      - - byod
-        - flr1
-      items:
-        type: string
-      type: array
-    user_macs_update:
-      additionalProperties: false
-      description: Result of a bulk user MAC update
-      properties:
-        detail:
-          description: Status message returned for asynchronous batch updates
-          type: string
-        errors:
-          $ref: '#/components/schemas/strings'
-          description: Update errors reported for user MAC entries
-        updated:
-          $ref: '#/components/schemas/uuids'
-          description: User MAC entry IDs updated by the request
-      type: object
-    usermacs_id:
-      description: Request body for deleting multiple user MAC entries
-      properties:
-        usermac_ids:
-          $ref: '#/components/schemas/uuids'
-          description: User MAC entry IDs to delete
       type: object
     user_macs_count:
       additionalProperties: false
@@ -581,36 +562,34 @@ components:
           description: Overall number of user MAC count results
           type: integer
       type: object
-    user_mac_import_added:
-      description: MAC addresses added during a user MAC import
+    user_mac_import_errors:
+      description: Error messages returned during a user MAC import
       examples:
-      - - 921b638445cd
+      - - 921b638445ce - mac invalid
+        - 921b638445cf - mac already provided
       items:
         type: string
       type: array
-    search_org_user_macs_labels:
-      description: Labels associated with org user MAC search results
-      items:
-        type: string
-      type: array
-    count_usermac_distinct:
-      description: 'Fields that can be used to group user MAC count results. enum: `mac`, `name`, `labels`, `org_id`'
-      enum:
-      - mac
-      - name
-      - labels
-      - org_id
-      examples:
-      - org_id
-      type: string
-    response_http403:
+    user_macs_update:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Result of a bulk user MAC update
       properties:
         detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+          description: Status message returned for asynchronous batch updates
+          type: string
+        errors:
+          $ref: '#/components/schemas/strings'
+          description: Update errors reported for user MAC entries
+        updated:
+          $ref: '#/components/schemas/uuids'
+          description: User MAC entry IDs updated by the request
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     user_mac:
@@ -650,14 +629,38 @@ components:
       required:
       - mac
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    user_macs:
+      description: List of user MAC entries
+      items:
+        $ref: '#/components/schemas/user_mac'
+      type: array
+    user_mac_labels:
+      description: Labels applied to a user MAC entry
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
+      - - byod
+        - flr1
+      items:
+        type: string
+      type: array
+    search_org_user_macs_labels:
+      description: Labels associated with org user MAC search results
+      items:
+        type: string
+      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   examples:
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     UserMacImportAsyncExample:
       value:
         detail: import in progress
@@ -674,6 +677,22 @@ components:
     UserMacsUpdateAsyncExample:
       value:
         detail: batch update in progress
+    UserMacsUpdateExample:
+      value:
+        errors:
+        - 2feacc8e-5893-418a-acaa-4d7c1afd01fe - invalid id
+        updated:
+        - 1041c16c-ca87-4d3f-bb94-b97c5819fc09
+        - a016cc8e-5893-418a-acaa-4d7c1af6ac0f
+    UserMacsArrayExample:
+      value:
+      - id: 111cafd2-ba1b-5169-bfcb-9cdf1d473ddb
+        labels:
+        - flor1
+        - bld4
+        mac: 921b638445cd
+        notes: MAC address refers to Canon printers
+        vlan: '30'
     UserMacExample:
       value:
         id: 111cafd2-ba1b-5169-bfcb-9cdf1d473ddb
@@ -686,25 +705,6 @@ components:
     HTTP429Example:
       value:
         detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    UserMacsArrayExample:
-      value:
-      - id: 111cafd2-ba1b-5169-bfcb-9cdf1d473ddb
-        labels:
-        - flor1
-        - bld4
-        mac: 921b638445cd
-        notes: MAC address refers to Canon printers
-        vlan: '30'
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    UserMacsUpdateExample:
-      value:
-        errors:
-        - 2feacc8e-5893-418a-acaa-4d7c1afd01fe - invalid id
-        updated:
-        - 1041c16c-ca87-4d3f-bb94-b97c5819fc09
-        - a016cc8e-5893-418a-acaa-4d7c1af6ac0f
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
@@ -712,6 +712,79 @@ components:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    UserMacsCount:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/user_macs_count'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/user_macs_count'
+      description: OK
+    OK:
+      description: OK
+    UserMacImport:
+      content:
+        application/json:
+          examples:
+            Async:
+              $ref: '#/components/examples/UserMacImportAsyncExample'
+            Sync:
+              $ref: '#/components/examples/UserMacImportExample'
+          schema:
+            $ref: '#/components/schemas/user_mac_import'
+        application/vnd.api+json:
+          examples:
+            Async:
+              $ref: '#/components/examples/UserMacImportAsyncExample'
+            Sync:
+              $ref: '#/components/examples/UserMacImportExample'
+          schema:
+            $ref: '#/components/schemas/user_mac_import'
+      description: OK
+    UserMacsUpdate:
+      content:
+        application/json:
+          examples:
+            Async:
+              $ref: '#/components/examples/UserMacsUpdateAsyncExample'
+            Sync:
+              $ref: '#/components/examples/UserMacsUpdateExample'
+          schema:
+            $ref: '#/components/schemas/user_macs_update'
+        application/vnd.api+json:
+          examples:
+            Async:
+              $ref: '#/components/examples/UserMacsUpdateAsyncExample'
+            Sync:
+              $ref: '#/components/examples/UserMacsUpdateExample'
+          schema:
+            $ref: '#/components/schemas/user_macs_update'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401:
       content:
         application/json:
@@ -727,7 +800,35 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    OK:
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    UserMac:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UserMacExample'
+          schema:
+            $ref: '#/components/schemas/user_mac'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/UserMacExample'
+          schema:
+            $ref: '#/components/schemas/user_mac'
       description: OK
     UserMacsArray:
       content:
@@ -759,107 +860,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    UserMac:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UserMacExample'
-          schema:
-            $ref: '#/components/schemas/user_mac'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/UserMacExample'
-          schema:
-            $ref: '#/components/schemas/user_mac'
-      description: OK
-    UserMacsUpdate:
-      content:
-        application/json:
-          examples:
-            Async:
-              $ref: '#/components/examples/UserMacsUpdateAsyncExample'
-            Sync:
-              $ref: '#/components/examples/UserMacsUpdateExample'
-          schema:
-            $ref: '#/components/schemas/user_macs_update'
-        application/vnd.api+json:
-          examples:
-            Async:
-              $ref: '#/components/examples/UserMacsUpdateAsyncExample'
-            Sync:
-              $ref: '#/components/examples/UserMacsUpdateExample'
-          schema:
-            $ref: '#/components/schemas/user_macs_update'
-      description: OK
-    UserMacImport:
-      content:
-        application/json:
-          examples:
-            Async:
-              $ref: '#/components/examples/UserMacImportAsyncExample'
-            Sync:
-              $ref: '#/components/examples/UserMacImportExample'
-          schema:
-            $ref: '#/components/schemas/user_mac_import'
-        application/vnd.api+json:
-          examples:
-            Async:
-              $ref: '#/components/examples/UserMacImportAsyncExample'
-            Sync:
-              $ref: '#/components/examples/UserMacImportExample'
-          schema:
-            $ref: '#/components/schemas/user_mac_import'
-      description: OK
-    UserMacsCount:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/user_macs_count'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/user_macs_count'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

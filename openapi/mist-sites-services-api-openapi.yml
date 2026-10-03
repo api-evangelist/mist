@@ -251,30 +251,134 @@ paths:
       tags:
       - Sites Services
 components:
+  responses:
+    ServicesArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServicesArrayExample'
+          schema:
+            $ref: '#/components/schemas/services'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServicesArrayExample'
+          schema:
+            $ref: '#/components/schemas/services'
+      description: OK
+    ServicePathEventsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServicePathEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_events_path_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ServicePathEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_events_path_search'
+      description: Example response
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
   parameters:
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
+      name: end
       schema:
         type: string
-    limit:
-      description: Maximum number of results to return per page
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
       in: query
-      name: limit
+      name: search_after
       schema:
-        default: 100
-        minimum: 0
-        type: integer
+        type: string
     site_id:
       in: path
       name: site_id
@@ -284,11 +388,22 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+    limit:
+      description: Maximum number of results to return per page
       in: query
-      name: search_after
+      name: limit
       schema:
+        default: 100
+        minimum: 0
+        type: integer
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
         type: string
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
@@ -299,10 +414,10 @@ components:
         examples:
         - 10m
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
   schemas:
@@ -313,72 +428,13 @@ components:
       format: uuid
       readOnly: true
       type: string
-    response_events_path_search_results:
-      description: Service path event records returned by a search response
-      items:
-        $ref: '#/components/schemas/service_path_event'
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    service_specs:
-      description: When `type`==`custom`, optional, if it doesn't exist, http and https is assumed
-      items:
-        $ref: '#/components/schemas/service_spec'
-      type: array
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
       format: uuid
       readOnly: true
       type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    service_urls:
-      description: When `type`==`urls`, no need for spec as URL can encode the ports being used
-      items:
-        type: string
-      type: array
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     count_result:
       additionalProperties:
         type: string
@@ -390,6 +446,13 @@ components:
       required:
       - count
       type: object
+    service_app_categories:
+      description: When `type`==`app_categories`, list of application categories are available through [List App Category Definitions](/#operations/listAppCategoryDefinitions)
+      examples:
+      - - Sports
+      items:
+        type: string
+      type: array
     service_type:
       default: custom
       description: 'enum: `app_categories`, `apps`, `custom`, `urls`'
@@ -399,51 +462,6 @@ components:
       - custom
       - urls
       type: string
-    response_events_path_search:
-      additionalProperties: false
-      description: Paginated response for service path event search results
-      properties:
-        end:
-          description: Epoch timestamp for the end of the service path event search window
-          examples:
-          - 1697096379
-          type: integer
-        limit:
-          description: Maximum number of service path event records returned in this page
-          examples:
-          - 10
-          type: integer
-        next:
-          description: Pagination cursor or URL for retrieving the next page of service path event records
-          type: string
-        results:
-          $ref: '#/components/schemas/response_events_path_search_results'
-          description: Service path event records matching the search filters
-        start:
-          description: Epoch timestamp for the start of the service path event search window
-          examples:
-          - 1697009979
-          type: integer
-        total:
-          description: Number of service path event records matching the search filters across all pages
-          examples:
-          - 2
-          type: integer
-      type: object
-    service_hostnames:
-      description: If `type`==`custom`, web filtering
-      items:
-        examples:
-        - example.com
-        type: string
-      type: array
-    service_app_categories:
-      description: When `type`==`app_categories`, list of application categories are available through [List App Category Definitions](/#operations/listAppCategoryDefinitions)
-      examples:
-      - - Sports
-      items:
-        type: string
-      type: array
     service:
       description: Traffic service definition for applications or destinations used by gateway and SSR policies
       properties:
@@ -552,23 +570,119 @@ components:
           $ref: '#/components/schemas/service_urls'
           description: URL patterns matched by this service when `type`==`urls`
       type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    service_specs:
+      description: When `type`==`custom`, optional, if it doesn't exist, http and https is assumed
+      items:
+        $ref: '#/components/schemas/service_spec'
+      type: array
+    service_traffic_class:
+      default: best_effort
+      description: 'when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`'
+      enum:
+      - best_effort
+      - high
+      - low
+      - medium
+      type: string
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    service_apps:
+      description: "When `type`==`apps`, list of applications are available through:\n  * [List Applications](/#operations/listApplications)\n  * [List Gateway Applications](/#operations/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true"
+      examples:
+      - - office365
+        - okta
+      items:
+        type: string
+      type: array
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     timestamp:
       description: Epoch timestamp, in seconds
       format: double
       readOnly: true
       type: number
-    service_max_latency:
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    services:
+      description: Service definitions returned by list operations
+      items:
+        $ref: '#/components/schemas/service'
+      type: array
+    service_failover_policy:
+      default: revertible
+      description: 'enum: `non_revertible`, `none`, `revertible`'
+      enum:
+      - non_revertible
+      - none
+      - revertible
+      type: string
+    service_max_jitter:
       description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
       oneOf:
       - type: string
       - maximum: 2147483647
         minimum: 0
         type: integer
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
+    site_service_events_count_distinct:
+      default: type
+      description: 'enum: `mac`, `model`, `policy`, `port_id`, `site_id`, `type`, `vpn_name`, `vpn_path`'
+      enum:
+      - mac
+      - model
+      - policy
+      - port_id
+      - site_id
+      - type
+      - vpn_name
+      - vpn_path
+      type: string
+    service_urls:
+      description: When `type`==`urls`, no need for spec as URL can encode the ports being used
+      items:
+        type: string
+      type: array
     service_path_event:
       additionalProperties: false
       description: Event describing a service path state change reported by a gateway or SSR device
@@ -628,6 +742,104 @@ components:
           - Syracuse_HUB-Wan0
           type: string
       type: object
+    service_addresses:
+      description: If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
+      examples:
+      - - 10.0.0.0/8
+        - 172.21.0.0/16
+        - 2001:db8:abcd:12::/64
+        - fd28::/128
+      items:
+        type: string
+      type: array
+    service_dscp:
+      description: For SSR only, when `traffic_type`==`custom`. 0-63 or variable
+      oneOf:
+      - type: string
+      - maximum: 63
+        minimum: 0
+        type: integer
+    service_hostnames:
+      description: If `type`==`custom`, web filtering
+      items:
+        examples:
+        - example.com
+        type: string
+      type: array
+    response_events_path_search:
+      additionalProperties: false
+      description: Paginated response for service path event search results
+      properties:
+        end:
+          description: Epoch timestamp for the end of the service path event search window
+          examples:
+          - 1697096379
+          type: integer
+        limit:
+          description: Maximum number of service path event records returned in this page
+          examples:
+          - 10
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of service path event records
+          type: string
+        results:
+          $ref: '#/components/schemas/response_events_path_search_results'
+          description: Service path event records matching the search filters
+        start:
+          description: Epoch timestamp for the start of the service path event search window
+          examples:
+          - 1697009979
+          type: integer
+        total:
+          description: Number of service path event records matching the search filters across all pages
+          examples:
+          - 2
+          type: integer
+      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    service_max_latency:
+      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
+      oneOf:
+      - type: string
+      - maximum: 2147483647
+        minimum: 0
+        type: integer
+    service_max_loss:
+      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-100 or variable
+      oneOf:
+      - type: string
+      - maximum: 100
+        minimum: 0
+        type: integer
+    service_spec:
+      additionalProperties: false
+      description: Protocol and port match rule for a custom service
+      properties:
+        port_range:
+          description: Port number, port range, or variable
+          examples:
+          - 8080,8443
+          type: string
+        protocol:
+          default: any
+          description: '`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254'
+          examples:
+          - tcp
+          type: string
+      type: object
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -658,88 +870,6 @@ components:
       - start
       - total
       type: object
-    service_dscp:
-      description: For SSR only, when `traffic_type`==`custom`. 0-63 or variable
-      oneOf:
-      - type: string
-      - maximum: 63
-        minimum: 0
-        type: integer
-    site_service_events_count_distinct:
-      default: type
-      description: 'enum: `mac`, `model`, `policy`, `port_id`, `site_id`, `type`, `vpn_name`, `vpn_path`'
-      enum:
-      - mac
-      - model
-      - policy
-      - port_id
-      - site_id
-      - type
-      - vpn_name
-      - vpn_path
-      type: string
-    services:
-      description: Service definitions returned by list operations
-      items:
-        $ref: '#/components/schemas/service'
-      type: array
-    service_max_loss:
-      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-100 or variable
-      oneOf:
-      - type: string
-      - maximum: 100
-        minimum: 0
-        type: integer
-    service_spec:
-      additionalProperties: false
-      description: Protocol and port match rule for a custom service
-      properties:
-        port_range:
-          description: Port number, port range, or variable
-          examples:
-          - 8080,8443
-          type: string
-        protocol:
-          default: any
-          description: '`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254'
-          examples:
-          - tcp
-          type: string
-      type: object
-    service_traffic_class:
-      default: best_effort
-      description: 'when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`'
-      enum:
-      - best_effort
-      - high
-      - low
-      - medium
-      type: string
-    service_max_jitter:
-      description: For SSR only, when `traffic_type`==`custom`, for uplink selection. 0-2147483647 or variable
-      oneOf:
-      - type: string
-      - maximum: 2147483647
-        minimum: 0
-        type: integer
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    service_failover_policy:
-      default: revertible
-      description: 'enum: `non_revertible`, `none`, `revertible`'
-      enum:
-      - non_revertible
-      - none
-      - revertible
-      type: string
     service_app_subcategories:
       description: When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions](/#operations/listAppSubCategoryDefinitions)
       examples:
@@ -747,158 +877,35 @@ components:
       items:
         type: string
       type: array
-    service_apps:
-      description: "When `type`==`apps`, list of applications are available through:\n  * [List Applications](/#operations/listApplications)\n  * [List Gateway Applications](/#operations/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true"
-      examples:
-      - - office365
-        - okta
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_events_path_search_results:
+      description: Service path event records returned by a search response
       items:
-        type: string
+        $ref: '#/components/schemas/service_path_event'
       type: array
-    service_addresses:
-      description: If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
-      examples:
-      - - 10.0.0.0/8
-        - 172.21.0.0/16
-        - 2001:db8:abcd:12::/64
-        - fd28::/128
-      items:
-        type: string
-      type: array
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-  responses:
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    ServicePathEventsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ServicePathEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_events_path_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ServicePathEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_events_path_search'
-      description: Example response
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    ServicesArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ServicesArrayExample'
-          schema:
-            $ref: '#/components/schemas/services'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ServicesArrayExample'
-          schema:
-            $ref: '#/components/schemas/services'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
   examples:
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
     ServicePathEventsSearchExample:
       value:
         end: 1697096379
@@ -918,19 +925,12 @@ components:
           vpn_path: Syracuse_HUB-Wan0
         start: 1697009979
         total: 2
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
     ServicesArrayExample:
       value:
       - addresses:

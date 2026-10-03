@@ -96,132 +96,17 @@ paths:
       - Self Audit Logs
 components:
   schemas:
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    audit_log_before:
-      additionalProperties: true
-      description: Field values prior to the change
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
     audit_log_after:
       additionalProperties: true
       description: Field values after the change
       type: object
-    response_self_audit_logs:
-      additionalProperties: false
-      description: Paginated response for audit logs for the current admin across organizations
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the self audit log search window
-          type: integer
-        limit:
-          description: Maximum number of self audit log entries returned in this page
-          type: integer
-        page:
-          description: Current page number returned for self audit log results
-          type: integer
-        results:
-          $ref: '#/components/schemas/response_self_audit_logs_results'
-          description: Audit log entries for the current admin matching the filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the self audit log search window
-          type: integer
-        total:
-          description: Number of self audit log entries matching the filters across all pages
-          type: integer
-      required:
-      - end
-      - limit
-      - page
-      - results
-      - start
-      - total
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    response_self_audit_logs_results:
-      description: Audit log entries returned for the current admin
-      items:
-        $ref: '#/components/schemas/audit_log'
-      type: array
-      uniqueItems: true
-    list_org_logs_sort:
-      description: 'enum: `-timestamp`, `admin_id`, `site_id`, `timestamp`'
-      enum:
-      - -timestamp
-      - admin_id
-      - site_id
-      - timestamp
-      type: string
-    admin_id:
-      description: ID of the administrator
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - 456b7016-a916-a4b1-78dd-72b947c152b7
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
       format: uuid
       readOnly: true
       type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     audit_log:
       additionalProperties: false
       description: Administrative audit log entry
@@ -266,113 +151,135 @@ components:
       - site_id
       - timestamp
       type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    site_id:
+      description: Unique identifier of a Mist site
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
       format: uuid
       readOnly: true
       type: string
-  responses:
-    HTTP401:
-      content:
-        application/json:
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    list_org_logs_sort:
+      description: 'enum: `-timestamp`, `admin_id`, `site_id`, `timestamp`'
+      enum:
+      - -timestamp
+      - admin_id
+      - site_id
+      - timestamp
+      type: string
+    response_self_audit_logs_results:
+      description: Audit log entries returned for the current admin
+      items:
+        $ref: '#/components/schemas/audit_log'
+      type: array
+      uniqueItems: true
+    response_self_audit_logs:
+      additionalProperties: false
+      description: Paginated response for audit logs for the current admin across organizations
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the self audit log search window
+          type: integer
+        limit:
+          description: Maximum number of self audit log entries returned in this page
+          type: integer
+        page:
+          description: Current page number returned for self audit log results
+          type: integer
+        results:
+          $ref: '#/components/schemas/response_self_audit_logs_results'
+          description: Audit log entries for the current admin matching the filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the self audit log search window
+          type: integer
+        total:
+          description: Number of self audit log entries matching the filters across all pages
+          type: integer
+      required:
+      - end
+      - limit
+      - page
+      - results
+      - start
+      - total
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    admin_id:
+      description: ID of the administrator
+      examples:
+      - 456b7016-a916-a4b1-78dd-72b947c152b7
+      format: uuid
+      readOnly: true
+      type: string
+    audit_log_before:
+      additionalProperties: true
+      description: Field values prior to the change
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    SelfAuditLogs:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfAuditLogsExample'
-          schema:
-            $ref: '#/components/schemas/response_self_audit_logs'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfAuditLogsExample'
-          schema:
-            $ref: '#/components/schemas/response_self_audit_logs'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
   parameters:
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
-      name: start
+      name: end
       schema:
         type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
     limit:
       description: Maximum number of results to return per page
       in: query
@@ -380,6 +287,14 @@ components:
       schema:
         default: 100
         minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
         type: integer
     duration:
       description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
@@ -390,16 +305,16 @@ components:
         examples:
         - 10m
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
       in: query
-      name: end
+      name: start
       schema:
         type: string
   examples:
-    HTTP429Example:
+    HTTP401Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        detail: Authentication credentials were not provided.
     SelfAuditLogsExample:
       value:
         end: 1428954000
@@ -421,15 +336,100 @@ components:
           timestamp: 1431382121
         start: 1428939600
         total: 135
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+  responses:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    SelfAuditLogs:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfAuditLogsExample'
+          schema:
+            $ref: '#/components/schemas/response_self_audit_logs'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfAuditLogsExample'
+          schema:
+            $ref: '#/components/schemas/response_self_audit_logs'
+      description: OK
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
