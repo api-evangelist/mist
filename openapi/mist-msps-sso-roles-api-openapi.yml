@@ -156,7 +156,113 @@ paths:
       tags:
       - MSPs SSO Roles
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    SsoRolesMspArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/sso_roles_msp'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/sso_roles_msp'
+      description: Example response
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    SsoRoleMsp:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoRoleMspExample'
+          schema:
+            $ref: '#/components/schemas/sso_role_msp'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SsoRoleMspExample'
+          schema:
+            $ref: '#/components/schemas/sso_role_msp'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
   schemas:
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
     privilege_msp_scope:
       description: 'enum: `msp`, `org`, `orggroup`'
       enum:
@@ -164,55 +270,6 @@ components:
       - org
       - orggroup
       type: string
-    admin_privilege_view:
-      description: 'UI view name allowed by a custom admin role. enum: `lobby_admin`, `location`, `marketing`, `mxedge_admin`, `reporting`, `security`, `super_observer`, `switch_admin`'
-      enum:
-      - lobby_admin
-      - location
-      - marketing
-      - mxedge_admin
-      - reporting
-      - security
-      - super_observer
-      - switch_admin
-      type: string
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    sso_roles_msp:
-      description: MSP SSO roles returned by the request
-      items:
-        $ref: '#/components/schemas/sso_role_msp'
-      type: array
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -223,6 +280,64 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    sso_role_msp_privileges:
+      description: Access privileges granted by an MSP SSO role
+      items:
+        $ref: '#/components/schemas/privilege_msp'
+      minItems: 1
+      type: array
+      uniqueItems: true
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    privilege_msp_role:
+      description: 'access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`'
+      enum:
+      - admin
+      - helpdesk
+      - installer
+      - read
+      - write
+      type: string
+    admin_privilege_views:
+      description: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |"
+      items:
+        $ref: '#/components/schemas/admin_privilege_view'
+      type: array
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    sso_roles_msp:
+      description: MSP SSO roles returned by the request
+      items:
+        $ref: '#/components/schemas/sso_role_msp'
+      type: array
     sso_role_msp:
       description: MSP SSO role definition
       properties:
@@ -255,42 +370,28 @@ components:
       - name
       - privileges
       type: object
-    privilege_msp_role:
-      description: 'access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`'
-      enum:
-      - admin
-      - helpdesk
-      - installer
-      - read
-      - write
-      type: string
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http404:
+    response_http401:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 401 authentication error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
           type: string
       type: object
-    msp_id:
-      description: Managed service provider identifier
-      examples:
-      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
-      format: uuid
-      readOnly: true
+    admin_privilege_view:
+      description: 'UI view name allowed by a custom admin role. enum: `lobby_admin`, `location`, `marketing`, `mxedge_admin`, `reporting`, `security`, `super_observer`, `switch_admin`'
+      enum:
+      - lobby_admin
+      - location
+      - marketing
+      - mxedge_admin
+      - reporting
+      - security
+      - super_observer
+      - switch_admin
       type: string
-    sso_role_msp_privileges:
-      description: Access privileges granted by an MSP SSO role
-      items:
-        $ref: '#/components/schemas/privilege_msp'
-      minItems: 1
-      type: array
-      uniqueItems: true
     privilege_msp:
       additionalProperties: false
       description: MSP privilege scope and role settings
@@ -320,32 +421,27 @@ components:
       - role
       - scope
       type: object
-    admin_privilege_views:
-      description: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |"
-      items:
-        $ref: '#/components/schemas/admin_privilege_view'
-      type: array
-    org_id:
-      description: Unique identifier of a Mist organization
+    msp_id:
+      description: Managed service provider identifier
       examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      - b9d42c2e-88ee-41f8-b798-f009ce7fe909
       format: uuid
       readOnly: true
       type: string
-    response_http400:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     SsoRoleMspExample:
       value:
         created_time: 0
@@ -359,124 +455,28 @@ components:
           role: read
           scope: orggroup
         site_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    SsoRolesMspArray:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/sso_roles_msp'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/sso_roles_msp'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OK:
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    SsoRoleMsp:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoRoleMspExample'
-          schema:
-            $ref: '#/components/schemas/sso_role_msp'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SsoRoleMspExample'
-          schema:
-            $ref: '#/components/schemas/sso_role_msp'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
   parameters:
-    msp_id:
+    ssorole_id:
       in: path
-      name: msp_id
+      name: ssorole_id
       required: true
       schema:
         examples:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    ssorole_id:
+    msp_id:
       in: path
-      name: ssorole_id
+      name: msp_id
       required: true
       schema:
         examples:

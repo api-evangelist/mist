@@ -605,6 +605,51 @@ paths:
       - Orgs Alarm Templates
 components:
   responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     AlarmtemplatesArray:
       content:
         application/json:
@@ -613,6 +658,15 @@ components:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/alarm_templates'
+      description: OK
+    Alarmtemplate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/alarm_template'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/alarm_template'
       description: OK
     OrgSuppressedAlarms:
       content:
@@ -629,41 +683,6 @@ components:
           schema:
             $ref: '#/components/schemas/response_org_suppress_alarm'
       description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OK:
-      description: OK
-    Alarmtemplate:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/alarm_template'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/alarm_template'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP401:
       content:
         application/json:
@@ -679,58 +698,36 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP403:
+    HTTP404:
       content:
         application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
   schemas:
-    suppressed_alarm_scope:
-      default: site
-      description: 'level of scope. enum: `org`, `site`'
-      enum:
-      - org
-      - site
-      type: string
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    delivery_additional_emails:
-      description: List of additional email string to deliver the alarms via emails
-      items:
-        examples:
-        - john@mycorp.com
-        type: string
-      type: array
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_org_suppress_alarm:
+      additionalProperties: false
+      description: Response containing currently suppressed organization alarm entries
+      properties:
+        results:
+          $ref: '#/components/schemas/response_org_suppress_alarm_results'
+          description: Suppressed alarm entries currently configured for the organization
+      type: object
     delivery:
       additionalProperties: false
       description: Delivery object to configure the alarm delivery
@@ -756,44 +753,6 @@ components:
       required:
       - enabled
       type: object
-    suppressed_alarm_applies:
-      additionalProperties: false
-      description: If `scope`==`site`. Object defines the scope (within the org e.g. whole org, and/or some site_groups, and/or some sites) for which the alarm service has to be suppressed for some `duration`
-      properties:
-        org_id:
-          description: UUID of the current org (if provided, the alarms will be suppressed at org level)
-          format: uuid
-          type: string
-        site_ids:
-          $ref: '#/components/schemas/suppressed_alarm_applies_site_ids'
-          description: Site identifiers included in the suppression scope. If provided, alarms are suppressed for the listed sites.
-        sitegroup_ids:
-          $ref: '#/components/schemas/suppressed_alarm_applies_sitegroup_ids'
-          description: Site group identifiers included in the suppression scope. If provided, alarms are suppressed for all sites in the listed site groups.
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_org_suppress_alarm:
-      additionalProperties: false
-      description: Response containing currently suppressed organization alarm entries
-      properties:
-        results:
-          $ref: '#/components/schemas/response_org_suppress_alarm_results'
-          description: Suppressed alarm entries currently configured for the organization
-      type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
     alarm_template:
       description: Alarm template defining default delivery and per-alarm rules
       properties:
@@ -843,6 +802,22 @@ components:
       - delivery
       - rules
       type: object
+    suppressed_alarm_applies_sitegroup_ids:
+      description: List of UUID of the site groups within the org (if provided, the alarms will be suppressed for all the sites under those site groups)
+      items:
+        format: uuid
+        type: string
+      type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     alarm_template_rule:
       additionalProperties: false
       description: Per-alarm enablement and delivery override in an alarm template
@@ -854,38 +829,38 @@ components:
           description: Whether this alarm rule is enabled in the template
           type: boolean
       type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
+    alarm_templates:
+      description: List of alarm templates
+      items:
+        $ref: '#/components/schemas/alarm_template'
+      type: array
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
       examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
       format: uuid
       readOnly: true
       type: string
-    response_http403:
+    suppressed_alarm_scope:
+      default: site
+      description: 'level of scope. enum: `org`, `site`'
+      enum:
+      - org
+      - site
+      type: string
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    response_org_suppress_alarm_results:
-      description: Suppressed alarm entries returned for the organization
-      items:
-        $ref: '#/components/schemas/response_org_suppress_alarm_item'
-      type: array
     response_org_suppress_alarm_item:
       additionalProperties: false
       description: Suppressed alarm entry for an organization or site alarm scope
@@ -906,11 +881,68 @@ components:
           $ref: '#/components/schemas/site_id'
           description: Site identifier for a site-scoped alarm suppression entry
       type: object
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
+    suppressed_alarm_applies_site_ids:
+      description: List of UUID of the sites within the org (if provided, the alarms will be suppressed for all the mentioned sites under the org)
+      items:
+        format: uuid
+        type: string
+      type: array
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    created_time:
+      description: When the object has been created, in epoch
       format: double
       readOnly: true
       type: number
+    suppressed_alarm_applies:
+      additionalProperties: false
+      description: If `scope`==`site`. Object defines the scope (within the org e.g. whole org, and/or some site_groups, and/or some sites) for which the alarm service has to be suppressed for some `duration`
+      properties:
+        org_id:
+          description: UUID of the current org (if provided, the alarms will be suppressed at org level)
+          format: uuid
+          type: string
+        site_ids:
+          $ref: '#/components/schemas/suppressed_alarm_applies_site_ids'
+          description: Site identifiers included in the suppression scope. If provided, alarms are suppressed for the listed sites.
+        sitegroup_ids:
+          $ref: '#/components/schemas/suppressed_alarm_applies_sitegroup_ids'
+          description: Site group identifiers included in the suppression scope. If provided, alarms are suppressed for all sites in the listed site groups.
+      type: object
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_org_suppress_alarm_results:
+      description: Suppressed alarm entries returned for the organization
+      items:
+        $ref: '#/components/schemas/response_org_suppress_alarm_item'
+      type: array
+    delivery_additional_emails:
+      description: List of additional email string to deliver the alarms via emails
+      items:
+        examples:
+        - john@mycorp.com
+        type: string
+      type: array
     suppressed_alarm:
       description: Request body for suppressing organization alarms
       properties:
@@ -930,52 +962,29 @@ components:
           $ref: '#/components/schemas/suppressed_alarm_scope'
           description: Alarm suppression target level
       type: object
-    suppressed_alarm_applies_sitegroup_ids:
-      description: List of UUID of the site groups within the org (if provided, the alarms will be suppressed for all the sites under those site groups)
-      items:
-        format: uuid
-        type: string
-      type: array
-    response_http404:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    alarm_templates:
-      description: List of alarm templates
-      items:
-        $ref: '#/components/schemas/alarm_template'
-      type: array
-    suppressed_alarm_applies_site_ids:
-      description: List of UUID of the sites within the org (if provided, the alarms will be suppressed for all the mentioned sites under the org)
-      items:
-        format: uuid
-        type: string
-      type: array
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     OrgSuppressedAlarmsExample:
       value:
         results:
@@ -989,24 +998,7 @@ components:
           scheduled_time: 1678232900
           scope: org
           site_id: 581328b6-e382-f54e-c9dc-9c998d183a35
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
     org_id:
       in: path
       name: org_id
@@ -1025,6 +1017,14 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
     page:
       description: Select the page number to return when using page-based pagination; starts at `1`
       in: query

@@ -122,139 +122,123 @@ paths:
       tags:
       - Orgs SLEs
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    OrgSiteSle:
+      content:
+        application/json:
+          examples:
+            WAN SLE:
+              $ref: '#/components/examples/OrgSiteSleWANSLE'
+            Wi-Fi SLE:
+              $ref: '#/components/examples/OrgSiteSleWiFiSLE'
+            Wired SLE:
+              $ref: '#/components/examples/OrgSiteSleWiredSLE'
+          schema:
+            $ref: '#/components/schemas/response_org_site_sle'
+        application/vnd.api+json:
+          examples:
+            WAN SLE:
+              $ref: '#/components/examples/OrgSiteSleWANSLE'
+            Wi-Fi SLE:
+              $ref: '#/components/examples/OrgSiteSleWiFiSLE'
+            Wired SLE:
+              $ref: '#/components/examples/OrgSiteSleWiredSLE'
+          schema:
+            $ref: '#/components/schemas/response_org_site_sle'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    InsightMetricOrg:
+      content:
+        application/json:
+          examples:
+            Worst Sites By Sle:
+              $ref: '#/components/examples/InsightMetricOrgWorstSitesBySle'
+          schema:
+            $ref: '#/components/schemas/insight_metrics'
+        application/vnd.api+json:
+          examples:
+            Worst Sites By Sle:
+              $ref: '#/components/examples/InsightMetricOrgWorstSitesBySle'
+          schema:
+            $ref: '#/components/schemas/insight_metrics'
+      description: OK
   schemas:
-    org_site_sle_wired_results:
-      description: Wired SLE results returned for organization sites
-      items:
-        $ref: '#/components/schemas/org_site_sle_wired_result'
-      type: array
-      uniqueItems: true
-    org_site_sle_wan_results:
-      description: WAN SLE results returned for organization sites
-      items:
-        $ref: '#/components/schemas/org_site_sle_wan_result'
-      type: array
-      uniqueItems: true
-    org_site_sle_wan_result:
+    response_http400:
       additionalProperties: false
-      description: WAN SLE scores and counts for one site
-      properties:
-        application_health:
-          description: Application health SLE score for this site
-          type: number
-        gateway-health:
-          description: Gateway health SLE score for this site
-          type: number
-        num_clients:
-          description: Number of WAN clients included in this site result
-          type: number
-        num_gateways:
-          description: Number of gateways included in this site result
-          type: number
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Site associated with this WAN SLE result
-        wan-link-health:
-          description: WAN link health SLE score for this site
-          type: number
-      required:
-      - site_id
-      - gateway-health
-      type: object
-    org_site_sle_type:
-      description: 'enum: `wan`, `wifi`, `wired`'
-      enum:
-      - wan
-      - wifi
-      - wired
-      type: string
-    response_org_site_sle:
-      description: Organization site SLE response for Wi-Fi, wired, or WAN
-      oneOf:
-      - $ref: '#/components/schemas/org_site_sle_wifi'
-      - $ref: '#/components/schemas/org_site_wired_wifi'
-      - $ref: '#/components/schemas/org_site_wan_wifi'
-    insight_metrics_results:
-      description: Results depends on the `metric` - some return numbers (e.g. bytes, ap-count), others return objects
-      items:
-        $ref: '#/components/schemas/insight_metrics_results_item'
-      type: array
-      uniqueItems: true
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    insight_metrics_results_item:
-      anyOf:
-      - type: number
-      - additionalProperties: true
-        type: object
-      description: Insight metric result item, returned either as a number or an object depending on the requested metric
-    org_site_sle_wifi:
-      additionalProperties: false
-      description: Paginated Wi-Fi SLE results for organization sites
-      properties:
-        end:
-          description: Query end timestamp for the returned SLE window
-          type: number
-        interval:
-          description: Aggregation interval, in seconds, used for the SLE query
-          type: integer
-        limit:
-          description: Maximum number of site results returned per page
-          type: integer
-        page:
-          description: Result page number returned by the query
-          type: integer
-        results:
-          $ref: '#/components/schemas/org_site_sle_wifi_results'
-          description: Wi-Fi SLE results for the current page
-        start:
-          description: Query start timestamp for the returned SLE window
-          type: number
-        total:
-          description: Number of matching site results available for the query
-          type: integer
-      required:
-      - start
-      - end
-      - interval
-      - limit
-      - page
-      - total
-      - results
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
     org_site_wired_wifi:
@@ -317,6 +301,16 @@ components:
       - site_id
       - switch-health
       type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     insight_metrics:
       additionalProperties: false
       description: Insight metric response for a requested time range and aggregation interval
@@ -341,12 +335,112 @@ components:
       - interval
       - start
       type: object
-    org_site_sle_wifi_results:
-      description: Wi-Fi SLE results returned for organization sites
+    response_org_site_sle:
+      description: Organization site SLE response for Wi-Fi, wired, or WAN
+      oneOf:
+      - $ref: '#/components/schemas/org_site_sle_wifi'
+      - $ref: '#/components/schemas/org_site_wired_wifi'
+      - $ref: '#/components/schemas/org_site_wan_wifi'
+    insight_metrics_results:
+      description: Results depends on the `metric` - some return numbers (e.g. bytes, ap-count), others return objects
       items:
-        $ref: '#/components/schemas/org_site_sle_wifi_result'
+        $ref: '#/components/schemas/insight_metrics_results_item'
       type: array
       uniqueItems: true
+    org_site_sle_wan_result:
+      additionalProperties: false
+      description: WAN SLE scores and counts for one site
+      properties:
+        application_health:
+          description: Application health SLE score for this site
+          type: number
+        gateway-health:
+          description: Gateway health SLE score for this site
+          type: number
+        num_clients:
+          description: Number of WAN clients included in this site result
+          type: number
+        num_gateways:
+          description: Number of gateways included in this site result
+          type: number
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Site associated with this WAN SLE result
+        wan-link-health:
+          description: WAN link health SLE score for this site
+          type: number
+      required:
+      - site_id
+      - gateway-health
+      type: object
+    org_site_sle_wifi:
+      additionalProperties: false
+      description: Paginated Wi-Fi SLE results for organization sites
+      properties:
+        end:
+          description: Query end timestamp for the returned SLE window
+          type: number
+        interval:
+          description: Aggregation interval, in seconds, used for the SLE query
+          type: integer
+        limit:
+          description: Maximum number of site results returned per page
+          type: integer
+        page:
+          description: Result page number returned by the query
+          type: integer
+        results:
+          $ref: '#/components/schemas/org_site_sle_wifi_results'
+          description: Wi-Fi SLE results for the current page
+        start:
+          description: Query start timestamp for the returned SLE window
+          type: number
+        total:
+          description: Number of matching site results available for the query
+          type: integer
+      required:
+      - start
+      - end
+      - interval
+      - limit
+      - page
+      - total
+      - results
+      type: object
+    org_site_wan_wifi:
+      additionalProperties: false
+      description: Paginated WAN SLE results for organization sites
+      properties:
+        end:
+          description: Query end timestamp for the returned SLE window
+          type: number
+        interval:
+          description: Aggregation interval, in seconds, used for the SLE query
+          type: integer
+        limit:
+          description: Maximum number of site results returned per page
+          type: integer
+        page:
+          description: Result page number returned by the query
+          type: integer
+        results:
+          $ref: '#/components/schemas/org_site_sle_wan_results'
+          description: WAN SLE results for the current page
+        start:
+          description: Query start timestamp for the returned SLE window
+          type: number
+        total:
+          description: Number of matching site results available for the query
+          type: integer
+      required:
+      - start
+      - end
+      - interval
+      - limit
+      - page
+      - total
+      - results
+      type: object
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -355,6 +449,31 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    org_site_sle_wan_results:
+      description: WAN SLE results returned for organization sites
+      items:
+        $ref: '#/components/schemas/org_site_sle_wan_result'
+      type: array
+      uniqueItems: true
+    org_site_sle_wired_results:
+      description: Wired SLE results returned for organization sites
+      items:
+        $ref: '#/components/schemas/org_site_sle_wired_result'
+      type: array
+      uniqueItems: true
+    site_id:
+      description: Unique identifier of a Mist site
+      examples:
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    org_site_sle_wifi_results:
+      description: Wi-Fi SLE results returned for organization sites
+      items:
+        $ref: '#/components/schemas/org_site_sle_wifi_result'
+      type: array
+      uniqueItems: true
     org_site_sle_wifi_result:
       additionalProperties: false
       description: Wi-Fi SLE scores and counts for one site
@@ -396,51 +515,43 @@ components:
       - site_id
       - ap-availability
       type: object
-    org_site_wan_wifi:
+    org_site_sle_type:
+      description: 'enum: `wan`, `wifi`, `wired`'
+      enum:
+      - wan
+      - wifi
+      - wired
+      type: string
+    response_http401:
       additionalProperties: false
-      description: Paginated WAN SLE results for organization sites
-      properties:
-        end:
-          description: Query end timestamp for the returned SLE window
-          type: number
-        interval:
-          description: Aggregation interval, in seconds, used for the SLE query
-          type: integer
-        limit:
-          description: Maximum number of site results returned per page
-          type: integer
-        page:
-          description: Result page number returned by the query
-          type: integer
-        results:
-          $ref: '#/components/schemas/org_site_sle_wan_results'
-          description: WAN SLE results for the current page
-        start:
-          description: Query start timestamp for the returned SLE window
-          type: number
-        total:
-          description: Number of matching site results available for the query
-          type: integer
-      required:
-      - start
-      - end
-      - interval
-      - limit
-      - page
-      - total
-      - results
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 401 authentication error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the authentication error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    insight_metrics_results_item:
+      anyOf:
+      - type: number
+      - additionalProperties: true
+        type: object
+      description: Insight metric result item, returned either as a number or an object depending on the requested metric
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     OrgSiteSleWANSLE:
       value:
         end: 1651323600
@@ -456,9 +567,6 @@ components:
           wan-link-health: 0.9988471089272484
         start: 1651269600
         total: 4
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
     InsightMetricOrgWorstSitesBySle:
       value:
         end: 1643706000
@@ -534,6 +642,12 @@ components:
           time-to-connect: 0.9791666666666666
         start: 1651269600
         total: 4
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     OrgSiteSleWiredSLE:
       value:
         end: 1651323600
@@ -549,35 +663,23 @@ components:
           switch-throughput: 1
         start: 1651269600
         total: 4
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
     end:
       description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
       in: query
       name: end
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    metric:
-      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
-      in: path
-      name: metric
-      required: true
       schema:
         type: string
     org_id:
@@ -589,29 +691,6 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
     interval:
       description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
       in: query
@@ -620,114 +699,35 @@ components:
         examples:
         - 10m
         type: string
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    InsightMetricOrg:
-      content:
-        application/json:
-          examples:
-            Worst Sites By Sle:
-              $ref: '#/components/examples/InsightMetricOrgWorstSitesBySle'
-          schema:
-            $ref: '#/components/schemas/insight_metrics'
-        application/vnd.api+json:
-          examples:
-            Worst Sites By Sle:
-              $ref: '#/components/examples/InsightMetricOrgWorstSitesBySle'
-          schema:
-            $ref: '#/components/schemas/insight_metrics'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    OrgSiteSle:
-      content:
-        application/json:
-          examples:
-            WAN SLE:
-              $ref: '#/components/examples/OrgSiteSleWANSLE'
-            Wi-Fi SLE:
-              $ref: '#/components/examples/OrgSiteSleWiFiSLE'
-            Wired SLE:
-              $ref: '#/components/examples/OrgSiteSleWiredSLE'
-          schema:
-            $ref: '#/components/schemas/response_org_site_sle'
-        application/vnd.api+json:
-          examples:
-            WAN SLE:
-              $ref: '#/components/examples/OrgSiteSleWANSLE'
-            Wi-Fi SLE:
-              $ref: '#/components/examples/OrgSiteSleWiFiSLE'
-            Wired SLE:
-              $ref: '#/components/examples/OrgSiteSleWiredSLE'
-          schema:
-            $ref: '#/components/schemas/response_org_site_sle'
-      description: Example response
+    metric:
+      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
+      in: path
+      name: metric
+      required: true
+      schema:
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

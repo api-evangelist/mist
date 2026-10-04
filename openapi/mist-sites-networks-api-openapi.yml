@@ -84,67 +84,92 @@ paths:
       tags:
       - Sites Networks
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    NetworksArray:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworksArrayExample'
+          schema:
+            $ref: '#/components/schemas/networks'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/NetworksArrayExample'
+          schema:
+            $ref: '#/components/schemas/networks'
+      description: OK
   schemas:
-    network_internal_access:
-      additionalProperties: false
-      description: Internal access settings for an organization network
-      properties:
-        enabled:
-          description: Whether internal access is enabled for this network
-          type: boolean
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    network_multicast_groups:
-      additionalProperties:
-        $ref: '#/components/schemas/network_multicast_group'
-      description: Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32")
-      type: object
-    network_vpn_access_destination_nat:
-      additionalProperties:
-        $ref: '#/components/schemas/network_vpn_access_destination_nat_property'
-      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
-      type: object
-    network_internet_access_static_nat_property:
-      additionalProperties: false
-      description: Direct-internet static NAT rule target settings
-      properties:
-        internal_ip:
-          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
-          examples:
-          - 192.168.70.3
-          type: string
-        name:
-          description: Label for this direct internet static NAT rule
-          examples:
-          - pos_station-1
-          type: string
-        wan_name:
-          description: SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. "{{myvar}}")
-          examples:
-          - wan0
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    network_internet_access_static_nat:
-      additionalProperties:
-        $ref: '#/components/schemas/network_internet_access_static_nat_property'
-      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
-      type: object
     network_tenant_addresses:
       description: IP addresses or subnets assigned to a network tenant
       items:
@@ -153,73 +178,47 @@ components:
         - 192.168.70.30
         type: string
       type: array
-    network_multicast:
+    response_http400:
       additionalProperties: false
-      description: Whether to enable multicast support (only PIM-sparse mode is supported)
+      description: Standard HTTP 400 bad request error response
       properties:
-        disable_igmp:
-          default: false
-          description: If the network will only be the source of the multicast traffic, IGMP can be disabled
-          type: boolean
-        enabled:
-          default: false
-          description: Whether multicast support is enabled for this network
-          type: boolean
-        groups:
-          $ref: '#/components/schemas/network_multicast_groups'
-          description: Multicast group-to-RP mappings for this network
-      type: object
-    network_vpn_access_static_nat_property:
-      additionalProperties: false
-      description: VPN access static NAT rule target settings
-      properties:
-        internal_ip:
-          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-          - 192.168.70.3
-          type: string
-        name:
-          description: Label for this VPN static NAT rule
-          examples:
-          - pos_station-1
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    network_vpn_access_static_nat:
-      additionalProperties:
-        $ref: '#/components/schemas/network_vpn_access_static_nat_property'
-      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
-      type: object
-    network_vpn_access_config_other_vrfs:
-      description: By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
+    network_routed_for_networks:
+      description: For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
       items:
         examples:
-        - iot
+        - pos
         type: string
       type: array
-    network_tenants:
+    network_internet_access_destination_nat:
       additionalProperties:
-        $ref: '#/components/schemas/network_tenant'
-      description: Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}")
+        $ref: '#/components/schemas/network_internet_access_destination_nat_property'
+      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
       type: object
-    network_vpn_access_destination_nat_property:
+    response_http403:
       additionalProperties: false
-      description: VPN access destination NAT rule target settings
+      description: Standard HTTP 403 permission error response
       properties:
-        internal_ip:
-          description: The Destination NAT destination IP address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
+        detail:
+          description: Human-readable explanation of the permission error
           examples:
-          - 192.168.70.30
+          - You do not have permission to perform this action.
           type: string
-        name:
-          description: Label for this VPN destination NAT rule
-          examples:
-          - web server
-          type: string
-        port:
-          description: Destination port or variable for this VPN destination NAT rule
-          examples:
-          - '443'
-          type: string
+      type: object
+    network_vpn_access_destination_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_destination_nat_property'
+      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
+      type: object
+    network_multicast_groups:
+      additionalProperties:
+        $ref: '#/components/schemas/network_multicast_group'
+      description: Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32")
       type: object
     network_source_nat:
       additionalProperties: false
@@ -231,11 +230,26 @@ components:
           - 172.16.0.8/30
           type: string
       type: object
-    created_time:
-      description: When the object has been created, in epoch
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
       format: double
       readOnly: true
       type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    network_tenant:
+      additionalProperties: false
+      description: Tenant address entry for a network
+      properties:
+        addresses:
+          $ref: '#/components/schemas/network_tenant_addresses'
+          description: IP addresses or subnets assigned to this tenant in the network
+      type: object
     network:
       description: Organization-level Layer 3 network definition that can be merged into site settings and used for service routes. Networks are used to define the service routes in the Gateway settings or templates
       properties:
@@ -307,45 +321,37 @@ components:
       required:
       - name
       type: object
-    network_routed_for_networks:
-      description: For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
-      items:
-        examples:
-        - pos
-        type: string
-      type: array
-    response_http429:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    response_http403:
+    network_multicast_group:
       additionalProperties: false
-      description: Standard HTTP 403 permission error response
+      description: Multicast group rendezvous point mapping
       properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+        rp_ip:
+          description: RP (rendezvous point) IP address
           type: string
       type: object
-    vlan_id_with_variable:
-      description: VLAN ID, either numeric or expressed as a template variable string
-      oneOf:
-      - type: string
-      - maximum: 4094
-        minimum: 1
-        type: integer
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
+    network_vpn_access_static_nat_property:
+      additionalProperties: false
+      description: VPN access static NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.3
+          type: string
+        name:
+          description: Label for this VPN static NAT rule
+          examples:
+          - pos_station-1
+          type: string
+      type: object
     network_internet_access_destination_nat_property:
       additionalProperties: false
       description: Direct-internet destination NAT rule target settings
@@ -369,6 +375,153 @@ components:
           description: SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity
           examples:
           - wan0
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    network_tenants:
+      additionalProperties:
+        $ref: '#/components/schemas/network_tenant'
+      description: Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}")
+      type: object
+    network_vpn_access_static_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_static_nat_property'
+      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
+      type: object
+    vlan_id_with_variable:
+      description: VLAN ID, either numeric or expressed as a template variable string
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    network_internet_access:
+      additionalProperties: false
+      description: Direct internet access settings for an organization network
+      properties:
+        create_simple_service_policy:
+          default: false
+          description: Whether Mist should create simple service policies for restricted internet access
+          type: boolean
+        destination_nat:
+          $ref: '#/components/schemas/network_internet_access_destination_nat'
+          description: Destination NAT rules for direct internet access
+        enabled:
+          description: Whether direct internet access is enabled for this network
+          type: boolean
+        restricted:
+          default: false
+          description: By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
+          type: boolean
+        static_nat:
+          $ref: '#/components/schemas/network_internet_access_static_nat'
+          description: Static NAT rules for direct internet access
+      type: object
+    network_vpn_access:
+      additionalProperties:
+        $ref: '#/components/schemas/network_vpn_access_config'
+      description: Property key is the VPN name. Whether this network can be accessed from vpn
+      type: object
+    network_vpn_access_config_other_vrfs:
+      description: By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
+      items:
+        examples:
+        - iot
+        type: string
+      type: array
+    network_internal_access:
+      additionalProperties: false
+      description: Internal access settings for an organization network
+      properties:
+        enabled:
+          description: Whether internal access is enabled for this network
+          type: boolean
+      type: object
+    network_multicast:
+      additionalProperties: false
+      description: Whether to enable multicast support (only PIM-sparse mode is supported)
+      properties:
+        disable_igmp:
+          default: false
+          description: If the network will only be the source of the multicast traffic, IGMP can be disabled
+          type: boolean
+        enabled:
+          default: false
+          description: Whether multicast support is enabled for this network
+          type: boolean
+        groups:
+          $ref: '#/components/schemas/network_multicast_groups'
+          description: Multicast group-to-RP mappings for this network
+      type: object
+    network_internet_access_static_nat_property:
+      additionalProperties: false
+      description: Direct-internet static NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Static NAT destination IP address. Must be an IP address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.3
+          type: string
+        name:
+          description: Label for this direct internet static NAT rule
+          examples:
+          - pos_station-1
+          type: string
+        wan_name:
+          description: SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. "{{myvar}}")
+          examples:
+          - wan0
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    networks:
+      description: List of organization network definitions
+      items:
+        $ref: '#/components/schemas/network'
+      type: array
+    network_internet_access_static_nat:
+      additionalProperties:
+        $ref: '#/components/schemas/network_internet_access_static_nat_property'
+      description: Property key may be an External IP address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}")
+      type: object
+    network_vpn_access_destination_nat_property:
+      additionalProperties: false
+      description: VPN access destination NAT rule target settings
+      properties:
+        internal_ip:
+          description: The Destination NAT destination IP address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
+          examples:
+          - 192.168.70.30
+          type: string
+        name:
+          description: Label for this VPN destination NAT rule
+          examples:
+          - web server
+          type: string
+        port:
+          description: Destination port or variable for this VPN destination NAT rule
+          examples:
+          - '443'
           type: string
       type: object
     network_vpn_access_config:
@@ -430,98 +583,23 @@ components:
           - 172.16.0.0/16
           type: string
       type: object
-    network_tenant:
+    response_http429:
       additionalProperties: false
-      description: Tenant address entry for a network
-      properties:
-        addresses:
-          $ref: '#/components/schemas/network_tenant_addresses'
-          description: IP addresses or subnets assigned to this tenant in the network
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    network_multicast_group:
-      additionalProperties: false
-      description: Multicast group rendezvous point mapping
-      properties:
-        rp_ip:
-          description: RP (rendezvous point) IP address
-          type: string
-      type: object
-    network_internet_access_destination_nat:
-      additionalProperties:
-        $ref: '#/components/schemas/network_internet_access_destination_nat_property'
-      description: Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined
-      type: object
-    network_vpn_access:
-      additionalProperties:
-        $ref: '#/components/schemas/network_vpn_access_config'
-      description: Property key is the VPN name. Whether this network can be accessed from vpn
-      type: object
-    networks:
-      description: List of organization network definitions
-      items:
-        $ref: '#/components/schemas/network'
-      type: array
-    network_internet_access:
-      additionalProperties: false
-      description: Direct internet access settings for an organization network
-      properties:
-        create_simple_service_policy:
-          default: false
-          description: Whether Mist should create simple service policies for restricted internet access
-          type: boolean
-        destination_nat:
-          $ref: '#/components/schemas/network_internet_access_destination_nat'
-          description: Destination NAT rules for direct internet access
-        enabled:
-          description: Whether direct internet access is enabled for this network
-          type: boolean
-        restricted:
-          default: false
-          description: By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
-          type: boolean
-        static_nat:
-          $ref: '#/components/schemas/network_internet_access_static_nat'
-          description: Static NAT rules for direct internet access
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     NetworksArrayExample:
       value:
       - created_time: 0
@@ -617,100 +695,22 @@ components:
                 internal_ip: 192.168.70.3
                 name: pos_station-1
             summarized_subnet: 172.16.0.0/16
-    HTTP403Example:
+    HTTP401Example:
       value:
-        detail: You do not have permission to perform this action.
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        detail: Authentication credentials were not provided.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    NetworksArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/NetworksArrayExample'
-          schema:
-            $ref: '#/components/schemas/networks'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/NetworksArrayExample'
-          schema:
-            $ref: '#/components/schemas/networks'
-      description: OK
+  parameters:
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

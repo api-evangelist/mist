@@ -173,152 +173,7 @@ paths:
       tags:
       - Orgs Cert
 components:
-  examples:
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    OrgSslProxyCertExample:
-      value:
-        cert: '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    CertificateExample:
-      value:
-        cert: '-----BEGIN CERTIFICATE-----
-
-          MIIowDQYJKoZIhvcNAQELBQE
-
-          -----END CERTIFICATE-----'
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  schemas:
-    org_ssl_proxy_cert:
-      additionalProperties: false
-      description: SSL proxy certificate returned for the organization
-      properties:
-        cert:
-          description: PEM-encoded SSL proxy certificate for the organization
-          examples:
-          - '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
-          type: string
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    days_number:
-      description: Request body specifying CRL truncation retention in days
-      properties:
-        days:
-          default: 30
-          description: Number of most recent days of CRL entries to retain after truncation
-          type: integer
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_certificate:
-      additionalProperties: false
-      description: If the current Org CA certificate is set to expire within 30 days, a pending certificate will be returned along with the expected auto-renewal timestamp.
-      properties:
-        cert:
-          description: Current organization CA certificate in PEM format
-          type: string
-        pending_cert:
-          description: Pending auto-renewed organization CA certificate returned when the current certificate nears expiry
-          type: string
-        pending_cert_expiry:
-          description: Epoch timestamp when the pending certificate is expected to replace the current certificate
-          type: integer
-      required:
-      - cert
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
   responses:
-    OrgSslProxyCert:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgSslProxyCertExample'
-          schema:
-            $ref: '#/components/schemas/org_ssl_proxy_cert'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgSslProxyCertExample'
-          schema:
-            $ref: '#/components/schemas/org_ssl_proxy_cert'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    Certificate:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CertificateExample'
-          schema:
-            $ref: '#/components/schemas/response_certificate'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CertificateExample'
-          schema:
-            $ref: '#/components/schemas/response_certificate'
-      description: OK
     HTTP400:
       content:
         application/json:
@@ -334,8 +189,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_http400'
       description: Bad Syntax
-    OK:
-      description: OK
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -366,21 +234,153 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP403:
+    OrgSslProxyCert:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/OrgSslProxyCertExample'
           schema:
-            $ref: '#/components/schemas/response_http403'
+            $ref: '#/components/schemas/org_ssl_proxy_cert'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/OrgSslProxyCertExample'
           schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
+            $ref: '#/components/schemas/org_ssl_proxy_cert'
+      description: Example response
+    Certificate:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CertificateExample'
+          schema:
+            $ref: '#/components/schemas/response_certificate'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CertificateExample'
+          schema:
+            $ref: '#/components/schemas/response_certificate'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+  schemas:
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_certificate:
+      additionalProperties: false
+      description: If the current Org CA certificate is set to expire within 30 days, a pending certificate will be returned along with the expected auto-renewal timestamp.
+      properties:
+        cert:
+          description: Current organization CA certificate in PEM format
+          type: string
+        pending_cert:
+          description: Pending auto-renewed organization CA certificate returned when the current certificate nears expiry
+          type: string
+        pending_cert_expiry:
+          description: Epoch timestamp when the pending certificate is expected to replace the current certificate
+          type: integer
+      required:
+      - cert
+      type: object
+    days_number:
+      description: Request body specifying CRL truncation retention in days
+      properties:
+        days:
+          default: 30
+          description: Number of most recent days of CRL entries to retain after truncation
+          type: integer
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    org_ssl_proxy_cert:
+      additionalProperties: false
+      description: SSL proxy certificate returned for the organization
+      properties:
+        cert:
+          description: PEM-encoded SSL proxy certificate for the organization
+          examples:
+          - '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    OrgSslProxyCertExample:
+      value:
+        cert: '-----BEGIN CERTIFICATE-----\nMIIowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----'
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    CertificateExample:
+      value:
+        cert: '-----BEGIN CERTIFICATE-----
+
+          MIIowDQYJKoZIhvcNAQELBQE
+
+          -----END CERTIFICATE-----'
   parameters:
     org_id:
       in: path

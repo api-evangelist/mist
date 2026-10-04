@@ -433,11 +433,42 @@ paths:
       - Orgs Psk Portals
 components:
   schemas:
-    psk_portal_required_fields:
-      description: User information fields requested by the portal; email is required by default
-      items:
+    count_result:
+      additionalProperties:
         type: string
+      description: Count result row with the matching distinct field values
+      properties:
+        count:
+          description: Number of matching items for the distinct value or values in this result
+          type: integer
+      required:
+      - count
+      type: object
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    psk_portal_list:
+      description: List of PSK portal configurations
+      items:
+        $ref: '#/components/schemas/psk_portal'
       type: array
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
     psk_portal_template_setting:
       additionalProperties: false
       description: Custom UI settings for the PSK portal template
@@ -490,122 +521,22 @@ components:
       format: uuid
       readOnly: true
       type: string
-    count_result:
-      additionalProperties:
-        type: string
-      description: Count result row with the matching distinct field values
-      properties:
-        count:
-          description: Number of matching items for the distinct value or values in this result
-          type: integer
-      required:
-      - count
-      type: object
-    psk_portal_passphrase_rules:
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    psk_portal_image:
       additionalProperties: false
-      description: Passphrase generation rules for PSKs created through a portal
+      description: PSK portal image upload payload
       properties:
-        alphabets_enabled:
-          default: true
-          description: Whether generated passphrases may include alphabetic characters
-          type: boolean
-        length:
-          description: Fixed generated passphrase length used when min and max length are not both valid
-          maximum: 63
-          minimum: 8
-          type: integer
-        max_length:
-          description: Maximum generated passphrase length when paired with a valid `min_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
-          maximum: 63
-          minimum: 8
-          type: integer
-        min_length:
-          description: Minimum generated passphrase length when paired with a valid `max_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
-          maximum: 63
-          minimum: 8
-          type: integer
-        numerics_enabled:
-          default: true
-          description: Whether generated passphrases may include numeric characters
-          type: boolean
-        symbols:
-          description: Allowed symbol characters for generated passphrases
-          examples:
-          - ()[]{}_%@#&$
+        file:
+          contentMediaType: application/octet-stream
+          description: Image binary payload to upload for the PSK portal
           type: string
-        symbols_enabled:
-          default: true
-          description: Whether generated passphrases may include symbols
-          type: boolean
-      type: object
-    psk_portal_auth:
-      default: sso
-      description: 'Portal access method for guest authentication, either `sponsor` or `sso`. enum: `sponsor`, `sso`'
-      enum:
-      - sponsor
-      - sso
-      type: string
-    psk_portal_sso_idp_sign_algo:
-      default: sha256
-      description: 'Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`. enum: `sha1`, `sha256`, `sha384`, `sha512`'
-      enum:
-      - sha1
-      - sha256
-      - sha384
-      - sha512
-      type: string
-    psk_portal_list:
-      description: List of PSK portal configurations
-      items:
-        $ref: '#/components/schemas/psk_portal'
-      type: array
-    response_psk_portal_logs_search:
-      additionalProperties: false
-      description: Paginated response for organization PSK Portal log search results
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the PSK Portal log search window
-          examples:
-          - 1428954000
-          type: integer
-        limit:
-          description: Maximum number of PSK Portal log entries returned in this page
-          examples:
-          - 100
-          type: integer
-        next:
-          description: URL for retrieving the next page of PSK Portal log search results
+        json:
+          description: Metadata JSON string describing the PSK portal image upload
           type: string
-        results:
-          $ref: '#/components/schemas/response_psk_portal_logs_search_item_list'
-          description: PSK Portal log entries matching the search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the PSK Portal log search window
-          examples:
-          - 1428939600
-          type: integer
-        total:
-          description: Number of PSK Portal log entries matching the search filters across all pages
-          examples:
-          - 135
-          type: integer
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    psk_portal_template:
-      description: Portal UI customization payload
-      properties:
-        portal_template:
-          $ref: '#/components/schemas/psk_portal_template_setting'
-          description: Template settings for customizing the PSK portal UI
       type: object
     response_psk_portal_logs_search_item:
       additionalProperties: false
@@ -648,30 +579,12 @@ components:
           $ref: '#/components/schemas/timestamp'
           description: Epoch timestamp, in seconds, when the PSK Portal log entry was recorded
       type: object
-    psk_portal_sso_allowed_roles:
-      description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
-      items:
-        type: string
-      type: array
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     timestamp:
@@ -679,22 +592,13 @@ components:
       format: double
       readOnly: true
       type: number
-    psk_portal_type:
-      description: 'for personal psk portal. enum: `admin`, `byod`'
+    psk_portal_auth:
+      default: sso
+      description: 'Portal access method for guest authentication, either `sponsor` or `sso`. enum: `sponsor`, `sso`'
       enum:
-      - admin
-      - byod
+      - sponsor
+      - sso
       type: string
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
     org_psk_portal_logs_count_distinct:
       default: pskportal_id
       description: 'enum: `admin_id`, `admin_name`, `psk_id`, `psk_name`, `pskportal_id`, `user_id`'
@@ -706,111 +610,73 @@ components:
       - pskportal_id
       - user_id
       type: string
-    psk_portal_image:
+    psk_portal_passphrase_rules:
       additionalProperties: false
-      description: PSK portal image upload payload
+      description: Passphrase generation rules for PSKs created through a portal
       properties:
-        file:
-          contentMediaType: application/octet-stream
-          description: Image binary payload to upload for the PSK portal
+        alphabets_enabled:
+          default: true
+          description: Whether generated passphrases may include alphabetic characters
+          type: boolean
+        length:
+          description: Fixed generated passphrase length used when min and max length are not both valid
+          maximum: 63
+          minimum: 8
+          type: integer
+        max_length:
+          description: Maximum generated passphrase length when paired with a valid `min_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
+          maximum: 63
+          minimum: 8
+          type: integer
+        min_length:
+          description: Minimum generated passphrase length when paired with a valid `max_length`. If `max_length` or `min_length` is invalid, the portal uses `length`; if `length` is unset or invalid, it uses 8. Valid values are integers from 8 through 63, and `max_length` must be greater than `min_length`
+          maximum: 63
+          minimum: 8
+          type: integer
+        numerics_enabled:
+          default: true
+          description: Whether generated passphrases may include numeric characters
+          type: boolean
+        symbols:
+          description: Allowed symbol characters for generated passphrases
+          examples:
+          - ()[]{}_%@#&$
           type: string
-        json:
-          description: Metadata JSON string describing the PSK portal image upload
-          type: string
-      type: object
-    portal_template_alignment:
-      default: center
-      description: 'defines alignment on portal. enum: `center`, `left`, `right`'
-      enum:
-      - center
-      - left
-      - right
-      type: string
-    vlan_id_with_variable:
-      description: VLAN ID, either numeric or expressed as a template variable string
-      oneOf:
-      - type: string
-      - maximum: 4094
-        minimum: 1
-        type: integer
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    psk_portal_sso:
-      additionalProperties: false
-      description: Single sign-on settings used when `auth`==`sso`
-      properties:
-        allowed_roles:
-          $ref: '#/components/schemas/psk_portal_sso_allowed_roles'
-          description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
-        idp_cert:
-          description: Identity provider signing certificate in PEM format
-          type: string
-        idp_sign_algo:
-          $ref: '#/components/schemas/psk_portal_sso_idp_sign_algo'
-          description: SAML assertion signing algorithm expected from the identity provider
-        idp_sso_url:
-          description: Identity provider SSO URL for SAML login
-          type: string
-        issuer:
-          description: SAML issuer value for the identity provider
-          type: string
-        nameid_format:
-          description: SAML NameID format used for the portal login
-          type: string
-        role_mapping:
-          additionalProperties:
-            type: string
-          description: Maps PSK portal role names to SSO attribute values
-          type: object
-        use_sso_role_for_psk_role:
-          description: Whether to use SSO role mapping for the PSK role and ignore the portal-level `role` field
+        symbols_enabled:
+          default: true
+          description: Whether generated passphrases may include symbols
           type: boolean
       type: object
-    response_http404:
+    response_psk_portal_logs_search:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Paginated response for organization PSK Portal log search results
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_psk_portal_logs_search_item_list:
-      description: PSK Portal log entries returned by search
-      items:
-        $ref: '#/components/schemas/response_psk_portal_logs_search_item'
-      type: array
-    response_count:
-      additionalProperties: false
-      description: Distinct count response for time-bounded search results
-      properties:
-        distinct:
-          description: Field used to group the count results
-          type: string
         end:
-          description: Search window end timestamp for the count request, in epoch seconds
+          description: Epoch timestamp, in seconds, for the end of the PSK Portal log search window
+          examples:
+          - 1428954000
           type: integer
         limit:
-          description: Maximum number of distinct count results requested
+          description: Maximum number of PSK Portal log entries returned in this page
+          examples:
+          - 100
           type: integer
+        next:
+          description: URL for retrieving the next page of PSK Portal log search results
+          type: string
         results:
-          $ref: '#/components/schemas/count_results'
-          description: Count results grouped by the distinct field
+          $ref: '#/components/schemas/response_psk_portal_logs_search_item_list'
+          description: PSK Portal log entries matching the search filters
         start:
-          description: Search window start timestamp for the count request, in epoch seconds
+          description: Epoch timestamp, in seconds, for the start of the PSK Portal log search window
+          examples:
+          - 1428939600
           type: integer
         total:
-          description: Number of distinct result buckets returned
+          description: Number of PSK Portal log entries matching the search filters across all pages
+          examples:
+          - 135
           type: integer
-      required:
-      - distinct
-      - end
-      - limit
-      - results
-      - start
-      - total
       type: object
     psk_portal:
       description: Self-service portal configuration for issuing personal PSKs
@@ -902,6 +768,36 @@ components:
       - name
       - ssid
       type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    psk_portal_template:
+      description: Portal UI customization payload
+      properties:
+        portal_template:
+          $ref: '#/components/schemas/psk_portal_template_setting'
+          description: Template settings for customizing the PSK portal UI
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    vlan_id_with_variable:
+      description: VLAN ID, either numeric or expressed as a template variable string
+      oneOf:
+      - type: string
+      - maximum: 4094
+        minimum: 1
+        type: integer
+    psk_portal_required_fields:
+      description: User information fields requested by the portal; email is required by default
+      items:
+        type: string
+      type: array
     org_id:
       description: Unique identifier of a Mist organization
       examples:
@@ -909,116 +805,250 @@ components:
       format: uuid
       readOnly: true
       type: string
-    response_http400:
+    psk_portal_sso_idp_sign_algo:
+      default: sha256
+      description: 'Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`. enum: `sha1`, `sha256`, `sha384`, `sha512`'
+      enum:
+      - sha1
+      - sha256
+      - sha384
+      - sha512
+      type: string
+    response_http401:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 401 authentication error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the authentication error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Authentication credentials were not provided.
           type: string
       type: object
-  parameters:
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
+    response_count:
+      additionalProperties: false
+      description: Distinct count response for time-bounded search results
+      properties:
+        distinct:
+          description: Field used to group the count results
+          type: string
+        end:
+          description: Search window end timestamp for the count request, in epoch seconds
+          type: integer
+        limit:
+          description: Maximum number of distinct count results requested
+          type: integer
+        results:
+          $ref: '#/components/schemas/count_results'
+          description: Count results grouped by the distinct field
+        start:
+          description: Search window start timestamp for the count request, in epoch seconds
+          type: integer
+        total:
+          description: Number of distinct result buckets returned
+          type: integer
+      required:
+      - distinct
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    response_psk_portal_logs_search_item_list:
+      description: PSK Portal log entries returned by search
+      items:
+        $ref: '#/components/schemas/response_psk_portal_logs_search_item'
+      type: array
+    portal_template_alignment:
+      default: center
+      description: 'defines alignment on portal. enum: `center`, `left`, `right`'
+      enum:
+      - center
+      - left
+      - right
+      type: string
+    psk_portal_sso:
+      additionalProperties: false
+      description: Single sign-on settings used when `auth`==`sso`
+      properties:
+        allowed_roles:
+          $ref: '#/components/schemas/psk_portal_sso_allowed_roles'
+          description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
+        idp_cert:
+          description: Identity provider signing certificate in PEM format
+          type: string
+        idp_sign_algo:
+          $ref: '#/components/schemas/psk_portal_sso_idp_sign_algo'
+          description: SAML assertion signing algorithm expected from the identity provider
+        idp_sso_url:
+          description: Identity provider SSO URL for SAML login
+          type: string
+        issuer:
+          description: SAML issuer value for the identity provider
+          type: string
+        nameid_format:
+          description: SAML NameID format used for the portal login
+          type: string
+        role_mapping:
+          additionalProperties:
+            type: string
+          description: Maps PSK portal role names to SSO attribute values
+          type: object
+        use_sso_role_for_psk_role:
+          description: Whether to use SSO role mapping for the PSK role and ignore the portal-level `role` field
+          type: boolean
+      type: object
+    psk_portal_type:
+      description: 'for personal psk portal. enum: `admin`, `byod`'
+      enum:
+      - admin
+      - byod
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+    psk_portal_sso_allowed_roles:
+      description: SSO roles allowed to access the PSK portal; if empty, any role is permitted
+      items:
         type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    pskportal_id:
-      in: path
-      name: pskportal_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
+      type: array
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    PskPortalsArray:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/psk_portal_list'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/psk_portal_list'
+      description: Example response
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    PskPortal:
+      content:
+        application/json:
+          examples:
+            PSK Portal:
+              $ref: '#/components/examples/PskPortal'
+          schema:
+            $ref: '#/components/schemas/psk_portal'
+        application/vnd.api+json:
+          examples:
+            PSK Portal:
+              $ref: '#/components/examples/PskPortal'
+          schema:
+            $ref: '#/components/schemas/psk_portal'
+      description: Example response
+    PskPortalLogsSearch:
+      content:
+        application/json:
+          examples:
+            PSK Portal Logs:
+              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
+          schema:
+            $ref: '#/components/schemas/response_psk_portal_logs_search'
+        application/vnd.api+json:
+          examples:
+            PSK Portal Logs:
+              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
+          schema:
+            $ref: '#/components/schemas/response_psk_portal_logs_search'
+      description: Example response
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
-    PskPortalLogsSearchPSKPortalLogs:
-      value:
-        end: 1428954000
-        limit: 100
-        results:
-        - id: 8a3dcaa7-80e3-4bb0-a75b-7bc6322cfd09
-          message: Rotate PSK test@mist.com
-          name_id: test@mist.com
-          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
-          psk_id: 608fe603-f9f0-4ce9-9473-04ef6c6ea749
-          psk_name: test@mist.com
-          pskportal_id: c1742c09-af35-4161-96ef-7dc65c6d5674
-          timestamp: 1686346104.096
-        start: 1428939600
-        total: 135
-    CountExample:
-      value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     PskPortal:
       value:
         auth: sso
@@ -1051,141 +1081,111 @@ components:
         type: byod
         ui_url: https://pskportal.gc1.mist.com/#!byod/a6b88bec-5ab7-41ae-a34c-44ff52a8b81d
         vlan_id: 123
+    PskPortalLogsSearchPSKPortalLogs:
+      value:
+        end: 1428954000
+        limit: 100
+        results:
+        - id: 8a3dcaa7-80e3-4bb0-a75b-7bc6322cfd09
+          message: Rotate PSK test@mist.com
+          name_id: test@mist.com
+          org_id: 2818e386-8dec-2562-9ede-5b8a0fbbdc71
+          psk_id: 608fe603-f9f0-4ce9-9473-04ef6c6ea749
+          psk_name: test@mist.com
+          pskportal_id: c1742c09-af35-4161-96ef-7dc65c6d5674
+          timestamp: 1686346104.096
+        start: 1428939600
+        total: 135
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
-    HTTP429Example:
+    HTTP401Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+        detail: Authentication credentials were not provided.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    PskPortalLogsSearch:
-      content:
-        application/json:
-          examples:
-            PSK Portal Logs:
-              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
-          schema:
-            $ref: '#/components/schemas/response_psk_portal_logs_search'
-        application/vnd.api+json:
-          examples:
-            PSK Portal Logs:
-              $ref: '#/components/examples/PskPortalLogsSearchPSKPortalLogs'
-          schema:
-            $ref: '#/components/schemas/response_psk_portal_logs_search'
-      description: Example response
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OK:
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    PskPortal:
-      content:
-        application/json:
-          examples:
-            PSK Portal:
-              $ref: '#/components/examples/PskPortal'
-          schema:
-            $ref: '#/components/schemas/psk_portal'
-        application/vnd.api+json:
-          examples:
-            PSK Portal:
-              $ref: '#/components/examples/PskPortal'
-          schema:
-            $ref: '#/components/schemas/psk_portal'
-      description: Example response
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    PskPortalsArray:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/psk_portal_list'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/psk_portal_list'
-      description: Example response
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+  parameters:
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    pskportal_id:
+      in: path
+      name: pskportal_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

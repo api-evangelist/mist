@@ -279,61 +279,6 @@ paths:
       tags:
       - Orgs Clients - Marvis
 components:
-  parameters:
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
-    interval:
-      description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
-      in: query
-      name: interval
-      schema:
-        examples:
-        - 10m
-        type: string
   schemas:
     count_result:
       additionalProperties:
@@ -346,52 +291,14 @@ components:
       required:
       - count
       type: object
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    stats_marvis_client_location:
-      additionalProperties: false
-      description: Last known location fix for a Marvis Client device
-      properties:
-        map_id:
-          description: UUID of the floor-plan map
-          format: uuid
-          type: string
-        site_id:
-          description: UUID of the site the device was located in
-          format: uuid
-          type: string
-        timestamp:
-          description: Timestamp of the location fix, in epoch seconds
-          type: integer
-        x:
-          description: X coordinate on the floor-plan map, in pixels
-          type: number
-        y:
-          description: Y coordinate on the floor-plan map, in pixels
-          type: number
-      type: object
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
     response_http403:
@@ -403,22 +310,6 @@ components:
           examples:
           - You do not have permission to perform this action.
           type: string
-      type: object
-    marvis_client_events_search:
-      additionalProperties: false
-      description: Paginated list of Marvis Client events
-      properties:
-        limit:
-          description: Maximum number of results requested
-          type: integer
-        results:
-          description: List of Marvis Client events
-          items:
-            $ref: '#/components/schemas/marvis_client_event'
-          type: array
-        total:
-          description: Total number of matching results
-          type: integer
       type: object
     marvis_client_insights:
       additionalProperties: false
@@ -476,6 +367,60 @@ components:
       properties:
         id:
           description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    marvis_client_events_search:
+      additionalProperties: false
+      description: Paginated list of Marvis Client events
+      properties:
+        limit:
+          description: Maximum number of results requested
+          type: integer
+        results:
+          description: List of Marvis Client events
+          items:
+            $ref: '#/components/schemas/marvis_client_event'
+          type: array
+        total:
+          description: Total number of matching results
+          type: integer
+      type: object
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
+    stats_marvis_client_location:
+      additionalProperties: false
+      description: Last known location fix for a Marvis Client device
+      properties:
+        map_id:
+          description: UUID of the floor-plan map
+          format: uuid
+          type: string
+        site_id:
+          description: UUID of the site the device was located in
+          format: uuid
+          type: string
+        timestamp:
+          description: Timestamp of the location fix, in epoch seconds
+          type: integer
+        x:
+          description: X coordinate on the floor-plan map, in pixels
+          type: number
+        y:
+          description: Y coordinate on the floor-plan map, in pixels
+          type: number
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
           type: string
       type: object
     marvis_client_event:
@@ -571,16 +516,6 @@ components:
       - start
       - total
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
     marvis_client_event_neighbor_ap:
       additionalProperties: false
       description: A neighboring AP observed in a Marvis Client event
@@ -598,7 +533,165 @@ components:
           description: RSSI of the neighboring AP signal, in dBm
           type: integer
       type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    MarvisClientEventsCount:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Count result
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    MarvisClientInsights:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientInsightsExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_insights'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientInsightsExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_insights'
+      description: Marvis Client time-series metrics
+    OK:
+      description: OK
+    MarvisClientEventsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_events_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/MarvisClientEventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/marvis_client_events_search'
+      description: Paginated Marvis Client events search results
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    MarvisClientInsightsExample:
+      value:
+        avg_battery:
+        - 82
+        - 79
+        avg_cellular_rssi:
+        - -95
+        - -92
+        avg_cpu:
+        - 12.5
+        - 15.2
+        avg_memory:
+        - 43.1
+        - 44.8
+        avg_wifi_rssi:
+        - -62
+        - -60
+        end: 1717113600
+        interval: 3600
+        limit: 100
+        page: 1
+        rt:
+        - '2026-05-30T16:00:00Z'
+        - '2026-05-30T17:00:00Z'
+        start: 1717027200
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
@@ -626,6 +719,9 @@ components:
           wifi_ip: 192.168.1.55
           wifi_mac: 00:aa:bb:cc:dd:ee
         total: 1
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     CountExample:
       value:
         distinct: string
@@ -636,157 +732,61 @@ components:
           property: string
         start: 0
         total: 0
-    MarvisClientInsightsExample:
-      value:
-        avg_battery:
-        - 82
-        - 79
-        avg_cellular_rssi:
-        - -95
-        - -92
-        avg_cpu:
-        - 12.5
-        - 15.2
-        avg_memory:
-        - 43.1
-        - 44.8
-        avg_wifi_rssi:
-        - -62
-        - -60
-        end: 1717113600
-        interval: 3600
-        limit: 100
-        page: 1
-        rt:
-        - '2026-05-30T16:00:00Z'
-        - '2026-05-30T17:00:00Z'
-        start: 1717027200
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    OK:
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    MarvisClientInsights:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientInsightsExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_insights'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientInsightsExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_insights'
-      description: Marvis Client time-series metrics
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    MarvisClientEventsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_events_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/MarvisClientEventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/marvis_client_events_search'
-      description: Paginated Marvis Client events search results
-    MarvisClientEventsCount:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Count result
+  parameters:
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    interval:
+      description: Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.
+      in: query
+      name: interval
+      schema:
+        examples:
+        - 10m
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -356,105 +356,7 @@ paths:
       tags:
       - Sites Stats - Assets
 components:
-  parameters:
-    asset_id:
-      in: path
-      name: asset_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    map_id:
-      in: path
-      name: map_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    page:
-      description: Select the page number to return when using page-based pagination; starts at `1`
-      in: query
-      name: page
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
   schemas:
-    asset_zone:
-      additionalProperties: false
-      description: Map zone membership for an individual asset statistic
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the zone
-        since:
-          description: Timestamp when the asset entered this zone
-          type: number
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
     count_result:
       additionalProperties:
         type: string
@@ -466,80 +368,76 @@ components:
       required:
       - count
       type: object
-    ibeacon_minor:
-      description: Minor number for iBeacon
-      examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    site_assets_count_distinct:
-      default: map_id
-      description: 'enum: `by`, `device_name`, `eddystone_uid_instance`, `eddystone_uid_namespace`, `eddystone_url`, `ibeacon_major`, `ibeacon_minor`, `ibeacon_uuid`, `mac`, `map_id`, `name`'
-      enum:
-      - by
-      - device_name
-      - eddystone_uid_instance
-      - eddystone_uid_namespace
-      - eddystone_url
-      - ibeacon_major
-      - ibeacon_minor
-      - ibeacon_uuid
-      - mac
-      - map_id
+    assets_of_interest:
+      description: BLE beacons that matched named assets or asset filters
+      items:
+        $ref: '#/components/schemas/asset_of_interest'
+      type: array
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
+      examples:
+      - 1470417522
+      format: double
+      readOnly: true
+      type:
+      - number
+      - 'null'
+    asset:
+      description: Named Bluetooth Low Energy asset record
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Timestamp when this asset record was created
+        for_site:
+          description: Whether this asset is scoped directly to a site
+          readOnly: true
+          type: boolean
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the asset record
+        mac:
+          description: Bluetooth MAC address used to identify the BLE asset
+          type: string
+        map_id:
+          description: Identifier of the map associated with this asset, when specified
+          format: uuid
+          type: string
+        modified_time:
+          $ref: '#/components/schemas/modified_time'
+          description: Timestamp when this asset record was last modified
+        name:
+          description: Display name or label for the BLE asset
+          type: string
+        org_id:
+          $ref: '#/components/schemas/org_id'
+          description: Owning organization identifier for this asset
+        site_id:
+          $ref: '#/components/schemas/site_id'
+          description: Identifier of the site associated with this asset
+        tag_id:
+          description: BLE tag identifier associated with this asset
+          format: uuid
+          type: string
+      required:
       - name
-      type: string
+      - mac
+      type: object
     stats_asset_service_packets:
       description: List of all service data advertisements (maximum length of 10)
       items:
         $ref: '#/components/schemas/stats_asset_service_packet'
       maxItems: 10
       type: array
-    stats_assets:
-      description: Asset statistics returned by the request
-      items:
-        $ref: '#/components/schemas/stats_asset'
-      type: array
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    site_id:
-      description: Unique identifier of a Mist site
-      examples:
-      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
-      format: uuid
-      readOnly: true
-      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -550,11 +448,63 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
+    asset_rssi_zones:
+      description: Only send this for individual asset stat
+      items:
+        $ref: '#/components/schemas/asset_rssi_zone'
+      type: array
+    asset_zone:
+      additionalProperties: false
+      description: Map zone membership for an individual asset statistic
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the zone
+        since:
+          description: Timestamp when the asset entered this zone
+          type: number
+      type: object
     modified_time:
       description: When the object has been modified for the last time, in epoch
       format: double
       readOnly: true
       type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_stats_assets:
+      additionalProperties: false
+      description: Paginated response for asset statistics search results
+      properties:
+        end:
+          description: Epoch timestamp, in seconds, for the end of the asset statistics search window
+          type: integer
+        limit:
+          description: Maximum number of asset statistics records returned in this page
+          type: integer
+        next:
+          description: URL for retrieving the next page of asset statistics results
+          type: string
+        results:
+          $ref: '#/components/schemas/stats_assets'
+          description: Asset statistics records matching the search filters
+        start:
+          description: Epoch timestamp, in seconds, for the start of the asset statistics search window
+          type: integer
+        total:
+          description: Number of asset statistics records matching the search filters across all pages
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
     ibeacon_uuid:
       description: iBeacon UUID value, or null when no iBeacon UUID is configured
       examples:
@@ -563,17 +513,6 @@ components:
       type:
       - string
       - 'null'
-    asset_rssi_zone:
-      additionalProperties: false
-      description: RSSI zone membership for an individual asset statistic
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the RSSI zone
-        since:
-          description: Timestamp when the asset entered this RSSI zone
-          type: number
-      type: object
     asset_zones:
       description: Only send this for individual asset stat
       items:
@@ -587,73 +526,65 @@ components:
           description: Missing resource identifier, when the API includes one
           type: string
       type: object
-    assets_of_interest:
-      description: BLE beacons that matched named assets or asset filters
-      items:
-        $ref: '#/components/schemas/asset_of_interest'
-      type: array
-    asset_rssi_zones:
-      description: Only send this for individual asset stat
-      items:
-        $ref: '#/components/schemas/asset_rssi_zone'
-      type: array
-    asset_of_interest:
+    stats_asset_service_packet:
       additionalProperties: false
-      description: BLE beacon that matched a named asset or asset filter
+      description: Service data advertisement from a BLE asset
       properties:
-        ap_mac:
-          description: Access point MAC address that heard this BLE beacon
-          minLength: 1
+        data:
+          description: Service data payload (hex encoded)
+          examples:
+          - '640'
           type: string
-        beam:
-          description: BLE beam number that detected this beacon
-          type: number
-        by:
-          description: Match source for this BLE beacon, such as asset or asset filter
-          minLength: 1
+        last_rx_time:
+          description: Unix timestamp when this service data was last received
+          examples:
+          - 1645855923
+          type: integer
+        rx_cnt:
+          description: Total number of times this service data was received
+          examples:
+          - 213065
+          type: integer
+        uuid:
+          description: BLE service UUID advertised by the asset service packet
+          examples:
+          - 00003e10-0000-1000-8000-00805f9b34fb
           type: string
-        curr_site:
-          description: Site currently associated with this BLE beacon
-          minLength: 1
-          type: string
-        device_name:
-          description: AP name reported for the device that heard this BLE beacon
-          type: string
+      type: object
+    asset_rssi_zone:
+      additionalProperties: false
+      description: RSSI zone membership for an individual asset statistic
+      properties:
         id:
           $ref: '#/components/schemas/id'
-          description: Unique identifier of the matched asset or filter entry
-        last_seen:
-          $ref: '#/components/schemas/last_seen'
-          description: Timestamp when this BLE beacon was last observed
-        mac:
-          description: Bluetooth MAC address of this BLE beacon
-          minLength: 1
-          type: string
-        manufacture:
-          description: BLE manufacturer name resolved for this beacon
-          minLength: 1
-          type: string
-        map_id:
-          description: Identifier of the map associated with this BLE beacon observation
-          minLength: 1
-          type: string
-        name:
-          description: Display name of the matched asset or filter
-          minLength: 1
-          type: string
-        rssi:
-          description: Signal strength of this BLE beacon, in dBm
+          description: Unique identifier of the RSSI zone
+        since:
+          description: Timestamp when the asset entered this RSSI zone
           type: number
       type: object
-    ibeacon_major:
-      description: Major number for iBeacon
+    site_id:
+      description: Unique identifier of a Mist site
       examples:
-      - 1234
-      maximum: 65535
-      minimum: 1
-      type:
-      - integer
-      - 'null'
+      - 441a1214-6928-442a-8e92-e1d34b8ec6a6
+      format: uuid
+      readOnly: true
+      type: string
+    stats_assets:
+      description: Asset statistics returned by the request
+      items:
+        $ref: '#/components/schemas/stats_asset'
+      type: array
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    count_results:
+      description: List of count result rows
+      items:
+        $ref: '#/components/schemas/count_result'
+      type: array
+      uniqueItems: true
     stats_asset:
       additionalProperties: false
       description: BLE asset location and advertisement statistics
@@ -791,6 +722,89 @@ components:
       required:
       - mac
       type: object
+    asset_of_interest:
+      additionalProperties: false
+      description: BLE beacon that matched a named asset or asset filter
+      properties:
+        ap_mac:
+          description: Access point MAC address that heard this BLE beacon
+          minLength: 1
+          type: string
+        beam:
+          description: BLE beam number that detected this beacon
+          type: number
+        by:
+          description: Match source for this BLE beacon, such as asset or asset filter
+          minLength: 1
+          type: string
+        curr_site:
+          description: Site currently associated with this BLE beacon
+          minLength: 1
+          type: string
+        device_name:
+          description: AP name reported for the device that heard this BLE beacon
+          type: string
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier of the matched asset or filter entry
+        last_seen:
+          $ref: '#/components/schemas/last_seen'
+          description: Timestamp when this BLE beacon was last observed
+        mac:
+          description: Bluetooth MAC address of this BLE beacon
+          minLength: 1
+          type: string
+        manufacture:
+          description: BLE manufacturer name resolved for this beacon
+          minLength: 1
+          type: string
+        map_id:
+          description: Identifier of the map associated with this BLE beacon observation
+          minLength: 1
+          type: string
+        name:
+          description: Display name of the matched asset or filter
+          minLength: 1
+          type: string
+        rssi:
+          description: Signal strength of this BLE beacon, in dBm
+          type: number
+      type: object
+    ibeacon_minor:
+      description: Minor number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    ibeacon_major:
+      description: Major number for iBeacon
+      examples:
+      - 1234
+      maximum: 65535
+      minimum: 1
+      type:
+      - integer
+      - 'null'
+    org_id:
+      description: Unique identifier of a Mist organization
+      examples:
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
+      type: string
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -821,135 +835,200 @@ components:
       - start
       - total
       type: object
+    site_assets_count_distinct:
+      default: map_id
+      description: 'enum: `by`, `device_name`, `eddystone_uid_instance`, `eddystone_uid_namespace`, `eddystone_url`, `ibeacon_major`, `ibeacon_minor`, `ibeacon_uuid`, `mac`, `map_id`, `name`'
+      enum:
+      - by
+      - device_name
+      - eddystone_uid_instance
+      - eddystone_uid_namespace
+      - eddystone_url
+      - ibeacon_major
+      - ibeacon_minor
+      - ibeacon_uuid
+      - mac
+      - map_id
+      - name
+      type: string
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     assets:
       description: List of named BLE asset records
       items:
         $ref: '#/components/schemas/asset'
       type: array
-    stats_asset_service_packet:
-      additionalProperties: false
-      description: Service data advertisement from a BLE asset
-      properties:
-        data:
-          description: Service data payload (hex encoded)
+  responses:
+    HTTP400:
+      content:
+        application/json:
           examples:
-          - '640'
-          type: string
-        last_rx_time:
-          description: Unix timestamp when this service data was last received
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
           examples:
-          - 1645855923
-          type: integer
-        rx_cnt:
-          description: Total number of times this service data was received
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
           examples:
-          - 213065
-          type: integer
-        uuid:
-          description: BLE service UUID advertised by the asset service packet
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
           examples:
-          - 00003e10-0000-1000-8000-00805f9b34fb
-          type: string
-      type: object
-    asset:
-      description: Named Bluetooth Low Energy asset record
-      properties:
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Timestamp when this asset record was created
-        for_site:
-          description: Whether this asset is scoped directly to a site
-          readOnly: true
-          type: boolean
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier of the asset record
-        mac:
-          description: Bluetooth MAC address used to identify the BLE asset
-          type: string
-        map_id:
-          description: Identifier of the map associated with this asset, when specified
-          format: uuid
-          type: string
-        modified_time:
-          $ref: '#/components/schemas/modified_time'
-          description: Timestamp when this asset record was last modified
-        name:
-          description: Display name or label for the BLE asset
-          type: string
-        org_id:
-          $ref: '#/components/schemas/org_id'
-          description: Owning organization identifier for this asset
-        site_id:
-          $ref: '#/components/schemas/site_id'
-          description: Identifier of the site associated with this asset
-        tag_id:
-          description: BLE tag identifier associated with this asset
-          format: uuid
-          type: string
-      required:
-      - name
-      - mac
-      type: object
-    last_seen:
-      description: Timestamp indicating when the entity was last seen
-      examples:
-      - 1470417522
-      format: double
-      readOnly: true
-      type:
-      - number
-      - 'null'
-    response_stats_assets:
-      additionalProperties: false
-      description: Paginated response for asset statistics search results
-      properties:
-        end:
-          description: Epoch timestamp, in seconds, for the end of the asset statistics search window
-          type: integer
-        limit:
-          description: Maximum number of asset statistics records returned in this page
-          type: integer
-        next:
-          description: URL for retrieving the next page of asset statistics results
-          type: string
-        results:
-          $ref: '#/components/schemas/stats_assets'
-          description: Asset statistics records matching the search filters
-        start:
-          description: Epoch timestamp, in seconds, for the start of the asset statistics search window
-          type: integer
-        total:
-          description: Number of asset statistics records matching the search filters across all pages
-          type: integer
-      required:
-      - start
-      - end
-      - limit
-      - total
-      - results
-      type: object
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    AssetOfInterestArray:
+      content:
+        application/json:
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
+            Example:
+              $ref: '#/components/examples/AssetOfInterestArrayExample'
+          schema:
+            $ref: '#/components/schemas/assets_of_interest'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetOfInterestArrayExample'
+          schema:
+            $ref: '#/components/schemas/assets_of_interest'
+      description: Example response
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    AssetsArrayStatsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_assets'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_stats_assets'
+      description: OK
+    AssetsArrayStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_assets'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetsArrayStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_assets'
+      description: OK
+    AssetStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_asset'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/AssetStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_asset'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
   examples:
-    HTTP401Example:
+    AssetOfInterestArrayExample:
       value:
-        detail: Authentication credentials were not provided.
+      - ap_mac: string
+        beam: 0
+        by: string
+        curr_site: string
+        device_name: string
+        id: string
+        last_seen: 0
+        mac: string
+        manufacture: string
+        map_id: string
+        name: string
+        rssi: 0
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     AssetsArrayStatsExample:
       value:
       - _ttl: 86400
@@ -986,16 +1065,39 @@ components:
         zones:
         - id: 477f6eca-6276-4993-bfeb-5ccbbbbadf08
           since: 0
-    CountExample:
+    HTTP403Example:
       value:
-        distinct: string
+        detail: You do not have permission to perform this action.
+    AssetsArrayStatsSearchExample:
+      value:
         end: 0
         limit: 0
+        next: string
         results:
-        - count: 0
-          property: string
+        - battery_voltage: 0
+          eddystone_uid_instance: string
+          eddystone_uid_namespace: string
+          eddystone_url_url: string
+          ibeacon_major: 1
+          ibeacon_minor: 1
+          ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
+          last_seen: 0
+          mac: string
+          map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
+          name: string
+          rssizones:
+          - id: 476f6eca-6276-4993-bfeb-5dcbbbbaef08
+            since: 0
+          x: 0
+          y: 0
+          zones:
+          - id: 475f6eca-6276-4993-bfeb-5ecbbbbf6f08
+            since: 0
         start: 0
         total: 0
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     AssetStatsExample:
       value:
         _ttl: 86400
@@ -1032,201 +1134,99 @@ components:
         zones:
         - id: 479f6eca-6276-4993-bfeb-5acbbbbabf08
           since: 0
-    AssetOfInterestArrayExample:
-      value:
-      - ap_mac: string
-        beam: 0
-        by: string
-        curr_site: string
-        device_name: string
-        id: string
-        last_seen: 0
-        mac: string
-        manufacture: string
-        map_id: string
-        name: string
-        rssi: 0
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    AssetsArrayStatsSearchExample:
-      value:
-        end: 0
-        limit: 0
-        next: string
-        results:
-        - battery_voltage: 0
-          eddystone_uid_instance: string
-          eddystone_uid_namespace: string
-          eddystone_url_url: string
-          ibeacon_major: 1
-          ibeacon_minor: 1
-          ibeacon_uuid: 1f89bc00-d0af-481b-82fe-a6629259a39f
-          last_seen: 0
-          mac: string
-          map_id: 09d2b626-2e4e-45ef-a3c4-e6aeb6c83db1
-          name: string
-          rssizones:
-          - id: 476f6eca-6276-4993-bfeb-5dcbbbbaef08
-            since: 0
-          x: 0
-          y: 0
-          zones:
-          - id: 475f6eca-6276-4993-bfeb-5ecbbbbf6f08
-            since: 0
-        start: 0
-        total: 0
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    AssetOfInterestArray:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetOfInterestArrayExample'
-          schema:
-            $ref: '#/components/schemas/assets_of_interest'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetOfInterestArrayExample'
-          schema:
-            $ref: '#/components/schemas/assets_of_interest'
-      description: Example response
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    AssetsArrayStatsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_stats_assets'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_stats_assets'
-      description: OK
-    AssetStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_asset'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_asset'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    AssetsArrayStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_assets'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/AssetsArrayStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_assets'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
+  parameters:
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    asset_id:
+      in: path
+      name: asset_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    page:
+      description: Select the page number to return when using page-based pagination; starts at `1`
+      in: query
+      name: page
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
+    map_id:
+      in: path
+      name: map_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

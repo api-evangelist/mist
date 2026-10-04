@@ -77,58 +77,101 @@ paths:
       tags:
       - Orgs Stats
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    OrgStats:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_org'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/OrgStatsExample'
+          schema:
+            $ref: '#/components/schemas/stats_org'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
   schemas:
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    stats_org_orggroup_ids:
-      description: Organization group identifiers associated with an organization stats record
-      items:
-        format: uuid
-        type: string
-      type: array
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
-      type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    stats_org_sle_user_minutes:
-      additionalProperties: false
-      description: User-minute totals for an organization SLE summary
-      properties:
-        ok:
-          description: User minutes that met the SLE target
-          type: number
-        total:
-          description: Observed total user minutes for the SLE path
-          type: number
-      required:
-      - total
-      - ok
       type: object
     response_http403:
       additionalProperties: false
@@ -140,19 +183,18 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
-    stats_org_sle:
-      additionalProperties: false
-      description: Organization SLE summary for a service path
-      properties:
-        path:
-          description: SLE path represented by this organization summary
-          type: string
-        user_minutes:
-          $ref: '#/components/schemas/stats_org_sle_user_minutes'
-          description: User-minute totals for this SLE path
-      required:
-      - path
-      type: object
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
     stats_org:
       additionalProperties: false
       description: Organization statistics summary returned by the org stats endpoint
@@ -221,23 +263,53 @@ components:
       - num_devices_disconnected
       - sle
       type: object
-    stats_org_sles:
-      description: Service level expectation summaries for an organization
-      items:
-        $ref: '#/components/schemas/stats_org_sle'
-      type: array
-      uniqueItems: true
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
       properties:
         id:
           description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    stats_org_orggroup_ids:
+      description: Organization group identifiers associated with an organization stats record
+      items:
+        format: uuid
+        type: string
+      type: array
+    stats_org_sles:
+      description: Service level expectation summaries for an organization
+      items:
+        $ref: '#/components/schemas/stats_org_sle'
+      type: array
+      uniqueItems: true
+    stats_org_sle_user_minutes:
+      additionalProperties: false
+      description: User-minute totals for an organization SLE summary
+      properties:
+        ok:
+          description: User minutes that met the SLE target
+          type: number
+        total:
+          description: Observed total user minutes for the SLE path
+          type: number
+      required:
+      - total
+      - ok
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
           type: string
       type: object
     msp_id:
@@ -247,20 +319,36 @@ components:
       format: uuid
       readOnly: true
       type: string
-    response_http400:
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
+    stats_org_sle:
+      additionalProperties: false
+      description: Organization SLE summary for a service path
+      properties:
+        path:
+          description: SLE path represented by this organization summary
+          type: string
+        user_minutes:
+          $ref: '#/components/schemas/stats_org_sle_user_minutes'
+          description: User-minute totals for this SLE path
+      required:
+      - path
+      type: object
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     OrgStatsExample:
       value:
         alarmtemplate_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
@@ -283,100 +371,12 @@ components:
           user_minutes:
             ok: 0
             total: 0
-    HTTP429Example:
+    HTTP401Example:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
+        detail: Authentication credentials were not provided.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    OrgStats:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_org'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/OrgStatsExample'
-          schema:
-            $ref: '#/components/schemas/stats_org'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
   parameters:
     org_id:
       in: path

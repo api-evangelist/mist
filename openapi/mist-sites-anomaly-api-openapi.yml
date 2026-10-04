@@ -125,55 +125,22 @@ paths:
       tags:
       - Sites Anomaly
 components:
-  parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    client_mac:
-      in: path
-      name: client_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    device_mac:
-      in: path
-      name: device_mac
-      required: true
-      schema:
-        examples:
-        - 0000000000ab
-        pattern: ^[0-9a-fA-F]{12}$
-        type: string
-    metric:
-      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
-      in: path
-      name: metric
-      required: true
-      schema:
-        type: string
-  examples:
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
     AnomalyMetrics:
       content:
         application/json:
@@ -183,15 +150,21 @@ components:
           schema:
             $ref: '#/components/schemas/response_anomaly_search'
       description: OK
-    HTTP404:
+    HTTP403:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_http403'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -222,103 +195,26 @@ components:
           schema:
             $ref: '#/components/schemas/response_http401'
       description: Unauthorized
-    HTTP403:
+    HTTP404:
       content:
         application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
+            $ref: '#/components/schemas/response_http404'
         application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
   schemas:
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    anomaly_events:
-      description: Event names associated with an anomaly record
-      items:
-        readOnly: true
-        type: string
-      readOnly: true
-      type: array
-    anomaly:
-      additionalProperties: false
-      description: SLE anomaly data point with baseline, deviation, and contributing events
-      properties:
-        events:
-          $ref: '#/components/schemas/anomaly_events'
-          description: Event names contributing to this anomaly
-        since:
-          description: Timestamp when the anomalous period began
-          readOnly: true
-          type: number
-        sle_baseline:
-          description: Expected SLE value used as the anomaly baseline
-          readOnly: true
-          type: number
-        sle_deviation:
-          description: Difference between the observed SLE value and the baseline
-          readOnly: true
-          type: number
-        timestamp:
-          $ref: '#/components/schemas/timestamp'
-          description: Time when this anomaly data point was recorded, in epoch seconds
-      required:
-      - timestamp
-      - sle_baseline
-      - sle_deviation
-      - events
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
-    response_anomaly_search_results:
-      description: Anomaly records returned by a search response
-      items:
-        $ref: '#/components/schemas/anomaly'
-      type: array
-      uniqueItems: true
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -327,14 +223,6 @@ components:
           description: Human-readable explanation of the permission error
           examples:
           - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
           type: string
       type: object
     response_anomaly_search:
@@ -376,16 +264,128 @@ components:
       - page
       - results
       type: object
-    response_http400:
+    anomaly_events:
+      description: Event names associated with an anomaly record
+      items:
+        readOnly: true
+        type: string
+      readOnly: true
+      type: array
+    response_http404:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 404 not found error response
       properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+        id:
+          description: Missing resource identifier, when the API includes one
           type: string
       type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    anomaly:
+      additionalProperties: false
+      description: SLE anomaly data point with baseline, deviation, and contributing events
+      properties:
+        events:
+          $ref: '#/components/schemas/anomaly_events'
+          description: Event names contributing to this anomaly
+        since:
+          description: Timestamp when the anomalous period began
+          readOnly: true
+          type: number
+        sle_baseline:
+          description: Expected SLE value used as the anomaly baseline
+          readOnly: true
+          type: number
+        sle_deviation:
+          description: Difference between the observed SLE value and the baseline
+          readOnly: true
+          type: number
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+          description: Time when this anomaly data point was recorded, in epoch seconds
+      required:
+      - timestamp
+      - sle_baseline
+      - sle_deviation
+      - events
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_anomaly_search_results:
+      description: Anomaly records returned by a search response
+      items:
+        $ref: '#/components/schemas/anomaly'
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  parameters:
+    device_mac:
+      in: path
+      name: device_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    client_mac:
+      in: path
+      name: client_mac
+      required: true
+      schema:
+        examples:
+        - 0000000000ab
+        pattern: ^[0-9a-fA-F]{12}$
+        type: string
+    metric:
+      description: See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics
+      in: path
+      name: metric
+      required: true
+      schema:
+        type: string
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

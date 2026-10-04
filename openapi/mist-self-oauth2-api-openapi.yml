@@ -126,70 +126,130 @@ paths:
       tags:
       - Self OAuth2
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    SelfOauthUrl:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthUrlExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_url'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthUrlExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_url'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    SelfOauthLinkSuccess:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_success'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_success'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    SelfOauthLinkFailure:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_failure'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/SelfOauthLinkFailureExample'
+          schema:
+            $ref: '#/components/schemas/response_self_oauth_link_failure'
+      description: Authorization Error
   schemas:
-    response_self_oauth_link_failure:
+    response_http400:
       additionalProperties: false
-      description: OAuth2 account-linking failure response
-      properties:
-        error:
-          description: OAuth2 error code returned during account linking
-          type: string
-        error_description:
-          description: Human-readable description of the OAuth2 account-linking failure
-          type: string
-      required:
-      - error
-      - error_description
-      type: object
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_self_oauth_url:
-      additionalProperties: false
-      description: OAuth2 authorization URL response for linking the current Mist account
-      properties:
-        authorization_url:
-          description: OAuth2 provider authorization URL used to link the Mist account
-          type: string
-        linked:
-          description: Whether the Mist account is already linked with this OAuth2 provider
-          type: boolean
-      required:
-      - linked
-      - authorization_url
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
     response_self_oauth_link_success:
@@ -206,13 +266,29 @@ components:
       - action
       - id
       type: object
-    response_http404:
+    response_http403:
       additionalProperties: false
-      description: Standard HTTP 404 not found error response
+      description: Standard HTTP 403 permission error response
       properties:
-        id:
-          description: Missing resource identifier, when the API includes one
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
           type: string
+      type: object
+    response_self_oauth_link_failure:
+      additionalProperties: false
+      description: OAuth2 account-linking failure response
+      properties:
+        error:
+          description: OAuth2 error code returned during account linking
+          type: string
+        error_description:
+          description: Human-readable description of the OAuth2 account-linking failure
+          type: string
+      required:
+      - error
+      - error_description
       type: object
     code_string:
       description: Request body containing a single authorization or claim code
@@ -223,31 +299,63 @@ components:
       required:
       - code
       type: object
-    response_http400:
+    response_self_oauth_url:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: OAuth2 authorization URL response for linking the current Mist account
+      properties:
+        authorization_url:
+          description: OAuth2 provider authorization URL used to link the Mist account
+          type: string
+        linked:
+          description: Whether the Mist account is already linked with this OAuth2 provider
+          type: boolean
+      required:
+      - linked
+      - authorization_url
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the authentication error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     SelfOauthLinkFailureExample:
       value:
         error: access_denied
         error_description: The resource owner or authorization server denied the request.
-    SelfOauthLinkSuccessExample:
-      value:
-        action: oauth account linked
-        id: google_user_id
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
@@ -255,124 +363,16 @@ components:
       value:
         authorization_url: https://accounts.google.com/o/oauth2/v2/auth?.....
         linked: false
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
     HTTP400Example:
       value:
         detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    SelfOauthLinkSuccess:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_link_success'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthLinkSuccessExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_link_success'
-      description: OK
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    SelfOauthUrl:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthUrlExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_url'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthUrlExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_url'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    SelfOauthLinkFailure:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthLinkFailureExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_link_failure'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/SelfOauthLinkFailureExample'
-          schema:
-            $ref: '#/components/schemas/response_self_oauth_link_failure'
-      description: Authorization Error
+    SelfOauthLinkSuccessExample:
+      value:
+        action: oauth account linked
+        id: google_user_id
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

@@ -647,105 +647,7 @@ paths:
       tags:
       - Orgs Clients - Wireless
 components:
-  parameters:
-    end:
-      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
-      in: query
-      name: end
-      schema:
-        type: string
-    search_after:
-      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
-      in: query
-      name: search_after
-      schema:
-        type: string
-    limit:
-      description: Maximum number of results to return per page
-      in: query
-      name: limit
-      schema:
-        default: 100
-        minimum: 0
-        type: integer
-    psk_id_query:
-      description: PSK identifier used to filter the results
-      in: query
-      name: psk_id
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        type: string
-    org_id:
-      in: path
-      name: org_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
-    ip:
-      description: Filter results by IPv4 address
-      in: query
-      name: ip
-      schema:
-        examples:
-        - 192.168.1.1
-        format: ipv4
-        type: string
-    dot11_proto:
-      description: '802.11 protocol used to filter results. enum: `a`, `ac`, `ax`, `b`, `be`, `g`, `n`'
-      in: query
-      name: proto
-      schema:
-        $ref: '#/components/schemas/dot11_proto'
-    sort:
-      description: On which field the list should be sorted, -prefix represents DESC order
-      in: query
-      name: sort
-      schema:
-        default: timestamp
-        examples:
-        - -site_id
-        type: string
-    dot11_band:
-      description: '802.11 band used to filter radio results. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
-      in: query
-      name: band
-      schema:
-        $ref: '#/components/schemas/dot11_band'
-    duration:
-      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
-      in: query
-      name: duration
-      schema:
-        default: 1d
-        examples:
-        - 10m
-        type: string
-    start:
-      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
-      in: query
-      name: start
-      schema:
-        type: string
   schemas:
-    client_wireless_hostname:
-      description: List of hostname detected for this client
-      examples:
-      - - hostname-a
-        - hostname-b
-      items:
-        type: string
-      type: array
-    org_id:
-      description: Unique identifier of a Mist organization
-      examples:
-      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
-      format: uuid
-      readOnly: true
-      type: string
     count_result:
       additionalProperties:
         type: string
@@ -757,109 +659,6 @@ components:
       required:
       - count
       type: object
-    wireless_client_session_tags:
-      description: Tags attached to a wireless client session
-      items:
-        type: string
-      readOnly: true
-      type: array
-    client_wireless_site_ids:
-      description: List of Mist Site IDs where the client was connected
-      examples:
-      - - 25ff5219-9be7-4db9-907d-0c9b60445147
-      items:
-        format: uuid
-        type: string
-      type: array
-    last_username:
-      description: If dot1x authentication, the username used during the latest authentication. Otherwise, the MAC address of the client
-      examples:
-      - john@mycorp.net
-      type: string
-    response_events_search:
-      additionalProperties: false
-      description: Paginated response for wireless client event search results
-      properties:
-        end:
-          description: Epoch timestamp for the end of the wireless client event search window
-          type: integer
-        limit:
-          description: Maximum number of wireless client event records returned in this page
-          type: integer
-        next:
-          description: Pagination cursor or URL for retrieving the next page of wireless client event records
-          type: string
-        results:
-          $ref: '#/components/schemas/response_events_search_results'
-          description: Wireless client event records matching the search filters
-        start:
-          description: Epoch timestamp for the start of the wireless client event search window
-          type: integer
-        total:
-          description: Number of wireless client event records matching the search filters across all pages
-          type: integer
-      required:
-      - start
-      - end
-      - limit
-      - total
-      - results
-      type: object
-    last_ap:
-      description: Latest AP where the client is/was connected to
-      examples:
-      - a83a79a947ee
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    response_client_search_results:
-      description: Wireless client records returned by a search response
-      items:
-        $ref: '#/components/schemas/client_wireless'
-      type: array
-      uniqueItems: true
-    response_client_search:
-      additionalProperties: false
-      description: Paginated wireless client search response
-      properties:
-        end:
-          description: Search window end timestamp for wireless clients, in epoch seconds
-          type: number
-        limit:
-          description: Maximum number of wireless client results requested
-          type: integer
-        next:
-          description: URL for the next page of wireless client results
-          type: string
-        results:
-          $ref: '#/components/schemas/response_client_search_results'
-          description: Wireless client records returned for this page
-        start:
-          description: Search window start timestamp for wireless clients, in epoch seconds
-          type: number
-        total:
-          description: Number of wireless client records matching the search
-          type: integer
-      required:
-      - start
-      - end
-      - limit
-      - total
-      - results
-      type: object
-    last_vlan:
-      description: Latest VLAN ID assigned to the client
-      examples:
-      - 10
-      type: integer
     client_wireless_psk_id:
       description: List of IDs of the PPSK used by the client
       examples:
@@ -868,62 +667,37 @@ components:
         format: uuid
         type: string
       type: array
-    client_wireless_ap:
-      description: List of AP MAC addresses the client was connected to
-      examples:
-      - - a83a79a947ee
-        - 003e73170b4c
+    wireless_client_session_tags:
+      description: Tags attached to a wireless client session
       items:
         type: string
+      readOnly: true
       type: array
-    search_wireless_client_session_results:
-      description: Wireless client session records returned by a search response
-      items:
-        $ref: '#/components/schemas/wireless_client_session'
-      type: array
-      uniqueItems: true
-    client_wireless_app_version:
-      description: Only when client has the Marvis Client app running. List of the versions of the Marvis Client
+    site_client_events_count_distinct:
+      description: 'enum: `band`, `channel`, `proto`, `ssid`, `type`, `wlan_id`'
+      enum:
+      - band
+      - channel
+      - proto
+      - ssid
+      - type
+      - wlan_id
+      type: string
+    client_wireless_sdk_version:
+      description: Only when client has the Marvis Client app running. List of Marvis Client SDK version detected for the client
       examples:
       - - 0.100.3
       items:
         type: string
       type: array
-    client_wireless_psk_name:
-      description: List of names of the PPSK used by the client
-      examples:
-      - - iot
-      items:
-        type: string
-      type: array
-    client_wireless_username:
-      description: Only for 802.1X authentication. List of usernames used by the client
-      examples:
-      - - user@corp.com
-      items:
-        type: string
-      type: array
-    count_results:
-      description: List of count result rows
-      items:
-        $ref: '#/components/schemas/count_result'
-      type: array
-      uniqueItems: true
-    client_wireless_os_version:
-      description: Only when client is having the Marvis Client app running. List of OS version detected for the client
-      examples:
-      - - 14.4.1 (Build 23E224)
-      items:
-        type: string
-      type: array
-    response_http429:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the rate limit error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
     org_client_sessions_count_distinct:
@@ -939,11 +713,46 @@ components:
       - ssid
       - vlan
       type: string
-    timestamp:
-      description: Epoch timestamp, in seconds
-      format: double
-      readOnly: true
-      type: number
+    search_wireless_client_session:
+      additionalProperties: false
+      description: Paginated response for wireless client session searches
+      properties:
+        end:
+          description: Upper bound timestamp of the wireless client session search window, in epoch seconds
+          type: number
+        limit:
+          description: Maximum number of wireless client session records returned by this page
+          type: integer
+        next:
+          description: URL for the next page of wireless client session records, when more results are available
+          type: string
+        results:
+          $ref: '#/components/schemas/search_wireless_client_session_results'
+          description: Wireless client session records returned by the search response
+        start:
+          description: Lower bound timestamp of the wireless client session search window, in epoch seconds
+          type: number
+        total:
+          description: Count of wireless client session records matching the search
+          type: integer
+      required:
+      - end
+      - limit
+      - results
+      - start
+      - total
+      type: object
+    dot11_band:
+      description: 'enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
+      enum:
+      - '24'
+      - '5'
+      - 5-dedicated
+      - 5-selectable
+      - '6'
+      - 6-dedicated
+      - 6-selectable
+      type: string
     response_http403:
       additionalProperties: false
       description: Standard HTTP 403 permission error response
@@ -954,6 +763,72 @@ components:
           - You do not have permission to perform this action.
           type: string
       type: object
+    client_wireless_app_version:
+      description: Only when client has the Marvis Client app running. List of the versions of the Marvis Client
+      examples:
+      - - 0.100.3
+      items:
+        type: string
+      type: array
+    last_ap:
+      description: Latest AP where the client is/was connected to
+      examples:
+      - a83a79a947ee
+      type: string
+    last_device:
+      description: Latest type of device we identified (e.g. iPhone, Mac, ...)
+      examples:
+      - Zebra
+      type: string
+    org_clients_count_distinct:
+      default: device
+      description: 'enum: `ap`, `device`, `hostname`, `ip`, `mac`, `model`, `os`, `ssid`, `vlan`'
+      enum:
+      - ap
+      - device
+      - hostname
+      - ip
+      - mac
+      - model
+      - os
+      - ssid
+      - vlan
+      type: string
+    response_client_search_results:
+      description: Wireless client records returned by a search response
+      items:
+        $ref: '#/components/schemas/client_wireless'
+      type: array
+      uniqueItems: true
+    client_wireless_username:
+      description: Only for 802.1X authentication. List of usernames used by the client
+      examples:
+      - - user@corp.com
+      items:
+        type: string
+      type: array
+    search_wireless_client_session_results:
+      description: Wireless client session records returned by a search response
+      items:
+        $ref: '#/components/schemas/wireless_client_session'
+      type: array
+      uniqueItems: true
+    client_wireless_wlan_id:
+      description: List of IDs of WLANs the client was connected to
+      examples:
+      - - e5d67b07-aae8-494b-8584-cbc20c8110aa
+      items:
+        format: uuid
+        type: string
+      type: array
+    client_wireless_ap:
+      description: List of AP MAC addresses the client was connected to
+      examples:
+      - - a83a79a947ee
+        - 003e73170b4c
+      items:
+        type: string
+      type: array
     client_wireless:
       additionalProperties: false
       description: Wireless client record observed during a client search or stats query
@@ -1112,18 +987,55 @@ components:
           $ref: '#/components/schemas/client_wireless_wlan_id'
           description: WLAN identifiers used by the wireless client during the query duration
       type: object
-    last_client_ip:
-      description: The last known IP address for the client
+    client_wireless_os:
+      description: Only when client is having the Marvis Client app running. List of OS detected for the client
       examples:
-      - 10.100.0.157
-      type: string
-    client_wireless_vlan:
-      description: List of vlans that have been assigned to the client
-      examples:
-      - - 10
+      - - Sonoma
       items:
-        type: integer
+        type: string
       type: array
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    timestamp:
+      description: Epoch timestamp, in seconds
+      format: double
+      readOnly: true
+      type: number
+    response_client_search:
+      additionalProperties: false
+      description: Paginated wireless client search response
+      properties:
+        end:
+          description: Search window end timestamp for wireless clients, in epoch seconds
+          type: number
+        limit:
+          description: Maximum number of wireless client results requested
+          type: integer
+        next:
+          description: URL for the next page of wireless client results
+          type: string
+        results:
+          $ref: '#/components/schemas/response_client_search_results'
+          description: Wireless client records returned for this page
+        start:
+          description: Search window start timestamp for wireless clients, in epoch seconds
+          type: number
+        total:
+          description: Number of wireless client records matching the search
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
     site_id:
       description: Unique identifier of a Mist site
       examples:
@@ -1131,40 +1043,6 @@ components:
       format: uuid
       readOnly: true
       type: string
-    dot11_proto:
-      description: 'enum: `a`, `ac`, `ax`, `b`, `be`, `g`, `n`'
-      enum:
-      - a
-      - ac
-      - ax
-      - b
-      - be
-      - g
-      - n
-      type: string
-    client_wireless_wlan_id:
-      description: List of IDs of WLANs the client was connected to
-      examples:
-      - - e5d67b07-aae8-494b-8584-cbc20c8110aa
-      items:
-        format: uuid
-        type: string
-      type: array
-    client_wireless_sdk_version:
-      description: Only when client has the Marvis Client app running. List of Marvis Client SDK version detected for the client
-      examples:
-      - - 0.100.3
-      items:
-        type: string
-      type: array
-    client_wireless_ip:
-      description: List if the IP addresses detected for this client
-      examples:
-      - - 10.5.23.43
-        - 192.168.0.2
-      items:
-        type: string
-      type: array
     wireless_client_session:
       additionalProperties: false
       description: Wireless client session record returned by a session search
@@ -1237,42 +1115,19 @@ components:
       - timestamp
       - wlan_id
       type: object
-    client_wireless_os:
-      description: Only when client is having the Marvis Client app running. List of OS detected for the client
-      examples:
-      - - Sonoma
+    count_results:
+      description: List of count result rows
       items:
-        type: string
+        $ref: '#/components/schemas/count_result'
       type: array
-    site_client_events_count_distinct:
-      description: 'enum: `band`, `channel`, `proto`, `ssid`, `type`, `wlan_id`'
-      enum:
-      - band
-      - channel
-      - proto
-      - ssid
-      - type
-      - wlan_id
-      type: string
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    dot11_band:
-      description: 'enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
-      enum:
-      - '24'
-      - '5'
-      - 5-dedicated
-      - 5-selectable
-      - '6'
-      - 6-dedicated
-      - 6-selectable
-      type: string
+      uniqueItems: true
+    client_wireless_vlan:
+      description: List of vlans that have been assigned to the client
+      examples:
+      - - 10
+      items:
+        type: integer
+      type: array
     client_wireless_ssid:
       description: List of the WLAN names the client was connected to
       examples:
@@ -1280,67 +1135,49 @@ components:
       items:
         type: string
       type: array
-    last_device:
-      description: Latest type of device we identified (e.g. iPhone, Mac, ...)
+    org_id:
+      description: Unique identifier of a Mist organization
       examples:
-      - Zebra
+      - a97c1b22-a4e9-411e-9bfd-d8695a0f9e61
+      format: uuid
+      readOnly: true
       type: string
-    org_clients_count_distinct:
-      default: device
-      description: 'enum: `ap`, `device`, `hostname`, `ip`, `mac`, `model`, `os`, `ssid`, `vlan`'
-      enum:
-      - ap
-      - device
-      - hostname
-      - ip
-      - mac
-      - model
-      - os
-      - ssid
-      - vlan
-      type: string
-    client_wireless_device:
-      description: Only when client has the Marvis Client app running. List of the type of device type detected
+    response_events_search:
+      additionalProperties: false
+      description: Paginated response for wireless client event search results
+      properties:
+        end:
+          description: Epoch timestamp for the end of the wireless client event search window
+          type: integer
+        limit:
+          description: Maximum number of wireless client event records returned in this page
+          type: integer
+        next:
+          description: Pagination cursor or URL for retrieving the next page of wireless client event records
+          type: string
+        results:
+          $ref: '#/components/schemas/response_events_search_results'
+          description: Wireless client event records matching the search filters
+        start:
+          description: Epoch timestamp for the start of the wireless client event search window
+          type: integer
+        total:
+          description: Number of wireless client event records matching the search filters across all pages
+          type: integer
+      required:
+      - start
+      - end
+      - limit
+      - total
+      - results
+      type: object
+    client_wireless_os_version:
+      description: Only when client is having the Marvis Client app running. List of OS version detected for the client
       examples:
-      - - Mac
+      - - 14.4.1 (Build 23E224)
       items:
         type: string
       type: array
-    response_events_search_results:
-      description: Wireless client event records returned by a search response
-      items:
-        $ref: '#/components/schemas/events_client'
-      type: array
-      uniqueItems: true
-    search_wireless_client_session:
-      additionalProperties: false
-      description: Paginated response for wireless client session searches
-      properties:
-        end:
-          description: Upper bound timestamp of the wireless client session search window, in epoch seconds
-          type: number
-        limit:
-          description: Maximum number of wireless client session records returned by this page
-          type: integer
-        next:
-          description: URL for the next page of wireless client session records, when more results are available
-          type: string
-        results:
-          $ref: '#/components/schemas/search_wireless_client_session_results'
-          description: Wireless client session records returned by the search response
-        start:
-          description: Lower bound timestamp of the wireless client session search window, in epoch seconds
-          type: number
-        total:
-          description: Count of wireless client session records matching the search
-          type: integer
-      required:
-      - end
-      - limit
-      - results
-      - start
-      - total
-      type: object
     events_client:
       additionalProperties: false
       description: Wireless client event returned by client event search APIs
@@ -1386,6 +1223,65 @@ components:
       - timestamp
       - band
       type: object
+    dot11_proto:
+      description: 'enum: `a`, `ac`, `ax`, `b`, `be`, `g`, `n`'
+      enum:
+      - a
+      - ac
+      - ax
+      - b
+      - be
+      - g
+      - n
+      type: string
+    client_wireless_psk_name:
+      description: List of names of the PPSK used by the client
+      examples:
+      - - iot
+      items:
+        type: string
+      type: array
+    client_wireless_device:
+      description: Only when client has the Marvis Client app running. List of the type of device type detected
+      examples:
+      - - Mac
+      items:
+        type: string
+      type: array
+    last_client_ip:
+      description: The last known IP address for the client
+      examples:
+      - 10.100.0.157
+      type: string
+    response_events_search_results:
+      description: Wireless client event records returned by a search response
+      items:
+        $ref: '#/components/schemas/events_client'
+      type: array
+      uniqueItems: true
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    client_wireless_ip:
+      description: List if the IP addresses detected for this client
+      examples:
+      - - 10.5.23.43
+        - 192.168.0.2
+      items:
+        type: string
+      type: array
+    last_username:
+      description: If dot1x authentication, the username used during the latest authentication. Otherwise, the MAC address of the client
+      examples:
+      - john@mycorp.net
+      type: string
     response_count:
       additionalProperties: false
       description: Distinct count response for time-bounded search results
@@ -1416,6 +1312,11 @@ components:
       - start
       - total
       type: object
+    last_vlan:
+      description: Latest VLAN ID assigned to the client
+      examples:
+      - 10
+      type: integer
     client_key_mgmt:
       description: 'Key management protocol used for the latest authentication. enum: `WPA2-PSK`, `WPA2-PSK/CCMP`, `WPA2-PSK-FT`, `WPA2-PSK-SHA256`, `WPA3-EAP-SHA256`, `WPA3-EAP-SHA256/CCMP`, `WPA3-EAP-FT/GCMP256`, `WPA3-SAE-FT`, `WPA3-SAE-PSK`'
       enum:
@@ -1431,48 +1332,258 @@ components:
       examples:
       - WPA2-PSK
       type: string
-    response_http400:
+    client_wireless_hostname:
+      description: List of hostname detected for this client
+      examples:
+      - - hostname-a
+        - hostname-b
+      items:
+        type: string
+      type: array
+    response_http429:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 429 rate limit error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the rate limit error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
           type: string
       type: object
+    client_wireless_site_ids:
+      description: List of Mist Site IDs where the client was connected
+      examples:
+      - - 25ff5219-9be7-4db9-907d-0c9b60445147
+      items:
+        format: uuid
+        type: string
+      type: array
+  responses:
+    WirelessClientSessionsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WirelessClientSessionsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_wireless_client_session'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/WirelessClientSessionsSearchExample'
+          schema:
+            $ref: '#/components/schemas/search_wireless_client_session'
+      description: OK
+    ClientsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ClientsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_client_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/ClientsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_client_search'
+      description: OK
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    EventsSearch:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/EventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_events_search'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/EventsSearchExample'
+          schema:
+            $ref: '#/components/schemas/response_events_search'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    Count:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/CountExample'
+          schema:
+            $ref: '#/components/schemas/response_count'
+      description: Result of Count
+  parameters:
+    psk_id_query:
+      description: PSK identifier used to filter the results
+      in: query
+      name: psk_id
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        type: string
+    duration:
+      description: Time range duration for the query, using relative units such as `10m`, `7d`, or `2w`
+      in: query
+      name: duration
+      schema:
+        default: 1d
+        examples:
+        - 10m
+        type: string
+    end:
+      description: Upper bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d`, `-2h`, or `now`
+      in: query
+      name: end
+      schema:
+        type: string
+    org_id:
+      in: path
+      name: org_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
+    ip:
+      description: Filter results by IPv4 address
+      in: query
+      name: ip
+      schema:
+        examples:
+        - 192.168.1.1
+        format: ipv4
+        type: string
+    start:
+      description: Lower bound of the time range, as an epoch timestamp in seconds or a relative value such as `-1d` or `-1w`
+      in: query
+      name: start
+      schema:
+        type: string
+    limit:
+      description: Maximum number of results to return per page
+      in: query
+      name: limit
+      schema:
+        default: 100
+        minimum: 0
+        type: integer
+    dot11_proto:
+      description: '802.11 protocol used to filter results. enum: `a`, `ac`, `ax`, `b`, `be`, `g`, `n`'
+      in: query
+      name: proto
+      schema:
+        $ref: '#/components/schemas/dot11_proto'
+    sort:
+      description: On which field the list should be sorted, -prefix represents DESC order
+      in: query
+      name: sort
+      schema:
+        default: timestamp
+        examples:
+        - -site_id
+        type: string
+    dot11_band:
+      description: '802.11 band used to filter radio results. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`'
+      in: query
+      name: band
+      schema:
+        $ref: '#/components/schemas/dot11_band'
+    search_after:
+      description: Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.
+      in: query
+      name: search_after
+      schema:
+        type: string
   examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
     HTTP401Example:
       value:
         detail: Authentication credentials were not provided.
-    CountExample:
+    HTTP400Example:
       value:
-        distinct: string
-        end: 0
-        limit: 0
-        results:
-        - count: 0
-          property: string
-        start: 0
-        total: 0
-    EventsSearchExample:
-      value:
-        end: 0
-        limit: 0
-        results:
-        - ap: string
-          band: '24'
-          bssid: string
-          channel: 0
-          proto: a
-          ssid: string
-          text: string
-          timestamp: 0
-          type: string
-          type_code: 0
-          wlan_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
-        start: 0
-        total: 0
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     ClientsSearchExample:
       value:
         end: 17141231418.812
@@ -1536,6 +1647,16 @@ components:
           - 10
         start: 10
         total: 44
+    CountExample:
+      value:
+        distinct: string
+        end: 0
+        limit: 0
+        results:
+        - count: 0
+          property: string
+        start: 0
+        total: 0
     WirelessClientSessionsSearchExample:
       value:
         end: 1513177200
@@ -1557,145 +1678,24 @@ components:
           wlan_id: 99bb4c74-f954-4f36-b844-6b030faffabc
         start: 1511967600
         total: 100
-    HTTP429Example:
+    EventsSearchExample:
       value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    Count:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/CountExample'
-          schema:
-            $ref: '#/components/schemas/response_count'
-      description: Result of Count
-    WirelessClientSessionsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WirelessClientSessionsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_wireless_client_session'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/WirelessClientSessionsSearchExample'
-          schema:
-            $ref: '#/components/schemas/search_wireless_client_session'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    EventsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/EventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_events_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/EventsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_events_search'
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    ClientsSearch:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ClientsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_client_search'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/ClientsSearchExample'
-          schema:
-            $ref: '#/components/schemas/response_client_search'
-      description: OK
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+        end: 0
+        limit: 0
+        results:
+        - ap: string
+          band: '24'
+          bssid: string
+          channel: 0
+          proto: a
+          ssid: string
+          text: string
+          timestamp: 0
+          type: string
+          type_code: 0
+          wlan_id: b069b358-4c97-5319-1f8c-7c5ca64d6ab1
+        start: 0
+        total: 0
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

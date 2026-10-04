@@ -132,14 +132,148 @@ paths:
       tags:
       - Sites Stats - Clients SDK
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
   schemas:
-    id:
-      description: Unique ID of the object instance in the Mist Organization
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    sdkstats_wireless_client_vbeacons:
+      description: Virtual beacon associations for the SDK client, including when each began
+      items:
+        $ref: '#/components/schemas/sdkstats_wireless_client_vbeacon'
+      type: array
+      uniqueItems: true
+    last_seen:
+      description: Timestamp indicating when the entity was last seen
       examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
+      - 1470417522
+      format: double
       readOnly: true
-      type: string
+      type:
+      - number
+      - 'null'
+    stats_sdkclient_network_connection:
+      additionalProperties: false
+      description: Current network connection details reported for an SDK client
+      properties:
+        mac:
+          description: Current network connection MAC address reported for the SDK client
+          type: string
+        rssi:
+          description: Received signal strength indicator for the SDK client's current network connection, in dBm
+          type: number
+        signal_level:
+          description: Numeric signal quality level reported with the SDK client's current network connection
+          type: number
+        type:
+          description: Network connection type reported for the SDK client, such as WiFi
+          type: string
+      required:
+      - type
+      - rssi
+      - mac
+      - signal_level
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    sdkstats_wireless_client_zone:
+      additionalProperties: false
+      description: Zone currently containing an SDK client
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+          description: Zone identifier that currently contains the SDK client
+        since:
+          description: Time when the SDK client entered the zone, in epoch seconds
+          type: number
+      required:
+      - id
+      - since
+      type: object
     stats_sdkclient:
       additionalProperties: false
       description: Detailed statistics for an individual SDK client
@@ -189,81 +323,13 @@ components:
       - uuid
       - network_connection
       type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    sdkstats_wireless_client_zones:
-      description: Zone memberships for the SDK client, including when each membership began
-      items:
-        $ref: '#/components/schemas/sdkstats_wireless_client_zone'
-      type: array
-      uniqueItems: true
-    sdkstats_wireless_client_vbeacon:
-      additionalProperties: false
-      description: Virtual beacon currently associated with an SDK client
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Virtual beacon identifier currently associated with the SDK client
-        since:
-          description: Time when the SDK client began matching the virtual beacon, in epoch seconds
-          type: number
-      required:
-      - id
-      - since
-      type: object
-    sdkstats_wireless_client_vbeacons:
-      description: Virtual beacon associations for the SDK client, including when each began
-      items:
-        $ref: '#/components/schemas/sdkstats_wireless_client_vbeacon'
-      type: array
-      uniqueItems: true
-    sdkstats_wireless_client_zone:
-      additionalProperties: false
-      description: Zone currently containing an SDK client
-      properties:
-        id:
-          $ref: '#/components/schemas/id'
-          description: Zone identifier that currently contains the SDK client
-        since:
-          description: Time when the SDK client entered the zone, in epoch seconds
-          type: number
-      required:
-      - id
-      - since
-      type: object
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    stats_sdkclients:
-      description: SDK client statistics records returned by a stats response
-      items:
-        $ref: '#/components/schemas/stats_sdkclient'
-      type: array
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
     response_http404:
       additionalProperties: false
       description: Standard HTTP 404 not found error response
@@ -316,57 +382,65 @@ components:
       - id
       - uuid
       type: object
-    stats_sdkclient_network_connection:
+    sdkstats_wireless_client_vbeacon:
       additionalProperties: false
-      description: Current network connection details reported for an SDK client
+      description: Virtual beacon currently associated with an SDK client
       properties:
-        mac:
-          description: Current network connection MAC address reported for the SDK client
-          type: string
-        rssi:
-          description: Received signal strength indicator for the SDK client's current network connection, in dBm
+        id:
+          $ref: '#/components/schemas/id'
+          description: Virtual beacon identifier currently associated with the SDK client
+        since:
+          description: Time when the SDK client began matching the virtual beacon, in epoch seconds
           type: number
-        signal_level:
-          description: Numeric signal quality level reported with the SDK client's current network connection
-          type: number
-        type:
-          description: Network connection type reported for the SDK client, such as WiFi
-          type: string
       required:
-      - type
-      - rssi
-      - mac
-      - signal_level
+      - id
+      - since
       type: object
-    last_seen:
-      description: Timestamp indicating when the entity was last seen
-      examples:
-      - 1470417522
-      format: double
-      readOnly: true
-      type:
-      - number
-      - 'null'
-    response_http400:
+    stats_sdkclients:
+      description: SDK client statistics records returned by a stats response
+      items:
+        $ref: '#/components/schemas/stats_sdkclient'
+      type: array
+    response_http401:
       additionalProperties: false
-      description: Standard HTTP 400 bad request error response
+      description: Standard HTTP 401 authentication error response
       properties:
         detail:
-          description: Human-readable explanation of the bad request error
+          description: Human-readable explanation of the authentication error
           examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          - Authentication credentials were not provided.
           type: string
       type: object
+    sdkstats_wireless_client_zones:
+      description: Zone memberships for the SDK client, including when each membership began
+      items:
+        $ref: '#/components/schemas/sdkstats_wireless_client_zone'
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
     map_id:
       in: path
       name: map_id
@@ -385,89 +459,15 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-  examples:
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

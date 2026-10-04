@@ -169,58 +169,151 @@ paths:
       tags:
       - MSPs Licenses
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    ClaimLicense:
+      content:
+        application/json:
+          examples:
+            Licenses Successfully Claimed And Applied:
+              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
+          schema:
+            $ref: '#/components/schemas/response_claim_license'
+        application/vnd.api+json:
+          examples:
+            Licenses Successfully Claimed And Applied:
+              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
+          schema:
+            $ref: '#/components/schemas/response_claim_license'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    License:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LicenseExample'
+          schema:
+            $ref: '#/components/schemas/license'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/LicenseExample'
+          schema:
+            $ref: '#/components/schemas/license'
+      description: OK
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
   schemas:
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    licenses:
-      description: License subscriptions for the organization
-      items:
-        $ref: '#/components/schemas/license_sub'
-      type: array
-    msp_license_action_operation:
-      description: 'enum: `amend`, `annotate`, `delete`, `unamend`'
-      enum:
-      - amend
-      - annotate
-      - delete
-      - unamend
-      minLength: 1
-      type: string
-    license_fully_loaded:
-      additionalProperties:
-        readOnly: true
-        type: integer
-      description: Maximum number of licenses that may be required if the service is enabled on all the Organization Devices. Property key is the service name (e.g. "SUB-MAN").
-      readOnly: true
-      type: object
-    response_claim_license_license_duplicated:
-      description: License entitlements already present during the claim operation
-      items:
-        $ref: '#/components/schemas/response_claim_license_license_item'
-      type: array
-      uniqueItems: true
-    response_http401:
+    response_http400:
       additionalProperties: false
-      description: Standard HTTP 401 authentication error response
+      description: Standard HTTP 400 bad request error response
       properties:
         detail:
-          description: Human-readable explanation of the authentication error
+          description: Human-readable explanation of the bad request error
           examples:
-          - Authentication credentials were not provided.
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
           type: string
       type: object
-    license_amendments:
-      description: Read-only list of license amendments
-      items:
-        $ref: '#/components/schemas/license_amendment'
-      readOnly: true
-      type: array
-      uniqueItems: true
+    response_claim_license_inventory_pending_item:
+      additionalProperties: false
+      description: Inventory device pending asynchronous claim processing
+      properties:
+        mac:
+          description: Device MAC address pending asynchronous inventory claim
+          type: string
+      type: object
+    response_claim_license_inventory_item:
+      description: Inventory device returned by a license claim
+      properties:
+        mac:
+          description: Device MAC address for the claimed inventory item
+          type: string
+        magic:
+          description: Activation code or claim code associated with the inventory item
+          type: string
+        model:
+          description: Device model for the claimed inventory item
+          type: string
+        serial:
+          description: Device serial number for the claimed inventory item
+          type: string
+        type:
+          description: Device type for the claimed inventory item
+          type: string
+      required:
+      - serial
+      - model
+      - type
+      - magic
+      - mac
     license:
       additionalProperties: false
       description: Organization license entitlement, subscription, and usage summary
@@ -247,6 +340,124 @@ components:
           $ref: '#/components/schemas/license_usages'
           description: Available license counts by service
       type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    response_claim_license_inventory_added:
+      description: Inventory devices added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_item'
+      type: array
+      uniqueItems: true
+    code_string:
+      description: Request body containing a single authorization or claim code
+      properties:
+        code:
+          description: Request-supplied authorization or claim code value
+          type: string
+      required:
+      - code
+      type: object
+    response_claim_license_inventory_pending:
+      description: Inventory devices pending asynchronous claim processing
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_pending_item'
+      type: array
+      uniqueItems: true
+    response_claim_license_license_item:
+      description: License entitlement returned by a claim operation
+      properties:
+        end:
+          description: Epoch timestamp when the license entitlement ends
+          type: integer
+        quantity:
+          description: Number of license units included in the entitlement
+          type: integer
+        start:
+          description: Epoch timestamp when the license entitlement starts
+          type: integer
+        type:
+          description: License SKU or subscription type
+          type: string
+      required:
+      - type
+      - start
+      - end
+      - quantity
+    modified_time:
+      description: When the object has been modified for the last time, in epoch
+      format: double
+      readOnly: true
+      type: number
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    msp_license_action_operation:
+      description: 'enum: `amend`, `annotate`, `delete`, `unamend`'
+      enum:
+      - amend
+      - annotate
+      - delete
+      - unamend
+      minLength: 1
+      type: string
+    msp_license_action:
+      description: License operation request for an MSP account
+      properties:
+        amendment_id:
+          description: Required if `op`==`unamend`; identifies the license amendment to undo
+          type: string
+        dst_org_id:
+          description: Required if `op`==`amend`; destination org ID that receives the amended license quantity
+          format: uuid
+          type: string
+        notes:
+          description: Required if `op`==`annotate`; note text to attach to the license action
+          type: string
+        op:
+          $ref: '#/components/schemas/msp_license_action_operation'
+          description: License operation to perform for this MSP request
+        quantity:
+          description: Required if `op`==`amend`; license quantity to move to the destination org
+          type: number
+        subscription_id:
+          description: Required if `op`==`annotate`; subscription ID for the license action
+          minLength: 1
+          type: string
+      required:
+      - op
+      type: object
+    response_claim_license_license_added:
+      description: License entitlements added by the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_item'
+      type: array
+      uniqueItems: true
+    license_summary:
+      additionalProperties:
+        type: integer
+      description: Number of licenses currently consumed. Property key is license type (e.g. SUB-MAN).
+      readOnly: true
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
     response_claim_license_license_error_item:
       description: License order that could not be claimed
       properties:
@@ -259,12 +470,18 @@ components:
       required:
       - order
       - reason
-    license_summary:
+    license_fully_loaded:
       additionalProperties:
+        readOnly: true
         type: integer
-      description: Number of licenses currently consumed. Property key is license type (e.g. SUB-MAN).
+      description: Maximum number of licenses that may be required if the service is enabled on all the Organization Devices. Property key is the service name (e.g. "SUB-MAN").
       readOnly: true
       type: object
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
     license_amendment:
       additionalProperties: false
       description: Read-only change applied to a license subscription
@@ -299,101 +516,6 @@ components:
           description: License type affected by this amendment
       readOnly: true
       type: object
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_claim_license:
-      additionalProperties: false
-      description: Result of claiming licenses or activation codes
-      properties:
-        inventory_added:
-          $ref: '#/components/schemas/response_claim_license_inventory_added'
-          description: Inventory devices added by the claim operation
-        inventory_duplicated:
-          $ref: '#/components/schemas/response_claim_license_inventory_duplicated'
-          description: Inventory devices already present during the claim operation
-        inventory_pending:
-          $ref: '#/components/schemas/response_claim_license_inventory_pending'
-          description: Inventory devices pending asynchronous claim processing
-        license_added:
-          $ref: '#/components/schemas/response_claim_license_license_added'
-          description: License entitlements added by the claim operation
-        license_duplicated:
-          $ref: '#/components/schemas/response_claim_license_license_duplicated'
-          description: License entitlements already present during the claim operation
-        license_error:
-          $ref: '#/components/schemas/response_claim_license_license_error'
-          description: License claim errors returned by order number
-      required:
-      - license_added
-      - license_duplicated
-      - license_error
-      - inventory_added
-      - inventory_duplicated
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_claim_license_inventory_item:
-      description: Inventory device returned by a license claim
-      properties:
-        mac:
-          description: Device MAC address for the claimed inventory item
-          type: string
-        magic:
-          description: Activation code or claim code associated with the inventory item
-          type: string
-        model:
-          description: Device model for the claimed inventory item
-          type: string
-        serial:
-          description: Device serial number for the claimed inventory item
-          type: string
-        type:
-          description: Device type for the claimed inventory item
-          type: string
-      required:
-      - serial
-      - model
-      - type
-      - magic
-      - mac
-    response_claim_license_license_error:
-      description: License claim errors returned by order number
-      items:
-        $ref: '#/components/schemas/response_claim_license_license_error_item'
-      type: array
-      uniqueItems: true
-    modified_time:
-      description: When the object has been modified for the last time, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_claim_license_inventory_added:
-      description: Inventory devices added by the claim operation
-      items:
-        $ref: '#/components/schemas/response_claim_license_inventory_item'
-      type: array
-      uniqueItems: true
     license_sub:
       additionalProperties: false
       description: Read-only license subscription record
@@ -438,112 +560,6 @@ components:
           description: License type for this subscription
       readOnly: true
       type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_claim_license_inventory_duplicated:
-      description: Inventory devices already present during the claim operation
-      items:
-        $ref: '#/components/schemas/response_claim_license_inventory_item'
-      type: array
-      uniqueItems: true
-    response_claim_license_inventory_pending_item:
-      additionalProperties: false
-      description: Inventory device pending asynchronous claim processing
-      properties:
-        mac:
-          description: Device MAC address pending asynchronous inventory claim
-          type: string
-      type: object
-    code_string:
-      description: Request body containing a single authorization or claim code
-      properties:
-        code:
-          description: Request-supplied authorization or claim code value
-          type: string
-      required:
-      - code
-      type: object
-    license_usages:
-      additionalProperties:
-        readOnly: true
-        type: integer
-      description: Number of available licenses. Property key is the service name (e.g. "SUB-MAN").
-      readOnly: true
-      type: object
-    response_claim_license_inventory_pending:
-      description: Inventory devices pending asynchronous claim processing
-      items:
-        $ref: '#/components/schemas/response_claim_license_inventory_pending_item'
-      type: array
-      uniqueItems: true
-    response_claim_license_license_added:
-      description: License entitlements added by the claim operation
-      items:
-        $ref: '#/components/schemas/response_claim_license_license_item'
-      type: array
-      uniqueItems: true
-    msp_license_action:
-      description: License operation request for an MSP account
-      properties:
-        amendment_id:
-          description: Required if `op`==`unamend`; identifies the license amendment to undo
-          type: string
-        dst_org_id:
-          description: Required if `op`==`amend`; destination org ID that receives the amended license quantity
-          format: uuid
-          type: string
-        notes:
-          description: Required if `op`==`annotate`; note text to attach to the license action
-          type: string
-        op:
-          $ref: '#/components/schemas/msp_license_action_operation'
-          description: License operation to perform for this MSP request
-        quantity:
-          description: Required if `op`==`amend`; license quantity to move to the destination org
-          type: number
-        subscription_id:
-          description: Required if `op`==`annotate`; subscription ID for the license action
-          minLength: 1
-          type: string
-      required:
-      - op
-      type: object
-    response_claim_license_license_item:
-      description: License entitlement returned by a claim operation
-      properties:
-        end:
-          description: Epoch timestamp when the license entitlement ends
-          type: integer
-        quantity:
-          description: Number of license units included in the entitlement
-          type: integer
-        start:
-          description: Epoch timestamp when the license entitlement starts
-          type: integer
-        type:
-          description: License SKU or subscription type
-          type: string
-      required:
-      - type
-      - start
-      - end
-      - quantity
     org_id:
       description: Unique identifier of a Mist organization
       examples:
@@ -555,10 +571,96 @@ components:
       description: Type of license. The list of supported license type can be retrieve with the [List License Type](/#operations/listLicenseTypes) API request.
       readOnly: true
       type: string
+    response_claim_license_inventory_duplicated:
+      description: Inventory devices already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_inventory_item'
+      type: array
+      uniqueItems: true
+    licenses:
+      description: License subscriptions for the organization
+      items:
+        $ref: '#/components/schemas/license_sub'
+      type: array
+    response_claim_license:
+      additionalProperties: false
+      description: Result of claiming licenses or activation codes
+      properties:
+        inventory_added:
+          $ref: '#/components/schemas/response_claim_license_inventory_added'
+          description: Inventory devices added by the claim operation
+        inventory_duplicated:
+          $ref: '#/components/schemas/response_claim_license_inventory_duplicated'
+          description: Inventory devices already present during the claim operation
+        inventory_pending:
+          $ref: '#/components/schemas/response_claim_license_inventory_pending'
+          description: Inventory devices pending asynchronous claim processing
+        license_added:
+          $ref: '#/components/schemas/response_claim_license_license_added'
+          description: License entitlements added by the claim operation
+        license_duplicated:
+          $ref: '#/components/schemas/response_claim_license_license_duplicated'
+          description: License entitlements already present during the claim operation
+        license_error:
+          $ref: '#/components/schemas/response_claim_license_license_error'
+          description: License claim errors returned by order number
+      required:
+      - license_added
+      - license_duplicated
+      - license_error
+      - inventory_added
+      - inventory_duplicated
+      type: object
+    response_claim_license_license_error:
+      description: License claim errors returned by order number
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_error_item'
+      type: array
+      uniqueItems: true
+    response_claim_license_license_duplicated:
+      description: License entitlements already present during the claim operation
+      items:
+        $ref: '#/components/schemas/response_claim_license_license_item'
+      type: array
+      uniqueItems: true
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    license_usages:
+      additionalProperties:
+        readOnly: true
+        type: integer
+      description: Number of available licenses. Property key is the service name (e.g. "SUB-MAN").
+      readOnly: true
+      type: object
+    license_amendments:
+      description: Read-only list of license amendments
+      items:
+        $ref: '#/components/schemas/license_amendment'
+      readOnly: true
+      type: array
+      uniqueItems: true
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
   examples:
-    HTTP401Example:
+    HTTP429Example:
       value:
-        detail: Authentication credentials were not provided.
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     LicenseExample:
       value:
         amendments:
@@ -718,12 +820,15 @@ components:
           SUB-EX24: 3
           SUB-MAN: 22
           SUB-VNA: 20
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
     HTTP403Example:
       value:
         detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
     ClaimLicenseLicensesSuccessfullyClaimedAndApplied:
       value:
         inventory_added:
@@ -757,111 +862,6 @@ components:
         license_error:
         - order: '00000464'
           reason: ''
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    License:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LicenseExample'
-          schema:
-            $ref: '#/components/schemas/license'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/LicenseExample'
-          schema:
-            $ref: '#/components/schemas/license'
-      description: OK
-    ClaimLicense:
-      content:
-        application/json:
-          examples:
-            Licenses Successfully Claimed And Applied:
-              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
-          schema:
-            $ref: '#/components/schemas/response_claim_license'
-        application/vnd.api+json:
-          examples:
-            Licenses Successfully Claimed And Applied:
-              $ref: '#/components/examples/ClaimLicenseLicensesSuccessfullyClaimedAndApplied'
-          schema:
-            $ref: '#/components/schemas/response_claim_license'
-      description: OK
-    OK:
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
   parameters:
     msp_id:
       in: path

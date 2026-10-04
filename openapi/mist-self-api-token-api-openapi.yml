@@ -186,155 +186,37 @@ paths:
       tags:
       - Self API Token
 components:
-  schemas:
-    id:
-      description: Unique ID of the object instance in the Mist Organization
-      examples:
-      - 53f10664-3ce8-4c27-b382-0ef66432349f
-      format: uuid
-      readOnly: true
-      type: string
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    user_apitoken:
-      description: User API token metadata
-      properties:
-        created_time:
-          $ref: '#/components/schemas/created_time'
-          description: Time when this user API token was created, in epoch seconds
-        id:
-          $ref: '#/components/schemas/id'
-          description: Unique identifier for this user API token
-        key:
-          description: Secret API token value returned for this token
-          examples:
-          - 1qkb...QQCL
-          readOnly: true
-          type: string
-        last_used:
-          description: Time when this user API token was last used, in epoch seconds; null if never used
-          examples:
-          - 1690115110
-          readOnly: true
-          type:
-          - integer
-          - 'null'
-        name:
-          description: Display label for this user API token
-          examples:
-          - org_token_xyz
-          type: string
-      type: object
-    user_apitokens:
-      description: List of user API tokens
-      items:
-        $ref: '#/components/schemas/user_apitoken'
-      type: array
-    created_time:
-      description: When the object has been created, in epoch
-      format: double
-      readOnly: true
-      type: number
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-  examples:
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    ApitokensUserArrayExample:
-      value:
-      - created_time: 1626875902
-        id: 864f351a-1377-4ad9-83f8-72f3fe6199ba
-        key: 1qkb...QQCL
-        last_used: 1690115110
-        name: org_token_xyz
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    ApitokenUserExample:
-      value:
-        created_time: 1626875902
-        id: 864f351a-1377-4ad9-83f8-72f3fe6199ba
-        key: 1qkb...QQCL
-        last_used: 1690115110
-        name: org_token_xyz
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
   responses:
-    ApitokensUserArray:
+    HTTP400:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/ApitokensUserArrayExample'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/user_apitokens'
+            $ref: '#/components/schemas/response_http400'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/ApitokensUserArrayExample'
+              $ref: '#/components/examples/HTTP400Example'
           schema:
-            $ref: '#/components/schemas/user_apitokens'
-      description: OK
-    HTTP404:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
       content:
         application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http404'
+            $ref: '#/components/schemas/response_http403'
         application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
           schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OK:
-      description: OK
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
     HTTP429:
       content:
         application/json:
@@ -380,36 +262,127 @@ components:
           schema:
             $ref: '#/components/schemas/user_apitoken'
       description: OK
-    HTTP403:
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
+    ApitokensUserArray:
       content:
         application/json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/ApitokensUserArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http403'
+            $ref: '#/components/schemas/user_apitokens'
         application/vnd.api+json:
           examples:
             Example:
-              $ref: '#/components/examples/HTTP403Example'
+              $ref: '#/components/examples/ApitokensUserArrayExample'
           schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    HTTP400:
-      content:
-        application/json:
+            $ref: '#/components/schemas/user_apitokens'
+      description: OK
+  schemas:
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
+      properties:
+        detail:
+          description: Human-readable explanation of the bad request error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
           examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    id:
+      description: Unique ID of the object instance in the Mist Organization
+      examples:
+      - 53f10664-3ce8-4c27-b382-0ef66432349f
+      format: uuid
+      readOnly: true
+      type: string
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
+      type: object
+    user_apitoken:
+      description: User API token metadata
+      properties:
+        created_time:
+          $ref: '#/components/schemas/created_time'
+          description: Time when this user API token was created, in epoch seconds
+        id:
+          $ref: '#/components/schemas/id'
+          description: Unique identifier for this user API token
+        key:
+          description: Secret API token value returned for this token
+          examples:
+          - 1qkb...QQCL
+          readOnly: true
+          type: string
+        last_used:
+          description: Time when this user API token was last used, in epoch seconds; null if never used
+          examples:
+          - 1690115110
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        name:
+          description: Display label for this user API token
+          examples:
+          - org_token_xyz
+          type: string
+      type: object
+    user_apitokens:
+      description: List of user API tokens
+      items:
+        $ref: '#/components/schemas/user_apitoken'
+      type: array
+    created_time:
+      description: When the object has been created, in epoch
+      format: double
+      readOnly: true
+      type: number
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
   parameters:
     apitoken_id:
       in: path
@@ -420,6 +393,33 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    ApitokenUserExample:
+      value:
+        created_time: 1626875902
+        id: 864f351a-1377-4ad9-83f8-72f3fe6199ba
+        key: 1qkb...QQCL
+        last_used: 1690115110
+        name: org_token_xyz
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    ApitokensUserArrayExample:
+      value:
+      - created_time: 1626875902
+        id: 864f351a-1377-4ad9-83f8-72f3fe6199ba
+        key: 1qkb...QQCL
+        last_used: 1690115110
+        name: org_token_xyz
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."

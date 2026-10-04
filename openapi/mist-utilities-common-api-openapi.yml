@@ -1166,13 +1166,261 @@ paths:
       tags:
       - Utilities Common
 components:
+  responses:
+    HTTP400:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP400Example'
+          schema:
+            $ref: '#/components/schemas/response_http400'
+      description: Bad Syntax
+    HTTP403:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP403Example'
+          schema:
+            $ref: '#/components/schemas/response_http403'
+      description: Permission Denied
+    WebsocketSession:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/websocket_session'
+      description: OK
+    HTTP429:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP429Example'
+          schema:
+            $ref: '#/components/schemas/response_http429'
+      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    WebsocketSessionWithUrl:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/websocket_session_with_url'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/websocket_session_with_url'
+      description: OK
+    DeviceConfigCmd:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceConfigCmdExample'
+          schema:
+            $ref: '#/components/schemas/response_device_config_cli'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/DeviceConfigCmdExample'
+          schema:
+            $ref: '#/components/schemas/response_device_config_cli'
+      description: OK
+    HTTP401:
+      content:
+        application/json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+        application/vnd.api+json:
+          examples:
+            Example:
+              $ref: '#/components/examples/HTTP401Example'
+          schema:
+            $ref: '#/components/schemas/response_http401'
+      description: Unauthorized
+    HTTP404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/response_http404'
+      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
+    OK:
+      description: OK
   schemas:
-    utils_bounce_port:
-      description: Request to bounce one or more device ports
+    response_http400:
+      additionalProperties: false
+      description: Standard HTTP 400 bad request error response
       properties:
-        ports:
-          $ref: '#/components/schemas/utils_bounce_port_ports'
-          description: Device ports to bounce
+        detail:
+          description: Human-readable explanation of the bad request error
+          examples:
+          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+          type: string
+      type: object
+    utils_devices_restart_multi_device_ids:
+      description: List of device identifiers to restart
+      items:
+        format: uuid
+        type: string
+      type: array
+    utils_show_dhcp_leases:
+      description: DHCP leases command request
+      properties:
+        network:
+          description: DHCP network for the leases, returns full table if not specified
+          examples:
+          - guest
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to show DHCP leases
+      required:
+      - network
+      type: object
+    utils_devices_restart_node:
+      description: 'only for SRX/SSR: if node is not present, both nodes are restarted. For other devices: node should not be present. enum: `node0`, `node1`'
+      enum:
+      - node0
+      - node1
+      type: string
+    websocket_session_with_url:
+      additionalProperties: false
+      description: Response containing a WebSocket session handle and connection URL
+      properties:
+        session:
+          description: Identifier used to correlate output on the WebSocket stream
+          examples:
+          - 19e73828-937f-05e6-f709-e29efdb0a82b
+          type: string
+        url:
+          description: WebSocket URL returned for connecting to this session
+          examples:
+          - wss://api-ws.mist.com/ssh?jwt=xxxx
+          type: string
+      required:
+      - session
+      - url
+      type: object
+    ha_cluster_node:
+      description: HA cluster node selector for device operations
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to run the device operation
+      type: object
+    strings:
+      description: Unique string values returned or accepted by this schema
+      items:
+        type: string
+      type: array
+      uniqueItems: true
+    response_http403:
+      additionalProperties: false
+      description: Standard HTTP 403 permission error response
+      properties:
+        detail:
+          description: Human-readable explanation of the permission error
+          examples:
+          - You do not have permission to perform this action.
+          type: string
+      type: object
+    utils_monitor_traffic:
+      description: Request body for monitoring traffic on one port or all ports
+      properties:
+        port:
+          description: Interface name to monitor; omit this field to monitor all ports
+          examples:
+          - ge-0/0/1
+          type: string
+      type: object
+    utils_traceroute:
+      description: Request body for running a traceroute utility command
+      properties:
+        host:
+          description: Destination IP address, IPv6 address, or hostname for traceroute
+          type: string
+        network:
+          default: internal
+          description: For SSR, source network from which to initiate traceroute
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node from which to run traceroute
+        port:
+          default: 33434
+          description: When `protocol`==`udp`, not supported in SSR. The udp port to use
+          type: integer
+        protocol:
+          $ref: '#/components/schemas/utils_traceroute_protocol'
+          description: Transport protocol to use for traceroute
+        timeout:
+          default: 60
+          description: Not supported in SSR. Maximum time in seconds to wait for the response
+          type: integer
+        use_ipv6:
+          default: false
+          description: Whether to resolve hostname targets over IPv6
+          type: boolean
+        vrf:
+          description: For SRX, routing instance or VRF from which to initiate traceroute; master VRF/RI is used by default
+          type: string
+      type: object
+    root_password_string:
+      additionalProperties: false
+      description: Temporary root password response for device ZTP recovery
+      properties:
+        root_password:
+          description: Temporary root password returned for ZTP recovery
+          format: password
+          minLength: 1
+          type: string
+      required:
+      - root_password
+      type: object
+    utils_devices_restart_multi:
+      description: Request to restart multiple devices
+      properties:
+        device_ids:
+          $ref: '#/components/schemas/utils_devices_restart_multi_device_ids'
+          description: Identifiers of devices to restart
+        node:
+          description: 'Only for SSR: if node is not present, both nodes are restarted. For other devices: node should not be present'
+          type: string
+      required:
+      - device_ids
+      type: object
+    response_http404:
+      additionalProperties: false
+      description: Standard HTTP 404 not found error response
+      properties:
+        id:
+          description: Missing resource identifier, when the API includes one
+          type: string
       type: object
     utils_release_dhcp_leases_macs:
       description: Client MAC addresses whose DHCP leases should be released
@@ -1182,6 +1430,140 @@ components:
       items:
         type: string
       type: array
+    ha_cluster_node_enum:
+      description: 'HA cluster node selector. enum: `node0`, `node1`'
+      enum:
+      - node0
+      - node1
+      type: string
+    utils_release_dhcp_leases:
+      description: "Note: \n  * valid combinations for Junos: \n    * `port_id` \n    * `macs` + `network`\n  * valid combinations for SSR: \n    * `port_id` \n    * `macs` + `network`\n    * `port_id` + `network`\n    * `network`\n  * if network or port_id is specified and macs is empty, it means all clients under network or port_id"
+      properties:
+        macs:
+          $ref: '#/components/schemas/utils_release_dhcp_leases_macs'
+          description: Client MAC addresses whose DHCP leases should be released
+        network:
+          description: DHCP network containing the leases to release
+          examples:
+          - guest
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to release DHCP leases
+        port_id:
+          description: Network interface containing the DHCP leases to release
+          examples:
+          - ge-0/0/1.10
+          minLength: 1
+          type: string
+      required:
+      - port_id
+      type: object
+    utils_show_dot1x:
+      description: 802.1X table lookup request for device command output
+      properties:
+        duration:
+          default: 0
+          description: Refresh duration in seconds; set only when `interval` is nonzero
+          maximum: 300
+          minimum: 0
+          type: integer
+        interval:
+          default: 0
+          description: Refresh interval in seconds for repeated command output
+          maximum: 10
+          minimum: 0
+          type: integer
+        port_id:
+          description: Device port identifier filter for the 802.1X table lookup
+          examples:
+          - ge-0/0/0.0
+          type: string
+      type: object
+    response_device_config_cli:
+      additionalProperties: false
+      description: Device configuration rendered as CLI commands
+      properties:
+        cli:
+          $ref: '#/components/schemas/strings'
+          description: Command lines generated for the device configuration in CLI syntax
+      required:
+      - cli
+      type: object
+    shell_node:
+      description: Request body for creating a shell session on a specific HA node
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to create the shell session
+      type: object
+    utils_ping:
+      description: Request body for running a ping utility command
+      properties:
+        count:
+          default: 10
+          description: Number of echo requests to send
+          type: integer
+        egress_interface:
+          description: Interface through which ping packets should egress
+          type: string
+        host:
+          description: Destination IP address, IPv6 address, or hostname to ping
+          examples:
+          - 1.1.1.1
+          type: string
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node from which to send ping packets
+        size:
+          default: 56
+          description: ICMP payload size, in bytes
+          maximum: 65535
+          minimum: 56
+          type: integer
+        use_ipv6:
+          default: false
+          description: applicable when host is hostname
+          type: boolean
+        vrf:
+          description: Routing instance or VRF through which ping packets are sent
+          type: string
+      required:
+      - host
+      type: object
+    utils_mac_table:
+      description: MAC table lookup filters
+      properties:
+        mac_address:
+          description: Client MAC address filter for the MAC table lookup
+          examples:
+          - f8c1165c6400
+          type: string
+        port_id:
+          description: Interface identifier filter for the MAC table lookup
+          examples:
+          - ge-0/0/0.0
+          type: string
+        vlan_id:
+          description: VLAN identifier filter for the MAC table lookup
+          examples:
+          - ge-0/0/0.0
+          type: string
+      type: object
+    utils_show_bgp_summary:
+      description: BGP summary command request
+      properties:
+        node:
+          $ref: '#/components/schemas/ha_cluster_node_enum'
+          description: HA cluster node on which to show the BGP summary
+      type: object
+    utils_bounce_port:
+      description: Request to bounce one or more device ports
+      properties:
+        ports:
+          $ref: '#/components/schemas/utils_bounce_port_ports'
+          description: Device ports to bounce
+      type: object
     utils_show_forwarding_table:
       description: Forwarding table lookup request for device command output
       properties:
@@ -1224,171 +1606,17 @@ components:
           - guest
           type: string
       type: object
-    shell_node:
-      description: Request body for creating a shell session on a specific HA node
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to create the shell session
-      type: object
-    utils_devices_restart:
-      description: Request to restart a device or device node
-      properties:
-        member:
-          description: Virtual Chassis member number to restart
-          maximum: 9
-          minimum: 0
-          type: integer
-        node:
-          $ref: '#/components/schemas/utils_devices_restart_node'
-          description: SRX or SSR node to restart
-      type: object
-    utils_mac_table:
-      description: MAC table lookup filters
-      properties:
-        mac_address:
-          description: Client MAC address filter for the MAC table lookup
-          examples:
-          - f8c1165c6400
-          type: string
-        port_id:
-          description: Interface identifier filter for the MAC table lookup
-          examples:
-          - ge-0/0/0.0
-          type: string
-        vlan_id:
-          description: VLAN identifier filter for the MAC table lookup
-          examples:
-          - ge-0/0/0.0
-          type: string
-      type: object
-    root_password_string:
-      additionalProperties: false
-      description: Temporary root password response for device ZTP recovery
-      properties:
-        root_password:
-          description: Temporary root password returned for ZTP recovery
-          format: password
-          minLength: 1
-          type: string
-      required:
-      - root_password
-      type: object
-    ha_cluster_node_enum:
-      description: 'HA cluster node selector. enum: `node0`, `node1`'
+    utils_send_support_logs_info:
+      default: full
+      description: "Optional, enum: \n    * `code-dumps`: Upload all core dump files, if any found. Uploads for all members of VC on switches.\n    * `full`: Upload 1 file with output of `request support information`, 1 file that concatenates all `/var/log/outbound-ssh.log*` files, all core dump files, the 5 most recent `/var/log/messages*` files, and Mist agent logs\n    * `messages`: Upload 1 to 10 `/var/log/messages*` files\n    * `outbound-ssh`: Upload 1 file that concatenates all `/var/log/outbound-ssh.log*` files\n    * `process`: Upload 1 file with output of show `system processes extensive``\n    * `var-logs`: Upload all non-empty files in the `/var/log/` directory"
       enum:
-      - node0
-      - node1
+      - code-dumps
+      - full
+      - messages
+      - outbound-ssh
+      - process
+      - var-logs
       type: string
-    utils_release_dhcp_leases:
-      description: "Note: \n  * valid combinations for Junos: \n    * `port_id` \n    * `macs` + `network`\n  * valid combinations for SSR: \n    * `port_id` \n    * `macs` + `network`\n    * `port_id` + `network`\n    * `network`\n  * if network or port_id is specified and macs is empty, it means all clients under network or port_id"
-      properties:
-        macs:
-          $ref: '#/components/schemas/utils_release_dhcp_leases_macs'
-          description: Client MAC addresses whose DHCP leases should be released
-        network:
-          description: DHCP network containing the leases to release
-          examples:
-          - guest
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to release DHCP leases
-        port_id:
-          description: Network interface containing the DHCP leases to release
-          examples:
-          - ge-0/0/1.10
-          minLength: 1
-          type: string
-      required:
-      - port_id
-      type: object
-    response_device_config_cli:
-      additionalProperties: false
-      description: Device configuration rendered as CLI commands
-      properties:
-        cli:
-          $ref: '#/components/schemas/strings'
-          description: Command lines generated for the device configuration in CLI syntax
-      required:
-      - cli
-      type: object
-    ha_cluster_node:
-      description: HA cluster node selector for device operations
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to run the device operation
-      type: object
-    response_http401:
-      additionalProperties: false
-      description: Standard HTTP 401 authentication error response
-      properties:
-        detail:
-          description: Human-readable explanation of the authentication error
-          examples:
-          - Authentication credentials were not provided.
-          type: string
-      type: object
-    utils_show_dot1x:
-      description: 802.1X table lookup request for device command output
-      properties:
-        duration:
-          default: 0
-          description: Refresh duration in seconds; set only when `interval` is nonzero
-          maximum: 300
-          minimum: 0
-          type: integer
-        interval:
-          default: 0
-          description: Refresh interval in seconds for repeated command output
-          maximum: 10
-          minimum: 0
-          type: integer
-        port_id:
-          description: Device port identifier filter for the 802.1X table lookup
-          examples:
-          - ge-0/0/0.0
-          type: string
-      type: object
-    strings:
-      description: Unique string values returned or accepted by this schema
-      items:
-        type: string
-      type: array
-      uniqueItems: true
-    utils_traceroute:
-      description: Request body for running a traceroute utility command
-      properties:
-        host:
-          description: Destination IP address, IPv6 address, or hostname for traceroute
-          type: string
-        network:
-          default: internal
-          description: For SSR, source network from which to initiate traceroute
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node from which to run traceroute
-        port:
-          default: 33434
-          description: When `protocol`==`udp`, not supported in SSR. The udp port to use
-          type: integer
-        protocol:
-          $ref: '#/components/schemas/utils_traceroute_protocol'
-          description: Transport protocol to use for traceroute
-        timeout:
-          default: 60
-          description: Not supported in SSR. Maximum time in seconds to wait for the response
-          type: integer
-        use_ipv6:
-          default: false
-          description: Whether to resolve hostname targets over IPv6
-          type: boolean
-        vrf:
-          description: For SRX, routing instance or VRF from which to initiate traceroute; master VRF/RI is used by default
-          type: string
-      type: object
     utils_send_support_logs:
       description: Request to upload support files from a device
       properties:
@@ -1405,6 +1633,74 @@ components:
           minimum: 1
           type: integer
       type: object
+    utils_devices_restart:
+      description: Request to restart a device or device node
+      properties:
+        member:
+          description: Virtual Chassis member number to restart
+          maximum: 9
+          minimum: 0
+          type: integer
+        node:
+          $ref: '#/components/schemas/utils_devices_restart_node'
+          description: SRX or SSR node to restart
+      type: object
+    response_http401:
+      additionalProperties: false
+      description: Standard HTTP 401 authentication error response
+      properties:
+        detail:
+          description: Human-readable explanation of the authentication error
+          examples:
+          - Authentication credentials were not provided.
+          type: string
+      type: object
+    utils_bounce_port_ports:
+      description: Device port identifiers to bounce
+      items:
+        type: string
+      type: array
+    clear_policy_hit_count:
+      description: Request body for clearing hit counters on an application policy
+      properties:
+        policy_name:
+          description: Application policy name whose hit counters should be cleared
+          type: string
+      required:
+      - policy_name
+      type: object
+    utils_traceroute_protocol:
+      default: udp
+      description: 'enum: `icmp` (Only supported by AP/MxEdge), `udp`'
+      enum:
+      - icmp
+      - udp
+      type: string
+    locate_switch:
+      description: Request body for locating a switch or virtual chassis member by MAC address for a limited duration
+      properties:
+        duration:
+          default: 5
+          description: Minutes the leds should keep flashing
+          maximum: 120
+          minimum: 1
+          type: integer
+        mac:
+          description: For virtual chassis, the MAC of the member
+          examples:
+          - f01c2d4ff760
+          type: string
+      type: object
+    response_http429:
+      additionalProperties: false
+      description: Standard HTTP 429 rate limit error response
+      properties:
+        detail:
+          description: Human-readable explanation of the rate limit error
+          examples:
+          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+          type: string
+      type: object
     websocket_session:
       additionalProperties: false
       description: Response containing the WebSocket session handle for asynchronous command output
@@ -1416,49 +1712,6 @@ components:
           type: string
       required:
       - session
-      type: object
-    utils_bounce_port_ports:
-      description: Device port identifiers to bounce
-      items:
-        type: string
-      type: array
-    response_http429:
-      additionalProperties: false
-      description: Standard HTTP 429 rate limit error response
-      properties:
-        detail:
-          description: Human-readable explanation of the rate limit error
-          examples:
-          - Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-          type: string
-      type: object
-    websocket_session_with_url:
-      additionalProperties: false
-      description: Response containing a WebSocket session handle and connection URL
-      properties:
-        session:
-          description: Identifier used to correlate output on the WebSocket stream
-          examples:
-          - 19e73828-937f-05e6-f709-e29efdb0a82b
-          type: string
-        url:
-          description: WebSocket URL returned for connecting to this session
-          examples:
-          - wss://api-ws.mist.com/ssh?jwt=xxxx
-          type: string
-      required:
-      - session
-      - url
-      type: object
-    response_http403:
-      additionalProperties: false
-      description: Standard HTTP 403 permission error response
-      properties:
-        detail:
-          description: Human-readable explanation of the permission error
-          examples:
-          - You do not have permission to perform this action.
-          type: string
       type: object
     utils_show_evpn_database:
       description: EVPN database lookup request for device command output
@@ -1486,164 +1739,24 @@ components:
           - ge-0/0/0.0
           type: string
       type: object
-    utils_ping:
-      description: Request body for running a ping utility command
-      properties:
-        count:
-          default: 10
-          description: Number of echo requests to send
-          type: integer
-        egress_interface:
-          description: Interface through which ping packets should egress
-          type: string
-        host:
-          description: Destination IP address, IPv6 address, or hostname to ping
-          examples:
-          - 1.1.1.1
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node from which to send ping packets
-        size:
-          default: 56
-          description: ICMP payload size, in bytes
-          maximum: 65535
-          minimum: 56
-          type: integer
-        use_ipv6:
-          default: false
-          description: applicable when host is hostname
-          type: boolean
-        vrf:
-          description: Routing instance or VRF through which ping packets are sent
-          type: string
-      required:
-      - host
-      type: object
-    clear_policy_hit_count:
-      description: Request body for clearing hit counters on an application policy
-      properties:
-        policy_name:
-          description: Application policy name whose hit counters should be cleared
-          type: string
-      required:
-      - policy_name
-      type: object
-    utils_monitor_traffic:
-      description: Request body for monitoring traffic on one port or all ports
-      properties:
-        port:
-          description: Interface name to monitor; omit this field to monitor all ports
-          examples:
-          - ge-0/0/1
-          type: string
-      type: object
-    utils_traceroute_protocol:
-      default: udp
-      description: 'enum: `icmp` (Only supported by AP/MxEdge), `udp`'
-      enum:
-      - icmp
-      - udp
-      type: string
-    utils_devices_restart_multi_device_ids:
-      description: List of device identifiers to restart
-      items:
-        format: uuid
-        type: string
-      type: array
-    utils_show_bgp_summary:
-      description: BGP summary command request
-      properties:
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to show the BGP summary
-      type: object
-    response_http404:
-      additionalProperties: false
-      description: Standard HTTP 404 not found error response
-      properties:
-        id:
-          description: Missing resource identifier, when the API includes one
-          type: string
-      type: object
-    locate_switch:
-      description: Request body for locating a switch or virtual chassis member by MAC address for a limited duration
-      properties:
-        duration:
-          default: 5
-          description: Minutes the leds should keep flashing
-          maximum: 120
-          minimum: 1
-          type: integer
-        mac:
-          description: For virtual chassis, the MAC of the member
-          examples:
-          - f01c2d4ff760
-          type: string
-      type: object
-    utils_send_support_logs_info:
-      default: full
-      description: "Optional, enum: \n    * `code-dumps`: Upload all core dump files, if any found. Uploads for all members of VC on switches.\n    * `full`: Upload 1 file with output of `request support information`, 1 file that concatenates all `/var/log/outbound-ssh.log*` files, all core dump files, the 5 most recent `/var/log/messages*` files, and Mist agent logs\n    * `messages`: Upload 1 to 10 `/var/log/messages*` files\n    * `outbound-ssh`: Upload 1 file that concatenates all `/var/log/outbound-ssh.log*` files\n    * `process`: Upload 1 file with output of show `system processes extensive``\n    * `var-logs`: Upload all non-empty files in the `/var/log/` directory"
-      enum:
-      - code-dumps
-      - full
-      - messages
-      - outbound-ssh
-      - process
-      - var-logs
-      type: string
-    utils_devices_restart_multi:
-      description: Request to restart multiple devices
-      properties:
-        device_ids:
-          $ref: '#/components/schemas/utils_devices_restart_multi_device_ids'
-          description: Identifiers of devices to restart
-        node:
-          description: 'Only for SSR: if node is not present, both nodes are restarted. For other devices: node should not be present'
-          type: string
-      required:
-      - device_ids
-      type: object
-    utils_show_dhcp_leases:
-      description: DHCP leases command request
-      properties:
-        network:
-          description: DHCP network for the leases, returns full table if not specified
-          examples:
-          - guest
-          type: string
-        node:
-          $ref: '#/components/schemas/ha_cluster_node_enum'
-          description: HA cluster node on which to show DHCP leases
-      required:
-      - network
-      type: object
-    response_http400:
-      additionalProperties: false
-      description: Standard HTTP 400 bad request error response
-      properties:
-        detail:
-          description: Human-readable explanation of the bad request error
-          examples:
-          - 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-          type: string
-      type: object
-    utils_devices_restart_node:
-      description: 'only for SRX/SSR: if node is not present, both nodes are restarted. For other devices: node should not be present. enum: `node0`, `node1`'
-      enum:
-      - node0
-      - node1
-      type: string
+  examples:
+    HTTP429Example:
+      value:
+        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
+    HTTP403Example:
+      value:
+        detail: You do not have permission to perform this action.
+    HTTP401Example:
+      value:
+        detail: Authentication credentials were not provided.
+    HTTP400Example:
+      value:
+        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
+    DeviceConfigCmdExample:
+      value:
+        cli:
+        - set system hostname corp-a135
   parameters:
-    site_id:
-      in: path
-      name: site_id
-      required: true
-      schema:
-        examples:
-        - 000000ab-00ab-00ab-00ab-0000000000ab
-        format: uuid
-        type: string
     device_id:
       in: path
       name: device_id
@@ -1653,128 +1766,15 @@ components:
         - 000000ab-00ab-00ab-00ab-0000000000ab
         format: uuid
         type: string
-  examples:
-    HTTP401Example:
-      value:
-        detail: Authentication credentials were not provided.
-    DeviceConfigCmdExample:
-      value:
-        cli:
-        - set system hostname corp-a135
-    HTTP429Example:
-      value:
-        detail: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP403Example:
-      value:
-        detail: You do not have permission to perform this action.
-    HTTP400Example:
-      value:
-        detail: 'JSON parse error - Expecting value: line 5 column 8 (char 56)'
-  responses:
-    DeviceConfigCmd:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/DeviceConfigCmdExample'
-          schema:
-            $ref: '#/components/schemas/response_device_config_cli'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/DeviceConfigCmdExample'
-          schema:
-            $ref: '#/components/schemas/response_device_config_cli'
-      description: OK
-    HTTP404:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/response_http404'
-      description: Not found. The API endpoint doesn’t exist or resource doesn’ t exist
-    OK:
-      description: OK
-    HTTP429:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP429Example'
-          schema:
-            $ref: '#/components/schemas/response_http429'
-      description: Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold
-    HTTP401:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP401Example'
-          schema:
-            $ref: '#/components/schemas/response_http401'
-      description: Unauthorized
-    HTTP403:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP403Example'
-          schema:
-            $ref: '#/components/schemas/response_http403'
-      description: Permission Denied
-    WebsocketSession:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/websocket_session'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/websocket_session'
-      description: OK
-    HTTP400:
-      content:
-        application/json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-        application/vnd.api+json:
-          examples:
-            Example:
-              $ref: '#/components/examples/HTTP400Example'
-          schema:
-            $ref: '#/components/schemas/response_http400'
-      description: Bad Syntax
-    WebsocketSessionWithUrl:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/websocket_session_with_url'
-        application/vnd.api+json:
-          schema:
-            $ref: '#/components/schemas/websocket_session_with_url'
-      description: OK
+    site_id:
+      in: path
+      name: site_id
+      required: true
+      schema:
+        examples:
+        - 000000ab-00ab-00ab-00ab-0000000000ab
+        format: uuid
+        type: string
   securitySchemes:
     apiToken:
       description: "Preferred authentication method for automation and integrations. Send the API token in the HTTP `Authorization` header.\n\n**Format**:\n  `Authorization: Token {apitoken}`\n\n**Notes**:\n* An API token generated for a specific admin has the same privileges as that admin\n* An API token is automatically removed if it is not used for more than 90 days\n* SSO admins cannot generate admin API tokens. Use organization API tokens when scoped Org/Site privileges are needed."
